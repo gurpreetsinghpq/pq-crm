@@ -270,4 +270,82 @@ const REGIONS = [
     },
 ]
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS }
+const COUNTRY_CODE = [
+    {
+        value: "+91",
+        label: "IND +91"
+    },
+    {
+        value: "+1",
+        label: "USA +1"
+    },
+    {
+        value: "+44",
+        label: "UK +44"
+    },
+    {
+        value: "+33",
+        label: "FRA +33"
+    },
+    {
+        value: "+81",
+        label: "JPN +81"
+    },
+    {
+        value: "+86",
+        label: "CHN +86"
+    },
+    {
+        value: "+7",
+        label: "RUS +7"
+    },
+
+    {
+        value: "+61",
+        label: "AUS +61"
+    },
+    {
+        value: "+20",
+        label: "EGY +20"
+    },
+    {
+        value: "+234",
+        label: "NGA +234"
+    },
+    {
+        value: "+27",
+        label: "ZAF +27"
+    },
+    {
+        value: "+82",
+        label: "KOR +82"
+    },
+    {
+        value: "+972",
+        label: "ISR +972"
+    },
+    {
+        value: "+49",
+        label: "AUT +49"
+    },
+    {
+        value: "+357",
+        label: "CYP +357"
+    },
+    {
+        value: "+55",
+        label: "CHL +55"
+    },
+    {
+        value: "+57",
+        label: "COL +57"
+    },
+    {
+        value: "+45",
+        label: "DNK +45"
+    },
+    // Add more entries as needed
+];
+
+
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE }

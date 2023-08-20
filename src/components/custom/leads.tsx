@@ -52,59 +52,6 @@ function getData(): LeadInterface[] {
     ]
 }
 
-interface AppState {
-
-    sources: {
-        all: boolean;
-        emailCampaign: boolean;
-        linkedIn: boolean;
-        horading: boolean;
-        events: boolean;
-        referral: boolean
-    };
-    regions: {
-        india: boolean,
-        usa: boolean,
-        europe: boolean,
-        apac: boolean,
-        all: boolean
-    };
-    statuses: {
-        unverified: boolean,
-        verified: boolean,
-        deferred: boolean,
-        lost: boolean,
-        junk: boolean,
-        all: boolean
-    }
-}
-
-const initialState: AppState = {
-    sources: {
-        all: true,
-        emailCampaign: false,
-        linkedIn: false,
-        horading: false,
-        events: false,
-        referral: false
-    },
-    regions: {
-        india: false,
-        usa: false,
-        europe: false,
-        apac: false,
-        all: false
-    },
-    statuses: {
-        unverified: false,
-        verified: false,
-        deferred: false,
-        lost: false,
-        junk: false,
-        all: false
-    },
-
-}
 
 
 const FormSchema = z.object({
@@ -126,30 +73,9 @@ const FormSchema = z.object({
 })
 
 const Leads = () => {
-    const [appState, setAppState] = React.useState<AppState>(initialState);
     const [showIndia, setshowIndia] = React.useState<boolean>(false);
     const [showUsa, setshowUsa] = React.useState<boolean>(false);
     const [showUk, setshowUk] = React.useState<boolean>(false);
-    const handleCheckboxChange = (
-        key: keyof AppState['sources'] | keyof AppState['regions'] | keyof AppState['statuses']
-    ) => {
-        setAppState((prevState: AppState) => ({
-            ...prevState,
-            sources: {
-                ...prevState.sources,
-                [key]: !prevState.sources[key as keyof AppState['sources']],
-            },
-            regions: {
-                ...prevState.regions,
-                [key]: !prevState.regions[key as keyof AppState['regions']],
-            },
-            statuses: {
-                ...prevState.statuses,
-                [key]: !prevState.statuses[key as keyof AppState['statuses']],
-            },
-
-        }));
-    };
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -198,45 +124,6 @@ const Leads = () => {
                                 Add Lead
                             </Button>
                         </AddLeadDialog>
-                        {/* <DropdownMenu >
-                        <DropdownMenuTrigger asChild>
-                            <Image className="cursor-pointer" src="/dots-vertical.svg" alt="plus lead" height={20} width={20} />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56">
-                            <DropdownMenuCheckboxItem
-                                checked={appState.regions.all}
-                                onCheckedChange={() => handleCheckboxChange('all')}
-                            >
-                                All Regions
-                            </DropdownMenuCheckboxItem>
-
-                            <DropdownMenuCheckboxItem
-                                checked={appState.regions.india}
-                                onCheckedChange={() => handleCheckboxChange('india')}
-                            >
-                                India
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={appState.regions.usa}
-                                onCheckedChange={() => handleCheckboxChange('usa')}
-                            >
-                                USA
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={appState.regions.europe}
-                                onCheckedChange={() => handleCheckboxChange('europe')}
-                            >
-                                Europe
-                            </DropdownMenuCheckboxItem>
-                            <DropdownMenuCheckboxItem
-                                checked={appState.regions.apac}
-                                onCheckedChange={() => handleCheckboxChange('apac')}
-                            >
-                                APAC
-                            </DropdownMenuCheckboxItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu> */}
-
 
                     </div>
                 </div>
