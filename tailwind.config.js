@@ -8,18 +8,33 @@ module.exports = {
     './src/**/*.{ts,tsx}',
   ],
   theme: {
+    boxShadow: {
+      xs: "0 1px 2px 0 rgb(16 24 40 / 0.05)"
+    },
     fontSize: {
+
+      'xs':[ '12px',{
+        lineHeight: "18px",
+        fontWeight: "600"
+      }],
       'sm': ['14px',
         {
           lineHeight: "20px",
           fontWeight: "600"
         }
       ],
-      'md': [ '16px',
+      'md': ['16px',
         {
           lineHeight: "24px",
-          fontWeight: 400
+          fontWeight: "400"
         }
+      ],
+      'lg': ['18px',
+        {
+          lineHeight: "28px",
+          fontWeight: "600"
+        }
+
       ],
       'xl': ['20px',
         {
@@ -33,6 +48,7 @@ module.exports = {
       purple: {
         100: "#F4EBFF",
         200: "#E9D7FE",
+        300: "#D6BBFB",
         600: "#7F56D9",
         700: "#6941C6",
         800: "#53389E",
@@ -50,6 +66,9 @@ module.exports = {
       },
       white: {
         900: "#FFFFFF"
+      },
+      blue: {
+        600: "#1570EF"
       }
     },
     container: {
@@ -60,6 +79,10 @@ module.exports = {
       },
     },
     extend: {
+      boxShadow: {
+        custom1: '0px 0px 0px 4px #F4EBFF, 0px 1px 2px 0px rgba(16, 24, 40, 0.05)',
+        custom2: '0px 1px 2px 0px rgba(16, 24, 40, 0.05)'
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
