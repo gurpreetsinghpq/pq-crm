@@ -195,27 +195,32 @@ const STATUSES = [
     {
         value: "unverified",
         label: "Unverified",
-        icon: Unverified
+        icon: Unverified,
+        class: "border-gray-600 bg-gray-50 text-gray-700"
     },
     {
         value: "verified",
         label: "Verified",
-        icon: Verified
+        icon: Verified,
+        class: "border-success-600 bg-success-50 text-success-600"
     },
     {
         value: "deferred",
         label: "Deferred",
-        icon: Deferred
+        icon: Deferred,
+        class: "border-warning-600 bg-warning-50 text-warning-500"
     },
     {
         value: "lost",
         label: "Lost",
-        icon: Lost
+        icon: Lost,
+        class: "border-error-600 bg-error-50 text-error-700"
     },
     {
         value: "junk",
         label: "Junk",
-        icon: Junk
+        icon: Junk,
+        class: "border-warning-600 bg-error-50 text-error-700"
     },
 ]
 

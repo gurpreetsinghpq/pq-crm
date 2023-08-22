@@ -15,7 +15,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import Image from "next/image"
 
 import * as React from "react"
-import { DropdownMenuCheckboxItemProps, RadioGroup } from "@radix-ui/react-dropdown-menu"
+import { DropdownMenuCheckboxItemProps, RadioGroup, Separator } from "@radix-ui/react-dropdown-menu"
 import DataTable from "./table/datatable"
 import { LeadInterface, columns } from "./table/columns"
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "../ui/dialog"
@@ -31,10 +31,7 @@ import { toast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
-import { DateRangePicker } from "../ui/date-range-picker"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
-import { Separator } from "../ui/separator"
+import { IconProspects, Unverified } from "../icons/svgIcons"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -75,7 +72,7 @@ const FormSchema = z.object({
     })
 })
 
-const Leads = () => {
+const Prospects = () => {
     const [showIndia, setshowIndia] = React.useState<boolean>(false);
     const [showUsa, setshowUsa] = React.useState<boolean>(false);
     const [showUk, setshowUk] = React.useState<boolean>(false);
@@ -111,49 +108,24 @@ const Leads = () => {
                         <Command className="border w-2/3">
                             <CommandInput placeholder="Search" className="text-md" />
                         </Command>
-                        <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant={"ghost"}  className="rounded-r-none">
-                                            <IconInbox size={20} />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side={"bottom"} sideOffset={5}>
-                                        Inbox
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            <div className="h-[full] w-[1px] bg-gray-300"></div>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant={"ghost"} className="rounded-l-none">
-                                            <IconArchive size={20} />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side={"bottom"} sideOffset={5}>
-                                        Archive
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                        <div className="flex flex-row gap-1">
+                            <Button variant={"outline"}>
+                                <Image src="/inbox.svg" alt="plus lead" sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} />
+                            </Button>
+                            <Button variant={"outline"}>
+                                <Image src="/archive.svg" alt="plus lead" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} />
+                            </Button>
                         </div>
                     </div>
                     <div className="right flex flex-row gap-4 ">
-                        <AddLeadDialog>
-                            <Button className="flex flex-row gap-2">
-                                <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
-                                Add Lead
-                            </Button>
-                        </AddLeadDialog>
-
+                        
                     </div>
                 </div>
 
                 <div className="bottom">
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className="w-1/4 flex items-center flex-row gap-2">
-                            <span className="text-sm ">{areThereAnyLeads ? "1 Lead" : "No Leads"}</span>
+                            <span className="text-sm ">No Prospects found</span>
                             <Button variant={"google"} className="p-[8px]">
                                 <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                             </Button>
@@ -162,8 +134,8 @@ const Leads = () => {
                         <div className="w-3/4 flex flex-row gap-3 justify-end">
 
                             <div>
-                                {/* <DropdownMenu > */}
-                                {/* <DropdownMenuTrigger asChild>
+                                <DropdownMenu >
+                                    <DropdownMenuTrigger asChild>
                                         <Button variant="google" className="flex flex-row gap-2 items-center">
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <g id="calendar">
@@ -173,20 +145,29 @@ const Leads = () => {
                                             Last 7 Days
                                             <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                         </Button>
-                                    </DropdownMenuTrigger> */}
-                                {/* <DropdownMenuContent className="w-56"> */}
-                                <DateRangePicker
-                                    onUpdate={(values) => console.log(values)}
-                                    // initialDateFrom="2023-01-01"
-                                    // initialDateTo="2023-12-31"
-                                    align="start"
-                                    locale="en-GB"
-                                    showCompare={false}
-                                    
-                                />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56">
+                                        <DropdownMenuCheckboxItem
+                                            checked={showIndia}
+                                            onCheckedChange={setshowIndia}
+                                        >
+                                            India
+                                        </DropdownMenuCheckboxItem>
+                                        <DropdownMenuCheckboxItem
+                                            checked={showUsa}
+                                            onCheckedChange={setshowUsa}
+                                        >
+                                            USA
+                                        </DropdownMenuCheckboxItem>
+                                        <DropdownMenuCheckboxItem
+                                            checked={showUk}
+                                            onCheckedChange={setshowUk}
+                                        >
+                                            UK
+                                        </DropdownMenuCheckboxItem>
 
-                                {/* </DropdownMenuContent>
-                                </DropdownMenu> */}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
                             <div>
                                 <FormField
@@ -270,11 +251,9 @@ const Leads = () => {
                                                                 return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value) => value != status.value))
                                                             }}
                                                         >
-                                                            <div className="">
-                                                                <div className={`flex flex-row gap-2 items-center border border-[1.5px] rounded-[16px] px-2 py-1 ${status.class}`}>
-                                                                    {status.icon && <status.icon />}
-                                                                    {status.label}
-                                                                </div>
+                                                            <div className="flex flex-row gap-2 items-center">
+                                                                {status.icon && <status.icon/>}
+                                                                {status.label}
                                                             </div>
                                                         </DropdownMenuCheckboxItem>
                                                     })
@@ -294,11 +273,11 @@ const Leads = () => {
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
-                                                        <Button variant={"google"} className="flex flex-row gap-2">
+                                                        <Button variant={"google"}>
                                                             {
                                                                 field.value ? owners.find((owner) => owner.value === field.value)?.label : "Select Owner"
                                                             }
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
@@ -348,12 +327,12 @@ const Leads = () => {
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
-                                                        <Button variant={"google"} className="flex flex-row gap-2">
+                                                        <Button variant={"google"}>
                                                             {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                             All Creators
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
@@ -398,19 +377,14 @@ const Leads = () => {
                         areThereAnyLeads ? <div className="table w-full">
                             <DataTable columns={columns} data={data} />
                         </div> : <div className="flex flex-col gap-6 items-center p-10 ">
-                            <div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                                <IconLeads size="20" />
+                            <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                                <IconProspects size={20}/>
                             </div>
                             <div>
-                                <p className="text-md text-gray-900 font-semibold">No Leads</p>
+                                <p className="text-md text-gray-900 font-semibold">No Prospects found</p>
 
                             </div>
-                            <AddLeadDialog>
-                                <Button className="flex flex-row gap-2">
-                                    <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
-                                    Add Lead
-                                </Button>
-                            </AddLeadDialog>
+                           
                         </div>
                     }
                 </div>
@@ -422,4 +396,4 @@ const Leads = () => {
     </div>
 }
 
-export default Leads
+export default Prospects

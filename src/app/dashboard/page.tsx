@@ -1,47 +1,58 @@
+"use client"
 import Image from "next/image"
 import Leads from "../../components/custom/leads"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useState } from "react"
+import Prospects from "@/components/custom/prospects"
+import { IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
 
 const Dashboard = () => {
-    const currentTab = "Leads"
+    const [currentTab, setCurrentTab] = useState("Leads")
+    console.log(currentTab)
     return <div className="flex flex-row min-h-screen">
         <div className="left flex flex-col w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center">
                 {/* <Image alt="pq search" src={"/pq-logo-warm.svg"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
-                <Image alt="pq search" src={"/pq-search.png"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} />
+                {/* <Image alt="pq search" src={"/pq-search.png"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
+                <IconPq size={32}/>
             </div>
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <div className="h-12 w-12 hover:cursor-pointer mt-10 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
-                                <g id="home-05">
-                                    <path id="Icon" d="M13.4823 2.76424C13.131 2.49099 12.9553 2.35436 12.7613 2.30184C12.5902 2.2555 12.4098 2.2555 12.2387 2.30184C12.0447 2.35436 11.869 2.49099 11.5177 2.76424L4.73539 8.03937C4.28202 8.39199 4.05534 8.5683 3.89203 8.7891C3.74737 8.98469 3.6396 9.20503 3.57403 9.4393C3.5 9.70376 3.5 9.99094 3.5 10.5653V17.8002C3.5 18.9203 3.5 19.4804 3.71799 19.9082C3.90973 20.2845 4.21569 20.5905 4.59202 20.7822C5.01984 21.0002 5.5799 21.0002 6.7 21.0002H8.7C8.98003 21.0002 9.12004 21.0002 9.227 20.9457C9.32108 20.8978 9.39757 20.8213 9.4455 20.7272C9.5 20.6203 9.5 20.4803 9.5 20.2002V13.6002C9.5 13.0402 9.5 12.7601 9.60899 12.5462C9.70487 12.3581 9.85785 12.2051 10.046 12.1092C10.2599 12.0002 10.5399 12.0002 11.1 12.0002H13.9C14.4601 12.0002 14.7401 12.0002 14.954 12.1092C15.1422 12.2051 15.2951 12.3581 15.391 12.5462C15.5 12.7601 15.5 13.0402 15.5 13.6002V20.2002C15.5 20.4803 15.5 20.6203 15.5545 20.7272C15.6024 20.8213 15.6789 20.8978 15.773 20.9457C15.88 21.0002 16.02 21.0002 16.3 21.0002H18.3C19.4201 21.0002 19.9802 21.0002 20.408 20.7822C20.7843 20.5905 21.0903 20.2845 21.282 19.9082C21.5 19.4804 21.5 18.9203 21.5 17.8002V10.5653C21.5 9.99094 21.5 9.70376 21.426 9.4393C21.3604 9.20503 21.2526 8.98469 21.108 8.7891C20.9447 8.5683 20.718 8.39199 20.2646 8.03937L13.4823 2.76424Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                </g>
-                            </svg>
+                            <IconHome size={24} />
                         </div>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent side="right" sideOffset={5}>
                         Home
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
-                <svg width="auto" height="auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g id="mark">
-                        <path id="Icon" d="M20 12C20 16.4183 16.4183 20 12 20M20 12C20 7.58172 16.4183 4 12 4M20 12H22M12 20C7.58172 20 4 16.4183 4 12M12 20V22M4 12C4 7.58172 7.58172 4 12 4M4 12H2M12 4V2M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-                </svg>
-            </div>
-            <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
-                    <g id="user-check-01">
-                        <path id="Icon" d="M12.5 15.5H8C6.60444 15.5 5.90665 15.5 5.33886 15.6722C4.06045 16.06 3.06004 17.0605 2.67224 18.3389C2.5 18.9067 2.5 19.6044 2.5 21M16.5 18L18.5 20L22.5 16M15 7.5C15 9.98528 12.9853 12 10.5 12C8.01472 12 6 9.98528 6 7.5C6 5.01472 8.01472 3 10.5 3C12.9853 3 15 5.01472 15 7.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-                </svg>
-
-            </div>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div onClick={() => setCurrentTab("Leads")} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Leads" && 'bg-purple-600'}`}>
+                            <IconLeads size={24} />
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={5}>
+                        Leads
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div onClick={() => setCurrentTab("Prospects")} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Prospects" && 'bg-purple-600'}`}>
+                            <IconProspects size={24} />
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={5}>
+                        Prospects
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
                     <g id="wallet-06">
@@ -101,7 +112,9 @@ const Dashboard = () => {
                 </div>
             </div>
             <div className="bottom">
-                <Leads />
+                {currentTab === 'Leads' && <Leads />}
+                {currentTab === 'Prospects' && <Prospects />}
+
             </div>
         </div>
     </div>
