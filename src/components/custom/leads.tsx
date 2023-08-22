@@ -52,7 +52,39 @@ function getData(): LeadInterface[] {
             status: "Unverified",
             title: "Swiggy - IND - CTO"
         },
-        // ...
+        {
+            id: "932abde1",
+            budgetRange: "USD 500k - 1M",
+            createdBy: "Emily Johnson",
+            createdOn: "January 5, 2022",
+            owner: "John Smith",
+            region: "USA",
+            source: "Email Campaign",
+            status: "Verified",
+            title: "TechCorp - USA - CEO"
+        },
+        {
+            id: "e9f4c25a",
+            budgetRange: "EUR 2M - 3M",
+            createdBy: "Sophia Lee",
+            createdOn: "February 15, 2022",
+            owner: "Sophia Lee",
+            region: "Europe",
+            source: "Horading",
+            status: "Unverified",
+            title: "GlobalTech - EUR - CFO"
+        },
+        {
+            id: "3b1c9d86",
+            budgetRange: "JPY 100M - 150M",
+            createdBy: "Taro Yamada",
+            createdOn: "March 8, 2022",
+            owner: "Taro Yamada",
+            region: "APAC",
+            source: "Events",
+            status: "Unverified",
+            title: "SushiCo - JPN - Founder"
+        },
     ]
 }
 
@@ -107,7 +139,7 @@ const Leads = () => {
         return finalString
     }
 
-    const [areThereAnyLeads, setAreThereAnyLeads] = React.useState<Checked>(false)
+    const [areThereAnyLeads, setAreThereAnyLeads] = React.useState<Checked>(true)
     const data = getData()
 
     return <div>
@@ -161,9 +193,18 @@ const Leads = () => {
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className="w-1/4 flex items-center flex-row gap-2">
                             <span className="text-sm ">{areThereAnyLeads ? "1 Lead" : "No Leads"}</span>
-                            <Button variant={"google"} className="p-[8px]">
-                                <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
-                            </Button>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant={"google"} className="p-[8px]">
+                                            <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" sideOffset={5}>
+                                        Refresh
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
 
                         <div className="w-3/4 flex flex-row gap-3 justify-end">
@@ -212,9 +253,9 @@ const Leads = () => {
                                                     regions.map((region) => {
                                                         return <DropdownMenuCheckboxItem
                                                             key={region.value}
-                                                            checked={region.isDefault && field.value.length===0 ?  true : field.value?.includes(region.value)}
+                                                            checked={region.isDefault && field.value.length === 0 ? true : field.value?.includes(region.value)}
                                                             onCheckedChange={(checked) => {
-                                                                if(!checked && field.value.length===1){ 
+                                                                if (!checked && field.value.length === 1) {
                                                                     return field.onChange(['allRegions'])
                                                                 }
                                                                 return checked ? field.onChange([...field.value, region.value]) : field.onChange(field.value?.filter((value) => value != region.value))
@@ -245,9 +286,9 @@ const Leads = () => {
                                                     sources.map((source) => {
                                                         return <DropdownMenuCheckboxItem
                                                             key={source.value}
-                                                            checked={source.isDefault && field.value.length===0 ?  true : field.value?.includes(source.value)}
+                                                            checked={source.isDefault && field.value.length === 0 ? true : field.value?.includes(source.value)}
                                                             onCheckedChange={(checked) => {
-                                                                if(!checked && field.value.length===1){ 
+                                                                if (!checked && field.value.length === 1) {
                                                                     return field.onChange(['allSources'])
                                                                 }
                                                                 return checked ? field.onChange([...field.value, source.value]) : field.onChange(field.value?.filter((value) => value != source.value))
@@ -279,16 +320,16 @@ const Leads = () => {
                                                     statuses.map((status) => {
                                                         return <DropdownMenuCheckboxItem
                                                             key={status.value}
-                                                            checked={status.isDefault && field.value.length===0 ?  true : field.value?.includes(status.value)}
+                                                            checked={status.isDefault && field.value.length === 0 ? true : field.value?.includes(status.value)}
                                                             onCheckedChange={(checked) => {
-                                                                if(!checked && field.value.length===1){ 
+                                                                if (!checked && field.value.length === 1) {
                                                                     return field.onChange(['allStatuses'])
                                                                 }
                                                                 return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value) => value != status.value))
                                                             }}
                                                         >
                                                             <div className="">
-                                                                <div className={`flex flex-row gap-2 items-center border border-[1.5px] rounded-[16px] px-2 py-1 ${status.class}`}>
+                                                                <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
                                                                     {status.icon && <status.icon />}
                                                                     {status.label}
                                                                 </div>

@@ -1,11 +1,13 @@
 "use client"
 
+import { STATUSES } from "@/app/constants/constants"
+import { IconArrowDown } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreVertical} from "lucide-react"
+import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+
 
 
 // This type is used to define the shape of our data.
@@ -20,6 +22,16 @@ export type LeadInterface = {
     createdBy: String,
     owner: String,
     createdOn: String
+}
+
+function getClassOfStatus(statusName: string) {
+    console.log(statusName)
+    const status = STATUSES.find((status) => status.label === statusName)
+    const render = <div className={`flex flex-row gap-2 items-center  pl-2 pr-3 py-1 w-fit ${!status?.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status?.class} `}>
+        {status?.icon && <status.icon />}
+        {status?.label}
+    </div>
+    return render
 }
 
 export const columns: ColumnDef<LeadInterface>[] = [
@@ -44,59 +56,155 @@ export const columns: ColumnDef<LeadInterface>[] = [
     },
     {
         accessorKey: "title",
-        header: "Title",
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Title
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        },
+        cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title")}</span>
     },
     {
         accessorKey: "region",
-        header: "Region",
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Region
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        },
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>
     },
     {
         accessorKey: "source",
-        header: "Source",
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Source
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        },
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("source")}</div>
     },
     {
         accessorKey: "status",
-        header: "Status",
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Status
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        },
+        cell: ({ row }) => <div>{getClassOfStatus(row.getValue("status"))}</div>
     },
     {
         accessorKey: "budgetRange",
-        header: "Budget Range",
-    },
-    {
-        accessorKey: "createdBy",
-        header: "Created By",
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Budget Range
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        },
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("budgetRange")}</div>
     },
     {
         accessorKey: "owner",
-        header: "Owner",
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Owner
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        },
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("owner")}</div>
+    },
+    {
+        accessorKey: "createdBy",
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Created By
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("createdBy")}</div>
     },
     {
         accessorKey: "createdOn",
-        header: "Created On",
+        header: ({ column }) => {
+            return (
+                <div
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Created On
+                    <IconArrowDown size={20} />
+                    {/* <ChevronDownIcon size={20}/> */}
+                    {/* <IconDropdown/> */}
+                </div>
+            )
+        },
+        cell: ({ row }) => <div className=" font-normal">
+            <div className="text-gray-900 text-sm ">
+                {row.getValue("createdOn")}
+            </div>
+            <div className="text-gray-600 text-xs ">
+
+            </div>
+
+        </div>
     },
     {
         id: "actions",
         enableHiding: false,
         cell: ({ row }) => {
-          const payment = row.original
-     
-          return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>Promote to Propect</DropdownMenuItem>
-                <DropdownMenuItem>Archive</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Delete</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )
+            const payment = row.original
+
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>Archive</DropdownMenuItem>
+                        {/* <DropdownMenuSeparator /> */}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )
         },
-      },
+    },
 
 ]
