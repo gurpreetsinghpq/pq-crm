@@ -1,4 +1,5 @@
 import { Deferred, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
+import { IValueLabel } from "../interfaces/interface"
 const REGION = [
     {
         value: "mena",
@@ -141,7 +142,7 @@ const LEAD_SOURCE = [
     }
 ]
 
-const OWNERS = [
+const OWNERS:IValueLabel[] = [
     {
         value: "ashokKumar",
         label: "Ashok Kumar"
@@ -164,7 +165,7 @@ const OWNERS = [
     },
 ]
 
-const CREATORS = [
+const CREATORS:IValueLabel[] = [
     {
         value: "ashokKumar",
         label: "Ashok Kumar"
@@ -187,10 +188,11 @@ const CREATORS = [
     },
 ]
 
-const STATUSES = [
+const STATUSES:IValueLabel[] = [
     {
         value: "allStatuses",
         label: "All Statuses",
+        isDefault : true
     },
     {
         value: "unverified",
@@ -224,10 +226,11 @@ const STATUSES = [
     },
 ]
 
-const SOURCES = [
+const SOURCES:IValueLabel[] = [
     {
         value: "allSources",
-        label: "All Sources"
+        label: "All Sources",
+        isDefault: true
     },
     {
         value: "emailCampaign",
@@ -252,10 +255,11 @@ const SOURCES = [
 
 ]
 
-const REGIONS = [
+const REGIONS:IValueLabel[] = [
     {
         value: "allRegions",
-        label: "All Regions"
+        label: "All Regions",
+        isDefault : true
     },
     {
         value: "india",

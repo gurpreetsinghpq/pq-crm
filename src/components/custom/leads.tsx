@@ -35,6 +35,7 @@ import { IconArchive, IconInbox, IconLeads, Unverified } from "../icons/svgIcons
 import { DateRangePicker } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
+import { IValueLabel } from "@/app/interfaces/interface"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -83,7 +84,7 @@ const Leads = () => {
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            regions: ["india", "usa"],
+            regions: ["allRegions"],
             sources: ["referral", "events"],
             statuses: ["junk"]
         }
@@ -98,6 +99,12 @@ const Leads = () => {
                 </pre>
             ),
         })
+    }
+
+    function formatData(data: any[], plural: string, childOf: IValueLabel[]) {
+        console.log(data)
+        const finalString = data.length > 1 ? `${data.length} ${plural}` : childOf.find((item) => item.value === data[0])?.label
+        return finalString
     }
 
     const [areThereAnyLeads, setAreThereAnyLeads] = React.useState<Checked>(false)
@@ -115,7 +122,7 @@ const Leads = () => {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"ghost"}  className="rounded-r-none">
+                                        <Button variant={"ghost"} className="rounded-r-none">
                                             <IconInbox size={20} />
                                         </Button>
                                     </TooltipTrigger>
@@ -182,7 +189,7 @@ const Leads = () => {
                                     align="start"
                                     locale="en-GB"
                                     showCompare={false}
-                                    
+
                                 />
 
                                 {/* </DropdownMenuContent>
@@ -193,9 +200,10 @@ const Leads = () => {
                                     control={form.control}
                                     name="regions"
                                     render={({ field }) => {
+
                                         return <DropdownMenu >
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="google" className="flex flex-row gap-2">All Regions
+                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Regions', regions)}
                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                 </Button>
                                             </DropdownMenuTrigger>
@@ -204,8 +212,11 @@ const Leads = () => {
                                                     regions.map((region) => {
                                                         return <DropdownMenuCheckboxItem
                                                             key={region.value}
-                                                            checked={field.value?.includes(region.value)}
+                                                            checked={region.isDefault && field.value.length===0 ?  true : field.value?.includes(region.value)}
                                                             onCheckedChange={(checked) => {
+                                                                if(!checked && field.value.length===1){ 
+                                                                    return field.onChange(['allRegions'])
+                                                                }
                                                                 return checked ? field.onChange([...field.value, region.value]) : field.onChange(field.value?.filter((value) => value != region.value))
                                                             }}
                                                         >
@@ -225,7 +236,7 @@ const Leads = () => {
                                     render={({ field }) => {
                                         return <DropdownMenu >
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="google" className="flex flex-row gap-2">All Sources
+                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Sources', sources)}
                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                 </Button>
                                             </DropdownMenuTrigger>
@@ -234,8 +245,11 @@ const Leads = () => {
                                                     sources.map((source) => {
                                                         return <DropdownMenuCheckboxItem
                                                             key={source.value}
-                                                            checked={field.value?.includes(source.value)}
+                                                            checked={source.isDefault && field.value.length===0 ?  true : field.value?.includes(source.value)}
                                                             onCheckedChange={(checked) => {
+                                                                if(!checked && field.value.length===1){ 
+                                                                    return field.onChange(['allSources'])
+                                                                }
                                                                 return checked ? field.onChange([...field.value, source.value]) : field.onChange(field.value?.filter((value) => value != source.value))
                                                             }}
                                                         >
@@ -256,7 +270,7 @@ const Leads = () => {
                                     render={({ field }) => {
                                         return <DropdownMenu >
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="google" className="flex flex-row gap-2">All Statuses
+                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Statuses', statuses)}
                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                 </Button>
                                             </DropdownMenuTrigger>
@@ -265,8 +279,11 @@ const Leads = () => {
                                                     statuses.map((status) => {
                                                         return <DropdownMenuCheckboxItem
                                                             key={status.value}
-                                                            checked={field.value?.includes(status.value)}
+                                                            checked={status.isDefault && field.value.length===0 ?  true : field.value?.includes(status.value)}
                                                             onCheckedChange={(checked) => {
+                                                                if(!checked && field.value.length===1){ 
+                                                                    return field.onChange(['allStatuses'])
+                                                                }
                                                                 return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value) => value != status.value))
                                                             }}
                                                         >
