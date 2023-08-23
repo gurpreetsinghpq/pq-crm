@@ -38,6 +38,7 @@ import { Separator } from "../ui/separator"
 import { IValueLabel } from "@/app/interfaces/interface"
 import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
+import { TableContext } from "@/app/helper/context"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -63,17 +64,19 @@ const FormSchema = z.object({
 
 const Leads = () => {
 
+
     const [data, setLeadData] = React.useState<LeadInterface[]>([])
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
+    const [tableLeadLength, setTableLeadLength] = React.useState<any>()
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             regions: ["allRegions"],
-            sources: ["referral", "events"],
-            statuses: ["junk"],
+            sources: ["allSources"],
+            statuses: ["allStatuses"],
             owners: ['allOwners'],
             creators: ['allCreators']
         }
@@ -89,6 +92,7 @@ const Leads = () => {
             ),
         })
     }
+
 
 
 
@@ -112,8 +116,8 @@ const Leads = () => {
         }
     }
 
-    React.useEffect(() => {
 
+    React.useEffect(() => {
 
         fetchLeadData()
     }, [])
@@ -124,6 +128,7 @@ const Leads = () => {
     React.useEffect(() => {
         console.log(watcher)
     }, [watcher])
+    console.log(tableLeadLength)
 
 
 
@@ -177,11 +182,11 @@ const Leads = () => {
                 <div className="bottom">
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className="w-1/4 flex items-center flex-row gap-2">
-                            <span className="text-sm ">{data.length > 0 ? `Showing ${data.length} ${data.length > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            <span className="text-sm ">{tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]">
+                                        <Button variant={"google"} className="p-[8px]" onClick={() => fetchLeadData()}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
@@ -415,7 +420,7 @@ const Leads = () => {
                                                                         if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
                                                                             form.setValue("owners", [...field.value.filter((value) => value !== 'allOwners'), owner.value])
                                                                         }
-                                                                        else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value=='allOwners')) {
+                                                                        else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value == 'allOwners')) {
                                                                             form.setValue("owners", ["allOwners"])
 
                                                                         }
@@ -481,7 +486,7 @@ const Leads = () => {
                                                                         if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
                                                                             form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
                                                                         }
-                                                                        else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value=='allCreators') {
+                                                                        else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
                                                                             form.setValue("creators", ["allCreators"])
                                                                         }
                                                                         else if (field.value?.includes(creator.value)) {
@@ -519,7 +524,9 @@ const Leads = () => {
                         isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                             <Loader />
                         </div>) : data.length > 0 ? <div className="table w-full">
-                            <DataTable columns={columns} data={data} />
+                            <TableContext.Provider value={{tableLeadLength, setTableLeadLength}}>
+                                <DataTable  columns={columns} data={data} filterObj={form.getValues()} />
+                            </TableContext.Provider>
                         </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                             {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                                 <IconLeads size="20" />

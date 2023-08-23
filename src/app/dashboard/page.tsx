@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useState } from "react"
 import Prospects from "@/components/custom/prospects"
 import { IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
+import { TableContext } from "../helper/context"
 
 const Dashboard = () => {
     const [currentTab, setCurrentTab] = useState("Leads")
@@ -15,7 +16,7 @@ const Dashboard = () => {
             <div className="h-10 w-10  flex flex-row justify-center">
                 {/* <Image alt="pq search" src={"/pq-logo-warm.svg"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
                 {/* <Image alt="pq search" src={"/pq-search.png"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
-                <IconPq size={32}/>
+                <IconPq size={32} />
             </div>
             <TooltipProvider>
                 <Tooltip>

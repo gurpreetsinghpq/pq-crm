@@ -81,7 +81,10 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>,
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
     },
     {
         accessorKey: "source",
@@ -96,7 +99,10 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("source")}</div>
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("source")}</div>,
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
     },
     {
         accessorKey: "status",
@@ -111,7 +117,10 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div>{getClassOfStatus(row.getValue("status"))}</div>
+        cell: ({ row }) => <div>{getClassOfStatus(row.getValue("status"))}</div>,
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
     },
     {
         accessorKey: "budgetRange",
@@ -141,7 +150,10 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("owner")}</div>
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("owner")}</div>,
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
     },
     {
         accessorKey: "createdBy",
@@ -155,7 +167,10 @@ export const columns: ColumnDef<LeadInterface>[] = [
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("createdBy")}</div>
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("createdBy")}</div>,
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
     },
     {
         accessorKey: "createdOn",
@@ -205,7 +220,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                             <div className="flex flex-row gap-2 items-center">
-                                <IconArchive size={16} color={"#344054"}/>
+                                <IconArchive size={16} color={"#344054"} />
                                 Archive
                             </div>
                         </DropdownMenuItem>

@@ -30,8 +30,8 @@ let data:LeadInterface[] = [
         createdOn: "February 15, 2022",
         owner: "Sophia Lee",
         region: "Europe",
-        source: "Horading",
-        status: "Junk",
+        source: "Hoarding",
+        status: "Unverified",
         title: "GlobalTech - EUR - CFO"
     },
     {
