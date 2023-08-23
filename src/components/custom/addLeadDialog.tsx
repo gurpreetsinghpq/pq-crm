@@ -10,7 +10,7 @@ import { IconAccounts, IconBuildings } from '../icons/svgIcons'
 
 const duummySearchedItems = ["Swiggy", "Swish Bank"]
 
-const AddLeadDialog = ({ children }: { children: any }) => {
+const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadData:CallableFunction }) => {
     const [inputAccount, setInputAccount] = useState("")
     const [open, setOpen] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
@@ -19,10 +19,12 @@ const AddLeadDialog = ({ children }: { children: any }) => {
         setInputAccount(data)
     }
 
-    const [onDataUpdate, setOnDataUpdate] = useState()
-
-    function onDialogChangeHandler(value: boolean) {
-        setOpen(value)
+    function dataFromChild(){
+        setIsExpanded(false)
+        setOpen(false)
+        setInputAccount("")
+        fetchLeadData()
+        console.log(fetchLeadData)
     }
 
     return (
@@ -88,15 +90,15 @@ const AddLeadDialog = ({ children }: { children: any }) => {
                                 </CommandList>
                             </Command>
                         </div> : <div>
-                            <AddLeadDetailedDialog setOnDataUpdate={setOnDataUpdate} inputAccount={inputAccount}/>
+                            <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount}/>
                         </div>}
-                        <Separator className="bg-gray-200 h-[1px]  mt-8" />
+                        {!isExpanded && <><Separator className="bg-gray-200 h-[1px]  mt-8" />
                         <div className="flex flex-row gap-2 justify-end mx-6 my-6">
                             <DialogClose asChild>
                                 <Button variant={"google"} >Cancel</Button>
                             </DialogClose>
                             <Button disabled>Save & Add</Button>
-                        </div>
+                        </div></>}
                     </div>
 
                 </DialogContent >

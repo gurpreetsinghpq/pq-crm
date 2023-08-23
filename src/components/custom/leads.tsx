@@ -37,6 +37,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/
 import { Separator } from "../ui/separator"
 import { IValueLabel } from "@/app/interfaces/interface"
 import { getData } from "@/app/dummy/dummydata"
+import Loader from "./loader"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -62,6 +63,11 @@ const FormSchema = z.object({
 
 const Leads = () => {
 
+    const [data, setLeadData] = React.useState<LeadInterface[]>([])
+
+    const [isLoading, setIsLoading] = React.useState<boolean>(true)
+    const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -84,14 +90,42 @@ const Leads = () => {
         })
     }
 
+
+
     function formatData(data: any[], plural: string, childOf: IValueLabel[]) {
-        console.log(data)
         const finalString = data.length > 1 ? `${data.length} ${plural}` : childOf.find((item) => item.value === data[0])?.label
         return finalString
     }
 
-    const [areThereAnyLeads, setAreThereAnyLeads] = React.useState<Checked>(true)
-    const data = getData()
+
+    async function fetchLeadData() {
+        setIsLoading(true)
+        try {
+            const data = await getData()
+            setLeadData(data.reverse())
+            setIsLoading(false)
+        }
+        catch (err) {
+            setIsLoading(false)
+            setIsNetworkError(true)
+            console.log("error", err)
+        }
+    }
+
+    React.useEffect(() => {
+
+
+        fetchLeadData()
+    }, [])
+
+    const watcher = form.watch()
+
+
+    React.useEffect(() => {
+        console.log(watcher)
+    }, [watcher])
+
+
 
     return <div>
         <Form {...form}>
@@ -130,7 +164,7 @@ const Leads = () => {
                         </div>
                     </div>
                     <div className="right flex flex-row gap-4 ">
-                        <AddLeadDialog>
+                        <AddLeadDialog fetchLeadData={fetchLeadData}>
                             <Button className="flex flex-row gap-2">
                                 <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
                                 Add Lead
@@ -143,7 +177,7 @@ const Leads = () => {
                 <div className="bottom">
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className="w-1/4 flex items-center flex-row gap-2">
-                            <span className="text-sm ">{areThereAnyLeads ? `Showing ${data.length} ${data.length > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            <span className="text-sm ">{data.length > 0 ? `Showing ${data.length} ${data.length > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -206,8 +240,10 @@ const Leads = () => {
                                                             key={region.value}
                                                             checked={region.isDefault && field.value.length === 0 ? true : field.value?.includes(region.value)}
                                                             onCheckedChange={(checked) => {
-                                                                if (!checked && field.value.length === 1) {
+                                                                if ((!checked && field.value.length === 1) || region.value === 'allRegions') {
                                                                     return field.onChange(['allRegions'])
+                                                                } else if (checked && field.value.includes('allRegions') && region.value !== 'allRegions') {
+                                                                    return field.onChange([...field.value?.filter((value) => value != 'allRegions'), region.value])
                                                                 }
                                                                 return checked ? field.onChange([...field.value, region.value]) : field.onChange(field.value?.filter((value) => value != region.value))
                                                             }}
@@ -239,8 +275,10 @@ const Leads = () => {
                                                             key={source.value}
                                                             checked={source.isDefault && field.value.length === 0 ? true : field.value?.includes(source.value)}
                                                             onCheckedChange={(checked) => {
-                                                                if (!checked && field.value.length === 1) {
+                                                                if ((!checked && field.value.length === 1) || source.value === 'allSources') {
                                                                     return field.onChange(['allSources'])
+                                                                } else if (checked && field.value.includes('allSources') && source.value !== 'allSources') {
+                                                                    return field.onChange([...field.value?.filter((value) => value != 'allSources'), source.value])
                                                                 }
                                                                 return checked ? field.onChange([...field.value, source.value]) : field.onChange(field.value?.filter((value) => value != source.value))
                                                             }}
@@ -273,8 +311,10 @@ const Leads = () => {
                                                             key={status.value}
                                                             checked={status.isDefault && field.value.length === 0 ? true : field.value?.includes(status.value)}
                                                             onCheckedChange={(checked) => {
-                                                                if (!checked && field.value.length === 1) {
+                                                                if ((!checked && field.value.length === 1) || status.value === 'allStatuses') {
                                                                     return field.onChange(['allStatuses'])
+                                                                } else if (checked && field.value.includes('allStatuses') && status.value !== 'allStatuses') {
+                                                                    return field.onChange([...field.value?.filter((value) => value != 'allStatuses'), status.value])
                                                                 }
                                                                 return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value) => value != status.value))
                                                             }}
@@ -372,8 +412,12 @@ const Leads = () => {
                                                                     value={owner.label}
                                                                     key={owner.value}
                                                                     onSelect={() => {
-                                                                        if (field.value?.length === 1 && field.value?.includes(owner.value)) {
+                                                                        if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
+                                                                            form.setValue("owners", [...field.value.filter((value) => value !== 'allOwners'), owner.value])
+                                                                        }
+                                                                        else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value=='allOwners')) {
                                                                             form.setValue("owners", ["allOwners"])
+
                                                                         }
                                                                         else if (field.value?.includes(owner.value)) {
                                                                             form.setValue("owners", field.value?.filter((val) => val !== owner.value))
@@ -434,7 +478,10 @@ const Leads = () => {
                                                                     value={creator.label}
                                                                     key={creator.value}
                                                                     onSelect={() => {
-                                                                        if (field.value?.length === 1 && field.value?.includes(creator.value)) {
+                                                                        if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
+                                                                            form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
+                                                                        }
+                                                                        else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value=='allCreators') {
                                                                             form.setValue("creators", ["allCreators"])
                                                                         }
                                                                         else if (field.value?.includes(creator.value)) {
@@ -469,23 +516,25 @@ const Leads = () => {
                         </div>
                     </div>
                     {
-                        areThereAnyLeads ? <div className="table w-full">
+                        isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
+                            <Loader />
+                        </div>) : data.length > 0 ? <div className="table w-full">
                             <DataTable columns={columns} data={data} />
-                        </div> : <div className="flex flex-col gap-6 items-center p-10 ">
-                            <div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                        </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
+                            {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                                 <IconLeads size="20" />
                             </div>
-                            <div>
-                                <p className="text-md text-gray-900 font-semibold">No Leads</p>
+                                <div>
+                                    <p className="text-md text-gray-900 font-semibold">No Leads</p>
 
-                            </div>
-                            <AddLeadDialog>
-                                <Button className="flex flex-row gap-2">
-                                    <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
-                                    Add Lead
-                                </Button>
-                            </AddLeadDialog>
-                        </div>
+                                </div>
+                                <AddLeadDialog fetchLeadData={fetchLeadData}>
+                                    <Button className="flex flex-row gap-2">
+                                        <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+                                        Add Lead
+                                    </Button>
+                                </AddLeadDialog></>}
+                        </div>)
                     }
                 </div>
             </form>

@@ -22,7 +22,6 @@ import { Button } from "@/components/ui/button"
   export function DataTablePagination<TData>({
     table,
   }: DataTablePaginationProps<TData>) {
-    console.log(table.getState().pagination)
     return (
       <div className="flex items-center justify-between px-2">
         <div className="flex-1 text-sm text-muted-foreground">

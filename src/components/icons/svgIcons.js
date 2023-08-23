@@ -143,6 +143,18 @@ const EditIcon = ({ size = "10" }) => (
     </defs>
   </svg>
 )
+const TickIcon = ({ size = "10" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 20 20" fill="none">
+    <path d="M16.6673 5L7.50065 14.1667L3.33398 10" stroke="#17B26A" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+const CrossIcon = ({ size = "10" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 20 20" fill="none">
+    <path d="M15 5L5 15M5 5L15 15" stroke="#F97066" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
 
 export const Unverified = (props) => <UnverifiedIcon {...props} />;
 export const Verified = (props) => <VerifiedIcon {...props} />;
@@ -162,3 +174,5 @@ export const IconPq = (props) => <PqIcon {...props} />;
 export const IconCalendar = (props) => <CalendarIcon {...props} />;
 export const IconArrowDown = (props) => <ArrowDownIcon {...props} />;
 export const IconEdit = (props) => <EditIcon {...props} />;
+export const IconTick = (props) => <TickIcon {...props} />;
+export const IconCross = (props) => <CrossIcon {...props} />;

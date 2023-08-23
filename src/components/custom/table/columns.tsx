@@ -25,7 +25,6 @@ export type LeadInterface = {
 }
 
 function getClassOfStatus(statusName: string) {
-    console.log(statusName)
     const status = STATUSES.find((status) => status.label === statusName)
     const render = <div className={`flex flex-row gap-2 items-center  pl-2 pr-3 py-1 w-fit ${!status?.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status?.class} `}>
         {status?.icon && <status.icon />}
