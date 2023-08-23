@@ -46,8 +46,8 @@ const FormSchema = z.object({
     owners: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one Owner.",
     }),
-    creators: z.string({
-        required_error: "Please select a creator"
+    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
     }),
     regions: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one region.",
@@ -68,7 +68,8 @@ const Leads = () => {
             regions: ["allRegions"],
             sources: ["referral", "events"],
             statuses: ["junk"],
-            owners: ['allOwners']
+            owners: ['allOwners'],
+            creators: ['allCreators']
         }
     })
 
@@ -347,33 +348,59 @@ const Leads = () => {
                                 <FormField
                                     control={form.control}
                                     name="owners"
-                                    render={({ field }) => {
-                                        return <DropdownMenu >
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Owners', owners)}
-                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-56"> 
-                                                {
-                                                    owners.map((owner) => {
-                                                        return <DropdownMenuCheckboxItem
-                                                            key={owner.value}
-                                                            checked={owner.isDefault && field.value.length === 0 ? true : field.value?.includes(owner.value)}
-                                                            onCheckedChange={(checked) => {
-                                                                if (!checked && field.value.length === 1) {
-                                                                    return field.onChange(['allOwners'])
-                                                                }
-                                                                return checked ? field.onChange([...field.value, owner.value]) : field.onChange(field.value?.filter((value) => value != owner.value))
-                                                            }}
-                                                        >
-                                                            {owner.label}
-                                                        </DropdownMenuCheckboxItem>
-                                                    })
-                                                }
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    }}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button variant={"google"} className="flex flex-row gap-2">
+                                                            {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                            {formatData(field.value, 'Owners', owners)}
+                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[200px] p-0">
+                                                    <Command>
+                                                        <CommandInput placeholder="Search Creator..." />
+                                                        <CommandEmpty>No creators found.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            {owners.map((owner) => (
+                                                                <CommandItem
+                                                                    value={owner.label}
+                                                                    key={owner.value}
+                                                                    onSelect={() => {
+                                                                        if (field.value?.length === 1 && field.value?.includes(owner.value)) {
+                                                                            form.setValue("owners", ["allOwners"])
+                                                                        }
+                                                                        else if (field.value?.includes(owner.value)) {
+                                                                            form.setValue("owners", field.value?.filter((val) => val !== owner.value))
+                                                                        } else {
+                                                                            form.setValue("owners", [...field.value, owner.value])
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                        {owner.label}
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                field.value?.includes(owner.value)
+                                                                                    ? "opacity-100"
+                                                                                    : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                    </div>
+                                                                </CommandItem>
+                                                            ))}
+                                                        </CommandGroup>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                        </FormItem>
+                                    )}
                                 />
 
                             </div>
@@ -392,14 +419,14 @@ const Leads = () => {
                                                             {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                            All Creators
+                                                            {formatData(field.value, 'Creators', creators)}
                                                             <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-[200px] p-0">
                                                     <Command>
-                                                        <CommandInput placeholder="Search creator..." />
+                                                        <CommandInput placeholder="Search Creator..." />
                                                         <CommandEmpty>No creators found.</CommandEmpty>
                                                         <CommandGroup>
                                                             {creators.map((creator) => (
@@ -407,7 +434,14 @@ const Leads = () => {
                                                                     value={creator.label}
                                                                     key={creator.value}
                                                                     onSelect={() => {
-                                                                        form.setValue("creators", creator.value)
+                                                                        if (field.value?.length === 1 && field.value?.includes(creator.value)) {
+                                                                            form.setValue("creators", ["allCreators"])
+                                                                        }
+                                                                        else if (field.value?.includes(creator.value)) {
+                                                                            form.setValue("creators", field.value?.filter((val) => val !== creator.value))
+                                                                        } else {
+                                                                            form.setValue("creators", [...field.value, creator.value])
+                                                                        }
                                                                     }}
                                                                 >
                                                                     <div className="flex flex-row items-center justify-between w-full">
@@ -415,7 +449,7 @@ const Leads = () => {
                                                                         <Check
                                                                             className={cn(
                                                                                 "mr-2 h-4 w-4 text-purple-600",
-                                                                                creator.value === field.value
+                                                                                field.value?.includes(creator.value)
                                                                                     ? "opacity-100"
                                                                                     : "opacity-0"
                                                                             )}
