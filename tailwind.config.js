@@ -90,6 +90,11 @@ module.exports = {
         50: "#FEF3F2",
         600: "#D92D20",
         700: "#B42318"
+      },
+      yellow: {
+        25: "#FEFDF0",
+        700: "#A15C07",
+        800: "#854A0E"
       }
     },
     container: {

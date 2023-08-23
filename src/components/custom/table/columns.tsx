@@ -1,7 +1,7 @@
 "use client"
 
 import { STATUSES } from "@/app/constants/constants"
-import { IconArrowDown } from "@/components/icons/svgIcons"
+import { IconArchive, IconArrowDown, IconEdit } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
@@ -164,7 +164,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
             return (
                 <div
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
                 >
                     Created On
                     <IconArrowDown size={20} />
@@ -198,8 +198,18 @@ export const columns: ColumnDef<LeadInterface>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Archive</DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <div className="flex flex-row gap-2 items-center">
+                                <IconEdit size={16} />
+                                Edit
+                            </div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                            <div className="flex flex-row gap-2 items-center">
+                                <IconArchive size={16} color={"#344054"}/>
+                                Archive
+                            </div>
+                        </DropdownMenuItem>
                         {/* <DropdownMenuSeparator /> */}
                     </DropdownMenuContent>
                 </DropdownMenu>

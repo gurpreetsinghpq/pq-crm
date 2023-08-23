@@ -144,6 +144,11 @@ const LEAD_SOURCE = [
 
 const OWNERS:IValueLabel[] = [
     {
+        value: "allOwners",
+        label: "All Owners",
+        isDefault: true
+    },
+    {
         value: "ashokKumar",
         label: "Ashok Kumar"
     },
@@ -222,7 +227,7 @@ const STATUSES:IValueLabel[] = [
         value: "junk",
         label: "Junk",
         icon: Junk,
-        class: "border-warning-600 bg-error-50 text-error-700"
+        class: "border-yellow-700 bg-yellow-25 text-yelow-800"
     },
 ]
 

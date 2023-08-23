@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
-import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDownIcon, ChevronsDown, MoveDown } from 'lucide-react'
+import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDownIcon, ChevronsDown, Contact, MoveDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
@@ -67,14 +67,14 @@ const FormSchema2 = z.object({
 
 
 
-function AddLeadDetailedDialog() {
+function AddLeadDetailedDialog({inputAccount, setOnDataUpdate}:{inputAccount:string, setOnDataUpdate:CallableFunction}) {
 
     const [dummyContactData, setDummyContactData] = useState<any>([])
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            // organisationName: "",
+            organisationName: inputAccount,
             // budget: "uptoInr1cr",
             // leadSource: "linkedin"
         }
@@ -87,16 +87,23 @@ function AddLeadDetailedDialog() {
             // budget: "uptoInr1cr",
             // leadSource: "linkedin"
             countryCode: "+91"
-        }
+        },
+        
     })
 
 
     function addContact() {
         console.log(form2.getValues())
+        const finalData = form2.getValues()
+        const ftype = type.find((role)=>role.value===finalData.contactType)?.label
+        console.log(finalData.contactType)
+        const fDesignation = designation.find((des)=>des.value===finalData.designation)?.label
         setDummyContactData((prevValues: any) => {
-            return [...prevValues, form2.getValues()]
+            return [...prevValues, {...form2.getValues(), contactType:ftype, designation:fDesignation} ]
         })
+        
     }
+    console.log(dummyContactData)
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         toast({
@@ -182,7 +189,7 @@ function AddLeadDetailedDialog() {
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select a region" />
+                                                    <SelectValue placeholder="Select a Region" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
@@ -306,7 +313,7 @@ function AddLeadDetailedDialog() {
                         </div>
                     </form>
                 </Form>
-                <Separator orientation='vertical' />
+                <div className="w-[1px] bg-gray-200 "></div>
                 <Form {...form2}>
                     <form className='right flex flex-col w-1/2' onSubmit={form2.handleSubmit(onSubmit2)}>
 

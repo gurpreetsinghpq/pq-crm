@@ -19,6 +19,8 @@ const AddLeadDialog = ({ children }: { children: any }) => {
         setInputAccount(data)
     }
 
+    const [onDataUpdate, setOnDataUpdate] = useState()
+
     function onDialogChangeHandler(value: boolean) {
         setOpen(value)
     }
@@ -86,7 +88,7 @@ const AddLeadDialog = ({ children }: { children: any }) => {
                                 </CommandList>
                             </Command>
                         </div> : <div>
-                            <AddLeadDetailedDialog />
+                            <AddLeadDetailedDialog setOnDataUpdate={setOnDataUpdate} inputAccount={inputAccount}/>
                         </div>}
                         <Separator className="bg-gray-200 h-[1px]  mt-8" />
                         <div className="flex flex-row gap-2 justify-end mx-6 my-6">

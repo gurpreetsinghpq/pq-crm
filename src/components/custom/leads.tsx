@@ -36,63 +36,15 @@ import { DateRangePicker } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 import { IValueLabel } from "@/app/interfaces/interface"
+import { getData } from "@/app/dummy/dummydata"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
-
-function getData(): LeadInterface[] {
-    return [
-        {
-            id: "728ed52f",
-            budgetRange: "INR 1cr - 2cr",
-            createdBy: "Varun Aggarwal",
-            createdOn: "December 20, 2021",
-            owner: "Varun Aggarwal",
-            region: "India",
-            source: "Linkedin",
-            status: "Unverified",
-            title: "Swiggy - IND - CTO"
-        },
-        {
-            id: "932abde1",
-            budgetRange: "USD 500k - 1M",
-            createdBy: "Emily Johnson",
-            createdOn: "January 5, 2022",
-            owner: "John Smith",
-            region: "USA",
-            source: "Email Campaign",
-            status: "Verified",
-            title: "TechCorp - USA - CEO"
-        },
-        {
-            id: "e9f4c25a",
-            budgetRange: "EUR 2M - 3M",
-            createdBy: "Sophia Lee",
-            createdOn: "February 15, 2022",
-            owner: "Sophia Lee",
-            region: "Europe",
-            source: "Horading",
-            status: "Unverified",
-            title: "GlobalTech - EUR - CFO"
-        },
-        {
-            id: "3b1c9d86",
-            budgetRange: "JPY 100M - 150M",
-            createdBy: "Taro Yamada",
-            createdOn: "March 8, 2022",
-            owner: "Taro Yamada",
-            region: "APAC",
-            source: "Events",
-            status: "Unverified",
-            title: "SushiCo - JPN - Founder"
-        },
-    ]
-}
 
 
 
 const FormSchema = z.object({
-    owners: z.string({
-        required_error: "Please select a owner.",
+    owners: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Owner.",
     }),
     creators: z.string({
         required_error: "Please select a creator"
@@ -109,16 +61,14 @@ const FormSchema = z.object({
 })
 
 const Leads = () => {
-    const [showIndia, setshowIndia] = React.useState<boolean>(false);
-    const [showUsa, setshowUsa] = React.useState<boolean>(false);
-    const [showUk, setshowUk] = React.useState<boolean>(false);
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             regions: ["allRegions"],
             sources: ["referral", "events"],
-            statuses: ["junk"]
+            statuses: ["junk"],
+            owners: ['allOwners']
         }
     })
 
@@ -192,7 +142,7 @@ const Leads = () => {
                 <div className="bottom">
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className="w-1/4 flex items-center flex-row gap-2">
-                            <span className="text-sm ">{areThereAnyLeads ? "1 Lead" : "No Leads"}</span>
+                            <span className="text-sm ">{areThereAnyLeads ? `Showing ${data.length} ${data.length > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -344,7 +294,7 @@ const Leads = () => {
 
                             </div>
                             <div className='flex flex-col  '>
-                                <FormField
+                                {/* <FormField
                                     control={form.control}
                                     name="owners"
                                     render={({ field }) => (
@@ -392,6 +342,38 @@ const Leads = () => {
                                             </Popover>
                                         </FormItem>
                                     )}
+                                /> */}
+
+                                <FormField
+                                    control={form.control}
+                                    name="owners"
+                                    render={({ field }) => {
+                                        return <DropdownMenu >
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Owners', owners)}
+                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent className="w-56"> 
+                                                {
+                                                    owners.map((owner) => {
+                                                        return <DropdownMenuCheckboxItem
+                                                            key={owner.value}
+                                                            checked={owner.isDefault && field.value.length === 0 ? true : field.value?.includes(owner.value)}
+                                                            onCheckedChange={(checked) => {
+                                                                if (!checked && field.value.length === 1) {
+                                                                    return field.onChange(['allOwners'])
+                                                                }
+                                                                return checked ? field.onChange([...field.value, owner.value]) : field.onChange(field.value?.filter((value) => value != owner.value))
+                                                            }}
+                                                        >
+                                                            {owner.label}
+                                                        </DropdownMenuCheckboxItem>
+                                                    })
+                                                }
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    }}
                                 />
 
                             </div>
