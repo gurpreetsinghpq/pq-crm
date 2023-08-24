@@ -25,6 +25,11 @@ const REGION = [
 
 const ROLETYPE = [
     {
+        value: "Founder",
+        label: "Founder"
+
+    },
+    {
         value: "cto",
         label: "CTO",
     },

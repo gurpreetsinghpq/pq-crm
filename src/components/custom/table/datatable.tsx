@@ -36,14 +36,19 @@ interface DataTableProps<TData, TValue> {
     sources: string[]
     statuses: string[]
     creators: string[]
-    owners: string[]
-  }
+    owners: string[],
+    search: string
+  },
+  setTableLeadLength: CallableFunction,
+  setChildDataHandler: CallableFunction
 }
 
 export default function DataTable<TData, TValue>({
   columns,
   data,
-  filterObj
+  filterObj,
+  setTableLeadLength,
+  setChildDataHandler
 }: DataTableProps<TData, TValue>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -51,8 +56,8 @@ export default function DataTable<TData, TValue>({
     []
   )
 
-  const {tableLeadLength, setTableLeadLength} = useContext(TableContext)
-   
+  // const { tableLeadLength, setTableLeadLength } = useContext(TableContext)
+
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const table = useReactTable({
@@ -85,7 +90,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("region")?.setFilterValue("")
     }
     else {
-      const regionsFilter = valueToLabel("regions",REGIONS)
+      const regionsFilter = valueToLabel("regions", REGIONS)
       table.getColumn("region")?.setFilterValue(regionsFilter)
     }
 
@@ -93,7 +98,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("source")?.setFilterValue("")
     }
     else {
-      const sourcesFilter = valueToLabel("sources",SOURCES)
+      const sourcesFilter = valueToLabel("sources", SOURCES)
       table.getColumn("source")?.setFilterValue(sourcesFilter)
     }
 
@@ -101,7 +106,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("status")?.setFilterValue("")
     }
     else {
-      const statusFilter = valueToLabel("statuses",STATUSES)
+      const statusFilter = valueToLabel("statuses", STATUSES)
       table.getColumn("status")?.setFilterValue(statusFilter)
     }
 
@@ -109,7 +114,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("owner")?.setFilterValue("")
     }
     else {
-      const ownerFilter = valueToLabel("owners",OWNERS)
+      const ownerFilter = valueToLabel("owners", OWNERS)
       table.getColumn("owner")?.setFilterValue(ownerFilter)
     }
 
@@ -117,23 +122,28 @@ export default function DataTable<TData, TValue>({
       table.getColumn("createdBy")?.setFilterValue("")
     }
     else {
-      const creatorFilter = valueToLabel("creators",CREATORS)
+      const creatorFilter = valueToLabel("creators", CREATORS)
       table.getColumn("createdBy")?.setFilterValue(creatorFilter)
     }
 
+    table.getColumn("title")?.setFilterValue(filterObj.search)
+
 
   }, [filterObj])
-  
-  setTableLeadLength(table.getFilteredRowModel().rows.length)
 
-  function valueToLabel( key: keyof typeof filterObj, arr: IValueLabel[]) {
+
+  function handleTableChange() {
+    console.log("hey")
+  }
+
+  function valueToLabel(key: Exclude<keyof typeof filterObj, "search">, arr: IValueLabel[]) {
     return filterObj[key].map((val) => arr.find((item) => item.value === val)?.label)
   }
 
   return (
     <div className="flex flex flex-col">
       <div className="border border-[1px] border-gray-200 flex flex-col h-[60vh] overflow-y-scroll">
-        <Table className="">
+        <Table className="" onChange={handleTableChange}>
           <TableHeader className="bg-gray-50 sticky top-0 left-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -152,18 +162,21 @@ export default function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody >
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
+                  style={{ borderWidth: "1px" }}
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                  {row.getVisibleCells().map((cell) => {
+                    return (<TableCell key={cell.id} onClick={()=>{
+                      cell.column.id!=='select' && setChildDataHandler('row', row)
+                    }}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+                    </TableCell>)
+                  })}
                 </TableRow>
               ))
             ) : (

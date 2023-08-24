@@ -10,7 +10,7 @@ import { TableContext } from "../helper/context"
 
 const Dashboard = () => {
     const [currentTab, setCurrentTab] = useState("Leads")
-    console.log(currentTab)
+    // console.log(currentTab)
     return <div className="flex flex-row min-h-screen ">
         <div className="sticky top-0 left-0 left flex flex-col w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center">

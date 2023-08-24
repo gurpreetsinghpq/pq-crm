@@ -14,14 +14,15 @@ import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-
 // You can use a Zod schema here if you want.
 export type LeadInterface = {
     id: string
-    title: String
-    region: String
+    title: string
+    region: string
     source: string,
-    status: String,
-    budgetRange: String,
-    createdBy: String,
-    owner: String,
-    createdOn: String
+    status: string,
+    budgetRange: string,
+    createdBy: string,
+    owner: string,
+    createdOn: string,
+    role: string
 }
 
 function getClassOfStatus(statusName: string) {
@@ -66,7 +67,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title")}</span>
+        cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title")}</span> 
     },
     {
         accessorKey: "region",
@@ -212,8 +213,8 @@ export const columns: ColumnDef<LeadInterface>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                            <div className="flex flex-row gap-2 items-center">
+                        <DropdownMenuItem onClick={()=>{console.log(row)}}>
+                            <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
                             </div>

@@ -23,7 +23,7 @@ import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon } from "lucide-react"
+import { Check, ChevronDownIcon, Search } from "lucide-react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -39,6 +39,7 @@ import { IValueLabel } from "@/app/interfaces/interface"
 import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
+import SideSheet from "./sideSheet"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -59,17 +60,40 @@ const FormSchema = z.object({
     }),
     statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one status.",
-    })
+    }),
+    search: z.string()
 })
+
+// let tableLeadLength = 0
+
+export interface IChildData{
+    row:any
+}
 
 const Leads = () => {
 
+    const [isSideSheetOpen, setIsSideSheetOpen] = React.useState<boolean>(false)
 
     const [data, setLeadData] = React.useState<LeadInterface[]>([])
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
-    const [tableLeadLength, setTableLeadLength] = React.useState<any>()
+    const [tableLeadLength, setTableLength] = React.useState<any>()
+
+    const [childData, setChildData] = React.useState<IChildData>()
+    
+
+    function setChildDataHandler(key : keyof IChildData, data:any){
+        setChildData((prev)=>{
+            return {...prev, [key]: data}
+        })
+    }
+    React.useEffect(()=>{
+        console.log(childData)
+    },[childData?.row])
+    function setTableLeadLength(number:number){
+        setTableLength(number)
+    }
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -78,7 +102,8 @@ const Leads = () => {
             sources: ["allSources"],
             statuses: ["allStatuses"],
             owners: ['allOwners'],
-            creators: ['allCreators']
+            creators: ['allCreators'],
+            search: ""
         }
     })
 
@@ -96,10 +121,7 @@ const Leads = () => {
 
 
 
-    function formatData(data: any[], plural: string, childOf: IValueLabel[]) {
-        const finalString = data.length > 1 ? `${data.length} ${plural}` : childOf.find((item) => item.value === data[0])?.label
-        return finalString
-    }
+    
 
 
     async function fetchLeadData() {
@@ -126,9 +148,9 @@ const Leads = () => {
 
 
     React.useEffect(() => {
-        console.log(watcher)
+        // console.log(watcher)
     }, [watcher])
-    console.log(tableLeadLength)
+    // console.log(tableLeadLength)
 
 
 
@@ -137,9 +159,19 @@ const Leads = () => {
             <form onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
                     <div className="w-1/2 flex flex-row gap-4 items-center">
-                        <Command className="border w-2/3">
-                            <CommandInput placeholder="Search" className="text-md" />
-                        </Command>
+                        <FormField
+                            control={form.control}
+                            name="search"
+                            render={({ field }) => (
+                                <FormItem className="w-2/3">
+                                    <FormControl>
+                                        {/* <Command className="border "> */}
+                                        <Input placeholder="Search" className="text-md border" {...field} />
+                                        {/* </Command> */}
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
                         <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
                             <TooltipProvider>
                                 <Tooltip>
@@ -182,7 +214,7 @@ const Leads = () => {
                 <div className="bottom">
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className="w-1/4 flex items-center flex-row gap-2">
-                            <span className="text-sm ">{tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -524,9 +556,9 @@ const Leads = () => {
                         isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                             <Loader />
                         </div>) : data.length > 0 ? <div className="table w-full">
-                            <TableContext.Provider value={{tableLeadLength, setTableLeadLength}}>
-                                <DataTable  columns={columns} data={data} filterObj={form.getValues()} />
-                            </TableContext.Provider>
+                            {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadLength }}> */}
+                            <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler}/>
+                            {/* </TableContext.Provider> */}
                         </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                             {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                                 <IconLeads size="20" />
@@ -543,6 +575,7 @@ const Leads = () => {
                                 </AddLeadDialog></>}
                         </div>)
                     }
+                    {childData?.row && <SideSheet parentData={{childData, setChildDataHandler}}/>}
                 </div>
             </form>
 
@@ -550,6 +583,11 @@ const Leads = () => {
 
 
     </div>
+}
+
+export function formatData(data: any[], plural: string, childOf: IValueLabel[]) {
+    const finalString = data.length > 1 ? `${data.length} ${plural}` : childOf.find((item) => item.value === data[0])?.label
+    return finalString
 }
 
 export default Leads
