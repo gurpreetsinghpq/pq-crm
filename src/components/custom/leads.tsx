@@ -154,9 +154,9 @@ const Leads = () => {
 
 
 
-    return <div>
+    return <div className="h-full">
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
                 <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
                     <div className="w-1/2 flex flex-row gap-4 items-center">
                         <FormField
@@ -211,9 +211,9 @@ const Leads = () => {
                     </div>
                 </div>
 
-                <div className="bottom">
+                <div className="bottom flex-1 flex flex-col">
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
-                        <div className="w-1/4 flex items-center flex-row gap-2">
+                        <div className=" flex items-center flex-row gap-2">
                             <span className="text-sm ">{isLoading ? "Loading..." : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             <TooltipProvider>
                                 <Tooltip>
@@ -229,7 +229,7 @@ const Leads = () => {
                             </TooltipProvider>
                         </div>
 
-                        <div className="w-3/4 flex flex-row gap-3 justify-end">
+                        <div className="flex-1 flex flex-row gap-3 justify-end">
 
                             <div>
                                 {/* <DropdownMenu > */}
@@ -258,7 +258,7 @@ const Leads = () => {
                                 {/* </DropdownMenuContent>
                                 </DropdownMenu> */}
                             </div>
-                            <div>
+                            <div className="">
                                 <FormField
                                     control={form.control}
                                     name="regions"
@@ -555,7 +555,7 @@ const Leads = () => {
                     {
                         isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                             <Loader />
-                        </div>) : data.length > 0 ? <div className="table w-full">
+                        </div>) : data.length > 0 ? <div className="table w-full h-full flex flex-col">
                             {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadLength }}> */}
                             <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler}/>
                             {/* </TableContext.Provider> */}

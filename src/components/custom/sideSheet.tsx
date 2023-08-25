@@ -97,10 +97,10 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                 <div className='w-full h-full flex flex-row '>
                     <div className='relative pt-[24px] w-1/4 h-full flex flex-col '>
                         <div className='flex flex-col flex-1 overflow-y-auto scroll-style-one pr-[0px] '>
-                            <div className='sticky top-0 bg-white-900'>
-                                <span className='px-[24px] text-gray-900 text-xl font-semibold '>
+                            <div className='sticky top-0 bg-white-900 z-50'>
+                                <div className='px-[24px] text-gray-900 text-xl font-semibold '>
                                     {data.title}
-                                </span>
+                                </div>
                                 <div className="px-[16px] mt-[24px] text-md font-medium w-full flex flex-row ">
                                     <FormField
                                         control={form.control}

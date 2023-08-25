@@ -8,7 +8,7 @@ import Prospects from "@/components/custom/prospects"
 import { IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
 import { TableContext } from "../helper/context"
 
-const Dashboard = () => {
+export default function Dashboard(){
     const [currentTab, setCurrentTab] = useState("Leads")
     // console.log(currentTab)
     return <div className="flex flex-row min-h-screen ">
@@ -112,7 +112,7 @@ const Dashboard = () => {
                     </div>
                 </div>
             </div>
-            <div className="bottom">
+            <div className="bottom h-full">
                 {currentTab === 'Leads' && <Leads />}
                 {currentTab === 'Prospects' && <Prospects />}
 
@@ -120,4 +120,3 @@ const Dashboard = () => {
         </div>
     </div>
 }
-export default Dashboard

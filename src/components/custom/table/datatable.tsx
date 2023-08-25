@@ -75,14 +75,7 @@ export default function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
 
-    },
-    initialState: {
-      pagination: {
-        pageIndex: 0,
-        pageSize: 8
-      }
-    },
-
+    }
   })
 
   useEffect(() => {
@@ -141,9 +134,9 @@ export default function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="flex flex flex-col">
-      <div className="border border-[1px] border-gray-200 flex flex-col h-[60vh] overflow-y-scroll">
-        <Table className="" onChange={handleTableChange}>
+    <div className="flex flex-col h-full">
+      <div className="border border-[1px] border-gray-200 flex flex-col flex-1 overflow-y-scroll">
+        <Table className=" h-full" onChange={handleTableChange}>
           <TableHeader className="bg-gray-50 sticky top-0 left-0">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -162,6 +155,7 @@ export default function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody >
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
@@ -213,7 +207,7 @@ export default function DataTable<TData, TValue>({
           </Button>
         </div>
       </div> */}
-      <div className="px-4 py-4">
+      <div className="pl-[64px] pr-[68px] py-4">
         <DataTablePagination table={table} />
       </div>
     </div>

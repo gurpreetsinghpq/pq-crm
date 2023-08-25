@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@radix-ui/react-label"
 import Image from "next/image"
 
-const Signin = () => {
+export default function Signin() {
     return <div className="signin-container flex min-h-screen">
         <div className="left flex flex-col w-7/12 bg-purple-600 px-10 py-10 ">
             <div className="flex flex-row mb-8">
@@ -37,4 +37,3 @@ const Signin = () => {
     </div>
 }
 
-export default Signin

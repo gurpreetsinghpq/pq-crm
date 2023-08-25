@@ -46,7 +46,8 @@ function getData(): LeadInterface[] {
             region: "India",
             source: "Linkedin",
             status: "Unverified",
-            title: "Swiggy - IND - CTO"
+            title: "Swiggy - IND - CTO",
+            role:"CTO",
         },
         // ...
     ]
@@ -375,7 +376,7 @@ const Prospects = () => {
                     </div>
                     {
                         areThereAnyLeads ? <div className="table w-full">
-                            <DataTable columns={columns} data={data} />
+                            {/* <DataTable columns={columns} data={data} /> */}
                         </div> : <div className="flex flex-col gap-6 items-center p-10 ">
                             <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                                 <IconProspects size={20}/>

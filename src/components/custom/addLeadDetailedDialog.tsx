@@ -147,14 +147,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
         const leadSourceLabel = specificValueFinder(formData.leadSource, leadSource)?.label
         const roleTypeLabel = specificValueFinder(formData.roleType, roleType)?.label
         const createdOn = new Date()
-        const createdBy = CREATORS[(Math.floor(Math.random()*(CREATORS.length-1)))>0?(Math.floor(Math.random()*(CREATORS.length-1))):1].label
-        const owner = OWNERS[(Math.floor(Math.random()*(OWNERS.length-1)))>0?(Math.floor(Math.random()*(OWNERS.length-1))):1].label
-        console.log(regionLabel,budgetLabel,leadSourceLabel,roleTypeLabel,createdOn,createdBy,owner)
+        const createdBy = CREATORS[(Math.floor(Math.random() * (CREATORS.length - 1))) > 0 ? (Math.floor(Math.random() * (CREATORS.length - 1))) : 1].label
+        const owner = OWNERS[(Math.floor(Math.random() * (OWNERS.length - 1))) > 0 ? (Math.floor(Math.random() * (OWNERS.length - 1))) : 1].label
+        console.log(regionLabel, budgetLabel, leadSourceLabel, roleTypeLabel, createdOn, createdBy, owner)
         form.reset()
         form2.reset()
         setData({
             budgetRange: budgetLabel,
-            id: Math.floor(Math.random()*10000).toString(),
+            id: Math.floor(Math.random() * 10000).toString(),
             owner: owner,
             region: regionLabel,
             createdBy: createdBy,
@@ -167,8 +167,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
         dataFromChild()
     }
 
-    function specificValueFinder(lookupValue: string,  array:any[] ):IValueLabel{
-        return array.find((item)=>item.value===lookupValue)
+    function specificValueFinder(lookupValue: string, array: any[]): IValueLabel {
+        return array.find((item) => item.value === lookupValue)
     }
 
     return (
@@ -377,7 +377,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                                     <span className='text-sm font-semibold '>
                                                         {item.contactName} - {item.designation}
                                                     </span>
-                                                    { item?.contactType && item?.contactType?.trim()!=="" && <div>
+                                                    {item?.contactType && item?.contactType?.trim() !== "" && <div>
                                                         <span className='text-xs text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px]'>{item.contactType}</span>
                                                     </div>}
                                                 </div>
@@ -513,14 +513,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                 />
                             </div>
                             <div className='flex flex-row justify-end mt-2 items-center gap-2 '>
-                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground  px-3 py-2 rounded-[6px] ${form2.formState.isValid ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form2.formState.isValid && discardContact()}>
+                                {dummyContactData.length > 0 && <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] cursor-pointer`} onClick={() => discardContact()}>
                                     <IconCross size={20} />
                                     <span className='text-gray-600 text-xs font-semibold' >Discard</span>
-                                </div>
-                                <Button type='submit' variant="ghost" onClick={() => form2.formState.isValid && addContact()} className={`flex flex-row gap-2 ${form2.formState.isValid ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`}>
+                                </div>}
+                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${form2.formState.isValid ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form2.formState.isValid && addContact()}>
                                     <IconTick size={20} />
                                     <span className='text-gray-600 text-xs font-semibold' >Add</span>
-                                </Button>
+                                </div>
                             </div>
                         </div>}
 
@@ -534,7 +534,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                 <DialogClose asChild>
                     <Button variant={"google"} >Cancel</Button>
                 </DialogClose>
-                <Button disabled={!(form.formState.isValid && dummyContactData.length>0)} onClick={() => addToLead()}>Save & Add</Button>
+                <Button disabled={!(form.formState.isValid && dummyContactData.length > 0)} onClick={() => addToLead()}>Save & Add</Button>
             </div>
 
         </div>
