@@ -66,8 +66,8 @@ const FormSchema = z.object({
 
 // let tableLeadLength = 0
 
-export interface IChildData{
-    row:any
+export interface IChildData {
+    row: any
 }
 
 const Leads = () => {
@@ -81,17 +81,17 @@ const Leads = () => {
     const [tableLeadLength, setTableLength] = React.useState<any>()
 
     const [childData, setChildData] = React.useState<IChildData>()
-    
 
-    function setChildDataHandler(key : keyof IChildData, data:any){
-        setChildData((prev)=>{
-            return {...prev, [key]: data}
+
+    function setChildDataHandler(key: keyof IChildData, data: any) {
+        setChildData((prev) => {
+            return { ...prev, [key]: data }
         })
     }
-    React.useEffect(()=>{
+    React.useEffect(() => {
         console.log(childData)
-    },[childData?.row])
-    function setTableLeadLength(number:number){
+    }, [childData?.row])
+    function setTableLeadLength(number: number) {
         setTableLength(number)
     }
 
@@ -121,13 +121,19 @@ const Leads = () => {
 
 
 
-    
+
+
 
 
     async function fetchLeadData() {
         setIsLoading(true)
         try {
-            const data = await getData()
+            let data = structuredClone(await getData())
+            data = data.map((userData: LeadInterface) => {
+                const formattedDate = formatUtcDateToLocal(userData.createdOn);
+                userData.createdOn = formattedDate
+                return userData
+            })
             setLeadData(data.reverse())
             setIsLoading(false)
         }
@@ -154,9 +160,9 @@ const Leads = () => {
 
 
 
-    return <div className="h-full">
+    return <div className="flex flex-col flex-1">
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1">
                 <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
                     <div className="w-1/2 flex flex-row gap-4 items-center">
                         <FormField
@@ -270,7 +276,7 @@ const Leads = () => {
                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-56">
+                                            <DropdownMenuContent className="w-[160px]">
                                                 {
                                                     regions.map((region) => {
                                                         return <DropdownMenuCheckboxItem
@@ -305,7 +311,7 @@ const Leads = () => {
                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-56">
+                                            <DropdownMenuContent className="w-[160px]">
                                                 {
                                                     sources.map((source) => {
                                                         return <DropdownMenuCheckboxItem
@@ -341,7 +347,7 @@ const Leads = () => {
                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-56">
+                                            <DropdownMenuContent className="w-[160px]">
                                                 {
                                                     statuses.map((status) => {
                                                         return <DropdownMenuCheckboxItem
@@ -555,9 +561,9 @@ const Leads = () => {
                     {
                         isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                             <Loader />
-                        </div>) : data.length > 0 ? <div className="table w-full h-full flex flex-col">
+                        </div>) : data.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                             {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadLength }}> */}
-                            <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler}/>
+                            <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler} />
                             {/* </TableContext.Provider> */}
                         </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                             {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
@@ -575,7 +581,7 @@ const Leads = () => {
                                 </AddLeadDialog></>}
                         </div>)
                     }
-                    {childData?.row && <SideSheet parentData={{childData, setChildDataHandler}}/>}
+                    {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} />}
                 </div>
             </form>
 
@@ -589,5 +595,32 @@ export function formatData(data: any[], plural: string, childOf: IValueLabel[]) 
     const finalString = data.length > 1 ? `${data.length} ${plural}` : childOf.find((item) => item.value === data[0])?.label
     return finalString
 }
+
+function formatUtcDateToLocal(backendUtcDate: any) {
+   
+    console.log("utc",backendUtcDate)
+    const inputString = new Date(backendUtcDate).toLocaleString()
+    console.log("input",inputString)
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+    
+      const [datePart, timePart] = inputString.split(', ');
+      const [date, month, year] = datePart.split('/');
+      const timeString = timePart;
+    
+      const formattedDate = `${months[parseInt(month) - 1]} ${parseInt(date)}, ${year}`;
+      const [hours, minutes] = timeString.split(':');
+      const numericHours = parseInt(hours);
+      const period = numericHours >= 12 ? 'pm' : 'am';
+      const formattedHours = numericHours === 0 ? 12 : (numericHours > 12 ? numericHours - 12 : numericHours);
+      const formattedTime = `${formattedHours}:${minutes}${period}`;
+    
+    
+    
+      return `${formattedDate}@${formattedTime}`;
+}
+
 
 export default Leads

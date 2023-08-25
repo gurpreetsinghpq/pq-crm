@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
 import { CREATORS, OWNERS, REGIONS, SOURCES, STATUSES } from "@/app/constants/constants"
@@ -56,6 +56,9 @@ export default function DataTable<TData, TValue>({
     []
   )
 
+  
+  const tbl:any = useRef(null) 
+  
   // const { tableLeadLength, setTableLeadLength } = useContext(TableContext)
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -134,54 +137,56 @@ export default function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="border border-[1px] border-gray-200 flex flex-col flex-1 overflow-y-scroll">
-        <Table className=" h-full" onChange={handleTableChange}>
-          <TableHeader className="bg-gray-50 sticky top-0 left-0">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-
-          <TableBody >
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  style={{ borderWidth: "1px" }}
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    return (<TableCell key={cell.id} onClick={()=>{
-                      cell.column.id!=='select' && setChildDataHandler('row', row)
-                    }}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>)
+    <div className="flex flex-col flex-1">
+      <div className="border-[1px] border-gray-200 flex-1 " ref={tbl}>
+        {tbl.current?.offsetHeight && (<div style={{height:`${tbl.current?.offsetHeight-3}px`}} className={` overflow-y-scroll`}>
+          <Table className="flex-1 " onChange={handleTableChange} >
+            <TableHeader className="bg-gray-50 sticky top-0 left-0">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id} >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      </TableHead>
+                    )
                   })}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+
+            <TableBody >
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    style={{ borderWidth: "1px" }}
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      return (<TableCell key={cell.id} onClick={()=>{
+                        cell.column.id!=='select' && setChildDataHandler('row', row)
+                      }}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>)
+                    })}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          </div>)}
       </div>
       {/* <div className="flex items-center justify-end space-x-2 py-4 px-5">
         <div className="flex-1 text-sm text-muted-foreground">

@@ -157,3 +157,14 @@
     transform: translateX(0);
   }
 }
+body{
+  height: 100vh;
+  overflow: hidden;  
+}
+
+/* .responsive-table-height{
+  height: clamp(18.75rem, -26.125rem + 56.0938vw, 41.1875rem);
+} */
+/* .responsive-table-height{
+  height: clamp(18.75rem, -26.125rem + 118.0938vh, 41.1875rem);
+} */

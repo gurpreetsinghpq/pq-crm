@@ -158,7 +158,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
             owner: owner,
             region: regionLabel,
             createdBy: createdBy,
-            createdOn: createdOn.toLocaleDateString(),
+            createdOn: createdOn.toISOString(),
             source: leadSourceLabel,
             status: "Unverified",
             title: `${formData.organisationName} - ${regionLabel} - ${roleTypeLabel}`,

@@ -11,7 +11,7 @@ import { TableContext } from "../helper/context"
 export default function Dashboard(){
     const [currentTab, setCurrentTab] = useState("Leads")
     // console.log(currentTab)
-    return <div className="flex flex-row min-h-screen ">
+    return <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left flex flex-col w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center">
                 {/* <Image alt="pq search" src={"/pq-logo-warm.svg"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
@@ -90,7 +90,7 @@ export default function Dashboard(){
             </div>
 
         </div>
-        <div className="right flex flex-col w-full">
+        <div className="right flex flex-col w-full h-full">
             <div className="top w-full flex flex-row justify-between items-center px-6 py-5 border-b-2 border-gray-100 ">
                 <div className="text-xl text-gray-900  ">
                     {currentTab}
@@ -112,7 +112,7 @@ export default function Dashboard(){
                     </div>
                 </div>
             </div>
-            <div className="bottom h-full">
+            <div className="bottom flex flex-col flex-1">
                 {currentTab === 'Leads' && <Leads />}
                 {currentTab === 'Prospects' && <Prospects />}
 

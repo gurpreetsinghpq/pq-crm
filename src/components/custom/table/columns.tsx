@@ -189,12 +189,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
             )
         },
         cell: ({ row }) => <div className=" font-normal">
-            <div className="text-gray-900 text-sm ">
-                {row.getValue("createdOn")}
-            </div>
-            <div className="text-gray-600 text-xs ">
-
-            </div>
+                {multiLine(row.getValue("createdOn"))}
 
         </div>
     },
@@ -233,3 +228,11 @@ export const columns: ColumnDef<LeadInterface>[] = [
     },
 
 ]
+const multiLine = (str:string) => {
+    const [date, time]  = str.split("@");
+    console.log(str.split("@"))
+    return <>
+    <div className="text-gray-900 text-sm font-normal">{date}</div>
+    <div className="text-gray-600 text-xs font-normal">{time}</div>
+    </>
+  }
