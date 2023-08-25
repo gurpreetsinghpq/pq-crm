@@ -106,7 +106,7 @@
 
 }
 
-.pq-line {
+/* .pq-line {
   position: absolute;
   top: 130px;
   right: 20px;
@@ -117,7 +117,7 @@
   border: 5px solid #BA68C8;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
-}
+} */
 
 @keyframes spin {
   from {

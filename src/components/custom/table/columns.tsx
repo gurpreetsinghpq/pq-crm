@@ -146,7 +146,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Owner
+                    Owned By
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
