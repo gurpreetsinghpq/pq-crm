@@ -199,22 +199,17 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 const endDate = range?.to;
                 if (startDate && endDate) {
                     const createdOnDate = new Date(row.getValue(id));
-
+                    endDate.setHours(23,59,0,0)
+                    console.log("start", startDate)
+                    console.log("end", endDate)
+                    console.log("created on ", createdOnDate)
 
                     console.log(startDate.toString() === endDate.toString())
 
                     if (!startDate || !endDate) {
                         return true; // No date range specified, don't apply filtering
                     }
-                    else if (startDate.toString() === endDate.toString()) {
-                        // endDate.setHours(endDate.getHours() - 1, 59, 59, 0)
-                        let newEndDate = structuredClone(endDate)
-                        newEndDate.setHours(23,59,0,0)
-                        console.log("start", startDate)
-                        console.log("end", newEndDate)
-                        console.log("created on ", createdOnDate)
-                        return createdOnDate >= startDate && createdOnDate <= newEndDate;
-                    }
+                 
 
                     return createdOnDate >= startDate && createdOnDate <= endDate;
                 }
