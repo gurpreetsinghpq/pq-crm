@@ -37,7 +37,8 @@ interface DataTableProps<TData, TValue> {
     statuses: string[]
     creators: string[]
     owners: string[],
-    search: string
+    search: string,
+    dateRange?:any
   },
   setTableLeadLength: CallableFunction,
   setChildDataHandler: CallableFunction
@@ -123,6 +124,7 @@ export default function DataTable<TData, TValue>({
     }
 
     table.getColumn("title")?.setFilterValue(filterObj.search)
+    table.getColumn("createdOn")?.setFilterValue(filterObj.dateRange)
 
 
   }, [filterObj])
@@ -132,7 +134,7 @@ export default function DataTable<TData, TValue>({
     console.log("hey")
   }
 
-  function valueToLabel(key: Exclude<keyof typeof filterObj, "search">, arr: IValueLabel[]) {
+  function valueToLabel(key: Exclude<keyof typeof filterObj, "search" | "dateRange" >, arr: IValueLabel[]) {
     return filterObj[key].map((val) => arr.find((item) => item.value === val)?.label)
   }
 

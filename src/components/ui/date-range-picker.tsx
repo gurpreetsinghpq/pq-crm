@@ -260,17 +260,16 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         }
 
         const resetValues = (): void => {
+            const { from, to } = getLast7Days()
             setRange({
-                from: typeof initialDateFrom === 'string' ? new Date(initialDateFrom) : initialDateFrom,
-                to: initialDateTo ? (typeof initialDateTo === 'string' ? new Date(initialDateTo) : initialDateTo) : (typeof initialDateFrom === 'string' ? new Date(initialDateFrom) : initialDateFrom)
+                from: from,
+                to: to
             })
             setRangeCompare(
                 initialCompareFrom
                     ? {
-                        from: typeof initialCompareFrom === 'string' ? new Date(initialCompareFrom) : initialCompareFrom,
-                        to: initialCompareTo
-                            ? (typeof initialCompareTo === 'string' ? new Date(initialCompareTo) : initialCompareTo)
-                            : (typeof initialCompareFrom === 'string' ? new Date(initialCompareFrom) : initialCompareFrom)
+                        from: from,
+                        to: to
                     }
                     : undefined
             )
@@ -290,7 +289,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             isSelected: boolean
         }): JSX.Element => (
             <Button
-                className={cn(isSelected && 'pointer-events-none')}
+                className={cn(isSelected && 'pointer-events-none bg-accent text-accent-foreground')}
                 variant="ghost"
                 onClick={() => { setPreset(preset) }}
             >
@@ -327,7 +326,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                 setIsOpen(open)
             }}>
                 <PopoverTrigger asChild>
-                    <Button  variant="google">
+                    <Button variant="google">
                         <div className="flex flex-row gap-2 mr-2 ">
                             {/* <div className="py-1">
                                 <div>{`${formatDate(range.from, locale)}${(range.to != null) ? ' - ' + formatDate(range.to, locale) : ''
@@ -343,7 +342,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                                     </div>
                                 )
                             } */}
-                            <IconCalendar size="20"/>
+                            <IconCalendar size="20" />
                             {PRESETS.find((preset) => preset.name === selectedPreset)?.label}
                         </div>
                         <div className="pl-1 opacity-60 -mr-2 scale-125 px-2">
@@ -551,3 +550,16 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
 DateRangePicker.displayName = 'DateRangePicker'
 DateRangePicker.filePath =
     'libs/shared/ui-kit/src/lib/date-range-picker/date-range-picker.tsx'
+
+export function getLast7Days() {
+    const today = new Date()
+    const lastWeek = new Date(today)
+    lastWeek.setDate(today.getDate() - 7)
+
+    const from = new Date()
+    const to = new Date()
+    from.setDate(from.getDate() - 6)
+    from.setHours(0, 0, 0, 0)
+    to.setHours(23, 59, 59, 999)
+    return { from, to }
+}

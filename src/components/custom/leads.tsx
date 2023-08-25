@@ -32,7 +32,7 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
-import { DateRangePicker } from "../ui/date-range-picker"
+import { DateRangePicker, getLast7Days } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 import { IValueLabel } from "@/app/interfaces/interface"
@@ -61,7 +61,8 @@ const FormSchema = z.object({
     statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one status.",
     }),
-    search: z.string()
+    search: z.string(),
+    dateRange: z.any()
 })
 
 // let tableLeadLength = 0
@@ -95,6 +96,7 @@ const Leads = () => {
         setTableLength(number)
     }
 
+    const {from, to} = getLast7Days()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -103,7 +105,14 @@ const Leads = () => {
             statuses: ["allStatuses"],
             owners: ['allOwners'],
             creators: ['allCreators'],
-            search: ""
+            search: "",
+            dateRange: {
+                "range": {
+                "from": from,
+                "to": to
+            },
+            rangeCompare: undefined
+        }
         }
     })
 
@@ -129,11 +138,6 @@ const Leads = () => {
         setIsLoading(true)
         try {
             let data = structuredClone(await getData())
-            data = data.map((userData: LeadInterface) => {
-                const formattedDate = formatUtcDateToLocal(userData.createdOn);
-                userData.createdOn = formattedDate
-                return userData
-            })
             setLeadData(data.reverse())
             setIsLoading(false)
         }
@@ -154,7 +158,7 @@ const Leads = () => {
 
 
     React.useEffect(() => {
-        // console.log(watcher)
+        console.log(watcher)
     }, [watcher])
     // console.log(tableLeadLength)
 
@@ -252,13 +256,12 @@ const Leads = () => {
                                     </DropdownMenuTrigger> */}
                                 {/* <DropdownMenuContent className="w-56"> */}
                                 <DateRangePicker
-                                    onUpdate={(values) => console.log(values)}
+                                    onUpdate={(values) => form.setValue("dateRange", values)}
                                     // initialDateFrom="2023-01-01"
                                     // initialDateTo="2023-12-31"
                                     align="start"
                                     locale="en-GB"
                                     showCompare={false}
-
                                 />
 
                                 {/* </DropdownMenuContent>
@@ -596,31 +599,6 @@ export function formatData(data: any[], plural: string, childOf: IValueLabel[]) 
     return finalString
 }
 
-function formatUtcDateToLocal(backendUtcDate: any) {
-   
-    console.log("utc",backendUtcDate)
-    const inputString = new Date(backendUtcDate).toLocaleString()
-    console.log("input",inputString)
-    const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-      ];
-    
-      const [datePart, timePart] = inputString.split(', ');
-      const [date, month, year] = datePart.split('/');
-      const timeString = timePart;
-    
-      const formattedDate = `${months[parseInt(month) - 1]} ${parseInt(date)}, ${year}`;
-      const [hours, minutes] = timeString.split(':');
-      const numericHours = parseInt(hours);
-      const period = numericHours >= 12 ? 'pm' : 'am';
-      const formattedHours = numericHours === 0 ? 12 : (numericHours > 12 ? numericHours - 12 : numericHours);
-      const formattedTime = `${formattedHours}:${minutes}${period}`;
-    
-    
-    
-      return `${formattedDate}@${formattedTime}`;
-}
 
 
 export default Leads

@@ -67,7 +67,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title")}</span> 
+        cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title")}</span>
     },
     {
         accessorKey: "region",
@@ -189,9 +189,39 @@ export const columns: ColumnDef<LeadInterface>[] = [
             )
         },
         cell: ({ row }) => <div className=" font-normal">
-                {multiLine(row.getValue("createdOn"))}
+            {multiLine(row.getValue("createdOn"))}
 
-        </div>
+        </div>,
+        filterFn: (row, id, value) => {
+            const { range } = value
+            if (range) {
+                const startDate = range?.from;
+                const endDate = range?.to;
+                if (startDate && endDate) {
+                    const createdOnDate = new Date(row.getValue(id));
+
+
+                    console.log(startDate.toString() === endDate.toString())
+
+                    if (!startDate || !endDate) {
+                        return true; // No date range specified, don't apply filtering
+                    }
+                    else if (startDate.toString() === endDate.toString()) {
+                        // endDate.setHours(endDate.getHours() - 1, 59, 59, 0)
+                        let newEndDate = structuredClone(endDate)
+                        newEndDate.setHours(23,59,0,0)
+                        console.log("start", startDate)
+                        console.log("end", newEndDate)
+                        console.log("created on ", createdOnDate)
+                        return createdOnDate >= startDate && createdOnDate <= newEndDate;
+                    }
+
+                    return createdOnDate >= startDate && createdOnDate <= endDate;
+                }
+                return true
+            }
+            return true
+        },
     },
     {
         id: "actions",
@@ -208,7 +238,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={()=>{console.log(row)}}>
+                        <DropdownMenuItem onClick={() => { console.log(row) }}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
@@ -228,11 +258,36 @@ export const columns: ColumnDef<LeadInterface>[] = [
     },
 
 ]
-const multiLine = (str:string) => {
-    const [date, time]  = str.split("@");
-    console.log(str.split("@"))
+const multiLine = (dateStr: any) => {
+    const formattedDate = formatUtcDateToLocal(dateStr);
+    const [date, time] = formattedDate.split("@");
     return <>
-    <div className="text-gray-900 text-sm font-normal">{date}</div>
-    <div className="text-gray-600 text-xs font-normal">{time}</div>
+        <div className="text-gray-900 text-sm font-normal">{date}</div>
+        <div className="text-gray-600 text-xs font-normal">{time}</div>
     </>
-  }
+}
+
+
+function formatUtcDateToLocal(backendUtcDate: any) {
+
+    const inputString = new Date(backendUtcDate).toLocaleString()
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const [datePart, timePart] = inputString.split(', ');
+    const [date, month, year] = datePart.split('/');
+    const timeString = timePart;
+
+    const formattedDate = `${months[parseInt(month) - 1]} ${parseInt(date)}, ${year}`;
+    const [hours, minutes] = timeString.split(':');
+    const numericHours = parseInt(hours);
+    const period = numericHours >= 12 ? 'pm' : 'am';
+    const formattedHours = numericHours === 0 ? 12 : (numericHours > 12 ? numericHours - 12 : numericHours);
+    const formattedTime = `${formattedHours}:${minutes}${period}`;
+
+
+
+    return `${formattedDate}@${formattedTime}`;
+}
