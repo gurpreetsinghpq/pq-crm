@@ -11,7 +11,33 @@ let data:LeadInterface[] = [
         source: "Linkedin",
         status: "Unverified",
         title: "Swiggy - IND - CTO",
-        role: "CTO"
+        role: "CTO",
+        contacts: [
+            {
+                contactName: "Candice Wu",
+                designation: "HR Executive",
+                contactType: "Gate Keeper",
+                email:"candice@untitiledui.com",
+                countryCode: "+91",
+                phoneNo: "7002383842"
+            },
+            {
+                contactName: "John Smith",
+                designation: "Sales Manager",
+                contactType: "Decision Maker",
+                email: "john@example.com",
+                countryCode: "+1",
+                phoneNo: "5551234567"
+            },
+            {
+                contactName: "Emma Johnson",
+                designation: "Marketing Director",
+                contactType: "Influencer",
+                email: "emma@companyxyz.com",
+                countryCode: "+44",
+                phoneNo: "7894561230"
+            },
+        ]
     },
     {
         id: "932abde1",
@@ -23,7 +49,17 @@ let data:LeadInterface[] = [
         source: "Email Campaign",
         status: "Verified",
         title: "TechCorp - USA - CPTO",
-        role: "CEO"
+        role: "CEO",
+        contacts: [
+            {
+                contactName: "Carlos Rodriguez",
+                designation: "Operations Manager",
+                contactType: "Gate Keeper",
+                email: "carlos@companyabc.com",
+                countryCode: "+34",
+                phoneNo: "612345678"
+            },
+        ]
     },
     {
         id: "e9f4c25a",
@@ -35,7 +71,33 @@ let data:LeadInterface[] = [
         source: "Hoarding",
         status: "Unverified",
         title: "GlobalTech - EUR - CFO",
-        role: "CPTO"
+        role: "CPTO",
+        contacts: [
+            {
+                contactName: "Alice Johnson",
+                designation: "Marketing Manager",
+                contactType: "Gate Keeper",
+                email: "alice@example.com",
+                countryCode: "+1",
+                phoneNo: "9876543210"
+            },
+            {
+                contactName: "David Lee",
+                designation: "CTO",
+                contactType: "Decision Maker",
+                email: "david@companyxyz.com",
+                countryCode: "+44",
+                phoneNo: "7418529630"
+            },
+            {
+                contactName: "Maria Garcia",
+                designation: "Finance Director",
+                contactType: "Influencer",
+                email: "maria@companyabc.com",
+                countryCode: "+34",
+                phoneNo: "635241789"
+            },
+        ]
     },
     {
         id: "3b1c9d86",
@@ -47,7 +109,25 @@ let data:LeadInterface[] = [
         source: "Events",
         status: "Deferred",
         title: "SushiCo - JPN - Founder",
-        role: "Founder"
+        role: "Founder",
+        contacts: [
+            {
+                contactName: "Alice Johnson",
+                designation: "Marketing Manager",
+                contactType: "Gate Keeper",
+                email: "alice@example.com",
+                countryCode: "+1",
+                phoneNo: "9876543210"
+            },
+            {
+                contactName: "David Lee",
+                designation: "CTO",
+                contactType: "Decision Maker",
+                email: "david@companyxyz.com",
+                countryCode: "+44",
+                phoneNo: "7418529630"
+            },
+        ]
     }
 ]
 

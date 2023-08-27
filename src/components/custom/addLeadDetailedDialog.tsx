@@ -162,7 +162,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
             source: leadSourceLabel,
             status: "Unverified",
             title: `${formData.organisationName} - ${regionLabel} - ${roleTypeLabel}`,
-            role: roleTypeLabel
+            role: roleTypeLabel,
+            contacts: dummyContactData
         })
         dataFromChild()
     }
@@ -381,10 +382,10 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                                         <span className='text-xs text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px]'>{item.contactType}</span>
                                                     </div>}
                                                 </div>
-                                                <div className='text-xs text-gray-600'>
+                                                <div className='text-xs text-gray-600 font-normal'>
                                                     {item.email}
                                                 </div>
-                                                <div className='text-xs text-gray-600'>
+                                                <div className='text-xs text-gray-600 font-normal'>
                                                     {item.countryCode} {item.phoneNo}
                                                 </div>
                                             </div>

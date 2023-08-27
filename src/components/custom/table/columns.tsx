@@ -22,7 +22,17 @@ export type LeadInterface = {
     createdBy: string,
     owner: string,
     createdOn: string,
-    role: string
+    role: string,
+    contacts: Contact[]
+}
+
+export type Contact = {
+    contactName: string,
+    designation: string,
+    contactType: string,
+    email:  string,
+    countryCode: string,
+    phoneNo: string
 }
 
 function getClassOfStatus(statusName: string) {
@@ -199,7 +209,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 const endDate = range?.to;
                 if (startDate && endDate) {
                     const createdOnDate = new Date(row.getValue(id));
-                    endDate.setHours(23,59,0,0)
+                    endDate.setHours(23, 59, 0, 0)
                     console.log("start", startDate)
                     console.log("end", endDate)
                     console.log("created on ", createdOnDate)
@@ -209,7 +219,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                     if (!startDate || !endDate) {
                         return true; // No date range specified, don't apply filtering
                     }
-                 
+
 
                     return createdOnDate >= startDate && createdOnDate <= endDate;
                 }

@@ -370,5 +370,162 @@ const COUNTRY_CODE = [
     // Add more entries as needed
 ];
 
+const TIME_TO_FILL:IValueLabel[] = [
+    {
+        value: "lessThan30Days",
+        label: "Less than 30 days"
+    },
+    {
+        value: "30_to_60_days",
+        label: "30 to 60 days"
+    },
+    {
+        value: "60_to_90_days",
+        label: "60 to 90 days"
+    },
+    {
+        value: "above_90_days",
+        label: "Above 90 days"
+    }
+]
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE }
+const INDUSTRY:IValueLabel[] = [
+    {
+        value: "finTech",
+        label: "FinTech"
+    },
+    {
+        value: "healthTech",
+        label: "HealthTech"
+    },
+    {
+        value: "enterpriseTech_and_saaS",
+        label: "EnterpriseTech & SaaS"
+    },
+    {
+        value: "adTech",
+        label: "AdTech"
+    },
+    {
+        value: "travelTech",
+        label: "TravelTech"
+    },
+    {
+        value: "transportTech",
+        label: "Transport Tech"
+    },
+    {
+        value: "edTech",
+        label: "Ed Tech"
+    },
+    {
+        value: "hRTech",
+        label: "HR Tech"
+    },
+    {
+        value: "propTech",
+        label: "Prop Tech"
+    },
+    {
+        value: "deepTech",
+        label: "Deep Tech"
+    },
+    {
+        value: "agriTech",
+        label: "Agri Tech"
+    },
+    {
+        value: "ecommerce",
+        label: "Ecommerce"
+    },
+    {
+        value: "supplyChain",
+        label: "Supply Chain"
+    },
+    {
+        value: "logistics",
+        label: "Logistics"
+    },
+    {
+        value: "gaming",
+        label: "Gaming"
+    },
+    {
+        value: "media_and_entertainment,",
+        label: "Media & Entertainment,"
+    },
+    {
+        value: "enterprise_services",
+        label: "Enterprise Services"
+    },
+    {
+        value: "telecommunications",
+        label: "Telecommunications"
+    },
+    {
+        value: "bfsi",
+        label: "BFSI"
+    },
+    {
+        value: "consumer_services",
+        label: "Consumer Services"
+    },
+    {
+        value: "energy_and_utilities",
+        label: "Energy & Utilities"
+    },
+]
+
+const DOMAINS:IValueLabel[] = [
+    {
+        value: "b2b",
+        label: "B2B"
+    },
+    {
+        value: "b2c",
+        label: "C2C"
+    }
+]
+
+
+
+const SIZE_OF_COMPANY: IValueLabel[] = [
+    { value: "1_to_10", label: "1 to 10" },
+    { value: "11_to_50", label: "11 to 50" },
+    { value: "51_to_100", label: "51 to 100" },
+    { value: "101_to_500", label: "101 to 500" },
+    { value: "501_to_1000", label: "501 to 1000" },
+    { value: "1001_to_5000", label: "1001 to 5000" },
+    { value: "5001_to_10000", label: "5001 to 10000" },
+    { value: "10001_plus", label: "10001+" }
+]
+const LAST_FUNDING_STAGE: IValueLabel[] = [
+    { value: "seed", label: "Seed" },
+    { value: "series_a", label: "Series A" },
+    { value: "series_b", label: "Series B" },
+    { value: "series_c", label: "Series C" },
+    { value: "series_d", label: "Series D" },
+    { value: "series_e_and_above", label: "Series E & Above" },
+    { value: "debt_financing", label: "Debt Financing" },
+    { value: "convertible_note", label: "Convertible Note" },
+    { value: "ipo", label: "IPO" },
+    { value: "post_ipo_equity", label: "Post-IPO Equity" },
+    { value: "post_ipo_debt", label: "Post-IPO Debt" },
+    { value: "private_equity", label: "Private Equity" },
+    { value: "unknown", label: "Unknown" }
+];
+
+const RETAINER_ADVANCE:IValueLabel[] = [
+    {
+        value:"yes",
+        label:"Yes"
+    },
+    {
+        value:"no",
+        label:"No"
+    }
+]
+
+// Now the anotherValueLabels array contains the desired value-label pairs.
+
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, RETAINER_ADVANCE}
