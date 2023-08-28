@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '../ui/command'
 import { DialogClose } from '@radix-ui/react-dialog'
@@ -8,7 +8,7 @@ import { Separator } from '../ui/separator'
 import AddLeadDetailedDialog from './addLeadDetailedDialog'
 import { IconAccounts, IconBuildings } from '../icons/svgIcons'
 
-const duummySearchedItems = ["Swiggy", "Swish Bank"]
+const dummySearchedItems = ["Swiggy", "Swish Bank"]
 
 const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadData:CallableFunction }) => {
     const [inputAccount, setInputAccount] = useState("")
@@ -26,6 +26,19 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
         fetchLeadData()
         console.log(fetchLeadData)
     }
+
+    useEffect(() => {
+        const down = (e: KeyboardEvent) => {
+            if (e.key === "Enter" && inputAccount?.trim()?.length>0) {
+            e.preventDefault()
+            setIsExpanded(true)
+          }
+        }
+     
+        document.addEventListener("keydown", down)
+        return () => document.removeEventListener("keydown", down)
+      }, [inputAccount])
+
 
     return (
         <>
@@ -51,9 +64,9 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
                             </div>
                             <Command className="hover:border-purple-300 hover:shadow-custom1 mt-[6px] rounded-[8px] border-[1px] border-gray-300 shadow-xs ">
                                 <CommandInput onValueChange={(e) => { onChangeHandler(e) }} value={inputAccount} className="text-md" placeholder="Enter Organization Name" />
-                                <CommandList className='flex flex-col'>
+                                {inputAccount?.trim()?.length>0 && <CommandList className='flex flex-col'>
                                     <CommandEmpty>No results found.</CommandEmpty>
-                                    {duummySearchedItems.map((item:string, index) => (
+                                    {dummySearchedItems.map((item:string, index) => (
                                         <CommandItem key={index} className="flex flex-row justify-between px-4 py-4">
                                             <div className='flex flex-row justify-between w-full items-center'>
                                                 <div className="flex flex-row gap-2">
@@ -66,7 +79,9 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
                                             </div>
                                         </CommandItem>
                                     ))}
-                                    <Separator />
+                                    
+                                </CommandList>}
+                                <Separator />
                                     {
                                         inputAccount &&
                                         <div onClick={() => setIsExpanded(true)}>
@@ -87,7 +102,6 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
                                             </div>
                                         </div>
                                     }
-                                </CommandList>
                             </Command>
                         </div> : <div>
                             <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount}/>
