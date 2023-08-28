@@ -8,10 +8,64 @@ import { Separator } from '../ui/separator'
 import AddLeadDetailedDialog from './addLeadDetailedDialog'
 import { IconAccounts, IconBuildings } from '../icons/svgIcons'
 
-const dummySearchedItems = ["Swiggy", "Swish Bank"]
+// const dummySearchedItems = ["Swiggy", "Swish Bank"]
+const dummySearchedItems = [
+    {
+        organisationName: "Swiggy",
+        contacts: [
+            {
+                contactName: "Alice Johnson",
+                designation: "Marketing Manager",
+                contactType: "Gate Keeper",
+                email: "alice@example.com",
+                countryCode: "+1",
+                phoneNo: "9876543210"
+            },
+            {
+                contactName: "David Lee",
+                designation: "CTO",
+                contactType: "Decision Maker",
+                email: "david@companyxyz.com",
+                countryCode: "+44",
+                phoneNo: "7418529630"
+            },
+        ],
+        ids: ["728ed52f", "932abde1"]
+    },
+    {
+        organisationName: "Swish Bank",
+        contacts: [
+            {
+                contactName: "Alice Johnson",
+                designation: "Marketing Manager",
+                contactType: "Gate Keeper",
+                email: "alice@example.com",
+                countryCode: "+1",
+                phoneNo: "9876543210"
+            },
+            {
+                contactName: "David Lee",
+                designation: "CTO",
+                contactType: "Decision Maker",
+                email: "david@companyxyz.com",
+                countryCode: "+44",
+                phoneNo: "7418529630"
+            },
+            {
+                contactName: "Maria Garcia",
+                designation: "Finance Director",
+                contactType: "Influencer",
+                email: "maria@companyabc.com",
+                countryCode: "+34",
+                phoneNo: "635241789"
+            },
+        ]
+    },
+]
 
-const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadData:CallableFunction }) => {
+const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fetchLeadData: CallableFunction, setIds:CallableFunction}) => {
     const [inputAccount, setInputAccount] = useState("")
+    const [details, setDetails] = useState("")
     const [open, setOpen] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
     function onChangeHandler(data: string) {
@@ -19,7 +73,7 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
         setInputAccount(data)
     }
 
-    function dataFromChild(){
+    function dataFromChild() {
         setIsExpanded(false)
         setOpen(false)
         setInputAccount("")
@@ -29,16 +83,23 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
-            if (e.key === "Enter" && inputAccount?.trim()?.length>0) {
-            e.preventDefault()
-            setIsExpanded(true)
-          }
+            if (e.key === "Enter" && inputAccount?.trim()?.length > 0) {
+                e.preventDefault()
+                setIsExpanded(true)
+            }
         }
-     
+
         document.addEventListener("keydown", down)
         return () => document.removeEventListener("keydown", down)
-      }, [inputAccount])
+    }, [inputAccount])
 
+
+    function openExpanedWFilledDetails(details: any) {
+        console.log(details)
+        setIsExpanded(true)
+        setInputAccount(details.organisationName)
+        setDetails(details)
+    }
 
     return (
         <>
@@ -64,55 +125,55 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
                             </div>
                             <Command className="hover:border-purple-300 hover:shadow-custom1 mt-[6px] rounded-[8px] border-[1px] border-gray-300 shadow-xs ">
                                 <CommandInput onValueChange={(e) => { onChangeHandler(e) }} value={inputAccount} className="text-md" placeholder="Enter Organization Name" />
-                                {inputAccount?.trim()?.length>0 && <CommandList className='flex flex-col'>
+                                {inputAccount?.trim()?.length > 0 && <CommandList className='flex flex-col'>
                                     <CommandEmpty>No results found.</CommandEmpty>
-                                    {dummySearchedItems.map((item:string, index) => (
-                                        <CommandItem key={index} className="flex flex-row justify-between px-4 py-4">
-                                            <div className='flex flex-row justify-between w-full items-center'>
+                                    {dummySearchedItems.map((item: any, index) => (
+                                        <CommandItem key={index} className="flex flex-row justify-between px-0 py-0" >
+                                            <div className='flex flex-row justify-between w-full items-center pointer px-4 py-4 cursor-pointer' onClick={() => openExpanedWFilledDetails(item)}>
                                                 <div className="flex flex-row gap-2">
                                                     <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                                         <IconBuildings size="20" />
                                                     </div>
-                                                    <span>{item}</span>
+                                                    <span>{item?.organisationName}</span>
                                                 </div>
                                                 <span className='text-lg text-gray-700'>🡵</span>
                                             </div>
                                         </CommandItem>
                                     ))}
-                                    
+
                                 </CommandList>}
                                 <Separator />
-                                    {
-                                        inputAccount &&
-                                        <div onClick={() => setIsExpanded(true)}>
-                                            <div className='flex flex-row order-last justify-between gap-2 px-4 py-4 items-center cursor-pointer'>
-                                                <div className="flex flex-row gap-2 items-center">
-                                                    <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                                        <svg width="auto" height="auto" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <g id="plus-square">
-                                                                <path id="Icon" d="M8 5.33333V10.6667M5.33333 8H10.6667M5.2 14H10.8C11.9201 14 12.4802 14 12.908 13.782C13.2843 13.5903 13.5903 13.2843 13.782 12.908C14 12.4802 14 11.9201 14 10.8V5.2C14 4.0799 14 3.51984 13.782 3.09202C13.5903 2.71569 13.2843 2.40973 12.908 2.21799C12.4802 2 11.9201 2 10.8 2H5.2C4.0799 2 3.51984 2 3.09202 2.21799C2.71569 2.40973 2.40973 2.71569 2.21799 3.09202C2 3.51984 2 4.0799 2 5.2V10.8C2 11.9201 2 12.4802 2.21799 12.908C2.40973 13.2843 2.71569 13.5903 3.09202 13.782C3.51984 14 4.0799 14 5.2 14Z" stroke="#7F56D9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                            </g>
-                                                        </svg>
-                                                    </div>
-                                                    <div className='flex flex-row'>
-                                                        <span className='text-purple-600 font-medium text-md '>Add <span className='font-semibold'>'{inputAccount}'</span> as new account</span>
-                                                    </div>
+                                {
+                                    inputAccount &&
+                                    <div onClick={() => setIsExpanded(true)}>
+                                        <div className='flex flex-row order-last justify-between gap-2 px-4 py-4 items-center cursor-pointer'>
+                                            <div className="flex flex-row gap-2 items-center">
+                                                <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
+                                                    <svg width="auto" height="auto" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <g id="plus-square">
+                                                            <path id="Icon" d="M8 5.33333V10.6667M5.33333 8H10.6667M5.2 14H10.8C11.9201 14 12.4802 14 12.908 13.782C13.2843 13.5903 13.5903 13.2843 13.782 12.908C14 12.4802 14 11.9201 14 10.8V5.2C14 4.0799 14 3.51984 13.782 3.09202C13.5903 2.71569 13.2843 2.40973 12.908 2.21799C12.4802 2 11.9201 2 10.8 2H5.2C4.0799 2 3.51984 2 3.09202 2.21799C2.71569 2.40973 2.40973 2.71569 2.21799 3.09202C2 3.51984 2 4.0799 2 5.2V10.8C2 11.9201 2 12.4802 2.21799 12.908C2.40973 13.2843 2.71569 13.5903 3.09202 13.782C3.51984 14 4.0799 14 5.2 14Z" stroke="#7F56D9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </g>
+                                                    </svg>
                                                 </div>
-                                                <span className='text-xs text-purple-600 font-normal'>↵ Enter</span>
+                                                <div className='flex flex-row'>
+                                                    <span className='text-purple-600 font-medium text-md '>Add <span className='font-semibold'>'{inputAccount}'</span> as new account</span>
+                                                </div>
                                             </div>
+                                            <span className='text-xs text-purple-600 font-normal'>↵ Enter</span>
                                         </div>
-                                    }
+                                    </div>
+                                }
                             </Command>
                         </div> : <div>
-                            <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount}/>
+                            <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details} setIds={setIds}/>
                         </div>}
                         {!isExpanded && <><Separator className="bg-gray-200 h-[1px]  mt-8" />
-                        <div className="flex flex-row gap-2 justify-end mx-6 my-6">
-                            <DialogClose asChild>
-                                <Button variant={"google"} >Cancel</Button>
-                            </DialogClose>
-                            <Button disabled>Save & Add</Button>
-                        </div></>}
+                            <div className="flex flex-row gap-2 justify-end mx-6 my-6">
+                                <DialogClose asChild>
+                                    <Button variant={"google"} >Cancel</Button>
+                                </DialogClose>
+                                <Button disabled>Save & Add</Button>
+                            </div></>}
                     </div>
 
                 </DialogContent >

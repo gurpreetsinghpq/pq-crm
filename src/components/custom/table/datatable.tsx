@@ -38,7 +38,8 @@ interface DataTableProps<TData, TValue> {
     creators: string[]
     owners: string[],
     search: string,
-    dateRange?:any
+    dateRange?: any,
+    ids: string[]
   },
   setTableLeadLength: CallableFunction,
   setChildDataHandler: CallableFunction
@@ -57,9 +58,9 @@ export default function DataTable<TData, TValue>({
     []
   )
 
-  
-  const tbl:any = useRef(null) 
-  
+
+  const tbl: any = useRef(null)
+
   // const { tableLeadLength, setTableLeadLength } = useContext(TableContext)
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -79,7 +80,7 @@ export default function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
 
-    }
+    },
   })
 
   useEffect(() => {
@@ -123,25 +124,31 @@ export default function DataTable<TData, TValue>({
       table.getColumn("createdBy")?.setFilterValue(creatorFilter)
     }
 
+
+    // table.getColumn("id")?.setFilterValue(filterObj.ids)
+
     table.getColumn("title")?.setFilterValue(filterObj.search)
     table.getColumn("createdOn")?.setFilterValue(filterObj.dateRange)
 
 
   }, [filterObj])
+  useEffect(() => {
+    setTableLeadLength(table.getFilteredRowModel().rows.length)
+  }, [table.getFilteredRowModel().rows.length])
 
 
   function handleTableChange() {
     console.log("hey")
   }
 
-  function valueToLabel(key: Exclude<keyof typeof filterObj, "search" | "dateRange" >, arr: IValueLabel[]) {
+  function valueToLabel(key: Exclude<keyof typeof filterObj, "search" | "dateRange">, arr: IValueLabel[]) {
     return filterObj[key].map((val) => arr.find((item) => item.value === val)?.label)
   }
 
   return (
     <div className="flex flex-col flex-1">
       <div className="border-[1px] border-gray-200 flex-1 " ref={tbl}>
-        {tbl.current?.offsetHeight && (<div style={{height:`${tbl.current?.offsetHeight-3}px`}} className={` overflow-y-scroll`}>
+        {tbl.current?.offsetHeight && (<div style={{ height: `${tbl.current?.offsetHeight - 3}px` }} className={` overflow-y-scroll`}>
           <Table className="flex-1 " onChange={handleTableChange} >
             <TableHeader className="bg-gray-50 sticky top-0 left-0">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -171,8 +178,8 @@ export default function DataTable<TData, TValue>({
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => {
-                      return (<TableCell key={cell.id} onClick={()=>{
-                        cell.column.id!=='select' && setChildDataHandler('row', row)
+                      return (<TableCell key={cell.id} onClick={() => {
+                        cell.column.id !== 'select' && setChildDataHandler('row', row)
                       }}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>)
@@ -188,7 +195,7 @@ export default function DataTable<TData, TValue>({
               )}
             </TableBody>
           </Table>
-          </div>)}
+        </div>)}
       </div>
       {/* <div className="flex items-center justify-end space-x-2 py-4 px-5">
         <div className="flex-1 text-sm text-muted-foreground">
@@ -214,7 +221,7 @@ export default function DataTable<TData, TValue>({
           </Button>
         </div>
       </div> */}
-      <div className="pl-[64px] pr-[68px] py-4">
+      <div className="pl-[16px] pr-[16px] py-4">
         <DataTablePagination table={table} />
       </div>
     </div>

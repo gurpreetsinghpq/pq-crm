@@ -16,6 +16,8 @@ import { IValueLabel } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
+import { CommandGroup } from 'cmdk'
+import { Command, CommandInput, CommandItem } from '../ui/command'
 
 const FormSchema = z.object({
     owners: z.string(),
@@ -100,6 +102,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     ];
 
 
+
     useEffect(() => {
         console.log(form.getValues("statuses"))
         // console.log(reasonMap[form.getValues("reasons")])
@@ -142,7 +145,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         {
                                                             STATUSES.filter((status) => status.value !== 'allStatuses').map((status, index) => {
                                                                 return <SelectItem key={index} value={status.value}>
-                                                                    {status.label}
+                                                                    <div className="">
+                                                                        <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
+                                                                            {status.icon && <status.icon />}
+                                                                            {status.label}
+                                                                        </div>
+                                                                    </div>
                                                                 </SelectItem>
                                                             })
                                                         }
@@ -272,7 +280,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>
-                                                <Input className='border-none' placeholder="Fulfilled By" {...field} />
+                                                <Input disabled className='border-none' placeholder="Fulfilled By" {...field} />
                                             </FormLabel>
                                         </FormItem>
                                     )}
@@ -313,13 +321,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {
-                                                        ROLETYPE.map((role, index) => {
-                                                            return <SelectItem key={index} value={role.value}>
-                                                                {role.label}
-                                                            </SelectItem>
-                                                        })
-                                                    }
+                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                        {
+                                                            ROLETYPE.map((role, index) => {
+                                                                return <SelectItem key={index} value={role.value}>
+                                                                    {role.label}
+                                                                </SelectItem>
+                                                            })
+                                                        }
+                                                    </div>
                                                 </SelectContent>
                                             </Select>
                                             {/* <FormDescription>
@@ -413,7 +423,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             <div >
                                                                 <IconWallet size={24} color="#98A2B3" />
                                                             </div>
-                                                            <SelectValue defaultValue={field.value} placeholder="Select Budget" />
+                                                            <SelectValue placeholder="Select Budget" />
                                                         </div>
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -490,7 +500,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             <div >
                                                                 <IconClock size={24} color="#98A2B3" />
                                                             </div>
-                                                            <SelectValue defaultValue={field.value} placeholder="Time to Fill" />
+                                                            <SelectValue placeholder="Time to Fill" />
                                                         </div>
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -561,14 +571,16 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         </div>
                                                     </SelectTrigger>
                                                 </FormControl>
-                                                <SelectContent>
-                                                    {
-                                                        INDUSTRY.map((industry, index) => {
-                                                            return <SelectItem key={index} value={industry.value}>
-                                                                {industry.label}
-                                                            </SelectItem>
-                                                        })
-                                                    }
+                                                <SelectContent >
+                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                        {
+                                                            INDUSTRY.map((industry, index) => {
+                                                                return <SelectItem key={index} value={industry.value}>
+                                                                    {industry.label}
+                                                                </SelectItem>
+                                                            })
+                                                        }
+                                                    </div>
                                                 </SelectContent>
                                             </Select>
                                             {/* <FormDescription>
@@ -667,13 +679,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {
-                                                        LAST_FUNDING_STAGE.map((lastFundingStage, index) => {
-                                                            return <SelectItem key={index} value={lastFundingStage.value}>
-                                                                {lastFundingStage.label}
-                                                            </SelectItem>
-                                                        })
-                                                    }
+                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                        {
+                                                            LAST_FUNDING_STAGE.map((lastFundingStage, index) => {
+                                                                return <SelectItem key={index} value={lastFundingStage.value}>
+                                                                    {lastFundingStage.label}
+                                                                </SelectItem>
+                                                            })
+                                                        }
+                                                    </div>
                                                 </SelectContent>
                                             </Select>
                                             {/* <FormDescription>
@@ -822,11 +836,11 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                 {data.contacts.length > 0 && <div className='flex flex-col w-full mt-4  pr-[16px] scroll-style-one'>
                                     <div className='flex flex-col w-full'>
                                         {
-                                            data.contacts.reverse().map((item: any, index: number) => (
+                                            data.contacts.map((item: any, index: number) => (
                                                 <div className='flex flex-col ' key={index} >
                                                     <div className='flex flex-col'>
                                                         <div className='flex flex-row justify-between w-full'>
-                                                        {/* truncate w-[100px] */}
+                                                            {/* truncate w-[100px] */}
                                                             <span className='text-sm font-semibold flex-1'>
                                                                 {item.contactName} - {item.designation}
                                                             </span>
@@ -869,12 +883,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     <TabsList className='w-full justify-start px-[24px]'>
                                         <IconLock size={24} />
                                         {tabs.map((tab) => {
-                                            return <TabsTrigger value={tab.value}><div className='text-sm font-semibold '>{tab.label}</div></TabsTrigger>
+                                            return <TabsTrigger key={tab.value} value={tab.value}><div className='text-sm font-semibold '>{tab.label}</div></TabsTrigger>
                                         })}
                                     </TabsList>
                                     {
                                         tabs.map((tab) => {
-                                            return <TabsContent value={tab.value}>{`you are in ${tab.label} Tab`}.</TabsContent>
+                                            return <TabsContent key={tab.value} value={tab.value}>{`you are in ${tab.label} Tab`}.</TabsContent>
                                         })
                                     }
                                 </Tabs>

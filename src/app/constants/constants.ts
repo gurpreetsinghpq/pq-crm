@@ -65,15 +65,15 @@ const BUDGET_RANGE = [
     },
     {
         value: "inr1CrTo2Cr",
-        label: "INR 1Cr to 2 Cr",
+        label: "INR 1Cr to 2Cr",
     },
     {
         value: "inr2CrTo3Cr",
-        label: "INR 2 Cr to 3Cr",
+        label: "INR 2Cr to 3Cr",
     },
     {
         value: "aboveInr3Cr",
-        label: "Above INR 3 Cr",
+        label: "Above INR 3Cr",
     },
 
 ]
@@ -483,7 +483,7 @@ const DOMAINS:IValueLabel[] = [
     },
     {
         value: "b2c",
-        label: "C2C"
+        label: "B2C"
     }
 ]
 

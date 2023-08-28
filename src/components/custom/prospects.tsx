@@ -36,21 +36,47 @@ import { IconProspects, Unverified } from "../icons/svgIcons"
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 function getData(): LeadInterface[] {
-    return [
-        {
-            id: "728ed52f",
-            budgetRange: "INR 1cr - 2cr",
-            createdBy: "Varun Aggarwal",
-            createdOn: "December 20, 2021",
-            owner: "Varun Aggarwal",
-            region: "India",
-            source: "Linkedin",
-            status: "Unverified",
-            title: "Swiggy - IND - CTO",
-            role:"CTO",
-        },
-        // ...
-    ]
+    return [{ 
+        id: "728ed52f",
+        budgetRange: "INR 1Cr - 2Cr",
+        createdBy: "Varun Aggarwal",
+        createdOn: "2023-08-24T03:00:00Z",
+        owner: "Varun Aggarwal",
+        region: "India",
+        source: "Linkedin",
+        status: "Unverified",
+        title: "Swiggy - IND - CTO",
+        role: "CTO",
+        contacts: [
+            {
+                contactName: "Candice Wu",
+                designation: "HR Executive",
+                contactType: "Gate Keeper",
+                email:"candice@untitiledui.com",
+                countryCode: "+91",
+                phoneNo: "7002383842",
+                contactId: "5"
+            },
+            {
+                contactName: "John Smith",
+                designation: "Sales Manager",
+                contactType: "Decision Maker",
+                email: "john@example.com",
+                countryCode: "+1",
+                phoneNo: "5551234567",
+                contactId: "6"
+            },
+            {
+                contactName: "Emma Johnson",
+                designation: "Marketing Director",
+                contactType: "Influencer",
+                email: "emma@companyxyz.com",
+                countryCode: "+44",
+                phoneNo: "7894561230",
+                contactId: "7"
+            },
+        ]
+    },]
 }
 
 
@@ -119,7 +145,7 @@ const Prospects = () => {
                         </div>
                     </div>
                     <div className="right flex flex-row gap-4 ">
-                        
+
                     </div>
                 </div>
 
@@ -253,7 +279,7 @@ const Prospects = () => {
                                                             }}
                                                         >
                                                             <div className="flex flex-row gap-2 items-center">
-                                                                {status.icon && <status.icon/>}
+                                                                {status.icon && <status.icon />}
                                                                 {status.label}
                                                             </div>
                                                         </DropdownMenuCheckboxItem>
@@ -379,13 +405,13 @@ const Prospects = () => {
                             {/* <DataTable columns={columns} data={data} /> */}
                         </div> : <div className="flex flex-col gap-6 items-center p-10 ">
                             <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                                <IconProspects size={20}/>
+                                <IconProspects size={20} />
                             </div>
                             <div>
                                 <p className="text-md text-gray-900 font-semibold">No Prospects found</p>
 
                             </div>
-                           
+
                         </div>
                     }
                 </div>

@@ -40,6 +40,7 @@ import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
 import SideSheet from "./sideSheet"
+import { useRouter, useSearchParams } from "next/navigation"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -62,7 +63,10 @@ const FormSchema = z.object({
         message: "You have to select at least one status.",
     }),
     search: z.string(),
-    dateRange: z.any()
+    dateRange: z.any(),
+    ids: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one region.",
+    })
 })
 
 // let tableLeadLength = 0
@@ -73,7 +77,7 @@ export interface IChildData {
 
 const Leads = () => {
 
-    const [isSideSheetOpen, setIsSideSheetOpen] = React.useState<boolean>(false)
+    const [ids, setIds] = React.useState<string[]>([])
 
     const [data, setLeadData] = React.useState<LeadInterface[]>([])
 
@@ -89,6 +93,8 @@ const Leads = () => {
             return { ...prev, [key]: data }
         })
     }
+
+
     React.useEffect(() => {
         console.log(childData)
     }, [childData?.row])
@@ -115,6 +121,16 @@ const Leads = () => {
         }
         }
     })
+
+    const searchParams  = useSearchParams()
+    React.useEffect(()=>{
+        console.log(searchParams.get("ids"))
+        const queryParamIds = searchParams.get("ids")?.split("^")
+        console.log(queryParamIds)
+        if(queryParamIds && queryParamIds?.length>0){
+            form.setValue("ids", queryParamIds)
+        }
+    },[searchParams])
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         toast({
@@ -211,7 +227,7 @@ const Leads = () => {
                         </div>
                     </div>
                     <div className="right flex flex-row gap-4 ">
-                        <AddLeadDialog fetchLeadData={fetchLeadData}>
+                        <AddLeadDialog fetchLeadData={fetchLeadData} setIds={setIds}>
                             <Button className="flex flex-row gap-2">
                                 <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
                                 Add Lead
@@ -576,7 +592,7 @@ const Leads = () => {
                                     <p className="text-md text-gray-900 font-semibold">No Leads</p>
 
                                 </div>
-                                <AddLeadDialog fetchLeadData={fetchLeadData}>
+                                <AddLeadDialog fetchLeadData={fetchLeadData} setIds={setIds}>
                                     <Button className="flex flex-row gap-2">
                                         <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
                                         Add Lead

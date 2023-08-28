@@ -6,9 +6,9 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
-import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown } from 'lucide-react'
+import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -20,6 +20,8 @@ import { Checkbox } from '../ui/checkbox'
 import { IconAccounts, IconContacts, IconCross, IconRoles, IconTick } from '../icons/svgIcons'
 import { IValueLabel } from '@/app/interfaces/interface'
 import { setData } from '@/app/dummy/dummydata'
+import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
+import { Tooltip } from '@radix-ui/react-tooltip'
 
 
 const commonClasses = "focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -27,48 +29,55 @@ const commonClasses = "focus:shadow-custom1 focus:border-[1px] focus:border-purp
 
 const FormSchema = z.object({
     organisationName: z.string({
-        required_error: "Please enter a name.",
+        // required_error: "Please enter a name.",
     }).min(2),
     region: z.string({
-        required_error: "Please select a region"
+        // required_error: "Please select a region"
     }),
     roleType: z.string({
-        required_error: "Please select role type"
+        // required_error: "Please select role type"
     }),
     budget: z.string({
-        required_error: "Please select budget range"
+        // required_error: "Please select budget range"
     }),
     leadSource: z.string({
-        required_error: "Please select a lead source"
+        // required_error: "Please select a lead source"
     }),
 })
 
 const FormSchema2 = z.object({
     contactName: z.string({
-        required_error: "Please enter a name.",
+        // required_error: "Please enter a name.",
     }).min(2).max(30),
     designation: z.string({
-        required_error: "Please select designation.",
+        // required_error: "Please select designation.",
     }),
     contactType: z.optional(z.string()),
     email: z.string({
-        required_error: "Please select email"
+        // required_error: "Please select email"
 
     }).email(),
     phoneNo: z.string({
-        required_error: "Please select Phone No."
+        // required_error: "Please select Phone No."
     }).min(6).max(13),
     countryCode: z.string({
-        required_error: "Please select designation.",
+        // required_error: "Please select designation.",
     }),
+    contactId: z.string().optional()
 })
 
+const form2Defaults = {
+    contactName: "",
+    email: "",
+    phoneNo: "",
+    countryCode: "+91"
+}
 
-
-function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: string, dataFromChild: CallableFunction }) {
+function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }: { inputAccount: string, dataFromChild: CallableFunction, details: any, setIds: CallableFunction }) {
 
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
     const [showContactForm, setShowContactForm] = useState<any>(true)
+    const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -81,26 +90,31 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
 
     const form2 = useForm<z.infer<typeof FormSchema2>>({
         resolver: zodResolver(FormSchema2),
-        defaultValues: {
-            // organisationName: "",
-            // budget: "uptoInr1cr",
-            // leadSource: "linkedin"
-            contactName: "",
-            email: "",
-            phoneNo: "",
-            countryCode: "+91"
-        },
+        defaultValues: form2Defaults
 
     })
 
     const watcher = form2.watch()
 
     useEffect(() => {
-        console.log(form2.formState.isValid)
+        console.debug(form2.getValues())
 
     }, [watcher])
 
-   
+    useEffect(() => {
+        if (details?.contacts?.length > 0) {
+            setDummyContactData(details?.contacts)
+            form.setValue("organisationName", details?.organisationName)
+            setShowContactForm(false)
+            if (details?.ids) {
+                setIds(details?.ids)
+                console.log(details.ids)
+            }
+        }
+    }, [])
+
+    console.log(dummyContactData)
+
 
     function addContact() {
         console.log(form2.getValues())
@@ -109,14 +123,27 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
         console.log(finalData.contactType)
         const fDesignation = designation.find((des) => des.value === finalData.designation)?.label
         setDummyContactData((prevValues: any) => {
-            return [...prevValues, { ...form2.getValues(), contactType: ftype, designation: fDesignation }]
+            const list = [{ ...form2.getValues(), contactType: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
+            return list
         })
         setShowContactForm(false)
-        form2.reset()
+        resetForm2()
     }
     function discardContact() {
         setShowContactForm(false)
-        form2.reset()
+        setFormInUpdateState(false)
+        resetForm2()
+    }
+
+    function resetForm2() {
+        form2.reset(form2Defaults)
+    }
+
+    function guidGenerator() {
+        var S4 = function() {
+           return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+        };
+        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
     }
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -152,7 +179,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
         const owner = OWNERS[(Math.floor(Math.random() * (OWNERS.length - 1))) != 0 ? (Math.floor(Math.random() * (OWNERS.length - 1))) : 1].label
         console.log(regionLabel, budgetLabel, leadSourceLabel, roleTypeLabel, createdOn, createdBy, owner)
         form.reset()
-        form2.reset()
+        resetForm2()
         setData({
             budgetRange: budgetLabel,
             id: Math.floor(Math.random() * 10000).toString(),
@@ -171,6 +198,57 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
 
     function specificValueFinder(lookupValue: string, array: any[]): IValueLabel {
         return array.find((item) => item.value === lookupValue)
+    }
+    function specificLabelFinder(lookupValue: string, array: any[]): IValueLabel {
+        return array.find((item) => item.label === lookupValue)
+    }
+
+    function activateToUpdateForm(item: any) {
+        const finalData = item
+        console.log(finalData)
+        const ftype = TYPE.find((type) => type.label === finalData.contactType)?.value
+        // console.log(finalData.contactType)
+        const fDesignation = DESIGNATION.find((des) => des.label === finalData.designation)?.value
+        
+        form2.setValue("contactName", item.contactName)
+        form2.setValue("contactType", ftype)
+        form2.setValue("countryCode", item.countryCode)
+        if (fDesignation) {
+            form2.setValue("designation", fDesignation)
+        }
+        form2.setValue("email", item.email)
+        form2.setValue("phoneNo", item.phoneNo)
+        form2.setValue("contactId", item.contactId)
+        console.log(form2.getValues())
+        setShowContactForm(true)
+        setFormInUpdateState(true)
+    }
+
+    function addNewForm(): void {
+        resetForm2()
+        setShowContactForm(true)
+    }
+
+    function updateContact(): void {
+        const currentContactId = form2.getValues("contactId")
+        console.debug(currentContactId, form2.getValues())
+        if (currentContactId) {
+            const newData = structuredClone(dummyContactData)
+            const data = newData.find((value) => value.contactId === currentContactId)
+            data.contactName = form2.getValues("contactName")
+            const roleType = form2.getValues("contactType")
+            if(roleType){
+                data.contactType = specificValueFinder(roleType, TYPE)?.label 
+            }
+            data.countryCode = form2.getValues("countryCode")
+            data.designation = specificValueFinder(form2.getValues("designation"), DESIGNATION)?.label 
+            data.email = form2.getValues("email")
+            data.phoneNo = form2.getValues("phoneNo")
+            setDummyContactData(newData)
+        }
+        resetForm2()
+        setFormInUpdateState(false)
+        setShowContactForm(false)
     }
 
     return (
@@ -202,20 +280,20 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Enter organisation name" {...field} />
+                                        <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
-                        <div className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer'>
+                        {details?.ids?.length > 0 && <div className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' onClick={() => window.open(`/dashboard?ids=${[...details?.ids].join("^")}`)}>
                             <span>
-                                2 Existing Leads
+                                {details?.ids?.length} Exisiting Leads
                             </span>
                             {/* <ArrowUpRight className='text-blue-600 h-[18px] w-[18px]'/> */}
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                 <path d="M4 12L12 4M12 4H6.66667M12 4V9.33333" stroke="#1570EF" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
-                        </div>
+                        </div>}
 
                         <div className="flex flex-row gap-[10px] items-center  mt-4">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
@@ -233,7 +311,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select a Region" />
+                                                    <SelectValue placeholder="Select Region" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
@@ -263,7 +341,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select a Role Type" />
+                                                    <SelectValue placeholder="Select Role Type" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
@@ -293,7 +371,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select a Budget Range" />
+                                                    <SelectValue placeholder="Select Budget Range" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
@@ -334,7 +412,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select a Lead Source" />
+                                                    <SelectValue placeholder="Select Lead Source" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
@@ -367,21 +445,34 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                             </div>
                             <span className="text-xs text-gray-700">CONTACT</span>
                             <div className="bg-gray-200 h-[1px] flex-1" ></div>
-                            <div className={`text-sm text-purple-700  ${!showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showContactForm && setShowContactForm(true)}>+ Add</div>
+                            <div className={`text-sm text-purple-700  ${!showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showContactForm && addNewForm()}>+ Add</div>
                         </div>
                         {dummyContactData.length > 0 && <div className='flex flex-col w-full mt-4 h-[150px] overflow-y-scroll pr-[16px] scroll-style-one'>
                             <div className='flex flex-col w-full'>
                                 {
-                                    dummyContactData.reverse().map((item: any, index: number) => (
-                                        <div className='flex flex-col ' key={index} >
+                                    dummyContactData.map((item: any, index: number) => (
+                                        <div className='flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
                                             <div className='flex flex-col'>
                                                 <div className='flex flex-row justify-between w-full'>
-                                                    <span className='text-sm font-semibold '>
+                                                    <span className='text-sm font-semibold flex-1'>
                                                         {item.contactName} - {item.designation}
                                                     </span>
-                                                    {item?.contactType && item?.contactType?.trim() !== "" && <div>
-                                                        <span className='text-xs text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px]'>{item.contactType}</span>
-                                                    </div>}
+                                                    <div className='flex flex-row gap-2 items-center'>
+                                                        {item?.contactType && item?.contactType?.trim() !== "" && <div>
+                                                            <span className='text-xs text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px]'>{item.contactType}</span>
+                                                        </div>}
+
+                                                        {item.isLocallyAdded && <TooltipProvider>
+                                                            <Tooltip>
+                                                                <TooltipTrigger >
+                                                                    <PencilIcon className='h-[16px] cursor-pointer' onClick={() => activateToUpdateForm(item)} />
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side='right' >
+                                                                    Edit
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>}
+                                                    </div>
                                                 </div>
                                                 <div className='text-xs text-gray-600 font-normal'>
                                                     {item.email}
@@ -391,7 +482,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                                 </div>
                                             </div>
 
-                                            <Separator className='mt-[12px] mb-[8px]' />
                                         </div>
                                     ))
                                 }
@@ -405,7 +495,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                 control={form2.control}
                                 name="contactName"
                                 render={({ field }) => (
-                                    <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Enter contact name" {...field} />
+                                    <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Contact Name" {...field} />
                                 )}
                             />
                             <div className='flex flex-row gap-4 mt-3'>
@@ -490,6 +580,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
+                                                <div className='h-[200px] overflow-y-scroll scroll-style-one'>
                                                     {
                                                         countryCode.map((countryCode, index) => {
                                                             return <SelectItem value={countryCode.value} key={index}>
@@ -497,6 +588,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                                             </SelectItem>
                                                         })
                                                     }
+                                                    </div>
                                                 </SelectContent>
                                             </Select>
                                             {/* <FormDescription>
@@ -519,10 +611,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild }: { inputAccount: 
                                     <IconCross size={20} />
                                     <span className='text-gray-600 text-xs font-semibold' >Discard</span>
                                 </div>}
-                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${form2.formState.isValid ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form2.formState.isValid && addContact()}>
+                                {isFormInUpdateState ? <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${form2.formState.isValid ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form2.formState.isValid && updateContact()}>
                                     <IconTick size={20} />
-                                    <span className='text-gray-600 text-xs font-semibold' >Add</span>
-                                </div>
+                                    <span className='text-gray-600 text-xs font-semibold' >Update</span>
+                                </div> :
+                                    <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${form2.formState.isValid ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form2.formState.isValid && addContact()}>
+                                        <IconTick size={20} />
+                                        <span className='text-gray-600 text-xs font-semibold' >Add</span>
+                                    </div>}
                             </div>
                         </div>}
 

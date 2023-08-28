@@ -23,16 +23,17 @@ export type LeadInterface = {
     owner: string,
     createdOn: string,
     role: string,
-    contacts: Contact[]
+    contacts: Contact[],
 }
 
 export type Contact = {
     contactName: string,
     designation: string,
     contactType: string,
-    email:  string,
+    email: string,
     countryCode: string,
-    phoneNo: string
+    phoneNo: string,
+    contactId: string
 }
 
 function getClassOfStatus(statusName: string) {
@@ -64,6 +65,29 @@ export const columns: ColumnDef<LeadInterface>[] = [
         enableSorting: false,
         enableHiding: false,
     },
+    // {
+    //     accessorKey: "id",
+    //     header: ({ column }) => {
+    //         return (
+    //             <div
+    //                 // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+    //             >
+    //                 Id
+    //                 {/* <IconArrowDown size={20} /> */}
+    //             </div>
+    //         )
+    //     },
+        
+    //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("id")}</div>,
+    //     filterFn: (row, id, value) => {
+    //         console.log(row,id,value)
+    //         return value.includes(row.getValue(id))
+    //     },        
+    //     enableHiding:true,
+        
+        
+    // },    
     {
         accessorKey: "title",
         header: ({ column }) => {
@@ -275,14 +299,15 @@ const multiLine = (dateStr: any) => {
 
 function formatUtcDateToLocal(backendUtcDate: any) {
 
-    const inputString = new Date(backendUtcDate).toLocaleString()
+
+    const inputString = new Date(backendUtcDate).toLocaleString('en-US', { hour12: false })
     const months = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
     ];
 
     const [datePart, timePart] = inputString.split(', ');
-    const [date, month, year] = datePart.split('/');
+    const [month, date, year] = datePart.split('/');
     const timeString = timePart;
 
     const formattedDate = `${months[parseInt(month) - 1]} ${parseInt(date)}, ${year}`;
@@ -292,6 +317,7 @@ function formatUtcDateToLocal(backendUtcDate: any) {
     const formattedHours = numericHours === 0 ? 12 : (numericHours > 12 ? numericHours - 12 : numericHours);
     const formattedTime = `${formattedHours}:${minutes}${period}`;
 
+    console.log(inputString, datePart, timePart, formattedDate, formattedTime)
 
 
     return `${formattedDate}@${formattedTime}`;

@@ -19,7 +19,8 @@ let data:LeadInterface[] = [
                 contactType: "Gate Keeper",
                 email:"candice@untitiledui.com",
                 countryCode: "+91",
-                phoneNo: "7002383842"
+                phoneNo: "7002383842",
+                contactId: "5"
             },
             {
                 contactName: "John Smith",
@@ -27,7 +28,8 @@ let data:LeadInterface[] = [
                 contactType: "Decision Maker",
                 email: "john@example.com",
                 countryCode: "+1",
-                phoneNo: "5551234567"
+                phoneNo: "5551234567",
+                contactId: "6"
             },
             {
                 contactName: "Emma Johnson",
@@ -35,7 +37,8 @@ let data:LeadInterface[] = [
                 contactType: "Influencer",
                 email: "emma@companyxyz.com",
                 countryCode: "+44",
-                phoneNo: "7894561230"
+                phoneNo: "7894561230",
+                contactId: "7"
             },
         ]
     },
@@ -57,7 +60,8 @@ let data:LeadInterface[] = [
                 contactType: "Gate Keeper",
                 email: "carlos@companyabc.com",
                 countryCode: "+34",
-                phoneNo: "612345678"
+                phoneNo: "612345678",
+                contactId:"4"
             },
         ]
     },
@@ -79,7 +83,8 @@ let data:LeadInterface[] = [
                 contactType: "Gate Keeper",
                 email: "alice@example.com",
                 countryCode: "+1",
-                phoneNo: "9876543210"
+                phoneNo: "9876543210",
+                contactId: "1"
             },
             {
                 contactName: "David Lee",
@@ -87,7 +92,8 @@ let data:LeadInterface[] = [
                 contactType: "Decision Maker",
                 email: "david@companyxyz.com",
                 countryCode: "+44",
-                phoneNo: "7418529630"
+                phoneNo: "7418529630",
+                contactId:"2"
             },
             {
                 contactName: "Maria Garcia",
@@ -95,7 +101,8 @@ let data:LeadInterface[] = [
                 contactType: "Influencer",
                 email: "maria@companyabc.com",
                 countryCode: "+34",
-                phoneNo: "635241789"
+                phoneNo: "635241789",
+                contactId:"3"
             },
         ]
     },
@@ -117,7 +124,8 @@ let data:LeadInterface[] = [
                 contactType: "Gate Keeper",
                 email: "alice@example.com",
                 countryCode: "+1",
-                phoneNo: "9876543210"
+                phoneNo: "9876543210",
+                contactId: "1"
             },
             {
                 contactName: "David Lee",
@@ -125,7 +133,8 @@ let data:LeadInterface[] = [
                 contactType: "Decision Maker",
                 email: "david@companyxyz.com",
                 countryCode: "+44",
-                phoneNo: "7418529630"
+                phoneNo: "7418529630",
+                contactId: "2"
             },
         ]
     }
