@@ -14,12 +14,12 @@ import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
-import { toast } from '../ui/use-toast'
+import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
-import { IconAccounts, IconContacts, IconCross, IconRoles, IconTick } from '../icons/svgIcons'
-import { IValueLabel } from '@/app/interfaces/interface'
-import { setData } from '@/app/dummy/dummydata'
+import { IconAccounts, IconContacts, IconCross, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
+import { Client, ClientCompleteInterface, ContactDetail, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
+// import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 
@@ -46,45 +46,59 @@ const FormSchema = z.object({
 })
 
 const FormSchema2 = z.object({
-    contactName: z.string({
+    name: z.string({
         // required_error: "Please enter a name.",
     }).min(2).max(30),
     designation: z.string({
         // required_error: "Please select designation.",
     }),
-    contactType: z.optional(z.string()),
+    type: z.string(),
     email: z.string({
         // required_error: "Please select email"
 
     }).email(),
-    phoneNo: z.string({
+    phone: z.string({
         // required_error: "Please select Phone No."
     }).min(6).max(13),
-    countryCode: z.string({
+    std_code: z.string({
         // required_error: "Please select designation.",
     }),
     contactId: z.string().optional()
 })
 
 const form2Defaults = {
-    contactName: "",
+    name: "",
     email: "",
-    phoneNo: "",
-    countryCode: "+91"
+    phone: "",
+    std_code: "+91"
 }
 
-function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }: { inputAccount: string, dataFromChild: CallableFunction, details: any, setIds: CallableFunction }) {
+// function transformContactsToBackendStructure(contacts: any): ContactDetail[] {
+//     return contacts.map((contact: any) => ({
+//         name: contact.contactName,
+//         email: contact.email,
+//         std_code: contact.countryCode,
+//         phone: contact.phoneNo,
+//         designation: contact.designation,
+//         type: contact.contactType
+//     }));
+// }
+
+
+function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredLeadData }: { inputAccount: string, dataFromChild: CallableFunction, details: ClientCompleteInterface | undefined, filteredLeadData: LeadInterface[] | undefined }) {
 
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
     const [showContactForm, setShowContactForm] = useState<any>(true)
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
+    const [budgetKey, setBudgetKey] = useState<number>(+new Date())
+
+    const { toast } = useToast()
+
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            organisationName: inputAccount,
-            // budget: "uptoInr1cr",
-            // leadSource: "linkedin"
+            "organisationName": ""
         }
     })
 
@@ -94,23 +108,26 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
 
     })
 
-    const watcher = form2.watch()
+    const watcher1 = form.watch()
+    const watcher2 = form2.watch()
 
     useEffect(() => {
-        console.debug(form2.getValues())
+        console.log(form.getValues())
 
-    }, [watcher])
+    }, [watcher1])
 
     useEffect(() => {
-        if (details?.contacts?.length > 0) {
-            setDummyContactData(details?.contacts)
-            form.setValue("organisationName", details?.organisationName)
-            setShowContactForm(false)
-            if (details?.ids) {
-                setIds(details?.ids)
-                console.log(details.ids)
-            }
+        console.log("details", details)
+        if (details?.name) {
+            form.setValue("organisationName", details?.name)
+        } else {
+            form.setValue("organisationName", inputAccount)
         }
+        if (details?.contacts && details?.contacts?.length > 0) {
+            setDummyContactData(details?.contacts)
+            setShowContactForm(false)
+        }
+
     }, [])
 
     console.log(dummyContactData)
@@ -119,11 +136,11 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
     function addContact() {
         console.log(form2.getValues())
         const finalData = form2.getValues()
-        const ftype = type.find((role) => role.value === finalData.contactType)?.label
-        console.log(finalData.contactType)
+        const ftype = type.find((role) => role.value === finalData.type)?.label
+        console.log(finalData.type)
         const fDesignation = designation.find((des) => des.value === finalData.designation)?.label
         setDummyContactData((prevValues: any) => {
-            const list = [{ ...form2.getValues(), contactType: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
+            const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
             return list
         })
         setShowContactForm(false)
@@ -139,12 +156,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
         form2.reset(form2Defaults)
     }
 
-    function guidGenerator() {
-        var S4 = function() {
-           return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-        };
-        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-    }
+
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         toast({
@@ -168,56 +180,114 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
         })
     }
 
-    function addToLead(): void {
+    async function addToLead() {
         const formData = form.getValues()
         const regionLabel = specificValueFinder(formData.region, region)?.label
-        const budgetLabel = specificValueFinder(formData.budget, budgetRange)?.label
+        const budgetLabel = specificValueFinder(formData.budget, budgetRange[form.getValues("region")])?.label
         const leadSourceLabel = specificValueFinder(formData.leadSource, leadSource)?.label
         const roleTypeLabel = specificValueFinder(formData.roleType, roleType)?.label
         const createdOn = new Date()
         const createdBy = CREATORS[(Math.floor(Math.random() * (CREATORS.length - 1))) != 0 ? (Math.floor(Math.random() * (CREATORS.length - 1))) : 1].label
         const owner = OWNERS[(Math.floor(Math.random() * (OWNERS.length - 1))) != 0 ? (Math.floor(Math.random() * (OWNERS.length - 1))) : 1].label
         console.log(regionLabel, budgetLabel, leadSourceLabel, roleTypeLabel, createdOn, createdBy, owner)
-        form.reset()
-        resetForm2()
-        setData({
-            budgetRange: budgetLabel,
-            id: Math.floor(Math.random() * 10000).toString(),
-            owner: owner,
-            region: regionLabel,
-            createdBy: createdBy,
-            createdOn: createdOn.toISOString(),
-            source: leadSourceLabel,
-            status: "Unverified",
-            title: `${formData.organisationName} - ${regionLabel} - ${roleTypeLabel}`,
-            role: roleTypeLabel,
-            contacts: dummyContactData
+        // setData({
+        //     budgetRange: budgetLabel,
+        //     id: Math.floor(Math.random() * 10000).toString(),
+        //     owner: owner,
+        //     region: regionLabel,
+        //     createdBy: createdBy,
+        //     createdOn: createdOn.toISOString(),
+        //     source: leadSourceLabel,
+        //     status: "Unverified",
+        //     title: `${formData.organisationName} - ${regionLabel} - ${roleTypeLabel}`,
+        //     role: roleTypeLabel,
+        //     contacts: dummyContactData
+        // })
+
+        const regionAcronym = acronymFinder(regionLabel, REGION)
+        const roleTypeAcronym = acronymFinder(roleTypeLabel, ROLETYPE)
+
+        let incrementalNumber: number = 1
+        filteredLeadData?.forEach((val) => {
+            const dataArr = val.title?.split(" ").join("").split("-")
+            if (dataArr) {
+                const [orgNameL, regL, roleL] = dataArr
+                console.log(orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase() )
+                console.log(orgNameL.toLowerCase() , formData.organisationName.toLowerCase() , regionAcronym?.toLowerCase() , regL.toLowerCase() , roleTypeAcronym?.toLowerCase() , roleL.toLowerCase() )
+                if (orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase()) {
+                    incrementalNumber++
+                }
+            }
         })
-        dataFromChild()
+        const title = `${formData.organisationName} - ${regionAcronym} - ${roleTypeAcronym} - ${incrementalNumber}`
+        const finalContactData = dummyContactData.filter((contact) => !contact.id)
+
+        let keysToRemove: any = ["contactId", "isLocallyAdded",]
+        finalContactData.forEach((item) => {
+            keysToRemove.forEach((key: string) => {
+                if (key in item) {
+                    delete item[key];
+                }
+            });
+        })
+
+        const dataToSend: Client = {
+            title: title,
+
+            organisation: {
+                contact_details: finalContactData,
+                name: formData.organisationName,
+
+            },
+            role_details: {
+                budget_range: budgetLabel,
+                region: regionLabel,
+                role_type: roleTypeLabel
+            },
+            source: leadSourceLabel
+        }
+        if (details?.id) {
+            dataToSend.organisation.id = details.id
+        }
+
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+        const token_superuser = "e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b"
+
+        console.log(dataToSend)
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+            dataFromChild()
+            form.reset()
+            resetForm2()
+           
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     function specificValueFinder(lookupValue: string, array: any[]): IValueLabel {
         return array.find((item) => item.value === lookupValue)
     }
-    function specificLabelFinder(lookupValue: string, array: any[]): IValueLabel {
-        return array.find((item) => item.label === lookupValue)
-    }
 
     function activateToUpdateForm(item: any) {
         const finalData = item
         console.log(finalData)
-        const ftype = TYPE.find((type) => type.label === finalData.contactType)?.value
+        const ftype = TYPE.find((type) => type.label === finalData.type)?.value
         // console.log(finalData.contactType)
         const fDesignation = DESIGNATION.find((des) => des.label === finalData.designation)?.value
-        
-        form2.setValue("contactName", item.contactName)
-        form2.setValue("contactType", ftype)
-        form2.setValue("countryCode", item.countryCode)
+
+        form2.setValue("name", item.name)
+        if (ftype) {
+            form2.setValue("type", ftype)
+        }
+        form2.setValue("std_code", item.std_code)
         if (fDesignation) {
             form2.setValue("designation", fDesignation)
         }
         form2.setValue("email", item.email)
-        form2.setValue("phoneNo", item.phoneNo)
+        form2.setValue("phone", item.phone)
         form2.setValue("contactId", item.contactId)
         console.log(form2.getValues())
         setShowContactForm(true)
@@ -235,20 +305,27 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
         if (currentContactId) {
             const newData = structuredClone(dummyContactData)
             const data = newData.find((value) => value.contactId === currentContactId)
-            data.contactName = form2.getValues("contactName")
-            const roleType = form2.getValues("contactType")
-            if(roleType){
-                data.contactType = specificValueFinder(roleType, TYPE)?.label 
+            data.name = form2.getValues("name")
+            const roleType = form2.getValues("type")
+            if (roleType) {
+                data.type = specificValueFinder(roleType, TYPE)?.label
             }
-            data.countryCode = form2.getValues("countryCode")
-            data.designation = specificValueFinder(form2.getValues("designation"), DESIGNATION)?.label 
+            data.std_code = form2.getValues("std_code")
+            data.designation = specificValueFinder(form2.getValues("designation"), DESIGNATION)?.label
             data.email = form2.getValues("email")
-            data.phoneNo = form2.getValues("phoneNo")
+            data.phone = form2.getValues("phone")
             setDummyContactData(newData)
         }
         resetForm2()
         setFormInUpdateState(false)
         setShowContactForm(false)
+
+    }
+
+    function yesDiscard(): void {
+        form.reset()
+        resetForm2()
+        dataFromChild()
     }
 
     return (
@@ -280,14 +357,23 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
+                                        <TooltipProvider>
+                                            <Tooltip >
+                                                <TooltipTrigger className='w-full'>
+                                                    <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
+                                                </TooltipTrigger>
+                                                {details?.name && <TooltipContent side='right'>
+                                                    The organization name is unchangeable
+                                                </TooltipContent>}
+                                            </Tooltip>
+                                        </TooltipProvider>
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
-                        {details?.ids?.length > 0 && <div className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' onClick={() => window.open(`/dashboard?ids=${[...details?.ids].join("^")}`)}>
+                        {filteredLeadData && filteredLeadData?.length > 0 && <div className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' onClick={() => window.open(`/dashboard?ids=${details?.name}`)}>
                             <span>
-                                {details?.ids?.length} Exisiting Leads
+                                {filteredLeadData?.length} Exisiting {filteredLeadData?.length === 1 ? "Lead" : "Leads"}
                             </span>
                             {/* <ArrowUpRight className='text-blue-600 h-[18px] w-[18px]'/> */}
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -308,7 +394,11 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                                 name="region"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={(value) => {
+                                            form.resetField("budget", { defaultValue: undefined })
+                                            setBudgetKey(+ new Date())
+                                            return field.onChange(value)
+                                        }} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
                                                     <SelectValue placeholder="Select Region" />
@@ -332,7 +422,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                                 )}
                             />
                         </div>
-                        <div className='flex flex-col mt-3 w-full'>
+                        <div className='flex flex-col mt-3 w-full '>
                             <FormField
                                 control={form.control}
                                 name="roleType"
@@ -344,14 +434,16 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                                                     <SelectValue placeholder="Select Role Type" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent>
-                                                {
-                                                    roleType.map((roleType, index) => {
-                                                        return <SelectItem key={index} value={roleType.value}>
-                                                            {roleType.label}
-                                                        </SelectItem>
-                                                    })
-                                                }
+                                            <SelectContent >
+                                                <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                    {
+                                                        roleType.map((roleType, index) => {
+                                                            return <SelectItem key={index} value={roleType.value}>
+                                                                {roleType.label}
+                                                            </SelectItem>
+                                                        })
+                                                    }
+                                                </div>
                                             </SelectContent>
                                         </Select>
                                         {/* <FormDescription>
@@ -363,20 +455,20 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                             />
                         </div>
                         <div className='flex flex-col mt-3 w-full'>
-                            <FormField
+                            {<FormField
                                 control={form.control}
                                 name="budget"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select onValueChange={field.onChange} key={budgetKey}>
                                             <FormControl>
-                                                <SelectTrigger className={commonClasses}>
+                                                <SelectTrigger disabled={!form.getValues("region")} className={commonClasses}>
                                                     <SelectValue placeholder="Select Budget Range" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 {
-                                                    budgetRange.map((budgetRange, index) => {
+                                                    budgetRange[form.getValues("region")]?.map((budgetRange, index) => {
                                                         return <SelectItem value={budgetRange.value} key={index}>
                                                             {budgetRange.label}
                                                         </SelectItem>
@@ -390,7 +482,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            />}
                         </div>
                         <div className="flex flex-row gap-[10px] items-center  mt-4">
                             {/* <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
@@ -437,8 +529,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                 </Form>
                 <div className="w-[1px] bg-gray-200 "></div>
                 <Form {...form2}>
-                    <form className='ri ght flex flex-col w-1/2' onSubmit={form2.handleSubmit(onSubmit2)}>
-
+                    <form className='right flex flex-col w-1/2' onSubmit={form2.handleSubmit(onSubmit2)}>
                         <div className="flex flex-row gap-[10px] items-center">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconContacts size="20" />
@@ -447,38 +538,39 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                             <div className="bg-gray-200 h-[1px] flex-1" ></div>
                             <div className={`text-sm text-purple-700  ${!showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showContactForm && addNewForm()}>+ Add</div>
                         </div>
-                        {dummyContactData.length > 0 && <div className='flex flex-col w-full mt-4 h-[150px] overflow-y-scroll pr-[16px] scroll-style-one'>
+                        {dummyContactData.length > 0 && <div className={`flex flex-col w-full mt-4  pr-[16px] max-h-[340px] overflow-y-auto scroll-style-one  ${showContactForm && "h-[150px] overflow-y-scroll "} `}>
                             <div className='flex flex-col w-full'>
                                 {
                                     dummyContactData.map((item: any, index: number) => (
-                                        <div className='flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
+                                        <div className='relative flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
                                             <div className='flex flex-col'>
                                                 <div className='flex flex-row justify-between w-full'>
                                                     <span className='text-sm font-semibold flex-1'>
-                                                        {item.contactName} - {item.designation}
+                                                        {item.name} - {item.designation}
                                                     </span>
                                                     <div className='flex flex-row gap-2 items-center'>
-                                                        {item?.contactType && item?.contactType?.trim() !== "" && <div>
-                                                            <span className='text-xs text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px]'>{item.contactType}</span>
+                                                        {item?.type && item?.type?.trim() !== "" && <div>
+                                                            <span className='text-xs mr-[10px] text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px]'>{item.type}</span>
                                                         </div>}
 
-                                                        {item.isLocallyAdded && <TooltipProvider>
-                                                            <Tooltip>
-                                                                <TooltipTrigger >
-                                                                    <PencilIcon className='h-[16px] cursor-pointer' onClick={() => activateToUpdateForm(item)} />
-                                                                </TooltipTrigger>
-                                                                <TooltipContent side='right' >
-                                                                    Edit
-                                                                </TooltipContent>
-                                                            </Tooltip>
-                                                        </TooltipProvider>}
+                                                        {
+                                                            item.isLocallyAdded && <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger >
+                                                                        <PencilIcon className='absolute right-[5px] top-[10px] h-[16px] cursor-pointer' onClick={() => activateToUpdateForm(item)} />
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side='right' >
+                                                                        Edit
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>}
                                                     </div>
                                                 </div>
                                                 <div className='text-xs text-gray-600 font-normal'>
                                                     {item.email}
                                                 </div>
                                                 <div className='text-xs text-gray-600 font-normal'>
-                                                    {item.countryCode} {item.phoneNo}
+                                                    {item.std_code} {item.phone}
                                                 </div>
                                             </div>
 
@@ -489,11 +581,11 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
 
                             </div>
                         </div>}
-                        {dummyContactData?.length > 0 && <div className="bg-gray-200 h-[1px]" ></div>}
+                        {dummyContactData?.length > 0 && showContactForm && <div className="bg-gray-200 h-[1px]" ></div>}
                         {showContactForm && <div className='flex flex-col'>
                             <FormField
                                 control={form2.control}
-                                name="contactName"
+                                name="name"
                                 render={({ field }) => (
                                     <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Contact Name" {...field} />
                                 )}
@@ -532,13 +624,13 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                                 <div className='flex flex-col w-full'>
                                     <FormField
                                         control={form2.control}
-                                        name="contactType"
+                                        name="type"
                                         render={({ field }) => (
                                             <FormItem>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={commonClasses}>
-                                                            <SelectValue placeholder="Type (Optional)" />
+                                                            <SelectValue placeholder="Type" />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
@@ -570,7 +662,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                             <div className='flex flex-row gap-2 items-center'>
                                 <FormField
                                     control={form2.control}
-                                    name="countryCode"
+                                    name="std_code"
                                     render={({ field }) => (
                                         <FormItem className='mt-3 w-1/3'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -580,14 +672,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                <div className='h-[200px] overflow-y-scroll scroll-style-one'>
-                                                    {
-                                                        countryCode.map((countryCode, index) => {
-                                                            return <SelectItem value={countryCode.value} key={index}>
-                                                                {countryCode.label}
-                                                            </SelectItem>
-                                                        })
-                                                    }
+                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                        {
+                                                            countryCode.map((countryCode, index) => {
+                                                                return <SelectItem value={countryCode.value} key={index}>
+                                                                    {countryCode.label}
+                                                                </SelectItem>
+                                                            })
+                                                        }
                                                     </div>
                                                 </SelectContent>
                                             </Select>
@@ -600,7 +692,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
                                 />
                                 <FormField
                                     control={form2.control}
-                                    name="phoneNo"
+                                    name="phone"
                                     render={({ field }) => (
                                         <Input type="text" className={`mt-3 w-2/3 ${commonClasses}`} placeholder="Phone No" {...field} />
                                     )}
@@ -629,9 +721,34 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
             </div>
             <Separator className='mt-10' />
             <div className="flex flex-row gap-2 justify-end mx-6 my-6">
-                <DialogClose asChild>
-                    <Button variant={"google"} >Cancel</Button>
-                </DialogClose>
+                {/* <DialogClose asChild> */}
+                <Dialog >
+                    <DialogTrigger asChild>
+                        <Button variant={"google"} >Cancel</Button>
+                    </DialogTrigger>
+                    <DialogContent >
+                        <div className='w-fit'>
+                            <DialogHeader>
+                                <div className='bg-warning-100 border-warning-50 rounded-full w-fit p-[12px]'>
+                                    <IconSave size={24} />
+                                </div>
+                            </DialogHeader>
+                            <div className='flex flex-col gap-[32px] mt-[16px]'>
+                                <div className='flex flex-col'>
+                                    <div className='text-gray-900 text-lg'>Unsaved changes</div>
+                                    <div className='text-gray-600 text-sm'>Do you want to discard changes?</div>
+                                </div>
+                                <div className='flex flex-row gap-[12px]'>
+                                    <DialogClose asChild>
+                                        <Button className='text-md font-semibold  px-[38px] py-[10px]' variant={'google'}>No, go back</Button>
+                                    </DialogClose>
+                                    <Button onClick={() => yesDiscard()} className='text-md font-semibold px-[38px] py-[10px]'>Yes, discard</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+                {/* </DialogClose> */}
                 <Button disabled={!(form.formState.isValid && dummyContactData.length > 0)} onClick={() => addToLead()}>Save & Add</Button>
             </div>
 
@@ -640,3 +757,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, setIds }:
 }
 
 export default AddLeadDetailedDialog
+
+function acronymFinder(lookupvalue: string, arr: IValueLabel[]) {
+    return arr.find((val) => val.label === lookupvalue)?.acronym
+}
+
+export function guidGenerator() {
+    var S4 = function () {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    };
+    return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+}

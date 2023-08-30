@@ -1,6 +1,7 @@
 "use client"
 
 import { STATUSES } from "@/app/constants/constants"
+import { LeadInterface } from "@/app/interfaces/interface"
 import { IconArchive, IconArrowDown, IconEdit } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -12,29 +13,29 @@ import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type LeadInterface = {
-    id: string
-    title: string
-    region: string
-    source: string,
-    status: string,
-    budgetRange: string,
-    createdBy: string,
-    owner: string,
-    createdOn: string,
-    role: string,
-    contacts: Contact[],
-}
+// export type LeadInterface = {
+//     id: string
+//     title: string
+//     region: string
+//     source: string,
+//     status: string,
+//     budgetRange: string,
+//     createdBy: string,
+//     owner: string,
+//     createdOn: string,
+//     role: string,
+//     contacts: Contact[],
+// }
 
-export type Contact = {
-    contactName: string,
-    designation: string,
-    contactType: string,
-    email: string,
-    countryCode: string,
-    phoneNo: string,
-    contactId: string
-}
+// export type Contact = {
+//     contactName: string,
+//     designation: string,
+//     contactType: string,
+//     email: string,
+//     countryCode: string,
+//     phoneNo: string,
+//     contactId: string
+// }
 
 function getClassOfStatus(statusName: string) {
     const status = STATUSES.find((status) => status.label === statusName)
@@ -105,6 +106,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
     },
     {
         accessorKey: "region",
+        accessorFn:(originalRow, index) => originalRow.role.region,
         header: ({ column }) => {
             return (
                 <div
@@ -158,7 +160,8 @@ export const columns: ColumnDef<LeadInterface>[] = [
         },
     },
     {
-        accessorKey: "budgetRange",
+        accessorKey: "budget_range",
+        accessorFn:(originalRow, index) => originalRow.role.budget_range,
         header: ({ column }) => {
             return (
                 <div
@@ -170,7 +173,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("budgetRange")}</div>
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("budget_range")}</div>
     },
     {
         accessorKey: "owner",
@@ -191,7 +194,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
         },
     },
     {
-        accessorKey: "createdBy",
+        accessorKey: "created_by",
         header: ({ column }) => {
             return (
                 <div
@@ -202,13 +205,13 @@ export const columns: ColumnDef<LeadInterface>[] = [
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("createdBy")}</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by")}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
-        accessorKey: "createdOn",
+        accessorKey: "created_at",
         header: ({ column }) => {
             return (
                 <div
@@ -223,7 +226,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
             )
         },
         cell: ({ row }) => <div className=" font-normal">
-            {multiLine(row.getValue("createdOn"))}
+            {multiLine(row.getValue("created_at"))}
 
         </div>,
         filterFn: (row, id, value) => {
@@ -234,12 +237,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 if (startDate && endDate) {
                     const createdOnDate = new Date(row.getValue(id));
                     endDate.setHours(23, 59, 0, 0)
-                    console.log("start", startDate)
-                    console.log("end", endDate)
-                    console.log("created on ", createdOnDate)
-
-                    console.log(startDate.toString() === endDate.toString())
-
+                    
                     if (!startDate || !endDate) {
                         return true; // No date range specified, don't apply filtering
                     }
@@ -267,7 +265,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => { console.log(row) }}>
+                        <DropdownMenuItem onClick={() => { }}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
@@ -317,8 +315,7 @@ function formatUtcDateToLocal(backendUtcDate: any) {
     const formattedHours = numericHours === 0 ? 12 : (numericHours > 12 ? numericHours - 12 : numericHours);
     const formattedTime = `${formattedHours}:${minutes}${period}`;
 
-    console.log(inputString, datePart, timePart, formattedDate, formattedTime)
-
+    
 
     return `${formattedDate}@${formattedTime}`;
 }

@@ -7,69 +7,41 @@ import { Button } from '../ui/button'
 import { Separator } from '../ui/separator'
 import AddLeadDetailedDialog from './addLeadDetailedDialog'
 import { IconAccounts, IconBuildings } from '../icons/svgIcons'
+import { ClientCompleteInterface, LeadInterface } from '@/app/interfaces/interface'
 
 // const dummySearchedItems = ["Swiggy", "Swish Bank"]
-const dummySearchedItems = [
+
+let dataFromApi:ClientCompleteInterface[] = []
+let leadDataFromApi:LeadInterface[] = []
+const dummySearchedItems:ClientCompleteInterface[] = [
     {
-        organisationName: "Swiggy",
-        contacts: [
-            {
-                contactName: "Alice Johnson",
-                designation: "Marketing Manager",
-                contactType: "Gate Keeper",
-                email: "alice@example.com",
-                countryCode: "+1",
-                phoneNo: "9876543210"
-            },
-            {
-                contactName: "David Lee",
-                designation: "CTO",
-                contactType: "Decision Maker",
-                email: "david@companyxyz.com",
-                countryCode: "+44",
-                phoneNo: "7418529630"
-            },
-        ],
-        ids: ["728ed52f", "932abde1"]
-    },
-    {
-        organisationName: "Swish Bank",
-        contacts: [
-            {
-                contactName: "Alice Johnson",
-                designation: "Marketing Manager",
-                contactType: "Gate Keeper",
-                email: "alice@example.com",
-                countryCode: "+1",
-                phoneNo: "9876543210"
-            },
-            {
-                contactName: "David Lee",
-                designation: "CTO",
-                contactType: "Decision Maker",
-                email: "david@companyxyz.com",
-                countryCode: "+44",
-                phoneNo: "7418529630"
-            },
-            {
-                contactName: "Maria Garcia",
-                designation: "Finance Director",
-                contactType: "Influencer",
-                email: "maria@companyabc.com",
-                countryCode: "+34",
-                phoneNo: "635241789"
-            },
-        ]
-    },
+        "id": 1,
+        "contacts": [],
+        "created_by": "Anmol Goel",
+        "updated_by": "Anmol Goel",
+        "name": "Swiggy",
+        "registered_name": null,
+        "govt_id": null,
+        "billing_address": null,
+        "shipping_address": null,
+        "industry": null,
+        "domain": null,
+        "size": null,
+        "last_funding_stage": null,
+        "last_funding_amount": null,
+        "funding_currency": null,
+        "segment": null,
+        "archived": false
+    }
 ]
 
-const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fetchLeadData: CallableFunction, setIds:CallableFunction}) => {
+const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadData: CallableFunction}) => {
     const [inputAccount, setInputAccount] = useState("")
-    const [details, setDetails] = useState("")
+    const [details, setDetails] = useState<ClientCompleteInterface>()
+    const [filteredLeadData, setFilteredLeadData] = useState<LeadInterface[]>()
     const [open, setOpen] = useState(false)
     const [isExpanded, setIsExpanded] = useState(false)
     function onChangeHandler(data: string) {
-        console.log(data)
         setInputAccount(data)
     }
 
@@ -78,12 +50,45 @@ const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fet
         setOpen(false)
         setInputAccount("")
         fetchLeadData()
-        console.log(fetchLeadData)
+        setDetails(undefined)
+        
     }
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    const token_superuser = "e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b"
+    async function fetchClientData() {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data: ClientCompleteInterface[] = structuredClone(result.data)
+            let fdata = data
+            dataFromApi = fdata
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+        try{
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data: LeadInterface[] = structuredClone(result.data)
+            let fdata = data.map(val => {
+                val.title = val.title === null ? "" : val.title
+                return val
+            })
+            leadDataFromApi = fdata
+        }
+        catch(err){
+            console.log(err)
+        }
+    }
+
+    useEffect(()=>{
+        fetchClientData()
+    },[])
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
-            if (e.key === "Enter" && inputAccount?.trim()?.length > 0) {
+            if (e.key === "Enter" && inputAccount?.trim()?.length > 0 && doesInputOrgExists(inputAccount)) {
                 e.preventDefault()
                 setIsExpanded(true)
             }
@@ -94,11 +99,13 @@ const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fet
     }, [inputAccount])
 
 
-    function openExpanedWFilledDetails(details: any) {
-        console.log(details)
+    function openExpanedWFilledDetails(details: ClientCompleteInterface) {
         setIsExpanded(true)
-        setInputAccount(details.organisationName)
         setDetails(details)
+        let data = leadDataFromApi.filter((val)=>{
+            return val.organisation.name.toLowerCase()===details.name.toLowerCase()
+        })
+        setFilteredLeadData(data)
     }
 
     return (
@@ -125,16 +132,16 @@ const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fet
                             </div>
                             <Command className="hover:border-purple-300 hover:shadow-custom1 mt-[6px] rounded-[8px] border-[1px] border-gray-300 shadow-xs ">
                                 <CommandInput onValueChange={(e) => { onChangeHandler(e) }} value={inputAccount} className="text-md" placeholder="Enter Organization Name" />
-                                {inputAccount?.trim()?.length > 0 && <CommandList className='flex flex-col'>
+                                {inputAccount?.trim()?.length > 0 && <CommandList className='flex flex-col max-h-[200px] overflow-y-scroll '>
                                     <CommandEmpty>No results found.</CommandEmpty>
-                                    {dummySearchedItems.map((item: any, index) => (
-                                        <CommandItem key={index} className="flex flex-row justify-between px-0 py-0" >
+                                    {dataFromApi.map((item: ClientCompleteInterface, index) => (
+                                        <CommandItem key={index} className="flex flex-row  justify-between px-0 py-0" >
                                             <div className='flex flex-row justify-between w-full items-center pointer px-4 py-4 cursor-pointer' onClick={() => openExpanedWFilledDetails(item)}>
                                                 <div className="flex flex-row gap-2">
                                                     <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                                         <IconBuildings size="20" />
                                                     </div>
-                                                    <span>{item?.organisationName}</span>
+                                                    <span>{item?.name}</span>
                                                 </div>
                                                 <span className='text-lg text-gray-700'>🡵</span>
                                             </div>
@@ -144,7 +151,7 @@ const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fet
                                 </CommandList>}
                                 <Separator />
                                 {
-                                    inputAccount &&
+                                    inputAccount && doesInputOrgExists(inputAccount) &&
                                     <div onClick={() => setIsExpanded(true)}>
                                         <div className='flex flex-row order-last justify-between gap-2 px-4 py-4 items-center cursor-pointer'>
                                             <div className="flex flex-row gap-2 items-center">
@@ -165,7 +172,7 @@ const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fet
                                 }
                             </Command>
                         </div> : <div>
-                            <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details} setIds={setIds}/>
+                            <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details}  filteredLeadData={filteredLeadData}/>
                         </div>}
                         {!isExpanded && <><Separator className="bg-gray-200 h-[1px]  mt-8" />
                             <div className="flex flex-row gap-2 justify-end mx-6 my-6">
@@ -183,3 +190,7 @@ const AddLeadDialog = ({ children, fetchLeadData, setIds }: { children: any, fet
 }
 
 export default AddLeadDialog
+
+function doesInputOrgExists(inputAccount: string) {
+    return !dataFromApi.find((data) => data.name.toLowerCase() === inputAccount)
+}

@@ -17,7 +17,6 @@ import Image from "next/image"
 import * as React from "react"
 import { DropdownMenuCheckboxItemProps, RadioGroup } from "@radix-ui/react-dropdown-menu"
 import DataTable from "./table/datatable"
-import { LeadInterface, columns } from "./table/columns"
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
@@ -27,20 +26,22 @@ import { Check, ChevronDownIcon, Search } from "lucide-react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "../ui/use-toast"
+import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
+import { IconArchive, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getLast7Days } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { IValueLabel } from "@/app/interfaces/interface"
-import { getData } from "@/app/dummy/dummydata"
+import { IValueLabel, LeadInterface } from "@/app/interfaces/interface"
+// import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
 import SideSheet from "./sideSheet"
 import { useRouter, useSearchParams } from "next/navigation"
+import { columns } from "./table/columns"
+import { Router } from "next/router"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -64,9 +65,7 @@ const FormSchema = z.object({
     }),
     search: z.string(),
     dateRange: z.any(),
-    ids: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one region.",
-    })
+    queryParamString: z.string()
 })
 
 // let tableLeadLength = 0
@@ -74,24 +73,33 @@ const FormSchema = z.object({
 export interface IChildData {
     row: any
 }
+let dataFromApi: LeadInterface[] = []
 
 const Leads = () => {
+    const { toast } = useToast()
 
-    const [ids, setIds] = React.useState<string[]>([])
+
+    const router = useRouter();
 
     const [data, setLeadData] = React.useState<LeadInterface[]>([])
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
+    const [isInbox, setIsInbox] = React.useState<boolean>(true)
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
     const [tableLeadLength, setTableLength] = React.useState<any>()
 
     const [childData, setChildData] = React.useState<IChildData>()
+    
 
 
+    console.log(dataFromApi)
     function setChildDataHandler(key: keyof IChildData, data: any) {
         setChildData((prev) => {
             return { ...prev, [key]: data }
         })
+        if(!data){
+            fetchLeadData()
+        }
     }
 
 
@@ -102,7 +110,7 @@ const Leads = () => {
         setTableLength(number)
     }
 
-    const {from, to} = getLast7Days()
+    const { from, to } = getLast7Days()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -114,23 +122,24 @@ const Leads = () => {
             search: "",
             dateRange: {
                 "range": {
-                "from": from,
-                "to": to
-            },
-            rangeCompare: undefined
-        }
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
         }
     })
 
-    const searchParams  = useSearchParams()
-    React.useEffect(()=>{
+    const searchParams = useSearchParams()
+    React.useEffect(() => {
         console.log(searchParams.get("ids"))
-        const queryParamIds = searchParams.get("ids")?.split("^")
+        const queryParamIds = searchParams.get("ids")
         console.log(queryParamIds)
-        if(queryParamIds && queryParamIds?.length>0){
-            form.setValue("ids", queryParamIds)
+        if (queryParamIds && queryParamIds?.length > 0) {
+            form.setValue("search", queryParamIds)
+            form.setValue("queryParamString", queryParamIds)
         }
-    },[searchParams])
+    }, [searchParams])
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         toast({
@@ -144,17 +153,20 @@ const Leads = () => {
     }
 
 
-
-
-
-
-
-
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    const token_superuser = "e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b"
     async function fetchLeadData() {
         setIsLoading(true)
         try {
-            let data = structuredClone(await getData())
-            setLeadData(data.reverse())
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data: LeadInterface[] = structuredClone(result.data)
+            let fdata = data.map(val => {
+                val.title = val.title === null ? "" : val.title
+                return val
+            })
+            dataFromApi = fdata
+            setLeadData(filterInboxOrArchive(dataFromApi, isInbox))
             setIsLoading(false)
         }
         catch (err) {
@@ -164,9 +176,11 @@ const Leads = () => {
         }
     }
 
-
     React.useEffect(() => {
 
+        toast({
+            description: "Lead added successfully.",
+        })
         fetchLeadData()
     }, [])
 
@@ -176,6 +190,10 @@ const Leads = () => {
     React.useEffect(() => {
         console.log(watcher)
     }, [watcher])
+
+    React.useEffect(() => {
+        setLeadData(filterInboxOrArchive(dataFromApi, isInbox))
+    }, [isInbox])
     // console.log(tableLeadLength)
 
 
@@ -202,7 +220,7 @@ const Leads = () => {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"ghost"} className="rounded-r-none">
+                                        <Button variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
                                             <IconInbox size={20} />
                                         </Button>
                                     </TooltipTrigger>
@@ -215,11 +233,11 @@ const Leads = () => {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"ghost"} className="rounded-l-none">
+                                        <Button variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
                                             <IconArchive size={20} />
                                         </Button>
                                     </TooltipTrigger>
-                                    <TooltipContent side={"bottom"} sideOffset={5}>
+                                    <TooltipContent side={"bottom"} sideOffset={5} >
                                         Archive
                                     </TooltipContent>
                                 </Tooltip>
@@ -227,7 +245,7 @@ const Leads = () => {
                         </div>
                     </div>
                     <div className="right flex flex-row gap-4 ">
-                        <AddLeadDialog fetchLeadData={fetchLeadData} setIds={setIds}>
+                        <AddLeadDialog fetchLeadData={fetchLeadData} >
                             <Button className="flex flex-row gap-2">
                                 <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
                                 Add Lead
@@ -241,6 +259,15 @@ const Leads = () => {
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
                             <span className="text-sm ">{isLoading ? "Loading..." : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            {/* {form.getValues("queryParamString") && <div
+                                onClick={() => {
+                                    window.history.replaceState(null, '', '/dashboard')
+                                    location.reload()
+                                }}
+                                className="rounded-[16px] bg-gray-50 border-[1px] border-gray-200 mix-blend-multiply text-sm px-[12px] py-[4px] flex flex-row gap-[6px] items-center hover:shadow-lg hover:cursor-pointer">
+                                {form.getValues("queryParamString")}
+                                <IconCross size={14} color={"#98A2B3"} />
+                            </div>} */}
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -530,7 +557,7 @@ const Leads = () => {
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-[200px] p-0">
+                                                <PopoverContent className="w-[200px] p-0 mr-[24px]" >
                                                     <Command>
                                                         <CommandInput placeholder="Search Creator..." />
                                                         <CommandEmpty>No creators found.</CommandEmpty>
@@ -580,7 +607,7 @@ const Leads = () => {
                     {
                         isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                             <Loader />
-                        </div>) : data.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
+                        </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                             {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadLength }}> */}
                             <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler} />
                             {/* </TableContext.Provider> */}
@@ -592,7 +619,7 @@ const Leads = () => {
                                     <p className="text-md text-gray-900 font-semibold">No Leads</p>
 
                                 </div>
-                                <AddLeadDialog fetchLeadData={fetchLeadData} setIds={setIds}>
+                                <AddLeadDialog fetchLeadData={fetchLeadData} >
                                     <Button className="flex flex-row gap-2">
                                         <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
                                         Add Lead
@@ -608,6 +635,10 @@ const Leads = () => {
 
 
     </div>
+}
+
+function filterInboxOrArchive(data: LeadInterface[], isInbox: boolean) {
+    return data.filter((val) => val.archived !== isInbox)
 }
 
 export function formatData(data: any[], plural: string, childOf: IValueLabel[]) {

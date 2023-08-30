@@ -83,6 +83,7 @@ module.exports = {
       },
       warning: {
         50: "#FFFAEB",
+        100: "#FEF0C7",
         500: "#F79009",
         600: "#DC6803"
       },

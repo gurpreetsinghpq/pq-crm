@@ -39,7 +39,7 @@ interface DataTableProps<TData, TValue> {
     owners: string[],
     search: string,
     dateRange?: any,
-    ids: string[]
+    queryParamString: string
   },
   setTableLeadLength: CallableFunction,
   setChildDataHandler: CallableFunction
@@ -117,18 +117,19 @@ export default function DataTable<TData, TValue>({
     }
 
     if (filterObj.creators.includes("allCreators")) {
-      table.getColumn("createdBy")?.setFilterValue("")
+      table.getColumn("created_by")?.setFilterValue("")
     }
     else {
       const creatorFilter = valueToLabel("creators", CREATORS)
-      table.getColumn("createdBy")?.setFilterValue(creatorFilter)
+      table.getColumn("created_by")?.setFilterValue(creatorFilter)
     }
 
 
     // table.getColumn("id")?.setFilterValue(filterObj.ids)
 
     table.getColumn("title")?.setFilterValue(filterObj.search)
-    table.getColumn("createdOn")?.setFilterValue(filterObj.dateRange)
+    table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+  
 
 
   }, [filterObj])
@@ -141,7 +142,7 @@ export default function DataTable<TData, TValue>({
     console.log("hey")
   }
 
-  function valueToLabel(key: Exclude<keyof typeof filterObj, "search" | "dateRange">, arr: IValueLabel[]) {
+  function valueToLabel(key: Exclude<keyof typeof filterObj, "search" | "dateRange" | "queryParamString">, arr: IValueLabel[]) {
     return filterObj[key].map((val) => arr.find((item) => item.value === val)?.label)
   }
 

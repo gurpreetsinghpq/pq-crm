@@ -2,81 +2,145 @@ import { Deferred, Junk, Lost, Unverified, Verified } from "../../components/ico
 import { IValueLabel } from "../interfaces/interface"
 const REGION = [
     {
-        value: "mena",
-        label: "MENA",
+        value: "india",
+        label: "India",
+        acronym: "IND"
+
+    },
+    {
+        value: "usa",
+        label: "USA",
+        acronym: "USA"
+
     },
     {
         value: "apac",
         label: "APAC",
+        acronym: "APAC"
+
     },
     {
-        value: "us",
-        label: "US",
+        value: "mena",
+        label: "MENA",
+        acronym: "MENA"
+
     },
     {
         value: "europe",
         label: "Europe",
-    },
-    {
-        value: "india",
-        label: "India",
+        acronym: "EU"
+
     },
 ]
 
-const ROLETYPE = [
-    {
-        value: "Founder",
-        label: "Founder"
-
-    },
+const ROLETYPE: IValueLabel[] = [
     {
         value: "cto",
         label: "CTO",
+        acronym: "CTO"
     },
     {
         value: "cpto",
         label: "CPTO",
+        acronym: "CPTO"
     },
     {
         value: "headOfEngineering",
         label: "Head of Engineering",
+        acronym: "HOE"
     },
     {
         value: "svp_vp_avpOfEngineering",
         label: "SVP / VP / AVP of Engineering",
+        acronym: "VPOE"
     },
     {
         value: "srDirector_directorOfEngineering",
         label: "Sr. Director / Director of Engineering",
+        acronym: "DOE"
     },
     {
         value: "siteLead",
         label: "Site Lead",
+        acronym: "SL"
     },
     {
         value: "headOfAi_DataScience",
         label: "Head of AI / Data Science",
+        acronym: "HODS"
+    },
+    {
+        value: "ciso",
+        label: "CISO",
+        acronym: "ciso"
+    },
+    {
+        value: "chief_PrincipalArchitect",
+        label: "Chief / Principal Architect",
+        acronym: "PA"
+    },
+    {
+        value: "principal_engineer",
+        label: "Principal Engineer",
+        acronym: "PE"
     },
 ]
-const BUDGET_RANGE = [
+const USA_MENA_APAC_BUDGET:IValueLabel[] =[
     {
-        value: "uptoInr1cr",
-        label: "Upto INR 1Cr",
+        value: "uptoUsd250k",
+        label: "Upto USD 250k"
     },
     {
-        value: "inr1CrTo2Cr",
-        label: "INR 1Cr to 2Cr",
+        value: "usd250Kto500k",
+        label: "USD 250k to 500K"
     },
     {
-        value: "inr2CrTo3Cr",
-        label: "INR 2Cr to 3Cr",
-    },
-    {
-        value: "aboveInr3Cr",
-        label: "Above INR 3Cr",
-    },
+        value: "aboveUsd500k",
+        label: "Above USD 500k"
+    }
+]
+interface IBudgetRange {
+    [key: string]: IValueLabel[];
+}
 
-]
+const BUDGET_RANGE:IBudgetRange  = {
+    "india": [
+        {
+            value: "uptoInr1cr",
+            label: "Upto INR 1Cr",
+        },
+        {
+            value: "inr1CrTo2Cr",
+            label: "INR 1Cr to 2Cr",
+        },
+        {
+            value: "inr2CrTo3Cr",
+            label: "INR 2Cr to 3Cr",
+        },
+        {
+            value: "aboveInr3Cr",
+            label: "Above INR 3Cr",
+        }
+    ],
+    "usa": USA_MENA_APAC_BUDGET,
+    "apac": USA_MENA_APAC_BUDGET,
+    "mena": USA_MENA_APAC_BUDGET,
+    "europe": [
+        {
+            value :"Upto_Eur_250k",
+            label: "Upto EUR 250k"
+        },
+        {
+            value :"eur250To500k",
+            label: "EUR 250k to 500k"
+        },
+        {
+            value :"aboveEur500k",
+            label: "Above EUR 500k"
+        }
+    ]
+
+}
 
 const DESIGNATION = [
     {
@@ -147,7 +211,7 @@ const LEAD_SOURCE = [
     }
 ]
 
-const OWNERS:IValueLabel[] = [
+const OWNERS: IValueLabel[] = [
     {
         value: "allOwners",
         label: "All Owners",
@@ -173,9 +237,13 @@ const OWNERS:IValueLabel[] = [
         value: "rupangkanKalita",
         label: "Rupangkan Kalita"
     },
+    {
+        value: "anmolGoel",
+        label: "Anmol Goel"
+    },
 ]
 
-const CREATORS:IValueLabel[] = [
+const CREATORS: IValueLabel[] = [
     {
         value: "allCreators",
         label: "All Creators"
@@ -200,13 +268,17 @@ const CREATORS:IValueLabel[] = [
         value: "rupangkanKalita",
         label: "Rupangkan Kalita"
     },
+    {
+        value: "anmolGoel",
+        label: "Anmol Goel"
+    },
 ]
 
-const STATUSES:IValueLabel[] = [
+const STATUSES: IValueLabel[] = [
     {
         value: "allStatuses",
         label: "All Statuses",
-        isDefault : true
+        isDefault: true
     },
     {
         value: "unverified",
@@ -240,7 +312,7 @@ const STATUSES:IValueLabel[] = [
     },
 ]
 
-const SOURCES:IValueLabel[] = [
+const SOURCES: IValueLabel[] = [
     {
         value: "allSources",
         label: "All Sources",
@@ -269,27 +341,36 @@ const SOURCES:IValueLabel[] = [
 
 ]
 
-const REGIONS:IValueLabel[] = [
+const REGIONS: IValueLabel[] = [
     {
         value: "allRegions",
         label: "All Regions",
-        isDefault : true
+        isDefault: true
     },
     {
         value: "india",
-        label: "India"
+        label: "India",
+        acronym: "IND"
     },
     {
         value: "usa",
-        label: "USA"
+        label: "USA",
+        acronym: "USA"
     },
     {
-        value: "europe",
-        label: "Europe"
+        value: "mena",
+        label: "MENA",
+        acronym: "MENA"
     },
     {
         value: "apac",
-        label: "APAC"
+        label: "APAC",
+        acronym: "APAC"
+    },
+    {
+        value: "europe",
+        label: "Europe",
+        acronym: "EU"
     },
 ]
 
@@ -370,7 +451,7 @@ const COUNTRY_CODE = [
     // Add more entries as needed
 ];
 
-const TIME_TO_FILL:IValueLabel[] = [
+const TIME_TO_FILL: IValueLabel[] = [
     {
         value: "lessThan30Days",
         label: "Less than 30 days"
@@ -389,7 +470,7 @@ const TIME_TO_FILL:IValueLabel[] = [
     }
 ]
 
-const INDUSTRY:IValueLabel[] = [
+const INDUSTRY: IValueLabel[] = [
     {
         value: "finTech",
         label: "FinTech"
@@ -420,28 +501,28 @@ const INDUSTRY:IValueLabel[] = [
     },
     {
         value: "hRTech",
-        label: "HR Tech"
+        label: "HRTech"
     },
     {
         value: "propTech",
-        label: "Prop Tech"
+        label: "PropTech"
     },
     {
         value: "deepTech",
-        label: "Deep Tech"
+        label: "DeepTech"
     },
     {
         value: "agriTech",
-        label: "Agri Tech"
+        label: "AgriTech"
     },
     {
         value: "ecommerce",
         label: "Ecommerce"
     },
-    {
-        value: "supplyChain",
-        label: "Supply Chain"
-    },
+    // {
+    //     value: "supplyChain",
+    //     label: "Supply Chain"
+    // },
     {
         value: "logistics",
         label: "Logistics"
@@ -451,16 +532,24 @@ const INDUSTRY:IValueLabel[] = [
         label: "Gaming"
     },
     {
-        value: "media_and_entertainment,",
-        label: "Media & Entertainment,"
+        value: "media_and_entertainment",
+        label: "Media & Entertainment"
     },
     {
-        value: "enterprise_services",
-        label: "Enterprise Services"
+        value: "technologyServices",
+        label: "Technology Services"
     },
+    // {
+    //     value: "enterprise_services",
+    //     label: "Enterprise Services"
+    // },
     {
         value: "telecommunications",
         label: "Telecommunications"
+    },
+    {
+        value: "lifesciences",
+        label: "Lifesciences"
     },
     {
         value: "bfsi",
@@ -474,9 +563,13 @@ const INDUSTRY:IValueLabel[] = [
         value: "energy_and_utilities",
         label: "Energy & Utilities"
     },
+    {
+        value: "vc_pe",
+        label: "VC/PE"
+    },
 ]
 
-const DOMAINS:IValueLabel[] = [
+const DOMAINS: IValueLabel[] = [
     {
         value: "b2b",
         label: "B2B"
@@ -500,6 +593,7 @@ const SIZE_OF_COMPANY: IValueLabel[] = [
     { value: "10001_plus", label: "10001+" }
 ]
 const LAST_FUNDING_STAGE: IValueLabel[] = [
+    { value: "pre_seed", label: "Pre-Seed" },
     { value: "seed", label: "Seed" },
     { value: "series_a", label: "Series A" },
     { value: "series_b", label: "Series B" },
@@ -515,17 +609,75 @@ const LAST_FUNDING_STAGE: IValueLabel[] = [
     { value: "unknown", label: "Unknown" }
 ];
 
-const RETAINER_ADVANCE:IValueLabel[] = [
+const LAST_FUNDING_AMOUNT = [
     {
-        value:"yes",
-        label:"Yes"
+        value: "less_than_2mm",
+        label: "Less than 2MM USD"
     },
     {
-        value:"no",
-        label:"No"
+        value: "2mm_to_4mm",
+        label: "2MM USD to 4MM USD"
+    },
+    {
+        value: "5mm_to_10mm",
+        label: "5MM USD to 10 MM USD"
+    },
+    {
+        value: "11mm_to_50mm",
+        label: "11 MM USD to 50 MM USD"
+    },
+    {
+        value: "51mm_to_100mm",
+        label: "51 MM USD to 100 MM USD"
+    },
+    {
+        value: "above_100mm",
+        label: "Above 100 MM USD"
+    },
+    {
+        value: "undisclosed",
+        label: "Undisclosed"
+    }
+];
+
+const RETAINER_ADVANCE: IValueLabel[] = [
+    {
+        value: "yes",
+        label: "Yes"
+    },
+    {
+        value: "no",
+        label: "No"
     }
 ]
-
+const EXCLUSIVITY: IValueLabel[] = [
+    {
+        value: "yes",
+        label: "Yes"
+    },
+    {
+        value: "no",
+        label: "No"
+    }
+]
+const SERVICE_FEE_RANGE: IValueLabel[] = [
+    {
+        value: "lt20",
+        label: "Less than 20%"
+    },
+    {
+        value: "20to25",
+        label: "20% to 25%"
+    },
+    {
+        value: "25to30",
+        label: "25% to 30%"
+    },
+    {
+        value: "gt30",
+        label: "Above 30%"
+    }
+];
 // Now the anotherValueLabels array contains the desired value-label pairs.
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, RETAINER_ADVANCE}
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE }
