@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { IconAccounts, IconArrowSquareRight, IconBilling, IconBuildings, IconClock, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconGlobe, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconProfile, IconRoles, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet } from '../icons/svgIcons'
+import { IconAccounts, IconArrowSquareRight, IconBilling, IconBuildings, IconClock, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconGlobe, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconProfile, IconRequiredError, IconRoles, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet } from '../icons/svgIcons'
 import { IChildData, formatData } from './leads'
 import { Button } from '../ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
 import { BUDGET_RANGE, COUNTRY_CODE, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGIONS, RETAINER_ADVANCE, ROLETYPE, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
@@ -11,53 +11,59 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { IValueLabel, LeadInterface } from '@/app/interfaces/interface'
+import { IValueLabel, LeadInterface, PatchLead, PatchOrganisation, PatchRoleDetails } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
 import { CommandGroup } from 'cmdk'
-import { Command, CommandInput, CommandItem } from '../ui/command'
+import { Command, CommandEmpty, CommandInput, CommandItem } from '../ui/command'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { guidGenerator } from './addLeadDetailedDialog'
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import { Check } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 
 const FormSchema = z.object({
-    owners: z.string(),
-    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one Creator.",
-    }),
-    regions: z.string(),
+    // creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+    //     message: "You have to select at least one Creator.",
+    // }),
+    owners: z.string(), // [x]
+    regions: z.string(), // [x]
     sources: z.string(),
     statuses: z.string(),
-    search: z.string(),
-    reasons: z.string(),
-    role: z.string(),
-    budget: z.string(),
-    fulfilledBy: z.string(),
-    locations: z.string(),
-    fixedCtcBudget: z.string(),
-    dealValue: z.string(),
-    orgnaisationName: z.string(),
-    registeredName: z.string(),
-    headOfficeLocation: z.string(),
-    accountType: z.string(),
-    industry: z.string(),
-    domain: z.string(),
-    size: z.string(),
-    lastFundingStage: z.string(),
-    lastFundingAmount: z.string(),
-    shippingAddress: z.string(),
-    billingAddress: z.string(),
-    exclusivity: z.string(),
-    serviceFeeRange: z.string(),
-    serviceFee: z.string(),
-    retainderAdvance: z.string(),
-    esopRsusUl: z.string(),
-    fixedBudgetUl: z.string(),
-    timeToFill: z.string(),
-    gstinVatGstNo: z.string()
+    reasons: z.string().optional(),
+    role: z.string(), // [x]
+    budget: z.string(), // [x]
+    fulfilledBy: z.string().optional(),
+    locations: z.string({
+        required_error: "Location is required"
+    }).min(2, {
+        message: "Username must be at least 2 characters.",
+    }), // [x]
+    fixedCtcBudget: z.number(), // [x]
+    dealValue: z.string().optional(),
+    orgnaisationName: z.string({
+        required_error: "Required "
+    }), // [x]
+    registeredName: z.string().optional(),
+    industry: z.string(), // [x]
+    domain: z.string(), // [x]
+    size: z.string(), // [x]
+    lastFundingStage: z.string(), // [x]
+    lastFundingAmount: z.string(), // [x]
+    shippingAddress: z.string().optional(),
+    billingAddress: z.string().optional(),
+    exclusivity: z.string().optional(),
+    serviceFeeRange: z.string().optional(),
+    serviceFee: z.string().optional(),
+    retainerAdvance: z.string().optional(),
+    esopRsusUl: z.string().optional(),
+    fixedBudgetUl: z.number().optional(),
+    timeToFill: z.string().optional(),
+    gstinVatGstNo: z.string().optional()
 })
 
 const FormSchema2 = z.object({
@@ -88,7 +94,9 @@ const form2Defaults = {
     std_code: "+91"
 }
 
-const commonClasses = "focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
+const commonClasses = "shadow-none focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
+const commonFontClasses = "text-sm font-medium text-gray-700"
+const requiredErrorClasses = "text-sm font-medium text-error-500"
 
 function SideSheet({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
 
@@ -117,21 +125,29 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             sources: data.source,
             statuses: labelToValue(data.status, STATUSES),
             owners: labelToValue(data.owner, OWNERS),
-            creators: ['allCreators'],
-            search: "",
             role: labelToValue(data.role?.role_type, ROLETYPE),
             budget: labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]),
-            fixedCtcBudget: ""
-        }
+            locations: data.role.location ? data.role.location : "",
+            fixedCtcBudget: data.role.fixed_budget ? data.role.fixed_budget : undefined,
+            fixedBudgetUl: data.role.fixed_budget_ul ? data.role.fixed_budget_ul : undefined,
+            orgnaisationName: data.organisation.name,
+            industry: labelToValue(data.organisation.industry || "", INDUSTRY),
+            domain: labelToValue(data.organisation.domain || "", DOMAINS),
+            size: labelToValue(data.organisation.size || "", SIZE_OF_COMPANY),
+            lastFundingStage: labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE),
+            retainerAdvance: data.retainer_advance ? "yes" : "no",
+            exclusivity: data.exclusivity ? "yes" : "no",
+            serviceFeeRange: labelToValue(data.service_fee_range || "", SERVICE_FEE_RANGE),
+            timeToFill: labelToValue(data.role.time_To_fill || "", TIME_TO_FILL)
+            // LAST_FUNDING_AMOUNT: labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT)
+        },
+        mode: "onChange"
     })
     const watcher = form.watch()
-    
-    useEffect(() => {
-        form.setValue("budget", "")
-        setBudgetKey(+ new Date())
-        console.log(form.getValues())
 
-    }, [watcher.regions])
+    useEffect(() => {
+        console.log(form.getFieldState("locations"))
+    }, [watcher])
     const form2 = useForm<z.infer<typeof FormSchema2>>({
         resolver: zodResolver(FormSchema2),
         defaultValues: form2Defaults
@@ -183,15 +199,13 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     function valueToLabel(lookup: string, arr: IValueLabel[]) {
         return arr.find((item) => item.value === lookup)?.label
     }
-    
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = "e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b"
-    async function patchData() {
-        const dataToSend: Partial<LeadInterface> = {
-            status: valueToLabel(form.getValues("statuses"), STATUSES)
-        }
+
+    async function promoteToProspect() {
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/`, { method: "PATCH", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             if (result.message === "success") {
                 closeSideSheet()
@@ -200,6 +214,66 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         catch (err) {
             console.log("error", err)
         }
+    }
+
+    async function patchData() {
+
+        const finalContactData = dummyContactData.filter((contact) => !contact.id)
+        let keysToRemove: any = ["contactId", "isLocallyAdded",]
+        finalContactData.forEach((item) => {
+            keysToRemove.forEach((key: string) => {
+                if (key in item) {
+                    delete item[key];
+                }
+            });
+        })
+
+        const leadData: Partial<PatchLead> = {
+            // owner: form.getValues("owners"),
+            retainer_advance: form.getValues("retainerAdvance")?.toLowerCase() === "yes" ? true : false,
+            exclusivity: form.getValues("exclusivity")?.toLowerCase() === "yes" ? true : false,
+            service_fee_range: valueToLabel(form.getValues("serviceFeeRange") || "", SERVICE_FEE_RANGE),
+            status: valueToLabel(form.getValues("statuses"), STATUSES)
+        }
+        const orgData: Partial<PatchOrganisation> = {
+            name: form.getValues("orgnaisationName"),
+            industry: valueToLabel(form.getValues("industry"), INDUSTRY),
+            domain: valueToLabel(form.getValues("domain"), DOMAINS),
+            size: valueToLabel(form.getValues("size"), SIZE_OF_COMPANY),
+            last_funding_stage: valueToLabel(form.getValues("lastFundingStage"), LAST_FUNDING_STAGE),
+            contacts: finalContactData,
+            // last_funding_amount: form.getValues("lastFundingAmount"),
+
+        }
+        const region = valueToLabel(form.getValues("regions"), REGIONS)
+        const roleDetailsData: Partial<PatchRoleDetails> = {
+            role_type: valueToLabel(form.getValues("role"), ROLETYPE),
+            region: region,
+            location: form.getValues("locations"),
+            budget_range: valueToLabel(form.getValues("budget"), BUDGET_RANGE[form.getValues("regions")]),
+            fixed_budget: form.getValues("fixedCtcBudget"),
+            fixed_budget_ul: form.getValues("fixedBudgetUl"),
+            esop_rsu: form.getValues("esopRsusUl"),
+            time_To_fill: valueToLabel(form.getValues("timeToFill") || "", TIME_TO_FILL)
+        }
+
+        const orgId = data.organisation.id
+        const roleId = data.role.id
+
+        const apiPromises = [
+            patchLeadData(leadData),
+            patchOrgData(orgId, orgData),
+            patchRoleData(roleId, roleDetailsData)
+        ]
+
+        try {
+            const results = await Promise.all(apiPromises);
+            console.log("All API requests completed:", results);
+            closeSideSheet()
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+
     }
 
 
@@ -215,7 +289,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                 </div>
                 <div className='w-full h-full flex flex-row '>
                     <div className='relative pt-[24px] 2xl:w-1/4 w-4/12 h-full flex flex-col '>
-                        <div className='flex flex-col flex-1 overflow-y-auto scroll-style-one pr-[0px] '>
+                        <div className='flex flex-col flex-1 overflow-y-auto  pr-[0px] '>
                             <div className='sticky top-0 bg-white-900 z-50'>
                                 <div className='px-[24px] text-gray-900 text-xl font-semibold '>
                                     {data.title}
@@ -270,7 +344,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </FormControl>
                                                     <SelectContent>
                                                         {
-                                                            reasonMap[form.getValues("statuses")].map((reason: string, index: number) => {
+                                                            reasonMap[form.getValues("statuses")]?.map((reason: string, index: number) => {
                                                                 return <SelectItem key={index} value={reason}>
                                                                     {reason}
                                                                 </SelectItem>
@@ -291,7 +365,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <span className='px-[16px] my-[12px] text-gray-700 text-sm font-medium'>
                                 Details
                             </span>
-                            <div className="px-[18px] py-[8px] items-center text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ">
+                            <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 ">
                                 <IconUsersSearch size={24} />
                                 <FormField
                                     control={form.control}
@@ -299,7 +373,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     render={({ field }) => (
                                         <FormItem className='w-full'>
                                             <FormControl>
-                                                <Input disabled className='border-none' placeholder="Source" {...field} />
+                                                <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Source" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -315,8 +389,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[19px] items-center text-gray-700 ' >
                                                             <div className='text-[#98A2B3]'>
                                                                 <IconProfile size={24} />
                                                             </div>
@@ -343,30 +417,26 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                 />
 
                             </div>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
                                 <IconUserCheck size={24} />
                                 <FormField
                                     control={form.control}
                                     name="fulfilledBy"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input disabled className='border-none' placeholder="Fulfilled By" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Fulfilled By" {...field} />
                                         </FormItem>
                                     )}
                                 />
                             </div>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
                                 <IconCurrencyDollars size={24} />
                                 <FormField
                                     control={form.control}
                                     name="dealValue"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input disabled className='border-none' placeholder="Deal Value" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Deal Value" {...field} />
                                         </FormItem>
                                     )}
                                 />
@@ -382,8 +452,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconRoles size={24} color="#98A2B3" />
                                                             </div>
@@ -392,7 +462,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                    <div className='h-[200px] overflow-y-scroll '>
                                                         {
                                                             ROLETYPE.map((role, index) => {
                                                                 return <SelectItem key={index} value={role.value}>
@@ -421,8 +491,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 return field.onChange(value)
                                             }} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconGlobe size={24} color="#98A2B3" />
                                                             </div>
@@ -448,15 +518,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     )}
                                 />
                             </div>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 border-b-2 " >
                                 <IconLocation size={24} color="#98A2B3" />
                                 <FormField
                                     control={form.control}
                                     name="locations"
                                     render={({ field }) => (
-                                        <FormItem className='w-full'>
-                                            <Input className='border-none' defaultValue={field.value} placeholder="Location" />
-
+                                        <FormItem className='w-full flex flex-row gap-2 items-center'>
+                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} defaultValue={field.value} placeholder="Location" {...field} />
+                                            {/* {requiredErrorComponent()} */}
                                         </FormItem>
                                     )}
                                 />
@@ -470,8 +540,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconWallet size={21} color="#98A2B3" />
                                                             </div>
@@ -481,7 +551,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 </FormControl>
                                                 <SelectContent>
                                                     {
-                                                        BUDGET_RANGE[form.getValues("regions")].map((budget, index) => {
+                                                        BUDGET_RANGE[form.getValues("regions")]?.map((budget, index) => {
                                                             return <SelectItem key={index} value={budget.value}>
                                                                 {budget.label}
                                                             </SelectItem>
@@ -497,46 +567,39 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     )}
                                 />
                             </div>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
                                 <IconStackedCoins size={21} />
                                 <FormField
                                     control={form.control}
                                     name="fixedCtcBudget"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input className='border-none' placeholder="Fixed CTC Budget" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Fixed CTC Budget" {...field} />
                                         </FormItem>
+
                                     )}
                                 />
                             </div>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
-                            <IconStackedCoins2 size={21} />
-                              
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                <IconStackedCoins2 size={21} />
                                 <FormField
                                     control={form.control}
                                     name="fixedBudgetUl"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input className='border-none' placeholder="Fixed Budget UL" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Fixed Budget UL" {...field} />
                                         </FormItem>
                                     )}
                                 />
                             </div>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
                                 <IconDeal size={21} />
-
                                 <FormField
                                     control={form.control}
                                     name="esopRsusUl"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input className='border-none' placeholder="ESOP/RSUs UL" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="ESOP/RSUs UL" {...field} />
                                         </FormItem>
                                     )}
                                 />
@@ -549,8 +612,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconClock size={21} color="#98A2B3" />
                                                             </div>
@@ -580,16 +643,18 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                 <span>Account Details</span>
                                 <span className='rounded-[6px] bg-purple-50 text-purple-700 px-[8px] py-[2px] text-xs font-medium border-[1px] border-purple-200'>Rockstar</span>
                             </span>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
                                 <IconOrgnaisation size={24} />
                                 <FormField
                                     control={form.control}
                                     name="orgnaisationName"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input className='border-none' placeholder="Organisation Name" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <FormControl>
+                                                <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Organisation Name" {...field} />
+                                            </FormControl>
+
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -597,16 +662,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200 cursor-not-allowed">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed">
                                             <IconShield size={24} />
                                             <FormField
                                                 control={form.control}
                                                 name="registeredName"
                                                 render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            <Input disabled className='border-none' placeholder="Registered Name" {...field} />
-                                                        </FormLabel>
+                                                    <FormItem className='w-full'>
+                                                        <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Registered Name" {...field} />
                                                     </FormItem>
                                                 )}
                                             />
@@ -625,8 +688,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconIndustry size={24} color="#98A2B3" />
                                                             </div>
@@ -635,7 +698,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent >
-                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                    <div className='h-[200px] overflow-y-scroll '>
                                                         {
                                                             INDUSTRY.map((industry, index) => {
                                                                 return <SelectItem key={index} value={industry.value}>
@@ -662,8 +725,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconBuildings size={24} color="#98A2B3" />
                                                             </div>
@@ -697,8 +760,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconUsers size={24} color="#98A2B3" />
                                                             </div>
@@ -732,8 +795,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconCoinsHand size={24} color="#98A2B3" />
                                                             </div>
@@ -742,7 +805,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                    <div className='h-[200px] overflow-y-scroll '>
                                                         {
                                                             LAST_FUNDING_STAGE.map((lastFundingStage, index) => {
                                                                 return <SelectItem key={index} value={lastFundingStage.value}>
@@ -769,8 +832,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconStackedCoins3 size={24} />
 
@@ -780,7 +843,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                    <div className='h-[200px] overflow-y-scroll '>
                                                         {
                                                             LAST_FUNDING_AMOUNT.map((lastFundingStage, index) => {
                                                                 return <SelectItem key={index} value={lastFundingStage.value}>
@@ -803,16 +866,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200 cursor-not-allowed">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed">
                                             <IconShipping size={24} />
                                             <FormField
                                                 control={form.control}
                                                 name="shippingAddress"
                                                 render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            <Input disabled className='border-none' placeholder="Shipping Address" {...field} />
-                                                        </FormLabel>
+                                                    <FormItem className='w-full'>
+                                                        <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Shipping Address" {...field} />
                                                     </FormItem>
                                                 )}
                                             />
@@ -826,16 +887,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200 cursor-not-allowed">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed">
                                             <IconBilling size={24} />
                                             <FormField
                                                 control={form.control}
                                                 name="billingAddress"
                                                 render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            <Input disabled className='border-none' placeholder="Billing Address" {...field} />
-                                                        </FormLabel>
+                                                    <FormItem className='w-full'>
+                                                        <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Billing Address" {...field} />
                                                     </FormItem>
                                                 )}
                                             />
@@ -848,16 +907,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             </TooltipProvider>
 
 
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200 cursor-not-allowed">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed">
                                 <IconBilling size={24} />
                                 <FormField
                                     control={form.control}
                                     name="gstinVatGstNo"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input disabled className='border-none' placeholder="GSTIN/VAT/GST No" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="GSTIN/VAT/GST Number" {...field} />
                                         </FormItem>
                                     )}
                                 />
@@ -868,13 +925,13 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                 <FormField
                                     control={form.control}
-                                    name="retainderAdvance"
+                                    name="retainerAdvance"
                                     render={({ field }) => (
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2  ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconIndustry size={24} color="#98A2B3" />
                                                             </div>
@@ -908,8 +965,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconIndustry size={24} color="#98A2B3" />
                                                             </div>
@@ -938,17 +995,17 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                 <FormField
                                     control={form.control}
-                                    name="exclusivity"
+                                    name="serviceFeeRange"
                                     render={({ field }) => (
                                         <FormItem className='w-full'>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className={'border-none mb-2 '}>
-                                                        <div className='flex flex-row gap-[13px] items-center text-gray-700 ' >
+                                                    <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
                                                             <div >
                                                                 <IconIndustry size={24} color="#98A2B3" />
                                                             </div>
-                                                            <SelectValue defaultValue={field.value} placeholder="Service Fee Range" />
+                                                            <SelectValue defaultValue={field.value} placeholder="Service Fee Range" {...field} />
                                                         </div>
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -970,16 +1027,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     )}
                                 />
                             </div>
-                            <div className="px-[18px] py-[8px] text-sm font-semibold w-full flex flex-row  items-center opacity-50 border-b-[1px] border-gray-200">
+                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
                                 <IconIndustry size={24} color="#98A2B3" />
                                 <FormField
                                     control={form.control}
                                     name="serviceFee"
                                     render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>
-                                                <Input disabled className='border-none' placeholder="Service Fee" {...field} />
-                                            </FormLabel>
+                                        <FormItem className='w-full'>
+                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Service Fee" {...field} />
                                         </FormItem>
                                     )}
                                 />
@@ -1081,43 +1136,70 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             )}
                                                         />
                                                         <div className='flex flex-row gap-2 items-center'>
-                                                            <FormField
-                                                                control={form2.control}
-                                                                name="std_code"
-                                                                render={({ field }) => (
-                                                                    <FormItem className='mt-3 w-1/3'>
-                                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                            <FormControl>
-                                                                                <SelectTrigger className={commonClasses}>
-                                                                                    <SelectValue placeholder="Country Code" />
-                                                                                </SelectTrigger>
-                                                                            </FormControl>
-                                                                            <SelectContent>
-                                                                                <div className='h-[200px] overflow-y-scroll scroll-style-one'>
-                                                                                    {
-                                                                                        COUNTRY_CODE.map((countryCode, index) => {
-                                                                                            return <SelectItem value={countryCode.value} key={index}>
-                                                                                                {countryCode.label}
-                                                                                            </SelectItem>
-                                                                                        })
-                                                                                    }
-                                                                                </div>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                        {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={form2.control}
-                                                                name="phone"
-                                                                render={({ field }) => (
-                                                                    <Input type="text" className={`mt-3 w-2/3 ${commonClasses}`} placeholder="Phone No" {...field} />
-                                                                )}
-                                                            />
+                                                            <div className=''>
+                                                                <FormField
+                                                                    control={form2.control}
+                                                                    name="std_code"
+                                                                    render={({ field }) => (
+                                                                        <FormItem className='mt-3'>
+                                                                            <Popover>
+                                                                                <PopoverTrigger asChild>
+                                                                                    <FormControl >
+                                                                                        <Button variant={"google"} className="flex flex-row gap-2 ">
+                                                                                            {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                                                            {COUNTRY_CODE.find((val) => val.value === field.value)?.value}
+                                                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                                        </Button>
+                                                                                    </FormControl>
+                                                                                </PopoverTrigger>
+                                                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                                    <Command>
+                                                                                        <CommandInput className='w-full' placeholder="Search Country Code..." />
+                                                                                        <CommandEmpty>Country code not found.</CommandEmpty>
+                                                                                        <CommandGroup>
+                                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                                {COUNTRY_CODE.map((cc) => (
+                                                                                                    <CommandItem
+                                                                                                        value={cc.label}
+                                                                                                        key={cc.label}
+                                                                                                        onSelect={() => {
+                                                                                                            console.log("std_code", cc.value)
+                                                                                                            form2.setValue("std_code", cc.value)
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                                            {cc.label}
+                                                                                                            <Check
+                                                                                                                className={cn(
+                                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                    field.value?.includes(cc.value)
+                                                                                                                        ? "opacity-100"
+                                                                                                                        : "opacity-0"
+                                                                                                                )}
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                    </CommandItem>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        </CommandGroup>
+                                                                                    </Command>
+                                                                                </PopoverContent>
+                                                                            </Popover>
+                                                                        </FormItem>
+                                                                    )}
+                                                                />
+                                                            </div>
+                                                            <div className='flex-1'>
+                                                                <FormField
+                                                                    control={form2.control}
+                                                                    name="phone"
+                                                                    render={({ field }) => (
+                                                                        <Input type="text" className={`mt-3 w-full ${commonClasses}`} placeholder="Phone No" {...field} />
+                                                                    )}
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -1141,20 +1223,23 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
                             </span>
                             <div className='px-[16px]'>
-                                {dummyContactData.length > 0 && <div className='flex flex-col w-full mt-4  pr-[16px] scroll-style-one'>
+                                {dummyContactData.length > 0 && <div className='flex flex-col w-full mt-4  pr-[16px] '>
                                     <div className='flex flex-col w-full'>
                                         {
                                             dummyContactData.map((item, index: number) => (
                                                 <div className='flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
                                                     <div className='flex flex-col'>
                                                         <div className='flex flex-row justify-between w-full'>
-                                                            {/* truncate w-[100px] */}
+
                                                             <span className='text-sm font-semibold flex-1'>
-                                                                {item.name} - {item.designation}
+                                                                {item.name}
                                                             </span>
                                                             {item?.type && item?.type?.trim() !== "" && <div>
-                                                                <span className='text-xs text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px] '>{item.type}</span>
+                                                                <span className={`text-xs mr-[10px] px-[6px] py-[2px] border border-[1px] rounded-[6px] font-medium ${TYPE.find(val => val.label === item.type)?.class}`}>{item.type}</span>
                                                             </div>}
+                                                        </div>
+                                                        <div className='text-xs font-medium text-purple-700 flex-1'>
+                                                            {item.designation}
                                                         </div>
                                                         <div className='text-xs text-gray-600 font-normal'>
                                                             {item.email}
@@ -1181,7 +1266,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
                     <div className='p-[24px] 2xl:w-3/4 w-6/12 h-full flex-1 flex flex-col'>
                         <div className='flex flex-row justify-end'>
-                            <Button variant={'default'} className='flex flex-row gap-2'>Promote to Prospect <IconArrowSquareRight size={20} /></Button>
+                            <Button variant={'default'} className='flex flex-row gap-2' onClick={() => promoteToProspect()}>Promote to Prospect <IconArrowSquareRight size={20} /></Button>
                         </div>
                         <div className='flex flex-row'>
                             <div className='flex flex-col w-full mt-[24px]'>
@@ -1207,6 +1292,50 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             </div>
         </div>
     )
+
+    async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            if (result.message === "success") {
+            }
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+    }
+
+    async function patchLeadData(leadData: Partial<PatchLead>) {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/`, { method: "PATCH", body: JSON.stringify(leadData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            if (result.message === "success") {
+            }
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+    }
+
+    async function patchRoleData(roleId: number, roleDetailsData: Partial<PatchOrganisation>) {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/role_detail/${roleId}/`, { method: "PATCH", body: JSON.stringify(roleDetailsData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            closeSideSheet()
+            if (result.message === "success") {
+            }
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+    }
+
+    function requiredErrorComponent() {
+        return <div className={`${requiredErrorClasses} flex flex-row gap-[5px] items-center`}>
+            Required
+            <IconRequiredError size={16} />
+        </div>
+    }
 }
 
 export default SideSheet

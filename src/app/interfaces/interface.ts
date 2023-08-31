@@ -129,3 +129,63 @@ export interface ClientCompleteInterface {
     segment: string | null;
     archived: boolean;
 }
+export interface Signin {
+    email: string
+    password: string
+}
+
+export interface PatchLead  {
+    id: number;
+    readOnly: true;
+    created_by: string;
+    updated_by: string;
+    owner: string;
+    role: string;
+    organisation: string;
+    title?: string | null;
+    currency?: string | null;
+    service_fee?: number | null;
+    service_fee_range?: string | null;
+    retainer_advance?: boolean | null;
+    exclusivity?: boolean | null;
+    source: string;
+    status: string;
+    is_converted_to_prospect?: boolean;
+    archived: boolean;
+    created_at: string;
+    updated_at: string;
+  }
+  
+  export interface PatchOrganisation {
+    id: number;
+    contacts: any[];
+    created_by: string;
+    updated_by: string;
+    lead_count: string;
+    name: string;
+    registered_name?: string | null;
+    govt_id?: string | null;
+    billing_address?: string | null;
+    shipping_address?: string | null;
+    industry?: string | null;
+    domain?: string | null;
+    size?: string | null;
+    last_funding_stage?: string | null;
+    last_funding_amount?: string | null;
+    funding_currency?: string | null;
+    segment?: string | null;
+    archived: boolean;
+  }
+  
+  export interface PatchRoleDetails {
+    id: number;
+    role_type: string;
+    budget_range: string;
+    fixed_budget?: number | null;
+    fixed_budget_ul?: number | null;
+    esop_rsu?: string | null;
+    region: string;
+    location?: string | null;
+    time_To_fill?: string | null;
+    archived: boolean;
+  }

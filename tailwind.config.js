@@ -42,6 +42,13 @@ module.exports = {
           fontWeight: "600",
         }
       ],
+      '2xl': ['30px',
+      {
+        lineHeight: "38px",
+        fontWeight: "600"
+      }
+
+      ]
 
     },
     colors: {
@@ -74,6 +81,7 @@ module.exports = {
       },
       success: {
         50: "#ECFDF3",
+        100: "#DCFAE6",
         600: "#079455",
         700: "#067647"
       },
@@ -85,10 +93,13 @@ module.exports = {
         50: "#FFFAEB",
         100: "#FEF0C7",
         500: "#F79009",
-        600: "#DC6803"
+        600: "#DC6803",
+        700: "#B54708"
       },
       error: {
+        25: "#FFFBFA",
         50: "#FEF3F2",
+        500: "#F04438",
         600: "#D92D20",
         700: "#B42318"
       },

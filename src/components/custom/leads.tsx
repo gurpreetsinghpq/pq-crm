@@ -92,7 +92,6 @@ const Leads = () => {
     
 
 
-    console.log(dataFromApi)
     function setChildDataHandler(key: keyof IChildData, data: any) {
         setChildData((prev) => {
             return { ...prev, [key]: data }
@@ -132,9 +131,7 @@ const Leads = () => {
 
     const searchParams = useSearchParams()
     React.useEffect(() => {
-        console.log(searchParams.get("ids"))
         const queryParamIds = searchParams.get("ids")
-        console.log(queryParamIds)
         if (queryParamIds && queryParamIds?.length > 0) {
             form.setValue("search", queryParamIds)
             form.setValue("queryParamString", queryParamIds)
@@ -616,15 +613,15 @@ const Leads = () => {
                                 <IconLeads size="20" />
                             </div>
                                 <div>
-                                    <p className="text-md text-gray-900 font-semibold">No Leads</p>
+                                    <p className="text-md text-gray-900 font-semibold">{isInbox? "No Leads": "No Archive Leads"}</p>
 
                                 </div>
-                                <AddLeadDialog fetchLeadData={fetchLeadData} >
+                                {isInbox && <AddLeadDialog fetchLeadData={fetchLeadData} >
                                     <Button className="flex flex-row gap-2">
                                         <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
                                         Add Lead
                                     </Button>
-                                </AddLeadDialog></>}
+                                </AddLeadDialog>}</>}
                         </div>)
                     }
                     {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} />}

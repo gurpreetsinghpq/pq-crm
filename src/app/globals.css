@@ -62,7 +62,7 @@
   }
 }
 
-.scroll-style-one::-webkit-scrollbar {
+/* .scroll-style-one::-webkit-scrollbar {
   width: 10px;
   background: transparent;
 }
@@ -73,7 +73,7 @@
   width: 6px;
   background-color: #EAECF0;
   border-radius: 8px;
-}
+} */
 
 
 /* HM SPINNER */

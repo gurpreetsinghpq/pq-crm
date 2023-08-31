@@ -17,14 +17,16 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
-import { IconAccounts, IconContacts, IconCross, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
+import { IconAccounts, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
 import { Client, ClientCompleteInterface, ContactDetail, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
+import Image from 'next/image'
+import { formatData } from './leads'
 
 
-const commonClasses = "focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
+const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
 
 
 const FormSchema = z.object({
@@ -112,9 +114,13 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     const watcher2 = form2.watch()
 
     useEffect(() => {
-        console.log(form.getValues())
+        // console.log(form.getValues())
 
     }, [watcher1])
+    useEffect(() => {
+        console.log(form2.getValues())
+
+    }, [watcher2])
 
     useEffect(() => {
         console.log("details", details)
@@ -212,8 +218,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             const dataArr = val.title?.split(" ").join("").split("-")
             if (dataArr) {
                 const [orgNameL, regL, roleL] = dataArr
-                console.log(orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase() )
-                console.log(orgNameL.toLowerCase() , formData.organisationName.toLowerCase() , regionAcronym?.toLowerCase() , regL.toLowerCase() , roleTypeAcronym?.toLowerCase() , roleL.toLowerCase() )
+                console.log(orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase())
+                console.log(orgNameL.toLowerCase(), formData.organisationName.toLowerCase(), regionAcronym?.toLowerCase(), regL.toLowerCase(), roleTypeAcronym?.toLowerCase(), roleL.toLowerCase())
                 if (orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase()) {
                     incrementalNumber++
                 }
@@ -261,7 +267,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             dataFromChild()
             form.reset()
             resetForm2()
-           
+
         } catch (err) {
             console.log(err)
         }
@@ -417,7 +423,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                         {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                        <FormMessage />
+                                        {/* <FormMessage /> */}
                                     </FormItem>
                                 )}
                             />
@@ -435,7 +441,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent >
-                                                <div className='h-[200px] overflow-y-scroll scroll-style-one'>
+                                                <div className='max-h-[200px] overflow-y-auto '>
                                                     {
                                                         roleType.map((roleType, index) => {
                                                             return <SelectItem key={index} value={roleType.value}>
@@ -449,7 +455,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                         {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                        <FormMessage />
+                                        {/* <FormMessage /> */}
                                     </FormItem>
                                 )}
                             />
@@ -479,7 +485,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                         {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                        <FormMessage />
+                                        {/* <FormMessage /> */}
                                     </FormItem>
                                 )}
                             />}
@@ -520,7 +526,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                         {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                        <FormMessage />
+                                        {/* <FormMessage /> */}
                                     </FormItem>
                                 )}
                             />
@@ -538,26 +544,28 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                             <div className="bg-gray-200 h-[1px] flex-1" ></div>
                             <div className={`text-sm text-purple-700  ${!showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showContactForm && addNewForm()}>+ Add</div>
                         </div>
-                        {dummyContactData.length > 0 && <div className={`flex flex-col w-full mt-4  pr-[16px] max-h-[340px] overflow-y-auto scroll-style-one  ${showContactForm && "h-[150px] overflow-y-scroll "} `}>
+                        {dummyContactData.length > 0 && <div className={`flex flex-col w-full mt-4  pr-[16px] max-h-[340px] overflow-y-auto   ${showContactForm && "h-[150px] overflow-y-scroll "} `}>
                             <div className='flex flex-col w-full'>
                                 {
                                     dummyContactData.map((item: any, index: number) => (
                                         <div className='relative flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
                                             <div className='flex flex-col'>
-                                                <div className='flex flex-row justify-between w-full'>
+                                                <div className='flex flex-row justify-between w-full items-baseline '>
                                                     <span className='text-sm font-semibold flex-1'>
-                                                        {item.name} - {item.designation}
+                                                        {item.name}
                                                     </span>
                                                     <div className='flex flex-row gap-2 items-center'>
                                                         {item?.type && item?.type?.trim() !== "" && <div>
-                                                            <span className='text-xs mr-[10px] text-purple-700 px-[6px] py-[2px] border border-[1px] bg-purple-50 border-purple-200 rounded-[6px]'>{item.type}</span>
+                                                            <span className={`text-xs mr-[10px] px-[6px] py-[2px] border border-[1px] rounded-[6px] font-medium ${type.find(val => val.label === item.type)?.class}`}>{item.type}</span>
                                                         </div>}
 
                                                         {
                                                             item.isLocallyAdded && <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger >
-                                                                        <PencilIcon className='absolute right-[5px] top-[10px] h-[16px] cursor-pointer' onClick={() => activateToUpdateForm(item)} />
+                                                                        <div className='absolute right-[5px] top-[10px] h-[16px] cursor-pointer' onClick={() => activateToUpdateForm(item)}>
+                                                                            <IconPencil />
+                                                                        </div>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent side='right' >
                                                                         Edit
@@ -565,6 +573,9 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                                 </Tooltip>
                                                             </TooltipProvider>}
                                                     </div>
+                                                </div>
+                                                <div className='text-xs font-medium text-purple-700 flex-1'>
+                                                    {item.designation}
                                                 </div>
                                                 <div className='text-xs text-gray-600 font-normal'>
                                                     {item.email}
@@ -604,19 +615,21 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        {
-                                                            designation.map((designation, index) => {
-                                                                return <SelectItem value={designation.value} key={index}>
-                                                                    {designation.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
+                                                        <div className='max-h-[200px] overflow-y-auto'>
+                                                            {
+                                                                designation.map((designation, index) => {
+                                                                    return <SelectItem value={designation.value} key={index}>
+                                                                        {designation.label}
+                                                                    </SelectItem>
+                                                                })
+                                                            }
+                                                        </div>
                                                     </SelectContent>
                                                 </Select>
                                                 {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                <FormMessage />
+                                                {/* <FormMessage /> */}
                                             </FormItem>
                                         )}
                                     />
@@ -646,7 +659,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                 {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                <FormMessage />
+                                                {/* <FormMessage /> */}
                                             </FormItem>
                                         )}
                                     />
@@ -664,29 +677,52 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     control={form2.control}
                                     name="std_code"
                                     render={({ field }) => (
-                                        <FormItem className='mt-3 w-1/3'>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className={commonClasses}>
-                                                        <SelectValue placeholder="Country Code" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <div className='h-[200px] overflow-y-scroll scroll-style-one'>
-                                                        {
-                                                            countryCode.map((countryCode, index) => {
-                                                                return <SelectItem value={countryCode.value} key={index}>
-                                                                    {countryCode.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </div>
-                                                </SelectContent>
-                                            </Select>
-                                            {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                            <FormMessage />
+                                        <FormItem className='mt-3 w-1/4'>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button variant={"google"} className="flex flex-row gap-2">
+                                                            {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                            {countryCode.find((val) => val.value === field.value)?.value}
+                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                    <Command>
+                                                        <CommandInput className='w-full' placeholder="Search Country Code..." />
+                                                        <CommandEmpty>Country code not found.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                {countryCode.map((cc) => (
+                                                                    <CommandItem
+                                                                        value={cc.label}
+                                                                        key={cc.label}
+                                                                        onSelect={() => {
+                                                                            console.log("std_code", cc.value)
+                                                                            form2.setValue("std_code", cc.value)
+                                                                        }}
+                                                                    >
+                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                            {cc.label}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                    field.value?.includes(cc.value)
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                        </div>
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </div>
+                                                        </CommandGroup>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
                                         </FormItem>
                                     )}
                                 />
@@ -694,7 +730,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     control={form2.control}
                                     name="phone"
                                     render={({ field }) => (
-                                        <Input type="text" className={`mt-3 w-2/3 ${commonClasses}`} placeholder="Phone No" {...field} />
+                                        <Input type="text" className={`mt-3 w-3/4 ${commonClasses}`} placeholder="Phone No" {...field} />
                                     )}
                                 />
                             </div>
@@ -752,7 +788,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                 <Button disabled={!(form.formState.isValid && dummyContactData.length > 0)} onClick={() => addToLead()}>Save & Add</Button>
             </div>
 
-        </div>
+        </div >
     )
 }
 
