@@ -168,3 +168,7 @@ body{
 /* .responsive-table-height{
   height: clamp(18.75rem, -26.125rem + 118.0938vh, 41.1875rem);
 } */
+
+/* .responsive-width{
+  width: auto;
+} */

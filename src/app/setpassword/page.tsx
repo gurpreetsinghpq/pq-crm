@@ -5,7 +5,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check } from 'lucide-react'
-import React, { useState } from 'react'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -17,10 +19,34 @@ const FormSchema = z.object({
         // required_error: "Please enter a name.",
     }),
 })
-
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
 
 function setPassword() {
+    const router = useRouter();
+
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [started, setStarted] = useState(false); // Track whether the countdown has started
+
+    const [seconds, setSeconds] = useState<number>(5)
+
+    useEffect(() => {
+        let timer:any 
+        if (started) {
+            timer = setInterval(() => {
+                if (seconds > 1) {
+                    setSeconds(seconds - 1);
+                } else {
+                    clearInterval(timer);
+                    router.replace("/signin");
+
+                }
+            }, 1000);
+        }
+        return () => {
+            clearInterval(timer)
+        };
+    }, [started, seconds]);
+
     const [isPasswordSet, setIsPasswordSet] = useState(false)
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -29,6 +55,44 @@ function setPassword() {
             comfirm_password: ""
         }
     })
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+
+    const searchParams = useSearchParams()
+
+    async function setPasswordApi() {
+        console.log("hu")
+        setIsLoading(true)
+
+        const queryParamUid = searchParams.get("uid")
+
+
+        if (queryParamUid) {
+            const formData = form.getValues()
+            const { password } = formData
+
+            const dataToSend = {
+                uid: queryParamUid,
+                password
+            }
+
+            // todo: move to try
+            setIsPasswordSet(true)
+            setStarted(true)
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/users/set_password/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                console.log(result)
+                setIsLoading(false)
+            }
+            catch (err) {
+                setIsLoading(false)
+                console.log("error", err)
+            }
+        }
+
+    }
+
     return (
         <>{!isPasswordSet ? <Form {...form}>
             <form className='flex flex-col gap-[32px] items-center justify-center h-full'>
@@ -80,7 +144,7 @@ function setPassword() {
                                     <span>Must contain one special character</span>
                                 </div>
                             </div>
-                            <Button>Set Password</Button>
+                            <Button type='button' onClick={setPasswordApi}>Set Password</Button>
                         </div>
                     </div>
                 </div>
@@ -97,8 +161,12 @@ function setPassword() {
                     </div>
                 </div>
                 <div className='flex items-center   flex-col gap-[18px]'>
-                    <Button className='min-w-[360px]'>Go to Login</Button>
-                    <span className='text-gray-600 text-md font-normal'>Redirecting in <span className='font-bold'> 5 </span> seconds </span>
+                    <Link href={"/signin"}>
+                        <Button className='min-w-[360px]' >
+                            Go to Login
+                        </Button>
+                    </Link>
+                    <span className='text-gray-600 text-md font-normal'>Redirecting in <span className='font-bold'> {seconds} </span> seconds </span>
                 </div>
             </div>
         </div>}</>

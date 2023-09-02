@@ -300,8 +300,8 @@ function formatUtcDateToLocal(backendUtcDate: any) {
 
     const inputString = new Date(backendUtcDate).toLocaleString('en-US', { hour12: false })
     const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
 
     const [datePart, timePart] = inputString.split(', ');

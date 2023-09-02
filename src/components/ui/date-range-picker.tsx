@@ -61,11 +61,13 @@ const PRESETS: Preset[] = [
     { name: 'today', label: 'Today' },
     { name: 'yesterday', label: 'Yesterday' },
     { name: 'thisWeek', label: 'This Week' },
-    { name: 'last7', label: 'Last 7 Days' },
+    { name: 'lastWeek', label: 'Last Week' },
+    // { name: 'last7', label: 'Last 7 Days' },
     { name: 'thisMonth', label: 'This Month' },
     { name: 'lastMonth', label: 'Last Month' },
+    { name: 'thisQuarter', label: 'This Quarter' },
     { name: 'thisYear', label: 'This Year' },
-    { name: 'lastYear', label: 'Last Year' },
+    // { name: 'lastYear', label: 'Last Year' },
     { name: 'allTime', label: 'All Time' },
 ]
 
@@ -87,10 +89,10 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         const today = new Date();
         const lastWeek = new Date(today);
         lastWeek.setDate(today.getDate() - 7);
-
         const from = new Date()
         const to = new Date()
-        from.setDate(from.getDate() - 6)
+        const first = from.getDate() - from.getDay()
+        from.setDate(first)
         from.setHours(0, 0, 0, 0)
         to.setHours(23, 59, 59, 999)
 
@@ -186,6 +188,16 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     to.setDate(0)
                     to.setHours(23, 59, 59, 999)
                     break
+                case 'thisQuarter':
+                    const currentMonth = from.getMonth(); // In this example, currentMonth will be 8 (September)
+                    const quarterStartMonth = currentMonth - (currentMonth % 3); // Quarter start month will be 6 (July)
+                    const quarterStartDate = new Date(from.getFullYear(), quarterStartMonth, 1, 0, 0, 0, 0);
+                    const lastDayOfQuarter = new Date(from.getFullYear(), quarterStartMonth + 3, 0, 23, 59, 59, 999); // The last day of the quarter is the last day of September
+
+                    from.setTime(quarterStartDate.getTime()); // Start date will be July 1, 2023, 00:00:00.000
+                    to.setTime(lastDayOfQuarter.getTime());    // End date will be September 30, 2023, 23:59:59.999
+
+                    break;
                 case 'thisYear':
                     from.setMonth(0);
                     from.setDate(1);
@@ -260,7 +272,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         }
 
         const resetValues = (): void => {
-            const { from, to } = getLast7Days()
+            const { from, to } = getLastWeek()
             setRange({
                 from: from,
                 to: to
@@ -343,7 +355,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                                 )
                             } */}
                             <IconCalendar size="20" />
-                            {PRESETS.find((preset) => preset.name === selectedPreset)?.label}
+                            {PRESETS.find((preset) => preset.name === selectedPreset)?.label || "Custom Range"}
                         </div>
                         <div className="pl-1 opacity-60 -mr-2 scale-125 px-2">
                             {
@@ -555,14 +567,15 @@ DateRangePicker.displayName = 'DateRangePicker'
 DateRangePicker.filePath =
     'libs/shared/ui-kit/src/lib/date-range-picker/date-range-picker.tsx'
 
-export function getLast7Days() {
+export function getLastWeek() {
     const today = new Date()
     const lastWeek = new Date(today)
     lastWeek.setDate(today.getDate() - 7)
 
     const from = new Date()
     const to = new Date()
-    from.setDate(from.getDate() - 6)
+    const first = from.getDate() - from.getDay()
+    from.setDate(first)
     from.setHours(0, 0, 0, 0)
     to.setHours(23, 59, 59, 999)
     return { from, to }

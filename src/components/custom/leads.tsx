@@ -31,7 +31,7 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
-import { DateRangePicker, getLast7Days } from "../ui/date-range-picker"
+import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 import { IValueLabel, LeadInterface } from "@/app/interfaces/interface"
@@ -109,7 +109,7 @@ const Leads = () => {
         setTableLength(number)
     }
 
-    const { from, to } = getLast7Days()
+    const { from, to } = getLastWeek()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {

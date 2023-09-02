@@ -363,16 +363,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <TooltipProvider>
-                                            <Tooltip >
-                                                <TooltipTrigger className='w-full'>
-                                                    <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
-                                                </TooltipTrigger>
-                                                {details?.name && <TooltipContent side='right'>
-                                                    The organization name is unchangeable
-                                                </TooltipContent>}
-                                            </Tooltip>
-                                        </TooltipProvider>
+                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
+
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -794,7 +786,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
 export default AddLeadDetailedDialog
 
-function acronymFinder(lookupvalue: string, arr: IValueLabel[]) {
+export function acronymFinder(lookupvalue: string, arr: IValueLabel[]) {
     return arr.find((val) => val.label === lookupvalue)?.acronym
 }
 

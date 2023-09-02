@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Label } from "@radix-ui/react-label"
 import Image from "next/image"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -13,7 +14,7 @@ import { z } from "zod"
 const FormSchema2 = z.object({
     email: z.string({
         // required_error: "Please enter a name.",
-    }).min(2).max(30),
+    }).email(),
     password: z.string({
         // required_error: "Please select designation.",
     }),
@@ -46,7 +47,7 @@ export default function Signin() {
             setIsLoading(false)
             const { data: { token } } = result
             localStorage.setItem("pq_token", token)
-            
+
         }
         catch (err) {
             setIsLoading(false)
@@ -67,16 +68,20 @@ export default function Signin() {
         }
     }, [])
 
-    return <div className="signin-container flex min-h-screen">
-        <div className="left flex flex-col w-7/12 bg-purple-600 px-10 py-10 ">
-            <div className="flex flex-row mb-8">
+    return <div className="signin-container flex min-h-screen relative">
+        <div className="left flex flex-col w-7/12 bg-purple-600 justify-center py-[10rem]">
+            <div className="flex flex-row mb-8 absolute top-[44px] left-[44px]">
                 <Image src={"/purple-quarter-logo.png"} alt="purple search logo" width={167} height={44} />
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col h-full justify-between gap-[50px]">
                 <div className="flex flex-row justify-center">
-                    <Image src={"/carousel-1.png"} alt="carousel first" width={isSmallScreen ? 400 : 596} height={411} />
+                    <div className="max-w-[596px]">
+                        <Image src={"/carousel-1.png"} alt="carousel first" width={0} height={0} sizes="100vw"
+                            style={{ width: '100%', height: 'auto' }}
+                        />
+                    </div>
                 </div>
-                <div className="flex flex-col justify-center align-middle mt-10">
+                <div className="flex flex-col justify-center align-middle">
                     <h2 className="text-white-900 text-2xl text-center mb-1 font-semibold">Automate your workflow in 3..2..1</h2>
                     <h3 className="text-purple-200 text-center text-base py-1">This is the description text here. This could be a <br /> two liner as well, and little longer if needed.</h3>
                 </div>
@@ -113,7 +118,7 @@ export default function Signin() {
                         </FormItem>
                     )}
                 />
-                <a className="text-purple-700 font-bold my-6 text-sm">Forgot password</a>
+                <Link href={"/forgotpassword"} className="text-purple-700 font-bold my-6 text-sm">Forgot password</Link>
                 <Button variant={"default"} onClick={login} type="button">Sign in</Button>
                 <div className="text-gray-400 font-medium flex my-4 flex-row justify-center">OR</div>
                 <Button variant={"google"} >

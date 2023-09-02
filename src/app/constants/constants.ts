@@ -1,5 +1,6 @@
 import { Deferred, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
 import { IValueLabel } from "../interfaces/interface"
+import {GodfatherIcon, HustlerIcon, RockstarIcon} from "../../components/icons/labels"
 const REGION = [
     {
         value: "india",
@@ -85,7 +86,7 @@ const ROLETYPE: IValueLabel[] = [
         acronym: "PE"
     },
 ]
-const USA_MENA_APAC_BUDGET:IValueLabel[] =[
+const USA_MENA_APAC_BUDGET: IValueLabel[] = [
     {
         value: "uptoUsd250k",
         label: "Upto USD 250k"
@@ -103,7 +104,7 @@ interface IBudgetRange {
     [key: string]: IValueLabel[];
 }
 
-const BUDGET_RANGE:IBudgetRange  = {
+const BUDGET_RANGE: IBudgetRange = {
     "india": [
         {
             value: "uptoInr1cr",
@@ -127,15 +128,15 @@ const BUDGET_RANGE:IBudgetRange  = {
     "mena": USA_MENA_APAC_BUDGET,
     "europe": [
         {
-            value :"Upto_Eur_250k",
+            value: "Upto_Eur_250k",
             label: "Upto EUR 250k"
         },
         {
-            value :"eur250To500k",
+            value: "eur250To500k",
             label: "EUR 250k to 500k"
         },
         {
-            value :"aboveEur500k",
+            value: "aboveEur500k",
             label: "Above EUR 500k"
         }
     ]
@@ -189,7 +190,7 @@ const DESIGNATION = [
     },
 ]
 
-const TYPE:IValueLabel[] = [
+const TYPE: IValueLabel[] = [
     {
         value: "influencer",
         label: "Influencer",
@@ -421,7 +422,7 @@ const REGIONS: IValueLabel[] = [
     },
 ]
 
-const COUNTRY_CODE:IValueLabel[] = [
+const COUNTRY_CODE: IValueLabel[] = [
     {
         "value": "+ 213",
         "label": "+ 213 Algeria"
@@ -1421,21 +1422,28 @@ const SIZE_OF_COMPANY: IValueLabel[] = [
     { value: "5001_to_10000", label: "5001 to 10000" },
     { value: "10001_plus", label: "10001+" }
 ]
+
+
+
+
 const LAST_FUNDING_STAGE: IValueLabel[] = [
-    { value: "pre_seed", label: "Pre-Seed" },
-    { value: "seed", label: "Seed" },
-    { value: "series_a", label: "Series A" },
-    { value: "series_b", label: "Series B" },
-    { value: "series_c", label: "Series C" },
-    { value: "series_d", label: "Series D" },
-    { value: "series_e_and_above", label: "Series E & Above" },
-    { value: "debt_financing", label: "Debt Financing" },
-    { value: "convertible_note", label: "Convertible Note" },
-    { value: "ipo", label: "IPO" },
-    { value: "post_ipo_equity", label: "Post-IPO Equity" },
-    { value: "post_ipo_debt", label: "Post-IPO Debt" },
-    { value: "private_equity", label: "Private Equity" },
-    { value: "unknown", label: "Unknown" }
+    { value: "pre_seed", label: "Pre-Seed", icon: HustlerIcon },
+    { value: "seed", label: "Seed", icon: HustlerIcon },
+    { value: "series_a", label: "Series A", icon: HustlerIcon  },
+    { value: "series_b", label: "Series B", icon: HustlerIcon },
+    { value: "debt_financing", label: "Debt Financing", icon:HustlerIcon },
+    { value: "convertible_note", label: "Convertible Note", icon:HustlerIcon },
+    { value: "series_c", label: "Series C" , icon:RockstarIcon},
+    { value: "series_d", label: "Series D", icon:RockstarIcon },
+    { value: "private_equity", label: "Private Equity",icon:RockstarIcon },
+    { value: "corporate_round", label: "Corporate Round",icon:RockstarIcon },
+    { value: "series_e_and_above", label: "Series E & Above", icon:RockstarIcon },
+    { value: "ipo", label: "IPO",icon:GodfatherIcon },
+    { value: "post_ipo_equity", label: "Post-IPO Equity",icon:GodfatherIcon },
+    { value: "post_ipo_debt", label: "Post-IPO Debt",icon:GodfatherIcon },
+    { value: "seondary_market", label: "Secondary Market",icon:GodfatherIcon },
+    { value: "unknown", label: "Unknown", icon:HustlerIcon },
+    { value: "notApplicable", label: "Not Applicable", icon:HustlerIcon },
 ];
 
 const LAST_FUNDING_AMOUNT = [
@@ -1466,7 +1474,8 @@ const LAST_FUNDING_AMOUNT = [
     {
         value: "undisclosed",
         label: "Undisclosed"
-    }
+    },
+    { value: "notApplicable", label: "Not Applicable"},
 ];
 
 const RETAINER_ADVANCE: IValueLabel[] = [
