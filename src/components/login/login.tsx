@@ -68,7 +68,7 @@ export default function Signin() {
     }, [])
 
     return <div className="signin-container flex min-h-screen relative">
-        <div className="left flex flex-col w-7/12 bg-purple-600 justify-center py-[10rem]">
+        <div className="left flex flex-col w-7/12 bg-purple-600 justify-center xl:py-[6rem] 2xl:py-[10rem]">
             <div className="flex flex-row mb-8 absolute top-[44px] left-[44px]">
                 <Image src={"/purple-quarter-logo.png"} alt="purple search logo" width={167} height={44} />
             </div>
