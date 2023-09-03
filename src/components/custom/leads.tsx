@@ -30,7 +30,7 @@ import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
+import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
@@ -170,10 +170,10 @@ const Leads = () => {
                 return val
             })
             dataFromApi = fdata
-            const filteredData = filterInboxOrArchive(dataFromApi, isInbox) 
+            const filteredData = filterInboxOrArchive(dataFromApi, isInbox)
             setLeadData(filteredData)
             setIsLoading(false)
-            if(filteredData.length==0){
+            if (filteredData.length == 0) {
                 setTableLength(0)
                 setIsMultiSelectOn(false)
                 setSelectedRowIds([])
@@ -270,7 +270,7 @@ const Leads = () => {
             })
             .catch((error) => {
                 console.log("Error during patching:", error);
-                
+
             });
     }
 
@@ -332,7 +332,7 @@ const Leads = () => {
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Leads" : "Lead"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Leads" : "Lead"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -357,10 +357,35 @@ const Leads = () => {
                         </div>
                         <div className="flex-1 flex flex-row gap-3 justify-end">
                             {isMultiSelectOn ? <div className="multi-selected flex flex-row gap-2">
-                                <Button variant={"google"} className="flex flex-row gap-2" type="button" onClick={archiveApi}>
-                                    <IconArchive size={20} color="#344054" />
-                                    {isInbox ? "Archive" : "Inbox"}
-                                </Button>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant={"google"} className="flex flex-row gap-2" type="button" >
+                                            <IconArchive size={20} color="#344054" />
+                                            {isInbox ? "Archive" : "Inbox"}
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent >
+                                        <div className='w-fit'>
+                                            <DialogHeader>
+                                                <div className=' rounded-full w-fit'>
+                                                    <IconArchive2 size={62} />
+                                                </div>
+                                            </DialogHeader>
+                                            <div className='flex flex-col gap-[32px] mt-[16px] max-w-[400px]'>
+                                                <div className='flex flex-col'>
+                                                    <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
+                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length>1?"Leads": "Lead"} </span> will be {isInbox? "Archived" : "Inboxed" }</div>
+                                                </div>
+                                                <div className='flex flex-row gap-[12px]'>
+                                                    <DialogClose asChild>
+                                                        <Button className='text-md font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
+                                                    </DialogClose>
+                                                    <Button onClick={archiveApi} className='text-md font-semibold px-[38px] py-[10px]'>{isInbox? "Archive":"Inbox"} Selected</Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                                 {/* <Button variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>Promote to Prospect <IconArrowSquareRight size={20} /></Button> */}
                             </div> :
                                 <>

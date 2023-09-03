@@ -346,53 +346,72 @@ const ExclusitivityIcon = ({ size = 24, color = "#98A2B3" }) => (
     </defs>
   </svg>
 )
-const ServiceFeeRangeIcon = ({ size = 24, color ="#98A2B3" }) => (
+const ServiceFeeRangeIcon = ({ size = 24, color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
     <path d="M12 11H6M8 15H6M14 7H6M18 10.5V6.8C18 5.11984 18 4.27976 17.673 3.63803C17.3854 3.07354 16.9265 2.6146 16.362 2.32698C15.7202 2 14.8802 2 13.2 2H6.8C5.11984 2 4.27976 2 3.63803 2.32698C3.07354 2.6146 2.6146 3.07354 2.32698 3.63803C2 4.27976 2 5.11984 2 6.8V17.2C2 18.8802 2 19.7202 2.32698 20.362C2.6146 20.9265 3.07354 21.3854 3.63803 21.673C4.27976 22 5.11984 22 6.8 22H9.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     <path d="M22 14L14 22M16.2857 15.1429C16.2857 15.774 15.774 16.2857 15.1429 16.2857C14.5117 16.2857 14 15.774 14 15.1429C14 14.5117 14.5117 14 15.1429 14C15.774 14 16.2857 14.5117 16.2857 15.1429ZM22 20.8571C22 21.4883 21.4883 22 20.8571 22C20.226 22 19.7143 21.4883 19.7143 20.8571C19.7143 20.226 20.226 19.7143 20.8571 19.7143C21.4883 19.7143 22 20.226 22 20.8571Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 )
-const PercentIcon2= ({ size = 24, color ="#98A2B3" }) => (
+const PercentIcon2 = ({ size = 24, color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
     <path d="M19 5L5 19M9 7C9 8.10457 8.10457 9 7 9C5.89543 9 5 8.10457 5 7C5 5.89543 5.89543 5 7 5C8.10457 5 9 5.89543 9 7ZM19 17C19 18.1046 18.1046 19 17 19C15.8954 19 15 18.1046 15 17C15 15.8954 15.8954 15 17 15C18.1046 15 19 15.8954 19 17Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 )
-const GstIcon= ({ size = 24, color ="#98A2B3" }) => (
+const GstIcon = ({ size = 24, color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
-  <path d="M11.5 2H15.2C16.8802 2 17.7202 2 18.362 2.32698C18.9265 2.6146 19.3854 3.07354 19.673 3.63803C20 4.27976 20 5.11984 20 6.8V17.2C20 18.8802 20 19.7202 19.673 20.362C19.3854 20.9265 18.9265 21.3854 18.362 21.673C17.7202 22 16.8802 22 15.2 22H8.8C7.11984 22 6.27976 22 5.63803 21.673C5.07354 21.3854 4.6146 20.9265 4.32698 20.362C4 19.7202 4 18.8802 4 17.2V14.5" stroke="#98A2B3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M6 3H3.5C2.67157 3 2 3.67157 2 4.5C2 5.32843 2.67157 6 3.5 6H4.5C5.32843 6 6 6.67157 6 7.5C6 8.32843 5.32843 9 4.5 9H2M4 2V3M4 9V10" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="8" y="6" width="9" height="4" fill={color}/>
-  <rect x="8" y="11" width="4" height="3" fill={color}/>
-  <rect x="13" y="11" width="4" height="3" fill={color}/>
-  <rect x="8" y="15" width="4" height="3" fill={color}/>
-  <rect x="13" y="15" width="4" height="3" fill={color}/>
-</svg>
+    <path d="M11.5 2H15.2C16.8802 2 17.7202 2 18.362 2.32698C18.9265 2.6146 19.3854 3.07354 19.673 3.63803C20 4.27976 20 5.11984 20 6.8V17.2C20 18.8802 20 19.7202 19.673 20.362C19.3854 20.9265 18.9265 21.3854 18.362 21.673C17.7202 22 16.8802 22 15.2 22H8.8C7.11984 22 6.27976 22 5.63803 21.673C5.07354 21.3854 4.6146 20.9265 4.32698 20.362C4 19.7202 4 18.8802 4 17.2V14.5" stroke="#98A2B3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M6 3H3.5C2.67157 3 2 3.67157 2 4.5C2 5.32843 2.67157 6 3.5 6H4.5C5.32843 6 6 6.67157 6 7.5C6 8.32843 5.32843 9 4.5 9H2M4 2V3M4 9V10" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="8" y="6" width="9" height="4" fill={color} />
+    <rect x="8" y="11" width="4" height="3" fill={color} />
+    <rect x="13" y="11" width="4" height="3" fill={color} />
+    <rect x="8" y="15" width="4" height="3" fill={color} />
+    <rect x="13" y="15" width="4" height="3" fill={color} />
+  </svg>
 )
-const PackageIcon= ({ size = 24, color ="#98A2B3" }) => (
+const PackageIcon = ({ size = 24, color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
-  <path d="M20.5 7.27774L12 12M12 12L3.49997 7.27774M12 12L12 21.5M21 16.0585V7.94144C21 7.5988 21 7.42747 20.9495 7.27468C20.9049 7.1395 20.8318 7.01542 20.7354 6.91073C20.6263 6.79239 20.4766 6.70919 20.177 6.54279L12.777 2.43168C12.4934 2.27412 12.3516 2.19534 12.2015 2.16445C12.0685 2.13712 11.9315 2.13712 11.7986 2.16445C11.6484 2.19534 11.5066 2.27412 11.223 2.43168L3.82297 6.54279C3.52345 6.70919 3.37369 6.79239 3.26463 6.91073C3.16816 7.01542 3.09515 7.1395 3.05048 7.27468C3 7.42748 3 7.5988 3 7.94144V16.0585C3 16.4012 3 16.5725 3.05048 16.7253C3.09515 16.8605 3.16816 16.9846 3.26463 17.0893C3.37369 17.2076 3.52345 17.2908 3.82297 17.4572L11.223 21.5683C11.5066 21.7259 11.6484 21.8046 11.7986 21.8355C11.9315 21.8629 12.0685 21.8629 12.2015 21.8355C12.3516 21.8046 12.4934 21.7259 12.777 21.5683L20.177 17.4572C20.4766 17.2908 20.6263 17.2076 20.7354 17.0893C20.8318 16.9846 20.9049 16.8605 20.9495 16.7253C21 16.5725 21 16.4012 21 16.0585Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M16.5 9.5L7.5 4.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+    <path d="M20.5 7.27774L12 12M12 12L3.49997 7.27774M12 12L12 21.5M21 16.0585V7.94144C21 7.5988 21 7.42747 20.9495 7.27468C20.9049 7.1395 20.8318 7.01542 20.7354 6.91073C20.6263 6.79239 20.4766 6.70919 20.177 6.54279L12.777 2.43168C12.4934 2.27412 12.3516 2.19534 12.2015 2.16445C12.0685 2.13712 11.9315 2.13712 11.7986 2.16445C11.6484 2.19534 11.5066 2.27412 11.223 2.43168L3.82297 6.54279C3.52345 6.70919 3.37369 6.79239 3.26463 6.91073C3.16816 7.01542 3.09515 7.1395 3.05048 7.27468C3 7.42748 3 7.5988 3 7.94144V16.0585C3 16.4012 3 16.5725 3.05048 16.7253C3.09515 16.8605 3.16816 16.9846 3.26463 17.0893C3.37369 17.2076 3.52345 17.2908 3.82297 17.4572L11.223 21.5683C11.5066 21.7259 11.6484 21.8046 11.7986 21.8355C11.9315 21.8629 12.0685 21.8629 12.2015 21.8355C12.3516 21.8046 12.4934 21.7259 12.777 21.5683L20.177 17.4572C20.4766 17.2908 20.6263 17.2076 20.7354 17.0893C20.8318 16.9846 20.9049 16.8605 20.9495 16.7253C21 16.5725 21 16.4012 21 16.0585Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M16.5 9.5L7.5 4.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
 )
-const EsopIcon= ({ size = 24, color ="#98A2B3" }) => (
+const EsopIcon = ({ size = 24, color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
-  <path d="M16.8741 18.8743C18.4962 18.8743 19.8112 17.5593 19.8112 15.9372C19.8112 14.315 18.4962 13 16.8741 13C15.2519 13 13.9369 14.315 13.9369 15.9372C13.9369 17.5593 15.2519 18.8743 16.8741 18.8743ZM16.8741 18.8743L16.8951 18.8741L13.7692 22L11 19.2308L13.9562 16.2747M16.8741 18.8743L20 22L22.7692 19.2308L19.813 16.2747" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M11 6.75H7.875C6.83947 6.75 6 7.58947 6 8.625C6 9.66053 6.83947 10.5 7.875 10.5H9.125C10.1605 10.5 11 11.3395 11 12.375C11 13.4105 10.1605 14.25 9.125 14.25H6M8.5 5.5V6.75M8.5 14.25V15.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M18 10.5V6.8C18 5.11984 18 4.27976 17.673 3.63803C17.3854 3.07354 16.9265 2.6146 16.362 2.32698C15.7202 2 14.8802 2 13.2 2H6.8C5.11984 2 4.27976 2 3.63803 2.32698C3.07354 2.6146 2.6146 3.07354 2.32698 3.63803C2 4.27976 2 5.11984 2 6.8V17.2C2 18.8802 2 19.7202 2.32698 20.362C2.6146 20.9265 3.07354 21.3854 3.63803 21.673C4.27976 22 5.11984 22 6.8 22H9.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+    <path d="M16.8741 18.8743C18.4962 18.8743 19.8112 17.5593 19.8112 15.9372C19.8112 14.315 18.4962 13 16.8741 13C15.2519 13 13.9369 14.315 13.9369 15.9372C13.9369 17.5593 15.2519 18.8743 16.8741 18.8743ZM16.8741 18.8743L16.8951 18.8741L13.7692 22L11 19.2308L13.9562 16.2747M16.8741 18.8743L20 22L22.7692 19.2308L19.813 16.2747" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M11 6.75H7.875C6.83947 6.75 6 7.58947 6 8.625C6 9.66053 6.83947 10.5 7.875 10.5H9.125C10.1605 10.5 11 11.3395 11 12.375C11 13.4105 10.1605 14.25 9.125 14.25H6M8.5 5.5V6.75M8.5 14.25V15.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M18 10.5V6.8C18 5.11984 18 4.27976 17.673 3.63803C17.3854 3.07354 16.9265 2.6146 16.362 2.32698C15.7202 2 14.8802 2 13.2 2H6.8C5.11984 2 4.27976 2 3.63803 2.32698C3.07354 2.6146 2.6146 3.07354 2.32698 3.63803C2 4.27976 2 5.11984 2 6.8V17.2C2 18.8802 2 19.7202 2.32698 20.362C2.6146 20.9265 3.07354 21.3854 3.63803 21.673C4.27976 22 5.11984 22 6.8 22H9.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
 )
 
-const AlertIcon= ({ size = 24, color ="#F04438" }) => (
+const AlertIcon = ({ size = 24, color = "#F04438" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
-  <g clip-path="url(#clip0_1375_60339)">
-    <path d="M8.00016 5.33301V7.99967M8.00016 10.6663H8.00683M14.6668 7.99967C14.6668 11.6816 11.6821 14.6663 8.00016 14.6663C4.31826 14.6663 1.3335 11.6816 1.3335 7.99967C1.3335 4.31778 4.31826 1.33301 8.00016 1.33301C11.6821 1.33301 14.6668 4.31778 14.6668 7.99967Z" stroke={color} stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
-  <defs>
-    <clipPath id="clip0_1375_60339">
-      <rect width={size} height={size} fill="white"/>
-    </clipPath>
-  </defs>
-</svg>
+    <g clip-path="url(#clip0_1375_60339)">
+      <path d="M8.00016 5.33301V7.99967M8.00016 10.6663H8.00683M14.6668 7.99967C14.6668 11.6816 11.6821 14.6663 8.00016 14.6663C4.31826 14.6663 1.3335 11.6816 1.3335 7.99967C1.3335 4.31778 4.31826 1.33301 8.00016 1.33301C11.6821 1.33301 14.6668 4.31778 14.6668 7.99967Z" stroke={color} stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+    <defs>
+      <clipPath id="clip0_1375_60339">
+        <rect width={size} height={size} fill="white" />
+      </clipPath>
+    </defs>
+  </svg>
+)
+const ArchiveIcon2 = ({ size = 24, color = "#6941C6" }) => (
+  <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="15.0294" y="0.605469" width="48" height="48" rx="10" transform="rotate(15 15.0294 0.605469)" fill={color} />
+    <g filter="url(#filter0_b_1401_68470)">
+      <rect y="14" width="48" height="48" rx="10" fill="white" fill-opacity="0.6" />
+      <path d="M16 33.9966C15.836 33.9924 15.7169 33.9829 15.6098 33.9616C14.8164 33.8038 14.1962 33.1836 14.0384 32.3902C14 32.197 14 31.9647 14 31.5C14 31.0353 14 30.803 14.0384 30.6098C14.1962 29.8164 14.8164 29.1962 15.6098 29.0384C15.803 29 16.0353 29 16.5 29H31.5C31.9647 29 32.197 29 32.3902 29.0384C33.1836 29.1962 33.8038 29.8164 33.9616 30.6098C34 30.803 34 31.0353 34 31.5C34 31.9647 34 32.197 33.9616 32.3902C33.8038 33.1836 33.1836 33.8038 32.3902 33.9616C32.2831 33.9829 32.164 33.9924 32 33.9966M22 39H26M16 34H32V42.2C32 43.8802 32 44.7202 31.673 45.362C31.3854 45.9265 30.9265 46.3854 30.362 46.673C29.7202 47 28.8802 47 27.2 47H20.8C19.1198 47 18.2798 47 17.638 46.673C17.0735 46.3854 16.6146 45.9265 16.327 45.362C16 44.7202 16 43.8802 16 42.2V34Z" stroke="#6941C6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      <rect x="0.5" y="14.5" width="47" height="47" rx="9.5" stroke="white" stroke-opacity="0.6" />
+    </g>
+    <defs>
+      <filter id="filter0_b_1401_68470" x="-16" y="-2" width="80" height="80" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feGaussianBlur in="BackgroundImageFix" stdDeviation="8" />
+        <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_1401_68470" />
+        <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_1401_68470" result="shape" />
+      </filter>
+    </defs>
+  </svg>
+
 )
 
 
@@ -455,5 +474,6 @@ export const IconPackage = (props) => <PackageIcon {...props} />;
 export const IconGst = (props) => <GstIcon {...props} />;
 export const IconAlert = (props) => <AlertIcon {...props} />;
 export const IconEsop = (props) => <EsopIcon {...props} />;
+export const IconArchive2 = (props) => <ArchiveIcon2 {...props} />;
 
 
