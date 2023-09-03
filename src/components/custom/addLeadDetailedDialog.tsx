@@ -61,7 +61,7 @@ const FormSchema2 = z.object({
     }).email(),
     phone: z.string({
         // required_error: "Please select Phone No."
-    }).min(6).max(13),
+    }).min(10).max(10),
     std_code: z.string({
         // required_error: "Please select designation.",
     }),
@@ -93,7 +93,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     const [showContactForm, setShowContactForm] = useState<any>(true)
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
-
+    const [formSchema2, setFormSchema2] = useState(FormSchema2)
     const { toast } = useToast()
 
 
@@ -104,11 +104,13 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         }
     })
 
-    const form2 = useForm<z.infer<typeof FormSchema2>>({
-        resolver: zodResolver(FormSchema2),
+    const form2 = useForm<z.infer<typeof formSchema2>>({
+        resolver: zodResolver(formSchema2),
         defaultValues: form2Defaults
 
     })
+
+    
 
     const watcher1 = form.watch()
     const watcher2 = form2.watch()
@@ -332,6 +334,20 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         form.reset()
         resetForm2()
         dataFromChild()
+    }
+
+    function changeStdCode(value: string) {
+        let updatedSchema
+        console.log(value, value != "+91" )
+        if (value != "+91") {
+            updatedSchema = FormSchema2.extend({
+                phone: z.string().min(4).max(13) 
+            })
+        } else {
+            console.log("neh")
+            updatedSchema = FormSchema2
+        }
+        setFormSchema2(updatedSchema)
     }
 
     return (
@@ -694,6 +710,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                                         key={cc.label}
                                                                         onSelect={() => {
                                                                             console.log("std_code", cc.value)
+                                                                            changeStdCode(cc.value)
                                                                             form2.setValue("std_code", cc.value)
                                                                         }}
                                                                     >
