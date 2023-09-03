@@ -44,6 +44,21 @@ const FormSchema2 = z.object({
     }),
     contactId: z.string().optional(),
 })
+const optionalFormschema2 = z.object({
+    name: z.string({
+    }).optional(),
+    designation: z.string({
+    }).optional(),
+    type: z.string({
+    }).optional(),
+    email: z.string({
+    }).optional(),
+    phone: z.string({
+    }).optional(),
+    std_code: z.string({
+    }).optional(),
+    contactId: z.string().optional(),
+})
 
 const FormSchema = z.object({
     // creators: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -80,7 +95,7 @@ const FormSchema = z.object({
     fixedBudgetUlCurrency: z.string().optional(),
     timeToFill: z.string().optional(),
     gstinVatGstNo: z.string().optional(),
-    contacts: FormSchema2.optional()
+    contacts: z.string().optional()
 })
 
 
@@ -121,7 +136,39 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     const data: LeadInterface = row.original
     useEffect(() => {
         setDummyContactData(data.organisation.contacts)
+        const status = labelToValue(data.status, STATUSES)
+        if (status) {
+            updateFormSchemaOnStatusChange(status)
+        }
     }, [])
+
+    useEffect(() => {
+        let updatedSchema
+        const status = labelToValue(data.status, STATUSES)
+        if (status) {
+            if (status.toLowerCase() !== "unverified") {
+                updatedSchema = FormSchema.extend({
+                    locations: z.string(required_error),
+                    fixedCtcBudget: z.string(required_error),
+                    industry: z.string(required_error),
+                    domain: z.string(required_error),
+                    size: z.string(required_error),
+                    lastFundingStage: z.string(required_error),
+                    lastFundingAmount: z.string(required_error), // [x]
+                })
+            }else{
+                updatedSchema = FormSchema
+            }
+            if(addDialogOpen){
+                updatedSchema = updatedSchema.extend({
+                    contacts: FormSchema2
+                })
+            }else{
+                updatedSchema = updatedSchema.omit({contacts: true})
+            }
+        }
+        setFormSchema(updatedSchema)
+    }, [addDialogOpen])
 
     function closeSideSheet() {
         setChildDataHandler('row', undefined)
@@ -170,13 +217,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
 
     useEffect(() => {
-        const contacts = form.getValues("contacts")
-        const result = FormSchema2.safeParse(contacts)
-        if (result.success) {
-            setContactFieldValid(true)
-        } else {
-            setContactFieldValid(false)
-        }
+        safeparse2()
 
     }, [watcher])
 
@@ -198,6 +239,16 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     ];
 
 
+
+    function safeparse2() {
+        const contacts = form.getValues("contacts")
+        const result = FormSchema2.safeParse(contacts)
+        if (result.success) {
+            setContactFieldValid(true)
+        } else {
+            setContactFieldValid(false)
+        }
+    }
 
     function addContact() {
         const finalData = form.getValues().contacts
@@ -333,24 +384,27 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
 
     function onStatusChange(value: string) {
-        let updatedSchema;
+        updateFormSchemaOnStatusChange(value)
+
+
+    }
+    function updateFormSchemaOnStatusChange(value: string) {
+        let updatedSchema
         if (value.toLowerCase() !== "unverified") {
             updatedSchema = FormSchema.extend({
                 locations: z.string(required_error),
                 fixedCtcBudget: z.string(required_error),
-                industry: z.string(required_error), // [x]
-                domain: z.string(required_error), // [x]
-                size: z.string(required_error), // [x]
-                lastFundingStage: z.string(required_error), // [x]
+                industry: z.string(required_error),
+                domain: z.string(required_error),
+                size: z.string(required_error),
+                lastFundingStage: z.string(required_error),
                 lastFundingAmount: z.string(required_error), // [x]
-
             })
         } else {
             console.log("neh")
-            updatedSchema = FormSchema;
+            updatedSchema = FormSchema
         }
-        setFormSchema(updatedSchema);
-
+        setFormSchema(updatedSchema)
     }
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
