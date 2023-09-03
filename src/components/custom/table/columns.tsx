@@ -188,7 +188,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("owner")}</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ row.getValue("owner")}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
@@ -248,6 +248,10 @@ export const columns: ColumnDef<LeadInterface>[] = [
                 return true
             }
             return true
+        },
+        sortingFn: (a,b)=>{
+            // console.log(a.getValue("created_at"))
+            return +new Date(b. getValue("created_at")) - +new Date(a.getValue("created_at"));
         },
     },
     {
@@ -319,3 +323,6 @@ function formatUtcDateToLocal(backendUtcDate: any) {
 
     return `${formattedDate}@${formattedTime}`;
 }
+function capitalizeFirstLetters(inputString:string) {
+    return inputString.replace(/\b\w/g, char => char.toUpperCase());
+  }

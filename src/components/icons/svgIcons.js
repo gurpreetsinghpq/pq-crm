@@ -374,6 +374,26 @@ const PackageIcon= ({ size = 24, color ="#98A2B3" }) => (
   <path d="M16.5 9.5L7.5 4.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 )
+const EsopIcon= ({ size = 24, color ="#98A2B3" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
+  <path d="M16.8741 18.8743C18.4962 18.8743 19.8112 17.5593 19.8112 15.9372C19.8112 14.315 18.4962 13 16.8741 13C15.2519 13 13.9369 14.315 13.9369 15.9372C13.9369 17.5593 15.2519 18.8743 16.8741 18.8743ZM16.8741 18.8743L16.8951 18.8741L13.7692 22L11 19.2308L13.9562 16.2747M16.8741 18.8743L20 22L22.7692 19.2308L19.813 16.2747" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M11 6.75H7.875C6.83947 6.75 6 7.58947 6 8.625C6 9.66053 6.83947 10.5 7.875 10.5H9.125C10.1605 10.5 11 11.3395 11 12.375C11 13.4105 10.1605 14.25 9.125 14.25H6M8.5 5.5V6.75M8.5 14.25V15.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18 10.5V6.8C18 5.11984 18 4.27976 17.673 3.63803C17.3854 3.07354 16.9265 2.6146 16.362 2.32698C15.7202 2 14.8802 2 13.2 2H6.8C5.11984 2 4.27976 2 3.63803 2.32698C3.07354 2.6146 2.6146 3.07354 2.32698 3.63803C2 4.27976 2 5.11984 2 6.8V17.2C2 18.8802 2 19.7202 2.32698 20.362C2.6146 20.9265 3.07354 21.3854 3.63803 21.673C4.27976 22 5.11984 22 6.8 22H9.5" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+)
+
+const AlertIcon= ({ size = 24, color ="#F04438" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} fill="none">
+  <g clip-path="url(#clip0_1375_60339)">
+    <path d="M8.00016 5.33301V7.99967M8.00016 10.6663H8.00683M14.6668 7.99967C14.6668 11.6816 11.6821 14.6663 8.00016 14.6663C4.31826 14.6663 1.3335 11.6816 1.3335 7.99967C1.3335 4.31778 4.31826 1.33301 8.00016 1.33301C11.6821 1.33301 14.6668 4.31778 14.6668 7.99967Z" stroke={color} stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <defs>
+    <clipPath id="clip0_1375_60339">
+      <rect width={size} height={size} fill="white"/>
+    </clipPath>
+  </defs>
+</svg>
+)
 
 
 
@@ -433,5 +453,7 @@ export const IconServiceFeeRange = (props) => <ServiceFeeRangeIcon {...props} />
 export const IconPercent2 = (props) => <PercentIcon2 {...props} />;
 export const IconPackage = (props) => <PackageIcon {...props} />;
 export const IconGst = (props) => <GstIcon {...props} />;
+export const IconAlert = (props) => <AlertIcon {...props} />;
+export const IconEsop = (props) => <EsopIcon {...props} />;
 
 

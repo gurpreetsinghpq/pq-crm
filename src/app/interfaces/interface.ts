@@ -47,9 +47,9 @@ export interface LeadInterface {
         id: number;
         role_type: string;
         budget_range: string;
-        fixed_budget: number | null;
-        fixed_budget_ul: number | null;
-        esop_rsu: number | null;
+        fixed_budget: string | null;
+        fixed_budget_ul: string | null;
+        esop_rsu: string | null;
         region: string;
         location: string | null;
         time_To_fill: string | null;
@@ -83,7 +83,7 @@ export interface LeadInterface {
         funding_currency: string | null;
         segment: string | null;
         archived: boolean;
-
+        
     };
     title: string | null;
     currency: string | null;
@@ -97,7 +97,7 @@ export interface LeadInterface {
     archived: boolean;
     created_at: string;
     updated_at: string;
-
+    reason: string
 };
 
 export interface ClientCompleteInterface {
@@ -154,6 +154,7 @@ export interface PatchLead  {
     archived: boolean;
     created_at: string;
     updated_at: string;
+    reason: string
   }
   
   export interface PatchOrganisation {
@@ -181,11 +182,23 @@ export interface PatchLead  {
     id: number;
     role_type: string;
     budget_range: string;
-    fixed_budget?: number | null;
-    fixed_budget_ul?: number | null;
+    fixed_budget?: string | null;
+    fixed_budget_ul?: string | null;
     esop_rsu?: string | null;
     region: string;
     location?: string | null;
     time_To_fill?: string | null;
     archived: boolean;
+  }
+
+  export interface User {
+    token: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    profile: {
+      id: number;
+      name: string;
+    };
+    function: string;
   }

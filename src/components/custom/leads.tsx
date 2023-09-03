@@ -34,7 +34,7 @@ import { IconArchive, IconCross, IconInbox, IconLeads, Unverified } from "../ico
 import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { IValueLabel, LeadInterface } from "@/app/interfaces/interface"
+import { IValueLabel, LeadInterface, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -78,7 +78,6 @@ let dataFromApi: LeadInterface[] = []
 const Leads = () => {
     const { toast } = useToast()
 
-
     const router = useRouter();
 
     const [data, setLeadData] = React.useState<LeadInterface[]>([])
@@ -89,14 +88,14 @@ const Leads = () => {
     const [tableLeadLength, setTableLength] = React.useState<any>()
 
     const [childData, setChildData] = React.useState<IChildData>()
-    
+
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
         setChildData((prev) => {
             return { ...prev, [key]: data }
         })
-        if(!data){
+        if (!data) {
             fetchLeadData()
         }
     }
@@ -151,7 +150,8 @@ const Leads = () => {
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const token_superuser = "e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b"
+    getToken()
+    const token_superuser = getToken()
     async function fetchLeadData() {
         setIsLoading(true)
         try {
@@ -196,63 +196,60 @@ const Leads = () => {
 
 
     return <div className="flex flex-col flex-1">
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1">
-                <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
-                    <div className="w-1/2 flex flex-row gap-4 items-center">
-                        <FormField
-                            control={form.control}
-                            name="search"
-                            render={({ field }) => (
-                                <FormItem className="w-2/3">
-                                    <FormControl>
-                                        {/* <Command className="border "> */}
-                                        <Input placeholder="Search" className="text-md border" {...field} />
-                                        {/* </Command> */}
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
-                                            <IconInbox size={20} />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side={"bottom"} sideOffset={5}>
-                                        Inbox
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-                            <div className="h-[full] w-[1px] bg-gray-300"></div>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
-                                            <IconArchive size={20} />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side={"bottom"} sideOffset={5} >
-                                        Archive
-                                    </TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+        <div className="bottom flex-1 flex flex-col">
+            <Form {...form}>
+                <form>
+                    <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
+                        <div className="w-1/2 flex flex-row gap-4 items-center">
+                            <FormField
+                                control={form.control}
+                                name="search"
+                                render={({ field }) => (
+                                    <FormItem className="w-2/3">
+                                        <FormControl>
+                                            <Input placeholder="Search" className="text-md border" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
+                                                <IconInbox size={20} />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent side={"bottom"} sideOffset={5}>
+                                            Inbox
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                                <div className="h-[full] w-[1px] bg-gray-300"></div>
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Button variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
+                                                <IconArchive size={20} />
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent side={"bottom"} sideOffset={5} >
+                                            Archive
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            </div>
+                        </div>
+                        <div className="right flex flex-row gap-4 ">
+                            <AddLeadDialog fetchLeadData={fetchLeadData} >
+                                <Button className="flex flex-row gap-2">
+                                    <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+                                    Add Lead
+                                </Button>
+                            </AddLeadDialog>
+
                         </div>
                     </div>
-                    <div className="right flex flex-row gap-4 ">
-                        <AddLeadDialog fetchLeadData={fetchLeadData} >
-                            <Button className="flex flex-row gap-2">
-                                <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
-                                Add Lead
-                            </Button>
-                        </AddLeadDialog>
-
-                    </div>
-                </div>
-
-                <div className="bottom flex-1 flex flex-col">
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
                             <span className="text-sm ">{isLoading ? "Loading..." : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
@@ -278,7 +275,6 @@ const Leads = () => {
                                 </Tooltip>
                             </TooltipProvider>
                         </div>
-
                         <div className="flex-1 flex flex-row gap-3 justify-end">
 
                             <div>
@@ -601,37 +597,42 @@ const Leads = () => {
                             </div>
                         </div>
                     </div>
-                    {
-                        isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
-                            <Loader />
-                        </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                            {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadLength }}> */}
-                            <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler} />
-                            {/* </TableContext.Provider> */}
-                        </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
-                            {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                                <IconLeads size="20" />
-                            </div>
-                                <div>
-                                    <p className="text-md text-gray-900 font-semibold">{isInbox? "No Leads": "No Archive Leads"}</p>
+                </form>
+            </Form>
+            {
+                isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
+                    <Loader />
+                </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
+                    {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadLength }}> */}
+                    <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler} />
+                    {/* </TableContext.Provider> */}
+                </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
+                    {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                        <IconLeads size="20" />
+                    </div>
+                        <div>
+                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Leads" : "No Archive Leads"}</p>
 
-                                </div>
-                                {isInbox && <AddLeadDialog fetchLeadData={fetchLeadData} >
-                                    <Button className="flex flex-row gap-2">
-                                        <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
-                                        Add Lead
-                                    </Button>
-                                </AddLeadDialog>}</>}
-                        </div>)
-                    }
-                    {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} />}
-                </div>
-            </form>
-
-        </Form>
+                        </div>
+                        {isInbox && <AddLeadDialog fetchLeadData={fetchLeadData} >
+                            <Button className="flex flex-row gap-2">
+                                <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+                                Add Lead
+                            </Button>
+                        </AddLeadDialog>}</>}
+                </div>)
+            }
+            {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} />}
+        </div>
 
 
     </div>
+}
+
+export function getToken() {
+    const userFromLocalstorage: User | undefined = JSON.parse(localStorage.getItem("user") || "")
+    const token = userFromLocalstorage?.token
+    return token
 }
 
 function filterInboxOrArchive(data: LeadInterface[], isInbox: boolean) {

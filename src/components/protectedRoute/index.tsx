@@ -1,4 +1,5 @@
 "use client"
+import { User } from '@/app/interfaces/interface';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -7,22 +8,36 @@ interface ProtectedRouteProps {
 }
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-    let token = '';
+    let user: User;
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() =>{
-        token = localStorage.getItem("token") as string
-        if (!token) {
-            setIsLoading(true);
-            router.push('/signin');
+    useEffect(() => {
+        const userFromLocalstorage = localStorage.getItem("user")
+        console.log("userFromLocalstorage", userFromLocalstorage)
+        if (userFromLocalstorage) {
+            user = JSON.parse(userFromLocalstorage)
+            const token = user?.token
+            if (!token) {
+                noToken();
+            } else {
+                setIsLoading(false);
+                router.replace("/dashboard")
+            }
         } else {
-            setIsLoading(false);
+            noToken();
         }
-    },[router])
-    
+        console.log(user)
 
-    if(isLoading){
+    }, [router])
+
+    function noToken() {
+        setIsLoading(true);
+        router.replace('/signin');
+    }
+
+
+    if (isLoading) {
         return <div>Loading...</div>
     }
     return <>{!isLoading && children}</>;

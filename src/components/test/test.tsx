@@ -16,60 +16,65 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { Toaster } from "../ui/toaster"
 
 const FormSchema = z.object({
     username: z.string({
-        required_error: "This is required"
-    }).min(5, {
-        message: "Username must be at least 5 characters.",
-    }),
+
+    }).optional(),
     username1: z.string({
         required_error: "This is required"
-    }).min(2, {
-        message: "Username must be at least 2 characters.",
     }),
 })
 
 export function InputForm() {
-    const [formSchema, setFormSchema] = useState(FormSchema);
+    const [formSchema, setFormSchema] = useState<any>(FormSchema);
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(formSchema),
         mode: "onBlur"
     })
+    console.log(form.formState.errors)
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-       
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        })
+    function onSubmit() {
+
+        // toast({
+        //     title: "You submitted the following values:",
+        //     description: (
+        //         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+        //             <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        //         </pre>
+        //     ),
+        // })
     }
 
     const onDropdownChange = (e: any) => {
         const selectedValue = e.target.value;
         let updatedSchema;
-    
+
         if (selectedValue === 'option2') {
-          updatedSchema = FormSchema.extend({
-            username: z.string({
-                required_error: "This is required newly now"
-            }).min(9, {
-                message: "Username must be at least 9 characters.",
-            })
-        });
+            updatedSchema = FormSchema.extend({
+                username: z.string({
+                    required_error: "This is required newly now"
+                })
+            });
         } else {
-          updatedSchema = FormSchema;
+            updatedSchema = FormSchema;
         }
-    
+
         // Update the form schema
         setFormSchema(updatedSchema);
-      };
+    };
+
+    useEffect(()=>{
+        const result = formSchema.safeParse(form.getValues());
+        if (!result.success) {
+            const errorMap = result.error.formErrors.fieldErrors
+            console.log(errorMap)
+            console.log(Object.keys(errorMap).length)
+        }
+    },[form.watch()])
 
     return (
         <>
@@ -112,8 +117,9 @@ export function InputForm() {
                         )}
                     />
 
+
+                    <Button type="submit">Submit</Button>
                     
-            <Button type="submit">Submit</Button>
                 </form>
             </Form>
         </>

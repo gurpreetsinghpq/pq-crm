@@ -8,6 +8,7 @@ import { Separator } from '../ui/separator'
 import AddLeadDetailedDialog from './addLeadDetailedDialog'
 import { IconAccounts, IconBuildings } from '../icons/svgIcons'
 import { ClientCompleteInterface, LeadInterface } from '@/app/interfaces/interface'
+import { getToken } from './leads'
 
 // const dummySearchedItems = ["Swiggy", "Swish Bank"]
 
@@ -55,7 +56,7 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const token_superuser = "e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b"
+    const token_superuser = getToken()
     async function fetchClientData() {
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })

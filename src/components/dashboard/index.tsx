@@ -3,12 +3,34 @@ import Prospects from "@/components/custom/prospects"
 import { IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Leads from "../../components/custom/leads"
+import { User } from "@/app/interfaces/interface"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
+import { useRouter } from "next/navigation"
 
-export default function DashboardComponent(){
+export default function DashboardComponent() {
     const [currentTab, setCurrentTab] = useState("Leads")
-    console.log("dashboard")
+    const [user, setUser] = useState<User>()
+    const router = useRouter();
+    useEffect(() => {
+        const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
+        
+        setUser(userFromLocalstorage)
+    }, [])
+
+    function getInitials(first_name: string | undefined, last_name: string | undefined) {
+        if (first_name && last_name) {
+            return `${first_name[0].toUpperCase()}${last_name[0].toUpperCase()} `
+        }
+        return ""
+    }
+
+    function logOut() {
+        localStorage.removeItem("user")
+        router.replace("/signin")
+    }
+
     return <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left flex flex-col w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center">
@@ -102,11 +124,20 @@ export default function DashboardComponent(){
                                 </g>
                             </svg>
                         </div>
-                        <Avatar className="cursor-pointer">
-                            {/* <AvatarImage src="https://lh3.googleusercontent.com/fife/AKsag4PuJvHZYJVO6hbNSv00i_B1H96LB-DKlh4GKF6rDt7vLX-udzJEaRvBcWAafSe9pxUk_xJvUD_YSdBGPLmakTmmov4pj3f2ZrvkMRVEp92iwln3pCY-zDTZK2kW-ImLpTURo0JOFMVwVjpY44qQHLiMiYiY1VXOf29hN14tO_iTnwLMW8KGFJTtVRDUd7kUkcNO56JXdeLjrL5Ad4e2C11BOSu3aJOr0CaM3lStwe7pPGrWWcZOGgEl8XTcS_2no5aVv0F3TZs7wkOMsNhnDjSF69Khz34M4tstXGYiaHW41mlPc1OMYPAo58st9476ahuaBDfzyD_v8aLZhB3pb4oQ4udwp-XrEBiwRMZPHfXw0DnjNtSt_rTTN2PFHBcUysh1IvglGDzKsuUMvCviLFdQ1Qoga9tvoh2kQELo_voGZ77t9yI-IFJezDGNDO2Q22EnBpirqOiIU7cakCLwmEUsGd2Eq5TvwYYVk1zIo0UhT07mnGf6Y9jUFKBdVS-vqjqA8D-GBtlTeqaKRt9qqOiqMtEsMUnZPkdGm73sCGC6t3Un7EqcNk8LYdSrCsujkgMhW9x_cNyrjXphaJdPA_Rqupg59a_cEHBNZrXzNKOggYe2KisNPZsQYkvl0kAShif2O22AKKdDPLEEl7PG5MsYu82AhvTADxWOKzavNOS2wnkDFQ88pszjEPL9cQGPIHEenp4VGC42np3Fesd3QJLZnAaQXYNtq3-FzZRXKDLxuY8ipq4E02Ljuxs9VJWIaS4d7CyuQWzQRAPyhJjvaq8a2ME4KTDI-URUNNwOvehwQlC8sqrTj74IibbSFkIKZJFbATRQSuPA5zO0n60I_xB8kBM14gQc_g7KUMvSYv7tDQPxmy8sUQEo3x6QPSeJTdMGnfMO4qpoK7DJQSRJ73nUjuD-assmMxPNOvH5SdNqY3lN6SpZJmUT5SCJkKLfQRISxIzf1qq-ylQSQeWUh-4A4NB6B7tTL3YgleuqJCL65rbzHkbNDONI0hDV1_RQoL234w5ZrzKDJkXn1HP2qaR1l4lh17uP36zxf3cxfKDv3dG40s8t8peyH-8eYWmvVvf5uzF3tdEEO8t3QqzZq8ACScu9pGL6jrggwMDjTqQceYahOSWp2WqpN7X6mr66Um2fUzD9f0x94mns_O4r62WvkYeDHym_i14vJIg5-lMcNPOxg26sr2sspI0UjaSy1g6S3Ct_Ji5XRTTADgt-KrGDYHkAfTf-6Fqf6Dp3Q5eGu99vQdxO8UuLijQ4LeXt1NhWW9XNHIDyMf2bVgvkYLeirfHzLnu40s4i8wA-ehGmuRR1obIpsHP6TvJAUwmhhApiaEygwcxF0U9_WXz2Thb_uDng69jBQ02rYnKtpBg4iOFm9w=s32-c" alt="@shadcn" /> */}
-                            <AvatarImage />
-                            <AvatarFallback className="text-md font-semibold bg-gray-100 border border-gray-300">RG</AvatarFallback>
-                        </Avatar>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+
+                                <div className="w-[40px] h-[40px] p-2 font-semibold cursor-pointer flex flex-row rounded-full justify-center items-center border border-gray-300 bg-gray-100  text-gray-600 text-md">
+                                    {getInitials(user?.first_name, user?.last_name)}
+                                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuItem onClick={logOut}>
+                                    Logout
+                                </DropdownMenuItem>
+
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
             </div>

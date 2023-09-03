@@ -23,7 +23,7 @@ import { Client, ClientCompleteInterface, ContactDetail, IValueLabel, LeadInterf
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 import Image from 'next/image'
-import { formatData } from './leads'
+import { formatData, getToken } from './leads'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -257,7 +257,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         }
 
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-        const token_superuser = "e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b"
+        const token_superuser = getToken()
 
         console.log(dataToSend)
         try {
@@ -552,7 +552,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                         </div>}
 
                                                         {
-                                                            item.isLocallyAdded && <TooltipProvider>
+                                                            item.isLocallyAdded && !showContactForm &&  <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger >
                                                                         <div className='absolute right-[5px] top-[10px] h-[16px] cursor-pointer' onClick={() => activateToUpdateForm(item)}>

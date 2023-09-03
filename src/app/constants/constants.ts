@@ -289,6 +289,10 @@ const OWNERS: IValueLabel[] = [
         value: "anmolGoel",
         label: "Anmol Goel"
     },
+    {
+        value: "rajgopaljakhmola",
+        label: "rajgopal jakhmola"
+    },
 ]
 
 const CREATORS: IValueLabel[] = [
@@ -321,6 +325,11 @@ const CREATORS: IValueLabel[] = [
         label: "Anmol Goel"
     },
 ]
+
+const CURRENCIES: IValueLabel[] = [
+    "INR", "USD", "EUR", "SGD", "AED", "AUD", "CAD", "JPY", "GBP"
+].map(currency => ({ value: currency, label: currency }));
+
 
 const STATUSES: IValueLabel[] = [
     {
@@ -1518,4 +1527,4 @@ const SERVICE_FEE_RANGE: IValueLabel[] = [
 ];
 // Now the anotherValueLabels array contains the desired value-label pairs.
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE }
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES }

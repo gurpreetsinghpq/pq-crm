@@ -107,6 +107,13 @@ module.exports = {
         25: "#FEFDF0",
         700: "#A15C07",
         800: "#854A0E"
+      },
+      inverse: {
+        100: "#F5EFF7",
+        900: "#322F35"
+      },
+      black: {
+        900: "#000000"
       }
     },
     container: {
