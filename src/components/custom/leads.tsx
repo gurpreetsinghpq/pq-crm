@@ -30,11 +30,11 @@ import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
+import { IconArchive, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { IValueLabel, LeadInterface, User } from "@/app/interfaces/interface"
+import { IValueLabel, LeadInterface, PatchLead, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -42,6 +42,7 @@ import SideSheet from "./sideSheet"
 import { useRouter, useSearchParams } from "next/navigation"
 import { columns } from "./table/columns"
 import { Router } from "next/router"
+import { RowModel } from "@tanstack/react-table"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -83,9 +84,11 @@ const Leads = () => {
     const [data, setLeadData] = React.useState<LeadInterface[]>([])
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
+    const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
     const [isInbox, setIsInbox] = React.useState<boolean>(true)
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
     const [tableLeadLength, setTableLength] = React.useState<any>()
+    const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
 
     const [childData, setChildData] = React.useState<IChildData>()
 
@@ -104,8 +107,12 @@ const Leads = () => {
     React.useEffect(() => {
         console.log(childData)
     }, [childData?.row])
-    function setTableLeadLength(number: number) {
-        setTableLength(number)
+    function setTableLeadRow(data: any) {
+        const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
+        setIsMultiSelectOn(selectedRows.length !== 0)
+        const ids = selectedRows.map((val: any) => val.original.id)
+        setSelectedRowIds(ids)
+        setTableLength(data.rows.length)
     }
 
     const { from, to } = getLastWeek()
@@ -163,8 +170,14 @@ const Leads = () => {
                 return val
             })
             dataFromApi = fdata
-            setLeadData(filterInboxOrArchive(dataFromApi, isInbox))
+            const filteredData = filterInboxOrArchive(dataFromApi, isInbox) 
+            setLeadData(filteredData)
             setIsLoading(false)
+            if(filteredData.length==0){
+                setTableLength(0)
+                setIsMultiSelectOn(false)
+                setSelectedRowIds([])
+            }
         }
         catch (err) {
             setIsLoading(false)
@@ -193,6 +206,73 @@ const Leads = () => {
     }, [isInbox])
     // console.log(tableLeadLength)
 
+    async function promoteToProspect() {
+        try {
+            // const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            // const result = await dataResp.json()
+            // if (result.message === "success") {
+            //     closeSideSheet()
+            // }
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+    }
+
+
+    async function patchArchiveLeadData(id: number) {
+
+        const url = `${baseUrl}/v1/api/lead/${id}/`;
+
+        try {
+            const dataResp = await fetch(url, {
+                method: "PATCH",
+                body: JSON.stringify({ archived: isInbox }),
+                headers: {
+                    "Authorization": `Token ${token_superuser}`,
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                }
+            });
+
+            const result = await dataResp.json();
+
+            if (result.message === "success") {
+                return result; // Return the result or any data you need
+            } else {
+                throw new Error("Failed to patch lead data"); // Throw an error for non-success responses
+            }
+        } catch (err) {
+            console.error("Error during patching:", err);
+            throw err; // Re-throw the error to be caught by Promise.all
+        }
+    }
+
+    function archiveApi() {
+        console.log(selectedRowIds)
+        if (!selectedRowIds) {
+            // Handle the case where selectedRowIds is undefined or empty
+            console.log("No rows selected for archiving.");
+            return;
+        }
+
+        const promisesPatch = selectedRowIds?.map((val) => {
+            return patchArchiveLeadData(val)
+        })
+
+        Promise.all(promisesPatch)
+            .then((results) => {
+                // All patching operations are complete
+                // You can run your code here
+                console.log("All patching operations are done");
+                fetchLeadData()
+
+            })
+            .catch((error) => {
+                console.log("Error during patching:", error);
+                
+            });
+    }
 
 
     return <div className="flex flex-col flex-1">
@@ -216,7 +296,7 @@ const Leads = () => {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
+                                            <Button type="button" variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
                                                 <IconInbox size={20} />
                                             </Button>
                                         </TooltipTrigger>
@@ -229,7 +309,7 @@ const Leads = () => {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
+                                            <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
                                                 <IconArchive size={20} />
                                             </Button>
                                         </TooltipTrigger>
@@ -252,7 +332,7 @@ const Leads = () => {
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Leads" : "Lead"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -265,7 +345,7 @@ const Leads = () => {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]" onClick={() => fetchLeadData()}>
+                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
@@ -276,10 +356,17 @@ const Leads = () => {
                             </TooltipProvider>
                         </div>
                         <div className="flex-1 flex flex-row gap-3 justify-end">
-
-                            <div>
-                                {/* <DropdownMenu > */}
-                                {/* <DropdownMenuTrigger asChild>
+                            {isMultiSelectOn ? <div className="multi-selected flex flex-row gap-2">
+                                <Button variant={"google"} className="flex flex-row gap-2" type="button" onClick={archiveApi}>
+                                    <IconArchive size={20} color="#344054" />
+                                    {isInbox ? "Archive" : "Inbox"}
+                                </Button>
+                                {/* <Button variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>Promote to Prospect <IconArrowSquareRight size={20} /></Button> */}
+                            </div> :
+                                <>
+                                    <div>
+                                        {/* <DropdownMenu > */}
+                                        {/* <DropdownMenuTrigger asChild>
                                         <Button variant="google" className="flex flex-row gap-2 items-center">
                                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                 <g id="calendar">
@@ -290,134 +377,134 @@ const Leads = () => {
                                             <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                         </Button>
                                     </DropdownMenuTrigger> */}
-                                {/* <DropdownMenuContent className="w-56"> */}
-                                <DateRangePicker
-                                    onUpdate={(values) => form.setValue("dateRange", values)}
-                                    // initialDateFrom="2023-01-01"
-                                    // initialDateTo="2023-12-31"
-                                    align="start"
-                                    locale="en-GB"
-                                    showCompare={false}
-                                />
+                                        {/* <DropdownMenuContent className="w-56"> */}
+                                        <DateRangePicker
+                                            onUpdate={(values) => form.setValue("dateRange", values)}
+                                            // initialDateFrom="2023-01-01"
+                                            // initialDateTo="2023-12-31"
+                                            align="start"
+                                            locale="en-GB"
+                                            showCompare={false}
+                                        />
 
-                                {/* </DropdownMenuContent>
+                                        {/* </DropdownMenuContent>
                                 </DropdownMenu> */}
-                            </div>
-                            <div className="">
-                                <FormField
-                                    control={form.control}
-                                    name="regions"
-                                    render={({ field }) => {
+                                    </div>
+                                    <div className="">
+                                        <FormField
+                                            control={form.control}
+                                            name="regions"
+                                            render={({ field }) => {
 
-                                        return <DropdownMenu >
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Regions', regions)}
-                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-[160px]">
-                                                {
-                                                    regions.map((region) => {
-                                                        return <DropdownMenuCheckboxItem
-                                                            key={region.value}
-                                                            checked={region.isDefault && field.value.length === 0 ? true : field.value?.includes(region.value)}
-                                                            onCheckedChange={(checked) => {
-                                                                if ((!checked && field.value.length === 1) || region.value === 'allRegions') {
-                                                                    return field.onChange(['allRegions'])
-                                                                } else if (checked && field.value.includes('allRegions') && region.value !== 'allRegions') {
-                                                                    return field.onChange([...field.value?.filter((value) => value != 'allRegions'), region.value])
-                                                                }
-                                                                return checked ? field.onChange([...field.value, region.value]) : field.onChange(field.value?.filter((value) => value != region.value))
-                                                            }}
-                                                        >
-                                                            {region.label}
-                                                        </DropdownMenuCheckboxItem>
-                                                    })
-                                                }
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    }}
-                                />
-                            </div>
-                            <div>
-                                <FormField
-                                    control={form.control}
-                                    name="sources"
-                                    render={({ field }) => {
-                                        return <DropdownMenu >
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Sources', sources)}
-                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-[160px]">
-                                                {
-                                                    sources.map((source) => {
-                                                        return <DropdownMenuCheckboxItem
-                                                            key={source.value}
-                                                            checked={source.isDefault && field.value.length === 0 ? true : field.value?.includes(source.value)}
-                                                            onCheckedChange={(checked) => {
-                                                                if ((!checked && field.value.length === 1) || source.value === 'allSources') {
-                                                                    return field.onChange(['allSources'])
-                                                                } else if (checked && field.value.includes('allSources') && source.value !== 'allSources') {
-                                                                    return field.onChange([...field.value?.filter((value) => value != 'allSources'), source.value])
-                                                                }
-                                                                return checked ? field.onChange([...field.value, source.value]) : field.onChange(field.value?.filter((value) => value != source.value))
-                                                            }}
-                                                        >
-                                                            {source.label}
-                                                        </DropdownMenuCheckboxItem>
-                                                    })
-                                                }
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    }}
-                                />
-                            </div>
+                                                return <DropdownMenu >
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Regions', regions)}
+                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-[160px]">
+                                                        {
+                                                            regions.map((region) => {
+                                                                return <DropdownMenuCheckboxItem
+                                                                    key={region.value}
+                                                                    checked={region.isDefault && field.value.length === 0 ? true : field.value?.includes(region.value)}
+                                                                    onCheckedChange={(checked) => {
+                                                                        if ((!checked && field.value.length === 1) || region.value === 'allRegions') {
+                                                                            return field.onChange(['allRegions'])
+                                                                        } else if (checked && field.value.includes('allRegions') && region.value !== 'allRegions') {
+                                                                            return field.onChange([...field.value?.filter((value) => value != 'allRegions'), region.value])
+                                                                        }
+                                                                        return checked ? field.onChange([...field.value, region.value]) : field.onChange(field.value?.filter((value) => value != region.value))
+                                                                    }}
+                                                                >
+                                                                    {region.label}
+                                                                </DropdownMenuCheckboxItem>
+                                                            })
+                                                        }
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <FormField
+                                            control={form.control}
+                                            name="sources"
+                                            render={({ field }) => {
+                                                return <DropdownMenu >
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Sources', sources)}
+                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-[160px]">
+                                                        {
+                                                            sources.map((source) => {
+                                                                return <DropdownMenuCheckboxItem
+                                                                    key={source.value}
+                                                                    checked={source.isDefault && field.value.length === 0 ? true : field.value?.includes(source.value)}
+                                                                    onCheckedChange={(checked) => {
+                                                                        if ((!checked && field.value.length === 1) || source.value === 'allSources') {
+                                                                            return field.onChange(['allSources'])
+                                                                        } else if (checked && field.value.includes('allSources') && source.value !== 'allSources') {
+                                                                            return field.onChange([...field.value?.filter((value) => value != 'allSources'), source.value])
+                                                                        }
+                                                                        return checked ? field.onChange([...field.value, source.value]) : field.onChange(field.value?.filter((value) => value != source.value))
+                                                                    }}
+                                                                >
+                                                                    {source.label}
+                                                                </DropdownMenuCheckboxItem>
+                                                            })
+                                                        }
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            }}
+                                        />
+                                    </div>
 
-                            <div className="text-md font-medium">
-                                <FormField
-                                    control={form.control}
-                                    name="statuses"
-                                    render={({ field }) => {
-                                        return <DropdownMenu >
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Statuses', statuses)}
-                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="w-[160px]">
-                                                {
-                                                    statuses.map((status) => {
-                                                        return <DropdownMenuCheckboxItem
-                                                            key={status.value}
-                                                            checked={status.isDefault && field.value.length === 0 ? true : field.value?.includes(status.value)}
-                                                            onCheckedChange={(checked) => {
-                                                                if ((!checked && field.value.length === 1) || status.value === 'allStatuses') {
-                                                                    return field.onChange(['allStatuses'])
-                                                                } else if (checked && field.value.includes('allStatuses') && status.value !== 'allStatuses') {
-                                                                    return field.onChange([...field.value?.filter((value) => value != 'allStatuses'), status.value])
-                                                                }
-                                                                return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value) => value != status.value))
-                                                            }}
-                                                        >
-                                                            <div className="">
-                                                                <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
-                                                                    {status.icon && <status.icon />}
-                                                                    {status.label}
-                                                                </div>
-                                                            </div>
-                                                        </DropdownMenuCheckboxItem>
-                                                    })
-                                                }
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    }}
-                                />
+                                    <div className="text-md font-medium">
+                                        <FormField
+                                            control={form.control}
+                                            name="statuses"
+                                            render={({ field }) => {
+                                                return <DropdownMenu >
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Statuses', statuses)}
+                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent className="w-[160px]">
+                                                        {
+                                                            statuses.map((status) => {
+                                                                return <DropdownMenuCheckboxItem
+                                                                    key={status.value}
+                                                                    checked={status.isDefault && field.value.length === 0 ? true : field.value?.includes(status.value)}
+                                                                    onCheckedChange={(checked) => {
+                                                                        if ((!checked && field.value.length === 1) || status.value === 'allStatuses') {
+                                                                            return field.onChange(['allStatuses'])
+                                                                        } else if (checked && field.value.includes('allStatuses') && status.value !== 'allStatuses') {
+                                                                            return field.onChange([...field.value?.filter((value) => value != 'allStatuses'), status.value])
+                                                                        }
+                                                                        return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value) => value != status.value))
+                                                                    }}
+                                                                >
+                                                                    <div className="">
+                                                                        <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
+                                                                            {status.icon && <status.icon />}
+                                                                            {status.label}
+                                                                        </div>
+                                                                    </div>
+                                                                </DropdownMenuCheckboxItem>
+                                                            })
+                                                        }
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            }}
+                                        />
 
-                            </div>
-                            <div className='flex flex-col  '>
-                                {/* <FormField
+                                    </div>
+                                    <div className='flex flex-col  '>
+                                        {/* <FormField
                                     control={form.control}
                                     name="owners"
                                     render={({ field }) => (
@@ -467,134 +554,135 @@ const Leads = () => {
                                     )}
                                 /> */}
 
-                                <FormField
-                                    control={form.control}
-                                    name="owners"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button variant={"google"} className="flex flex-row gap-2">
-                                                            {/* {
+                                        <FormField
+                                            control={form.control}
+                                            name="owners"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant={"google"} className="flex flex-row gap-2">
+                                                                    {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                            {formatData(field.value, 'Owners', owners)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-[200px] p-0">
-                                                    <Command>
-                                                        <CommandInput placeholder="Search Creator..." />
-                                                        <CommandEmpty>No creators found.</CommandEmpty>
-                                                        <CommandGroup>
-                                                            {owners.map((owner) => (
-                                                                <CommandItem
-                                                                    value={owner.label}
-                                                                    key={owner.value}
-                                                                    onSelect={() => {
-                                                                        if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
-                                                                            form.setValue("owners", [...field.value.filter((value) => value !== 'allOwners'), owner.value])
-                                                                        }
-                                                                        else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value == 'allOwners')) {
-                                                                            form.setValue("owners", ["allOwners"])
+                                                                    {formatData(field.value, 'Owners', owners)}
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[200px] p-0">
+                                                            <Command>
+                                                                <CommandInput placeholder="Search Creator..." />
+                                                                <CommandEmpty>No creators found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {owners.map((owner) => (
+                                                                        <CommandItem
+                                                                            value={owner.label}
+                                                                            key={owner.value}
+                                                                            onSelect={() => {
+                                                                                if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
+                                                                                    form.setValue("owners", [...field.value.filter((value) => value !== 'allOwners'), owner.value])
+                                                                                }
+                                                                                else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value == 'allOwners')) {
+                                                                                    form.setValue("owners", ["allOwners"])
 
-                                                                        }
-                                                                        else if (field.value?.includes(owner.value)) {
-                                                                            form.setValue("owners", field.value?.filter((val) => val !== owner.value))
-                                                                        } else {
-                                                                            form.setValue("owners", [...field.value, owner.value])
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    <div className="flex flex-row items-center justify-between w-full">
-                                                                        {owner.label}
-                                                                        <Check
-                                                                            className={cn(
-                                                                                "mr-2 h-4 w-4 text-purple-600",
-                                                                                field.value?.includes(owner.value)
-                                                                                    ? "opacity-100"
-                                                                                    : "opacity-0"
-                                                                            )}
-                                                                        />
-                                                                    </div>
-                                                                </CommandItem>
-                                                            ))}
-                                                        </CommandGroup>
-                                                    </Command>
-                                                </PopoverContent>
-                                            </Popover>
-                                        </FormItem>
-                                    )}
-                                />
+                                                                                }
+                                                                                else if (field.value?.includes(owner.value)) {
+                                                                                    form.setValue("owners", field.value?.filter((val) => val !== owner.value))
+                                                                                } else {
+                                                                                    form.setValue("owners", [...field.value, owner.value])
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {owner.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value?.includes(owner.value)
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormItem>
+                                            )}
+                                        />
 
-                            </div>
+                                    </div>
 
 
-                            <div className='flex flex-col  '>
-                                <FormField
-                                    control={form.control}
-                                    name="creators"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button variant={"google"} className="flex flex-row gap-2">
-                                                            {/* {
+                                    <div className='flex flex-col  '>
+                                        <FormField
+                                            control={form.control}
+                                            name="creators"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant={"google"} className="flex flex-row gap-2">
+                                                                    {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                            {formatData(field.value, 'Creators', creators)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-[200px] p-0 mr-[24px]" >
-                                                    <Command>
-                                                        <CommandInput placeholder="Search Creator..." />
-                                                        <CommandEmpty>No creators found.</CommandEmpty>
-                                                        <CommandGroup>
-                                                            {creators.map((creator) => (
-                                                                <CommandItem
-                                                                    value={creator.label}
-                                                                    key={creator.value}
-                                                                    onSelect={() => {
-                                                                        if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
-                                                                            form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
-                                                                        }
-                                                                        else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
-                                                                            form.setValue("creators", ["allCreators"])
-                                                                        }
-                                                                        else if (field.value?.includes(creator.value)) {
-                                                                            form.setValue("creators", field.value?.filter((val) => val !== creator.value))
-                                                                        } else {
-                                                                            form.setValue("creators", [...field.value, creator.value])
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    <div className="flex flex-row items-center justify-between w-full">
-                                                                        {creator.label}
-                                                                        <Check
-                                                                            className={cn(
-                                                                                "mr-2 h-4 w-4 text-purple-600",
-                                                                                field.value?.includes(creator.value)
-                                                                                    ? "opacity-100"
-                                                                                    : "opacity-0"
-                                                                            )}
-                                                                        />
-                                                                    </div>
-                                                                </CommandItem>
-                                                            ))}
-                                                        </CommandGroup>
-                                                    </Command>
-                                                </PopoverContent>
-                                            </Popover>
-                                        </FormItem>
-                                    )}
-                                />
+                                                                    {formatData(field.value, 'Creators', creators)}
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[200px] p-0 mr-[24px]" >
+                                                            <Command>
+                                                                <CommandInput placeholder="Search Creator..." />
+                                                                <CommandEmpty>No creators found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {creators.map((creator) => (
+                                                                        <CommandItem
+                                                                            value={creator.label}
+                                                                            key={creator.value}
+                                                                            onSelect={() => {
+                                                                                if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
+                                                                                    form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
+                                                                                }
+                                                                                else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
+                                                                                    form.setValue("creators", ["allCreators"])
+                                                                                }
+                                                                                else if (field.value?.includes(creator.value)) {
+                                                                                    form.setValue("creators", field.value?.filter((val) => val !== creator.value))
+                                                                                } else {
+                                                                                    form.setValue("creators", [...field.value, creator.value])
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {creator.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value?.includes(creator.value)
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormItem>
+                                            )}
+                                        />
 
-                            </div>
+                                    </div>
+                                </>}
                         </div>
                     </div>
                 </form>
@@ -603,8 +691,8 @@ const Leads = () => {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadLength }}> */}
-                    <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadLength={setTableLeadLength} setChildDataHandler={setChildDataHandler} />
+                    {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
+                    <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">

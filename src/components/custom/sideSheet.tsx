@@ -262,7 +262,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         })
 
         const statusToSend = valueToLabel(form.getValues("statuses"), STATUSES)
-        const reasonToSend = ["deferred", "lost", "junk"].includes(form.getValues("statuses")) ?  form.getValues("reasons") : "" 
+        const reasonToSend = ["deferred", "lost", "junk"].includes(form.getValues("statuses")) ? form.getValues("reasons") : ""
 
         const leadData: Partial<PatchLead> = {
             retainer_advance: form.getValues("retainerAdvance")?.toLowerCase() === "yes" ? true : false,
@@ -396,6 +396,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     } else {
         console.log("Invalid input string.");
     }
+
+    useEffect(() => {
+        console.log(form.getValues("regions"))
+        console.log(form.getValues("budget"))
+
+    }, [watcher.regions])
 
     console.log(formSchema)
 
@@ -621,7 +627,10 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         name="regions"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={(value) => {
+                                                <Select onValueChange={async (value) => {
+                                                    form.setValue("budget", undefined)
+                                                    form.resetField("budget", { defaultValue: undefined })
+                                                    await form.trigger("budget")
                                                     return field.onChange(value)
                                                 }} defaultValue={field.value}>
                                                     <FormControl>

@@ -41,16 +41,18 @@ interface DataTableProps<TData, TValue> {
     dateRange?: any,
     queryParamString: string
   },
-  setTableLeadLength: CallableFunction,
-  setChildDataHandler: CallableFunction
+  setTableLeadRow: CallableFunction,
+  setChildDataHandler: CallableFunction,
+  setIsMultiSelectOn: CallableFunction
 }
 
 export default function DataTable<TData, TValue>({
   columns,
   data,
   filterObj,
-  setTableLeadLength,
-  setChildDataHandler
+  setTableLeadRow,
+  setChildDataHandler,
+  setIsMultiSelectOn
 }: DataTableProps<TData, TValue>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -61,7 +63,7 @@ export default function DataTable<TData, TValue>({
 
   const tbl: any = useRef(null)
 
-  // const { tableLeadLength, setTableLeadLength } = useContext(TableContext)
+  // const { tableLeadLength, setTableLeadRow } = useContext(TableContext)
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
@@ -134,8 +136,8 @@ export default function DataTable<TData, TValue>({
 
   }, [filterObj])
   useEffect(() => {
-    setTableLeadLength(table.getFilteredRowModel().rows.length)
-  }, [table.getFilteredRowModel().rows.length])
+    setTableLeadRow(table.getFilteredRowModel())
+  }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
 
 
   function handleTableChange() {
@@ -146,6 +148,7 @@ export default function DataTable<TData, TValue>({
     return filterObj[key].map((val) => arr.find((item) => item.value === val)?.label)
   }
 
+  
   return (
     <div className="flex flex-col flex-1">
       <div className="border-[1px] border-gray-200 flex-1 " ref={tbl}>
@@ -180,7 +183,8 @@ export default function DataTable<TData, TValue>({
                   >
                     {row.getVisibleCells().map((cell) => {
                       return (<TableCell key={cell.id} onClick={() => {
-                        cell.column.id !== 'select' && setChildDataHandler('row', row)
+                        console.log(cell)
+                        cell.column.id !== 'select' && cell.column.id !== 'actions'  && setChildDataHandler('row', row)
                       }}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>)
