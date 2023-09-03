@@ -151,7 +151,7 @@ export default function Signin() {
                     render={({ field }) => (
                         <FormItem>
                             <FormControl>
-                                <Input autoComplete="on" disabled={isLoading} placeholder="Enter password" className={`${commonClasses}`} {...field} />
+                                <Input type="password" autoComplete="on" disabled={isLoading} placeholder="Enter password" className={`${commonClasses}`} {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
