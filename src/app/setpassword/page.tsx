@@ -14,10 +14,10 @@ import { z } from 'zod'
 const FormSchema = z.object({
     password: z.string({
         required_error: "Please enter password.",
-    }).min(8, {message:""}).regex(
+    }).min(8, { message: "" }).regex(
         new RegExp(".*[`~<>?,./!@#$%^&*()\\-_+=\"'|{}\\[\\];:\\\\].*"),
         "One special character"
-      ),
+    ),
     confirm_password: z.string({
         required_error: "Please re-enter your password.",
     })
@@ -49,7 +49,7 @@ function setPassword() {
                     setSeconds(seconds - 1);
                 } else {
                     clearInterval(timer);
-                    router.replace("/signin");
+                    // router.replace("/signin");
 
                 }
             }, 1000);
@@ -89,7 +89,7 @@ function setPassword() {
             setIsPasswordSet(true)
             setStarted(true)
             try {
-                const dataResp = await fetch(`${baseUrl}/v1/api/users/set_password/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
+                const dataResp = await fetch(`${baseUrl}/v1/api/users/set_password/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Token e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b` } })
                 const result = await dataResp.json()
                 console.log(result)
                 setIsLoading(false)
@@ -101,39 +101,39 @@ function setPassword() {
         }
 
     }
-    function onSubmit(){
-        
+    function onSubmit() {
+
         setPasswordApi()
     }
 
-    const watcher = form.watch() 
+    const watcher = form.watch()
 
-    useEffect(()=>{
+    useEffect(() => {
         const result = FormSchema.safeParse(form.getValues());
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors.password
             console.log(errorMap)
-          }
-        if(form.getValues("password")?.length>=8){
-            setErrorChecks((prev)=>{return {...prev,minChars:true}})
-        }else{
-            setErrorChecks((prev)=>{return {...prev,minChars:false}})
         }
-        if( hasSpecialCharacter(form.getValues("password"))){
-            setErrorChecks((prev)=>{return {...prev,oneSpecialChar:true}})
-        }else{
-            setErrorChecks((prev)=>{return {...prev,oneSpecialChar:false}})
+        if (form.getValues("password")?.length >= 8) {
+            setErrorChecks((prev) => { return { ...prev, minChars: true } })
+        } else {
+            setErrorChecks((prev) => { return { ...prev, minChars: false } })
         }
-        
-    },[watcher.password, watcher.confirm_password])
-    
-    function hasSpecialCharacter(inputString:string) {
+        if (hasSpecialCharacter(form.getValues("password"))) {
+            setErrorChecks((prev) => { return { ...prev, oneSpecialChar: true } })
+        } else {
+            setErrorChecks((prev) => { return { ...prev, oneSpecialChar: false } })
+        }
+
+    }, [watcher.password, watcher.confirm_password])
+
+    function hasSpecialCharacter(inputString: string) {
         // Define a regular expression pattern to match special characters
         const regex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/;
-      
+
         // Use the .test() method to check if the string contains at least one special character
         return regex.test(inputString);
-      }
+    }
 
 
 
@@ -173,7 +173,7 @@ function setPassword() {
                                     <FormControl>
                                         <Input autoComplete="new-password" type="password" className={`mb-5 ${commonClasses}`} placeholder="Enter Password" {...field} />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
@@ -182,7 +182,7 @@ function setPassword() {
                         <div className='flex flex-col gap-[24px]'>
                             <div className='flex flex-col gap-[12px]'>
                                 <div className='flex flex-row gap-[8px] items-center'>
-                                    <IconCheckCircle color={`${errorChecks?.minChars ? "#17B26A" : "#D0D5DD"}`}/>
+                                    <IconCheckCircle color={`${errorChecks?.minChars ? "#17B26A" : "#D0D5DD"}`} />
                                     <span>Must be at least 8 characters</span>
                                 </div>
                                 <div className='flex flex-row gap-[8px] items-center'>
@@ -207,11 +207,11 @@ function setPassword() {
                     </div>
                 </div>
                 <div className='flex items-center   flex-col gap-[18px]'>
-                    <Link href={"/signin"}>
-                        <Button className='min-w-[360px]' >
+                    <Button className='min-w-[360px]' >
+                        <Link href={"/signin"} className='w-full'>
                             Go to Login
-                        </Button>
-                    </Link>
+                        </Link>
+                    </Button>
                     <span className='text-gray-600 text-md font-normal'>Redirecting in <span className='font-bold'> {seconds} </span> seconds </span>
                 </div>
             </div>
