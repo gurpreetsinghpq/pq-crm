@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, INDUSTRIES, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, LAST_FUNDING_AMOUNT } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -29,23 +29,22 @@ import Link from 'next/link'
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
 
+const required_error = {
+    required_error: "This field is required"
+}
 
 const FormSchema = z.object({
-    organisationName: z.string({
-        // required_error: "Please enter a name.",
-    }).min(2),
-    region: z.string({
-        // required_error: "Please select a region"
-    }),
-    roleType: z.string({
-        // required_error: "Please select role type"
-    }),
-    budget: z.string({
-        // required_error: "Please select budget range"
-    }),
-    leadSource: z.string({
-        // required_error: "Please select a lead source"
-    }),
+    organisationName: z.string(required_error), // [x]
+    industry: z.string().optional(), // [x]
+    domain: z.string().optional(), // [x]
+    size: z.string().optional(), // [x]
+    lastFundingStage: z.string().optional(), // [x]
+    lastFundingAmount: z.string().optional(), // [x]
+    registeredName: z.string().optional(),
+    gstinVatGstNo: z.string().optional(),
+    billingAddress: z.string().optional(),
+    shippingAddress: z.string().optional(),
+    contacts: z.string().optional()
 })
 
 const FormSchema2 = z.object({
@@ -88,10 +87,10 @@ const form2Defaults = {
 // }
 
 
-function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredLeadData }: { inputAccount: string, dataFromChild: CallableFunction, details: ClientCompleteInterface | undefined, filteredLeadData: LeadInterface[] | undefined }) {
+function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filteredLeadData }: { inputAccount: string, dataFromChild: CallableFunction, details: ClientCompleteInterface | undefined, filteredLeadData: LeadInterface[] | undefined }) {
 
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
-    const [showContactForm, setShowContactForm] = useState<any>(true)
+    const [showContactForm, setShowContactForm] = useState<any>(false)
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
     const [formSchema2, setFormSchema2] = useState(FormSchema2)
@@ -101,7 +100,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            "organisationName": ""
+
         }
     })
 
@@ -111,7 +110,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
     })
 
-    
+
 
     const watcher1 = form.watch()
     const watcher2 = form2.watch()
@@ -132,10 +131,10 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         } else {
             form.setValue("organisationName", inputAccount)
         }
-        if (details?.contacts && details?.contacts?.length > 0) {
-            setDummyContactData(details?.contacts)
-            setShowContactForm(false)
-        }
+        // if (details?.contacts && details?.contacts?.length > 0) {
+        //     setDummyContactData(details?.contacts)
+        //     setShowContactForm(false)
+        // }
 
     }, [])
 
@@ -191,14 +190,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
     async function addToLead() {
         const formData = form.getValues()
-        const regionLabel = specificValueFinder(formData.region, region)?.label
-        const budgetLabel = specificValueFinder(formData.budget, budgetRange[form.getValues("region")])?.label
-        const leadSourceLabel = specificValueFinder(formData.leadSource, leadSource)?.label
-        const roleTypeLabel = specificValueFinder(formData.roleType, roleType)?.label
+        // const regionLabel = specificValueFinder(formData.region, region)?.label
+        // const budgetLabel = specificValueFinder(formData.budget, budgetRange[form.getValues("region")])?.label
+        // const leadSourceLabel = specificValueFinder(formData.leadSource, leadSource)?.label
+        // const roleTypeLabel = specificValueFinder(formData.roleType, roleType)?.label
         const createdOn = new Date()
         const createdBy = CREATORS[(Math.floor(Math.random() * (CREATORS.length - 1))) != 0 ? (Math.floor(Math.random() * (CREATORS.length - 1))) : 1].label
         const owner = OWNERS[(Math.floor(Math.random() * (OWNERS.length - 1))) != 0 ? (Math.floor(Math.random() * (OWNERS.length - 1))) : 1].label
-        console.log(regionLabel, budgetLabel, leadSourceLabel, roleTypeLabel, createdOn, createdBy, owner)
+        // console.log(regionLabel, budgetLabel, leadSourceLabel, roleTypeLabel, createdOn, createdBy, owner)
         // setData({
         //     budgetRange: budgetLabel,
         //     id: Math.floor(Math.random() * 10000).toString(),
@@ -213,22 +212,22 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         //     contacts: dummyContactData
         // })
 
-        const regionAcronym = acronymFinder(regionLabel, REGION)
-        const roleTypeAcronym = acronymFinder(roleTypeLabel, ROLETYPE)
+        // const regionAcronym = acronymFinder(regionLabel, REGION)
+        // const roleTypeAcronym = acronymFinder(roleTypeLabel, ROLETYPE)
 
-        let incrementalNumber: number = 1
-        filteredLeadData?.forEach((val) => {
-            const dataArr = val.title?.split(" ").join("").split("-")
-            if (dataArr) {
-                const [orgNameL, regL, roleL] = dataArr
-                console.log(orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase())
-                console.log(orgNameL.toLowerCase(), formData.organisationName.toLowerCase(), regionAcronym?.toLowerCase(), regL.toLowerCase(), roleTypeAcronym?.toLowerCase(), roleL.toLowerCase())
-                if (orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase()) {
-                    incrementalNumber++
-                }
-            }
-        })
-        const title = `${formData.organisationName} - ${regionAcronym} - ${roleTypeAcronym} - ${incrementalNumber}`
+        // let incrementalNumber: number = 1
+        // filteredLeadData?.forEach((val) => {
+        //     const dataArr = val.title?.split(" ").join("").split("-")
+        //     if (dataArr) {
+        //         const [orgNameL, regL, roleL] = dataArr
+        //         console.log(orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase())
+        //         console.log(orgNameL.toLowerCase(), formData.organisationName.toLowerCase(), regionAcronym?.toLowerCase(), regL.toLowerCase(), roleTypeAcronym?.toLowerCase(), roleL.toLowerCase())
+        //         if (orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase()) {
+        //             incrementalNumber++
+        //         }
+        //     }
+        // })
+        // const title = `${formData.organisationName} - ${regionAcronym} - ${roleTypeAcronym} - ${incrementalNumber}`
         const finalContactData = dummyContactData.filter((contact) => !contact.id)
 
         let keysToRemove: any = ["contactId", "isLocallyAdded",]
@@ -240,40 +239,40 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             });
         })
 
-        const dataToSend: Client = {
-            title: title,
+        // const dataToSend: Client = {
+        //     title: title,
 
-            organisation: {
-                contact_details: finalContactData,
-                name: formData.organisationName,
+        //     organisation: {
+        //         contact_details: finalContactData,
+        //         name: formData.organisationName,
 
-            },
-            role_details: {
-                budget_range: budgetLabel,
-                region: regionLabel,
-                role_type: roleTypeLabel
-            },
-            source: leadSourceLabel
-        }
-        if (details?.id) {
-            dataToSend.organisation.id = details.id
-        }
+        //     },
+        //     role_details: {
+        //         budget_range: budgetLabel,
+        //         region: regionLabel,
+        //         role_type: roleTypeLabel
+        //     },
+        //     source: leadSourceLabel
+        // }
+        // if (details?.id) {
+        //     dataToSend.organisation.id = details.id
+        // }
 
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-        const token_superuser = getToken()
+        // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+        // const token_superuser = getToken()
 
-        console.log(dataToSend)
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            console.log(result)
-            dataFromChild()
-            form.reset()
-            resetForm2()
+        // console.log(dataToSend)
+        // try {
+        //     const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+        //     const result = await dataResp.json()
+        //     console.log(result)
+        //     dataFromChild()
+        //     form.reset()
+        //     resetForm2()
 
-        } catch (err) {
-            console.log(err)
-        }
+        // } catch (err) {
+        //     console.log(err)
+        // }
     }
 
     function specificValueFinder(lookupValue: string, array: any[]): IValueLabel {
@@ -339,10 +338,10 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
     function changeStdCode(value: string) {
         let updatedSchema
-        console.log(value, value != "+91" )
+        console.log(value, value != "+91")
         if (value != "+91") {
             updatedSchema = FormSchema2.extend({
-                phone: z.string().min(4).max(13) 
+                phone: z.string().min(4).max(13)
             })
         } else {
             console.log("neh")
@@ -353,20 +352,9 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
     return (
         <div>
-            {/* <Dialog>
-                <DialogTrigger asChild>
-                    {children}
-                </DialogTrigger>
-                <DialogContent className="p-0 ">
-                    <DialogHeader >
-                        <DialogTitle className="px-[24px] pt-[30px] pb-[10px]">
-                            <span className="text-lg">Add Lead</span>
-                        </DialogTitle>
-                    </DialogHeader>
-                    <Separator className="bg-gray-200 h-[1px] w-full " /> */}
-            <div className='flex flex-row gap-6 px-[24px] py[24px] w-[800px]'>
+            <div className='flex flex-col gap-6 px-[24px] py[24px] w-[800px]'>
                 <Form {...form}>
-                    <form className='left flex flex-col w-1/2' onSubmit={form.handleSubmit(onSubmit)}>
+                    <form className='left flex flex-col w-full' onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="flex flex-row gap-[10px] items-center">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconAccounts size="20" />
@@ -374,56 +362,39 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                             <span className="text-xs text-gray-700">ACCOUNT</span>
                             <div className="bg-gray-200 h-[1px] w-full" ></div>
                         </div>
-                        <FormField
-                            control={form.control}
-                            name="organisationName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
-
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                        {filteredLeadData && filteredLeadData?.length > 0 && <Link href={`/dashboard?ids=${details?.name}`} target='_blank' className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' >
-                            <span>
-                                {filteredLeadData?.length} Exisiting {filteredLeadData?.length === 1 ? "Lead" : "Leads"}
-                            </span>
-                            {/* <ArrowUpRight className='text-blue-600 h-[18px] w-[18px]'/> */}
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M4 12L12 4M12 4H6.66667M12 4V9.33333" stroke="#1570EF" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                        </Link>}
-
-                        <div className="flex flex-row gap-[10px] items-center  mt-4">
-                            <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                <IconRoles size={20} />
-                            </div>
-                            <span className="text-xs text-gray-700">ROLE</span>
-                            <div className="bg-gray-200 h-[1px] w-full" />
-                        </div>
-                        <div className='flex flex-col mt-3 w-full'>
+                        <div className="flex flex-row gap-4 w-full mt-3">
                             <FormField
                                 control={form.control}
-                                name="region"
+                                name="organisationName"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className='flex-1'>
+                                        <FormControl>
+                                            <Input type="text" className={` ${commonClasses}`} placeholder="Organisation Name" {...field} />
+
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="industry"
+                                render={({ field }) => (
+                                    <FormItem className='flex-1'>
                                         <Select onValueChange={(value) => {
-                                            form.resetField("budget", { defaultValue: undefined })
-                                            setBudgetKey(+ new Date())
+                                            // form.resetField("budget", { defaultValue: undefined })
+                                            // setBudgetKey(+ new Date())
                                             return field.onChange(value)
                                         }} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select Region" />
+                                                    <SelectValue placeholder="Industry" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 {
-                                                    region.map((region, index) => {
-                                                        return <SelectItem key={index} value={region.value}>
-                                                            {region.label}
+                                                    INDUSTRY.map((industry, index) => {
+                                                        return <SelectItem key={index} value={industry.value}>
+                                                            {industry.label}
                                                         </SelectItem>
                                                     })
                                                 }
@@ -437,114 +408,172 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 )}
                             />
                         </div>
-                        <div className='flex flex-col mt-3 w-full '>
+                        <div className='flex flex-row gap-4 mt-3 w-full '>
                             <FormField
                                 control={form.control}
-                                name="roleType"
+                                name="domain"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className='flex-1'>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select Role Type" />
+                                                    <SelectValue placeholder="Domain" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent >
                                                 <div className='max-h-[200px] overflow-y-auto '>
                                                     {
-                                                        roleType.map((roleType, index) => {
-                                                            return <SelectItem key={index} value={roleType.value}>
-                                                                {roleType.label}
+                                                        DOMAINS.map((domain, index) => {
+                                                            return <SelectItem key={index} value={domain.value}>
+                                                                {domain.label}
                                                             </SelectItem>
                                                         })
                                                     }
                                                 </div>
                                             </SelectContent>
                                         </Select>
-                                        {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                        {/* <FormMessage /> */}
                                     </FormItem>
                                 )}
                             />
-                        </div>
-                        <div className='flex flex-col mt-3 w-full'>
-                            {<FormField
-                                control={form.control}
-                                name="budget"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <Select onValueChange={field.onChange} key={budgetKey}>
-                                            <FormControl>
-                                                <SelectTrigger disabled={!form.getValues("region")} className={commonClasses}>
-                                                    <SelectValue placeholder="Select Budget Range" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {
-                                                    budgetRange[form.getValues("region")]?.map((budgetRange, index) => {
-                                                        return <SelectItem value={budgetRange.value} key={index}>
-                                                            {budgetRange.label}
-                                                        </SelectItem>
-                                                    })
-                                                }
-                                            </SelectContent>
-                                        </Select>
-                                        {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                        {/* <FormMessage /> */}
-                                    </FormItem>
-                                )}
-                            />}
-                        </div>
-                        <div className="flex flex-row gap-[10px] items-center  mt-4">
-                            {/* <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                    <svg width="auto" height="auto" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <g id="briefcase-01">
-                                            <path id="Icon" d="M13.3334 5.83333C13.3334 5.05836 13.3334 4.67087 13.2482 4.35295C13.0171 3.49022 12.3432 2.81635 11.4805 2.58519C11.1625 2.5 10.7751 2.5 10.0001 2.5C9.22511 2.5 8.83762 2.5 8.5197 2.58519C7.65697 2.81635 6.9831 3.49022 6.75193 4.35295C6.66675 4.67087 6.66675 5.05836 6.66675 5.83333M4.33342 17.5H15.6667C16.6002 17.5 17.0669 17.5 17.4234 17.3183C17.737 17.1586 17.992 16.9036 18.1518 16.59C18.3334 16.2335 18.3334 15.7668 18.3334 14.8333V8.5C18.3334 7.56658 18.3334 7.09987 18.1518 6.74335C17.992 6.42975 17.737 6.17478 17.4234 6.01499C17.0669 5.83333 16.6002 5.83333 15.6667 5.83333H4.33341C3.39999 5.83333 2.93328 5.83333 2.57676 6.01499C2.26316 6.17478 2.00819 6.42975 1.8484 6.74335C1.66675 7.09987 1.66675 7.56658 1.66675 8.5V14.8333C1.66675 15.7668 1.66675 16.2335 1.8484 16.59C2.00819 16.9036 2.26316 17.1586 2.57676 17.3183C2.93328 17.5 3.39999 17.5 4.33342 17.5Z" stroke="#667085" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
-                                        </g>
-                                    </svg>
-                                </div> */}
-                            <span className="text-xs text-gray-700">DETAILS</span>
-                            <div className="bg-gray-200 h-[1px] w-full" ></div>
-                        </div>
-                        <div className='flex flex-col mt-3 w-full'>
                             <FormField
                                 control={form.control}
-                                name="leadSource"
+                                name="size"
                                 render={({ field }) => (
-                                    <FormItem>
+                                    <FormItem className='flex-1'>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Select Lead Source" />
+                                                    <SelectValue placeholder="Size" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent>
-                                                {
-                                                    leadSource.map((leadSource, index) => {
-                                                        return <SelectItem key={index} value={leadSource.value}>
-                                                            {leadSource.label}
-                                                        </SelectItem>
-                                                    })
-                                                }
+                                            <SelectContent >
+                                                <div className='max-h-[200px] overflow-y-auto '>
+                                                    {
+                                                        SIZE_OF_COMPANY.map((size, index) => {
+                                                            return <SelectItem key={index} value={size.value}>
+                                                                {size.label}
+                                                            </SelectItem>
+                                                        })
+                                                    }
+                                                </div>
                                             </SelectContent>
                                         </Select>
-                                        {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                        {/* <FormMessage /> */}
                                     </FormItem>
                                 )}
                             />
+                        </div>
+                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                            <FormField
+                                control={form.control}
+                                name="lastFundingStage"
+                                render={({ field }) => (
+                                    <FormItem className='flex-1'>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger className={commonClasses}>
+                                                    <SelectValue placeholder="Last Funding Stage" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent >
+                                                <div className='max-h-[200px] overflow-y-auto '>
+                                                    {
+                                                        LAST_FUNDING_STAGE.map((lastFundingStage, index) => {
+                                                            return <SelectItem key={index} value={lastFundingStage.value}>
+                                                                {lastFundingStage.label}
+                                                            </SelectItem>
+                                                        })
+                                                    }
+                                                </div>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="lastFundingAmount"
+                                render={({ field }) => (
+                                    <FormItem className='flex-1'>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger className={commonClasses}>
+                                                    <SelectValue placeholder="Last Funding Amount" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent >
+                                                <div className='max-h-[200px] overflow-y-auto '>
+                                                    {
+                                                        LAST_FUNDING_AMOUNT.map((size, index) => {
+                                                            return <SelectItem key={index} value={size.value}>
+                                                                {size.label}
+                                                            </SelectItem>
+                                                        })
+                                                    }
+                                                </div>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                            <FormField
+                                control={form.control}
+                                name="registeredName"
+                                render={({ field }) => (
+                                    <FormItem className='flex-1'>
+                                        <FormControl>
+                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Registerred Name" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="gstinVatGstNo"
+                                render={({ field }) => (
+                                    <FormItem className='flex-1'>
+                                        <FormControl>
+                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="GSTIN/VAT/GST No" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                        </div>
+                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                            <FormField
+                                control={form.control}
+                                name="billingAddress"
+                                render={({ field }) => (
+                                    <FormItem className='flex-1'>
+                                        <FormControl>
+                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Billing Address" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                        </div>
+                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                            <FormField
+                                control={form.control}
+                                name="shippingAddress"
+                                render={({ field }) => (
+                                    <FormItem className='flex-1'>
+                                        <FormControl>
+                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Shipping Address" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
                         </div>
                     </form>
                 </Form>
                 <div className="w-[1px] bg-gray-200 "></div>
                 <Form {...form2}>
-                    <form className='right flex flex-col w-1/2' onSubmit={form2.handleSubmit(onSubmit2)}>
+                    <form className='right flex flex-col ' onSubmit={form2.handleSubmit(onSubmit2)}>
                         <div className="flex flex-row gap-[10px] items-center">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconContacts size="20" />
@@ -569,7 +598,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                         </div>}
 
                                                         {
-                                                            item.isLocallyAdded && !showContactForm &&  <TooltipProvider>
+                                                            item.isLocallyAdded && !showContactForm && <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger >
                                                                         <div className='absolute right-[5px] top-[10px] h-[16px] cursor-pointer' onClick={() => activateToUpdateForm(item)}>
@@ -686,7 +715,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     control={form2.control}
                                     name="std_code"
                                     render={({ field }) => (
-                                        <FormItem className='mt-3 w-1/4'>
+                                        <FormItem className='mt-3 w-fit'>
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
@@ -740,7 +769,11 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     control={form2.control}
                                     name="phone"
                                     render={({ field }) => (
-                                        <Input type="text" className={`mt-3 w-3/4 ${commonClasses}`} placeholder="Phone No" {...field} />
+                                        <FormItem className='w-full flex-1'>
+                                            <FormControl>
+                                                <Input type="text" className={`mt-3  ${commonClasses}`} placeholder="Phone No" {...field} />
+                                            </FormControl>
+                                        </FormItem>
                                     )}
                                 />
                             </div>
@@ -802,7 +835,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     )
 }
 
-export default AddLeadDetailedDialog
+export default AddAcountDetailedDialog
 
 export function acronymFinder(lookupvalue: string, arr: IValueLabel[]) {
     return arr.find((val) => val.label === lookupvalue)?.acronym

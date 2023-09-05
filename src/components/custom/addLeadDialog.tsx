@@ -9,12 +9,13 @@ import AddLeadDetailedDialog from './addLeadDetailedDialog'
 import { IconAccounts, IconBuildings } from '../icons/svgIcons'
 import { ClientCompleteInterface, LeadInterface } from '@/app/interfaces/interface'
 import { getToken } from './leads'
+import AddAcountDetailedDialog from './addAccountDetailedDialog'
 
 // const dummySearchedItems = ["Swiggy", "Swish Bank"]
 
-let dataFromApi:ClientCompleteInterface[] = []
-let leadDataFromApi:LeadInterface[] = []
-const dummySearchedItems:ClientCompleteInterface[] = [
+let dataFromApi: ClientCompleteInterface[] = []
+let leadDataFromApi: LeadInterface[] = []
+const dummySearchedItems: ClientCompleteInterface[] = [
     {
         "id": 1,
         "contacts": [],
@@ -36,7 +37,7 @@ const dummySearchedItems:ClientCompleteInterface[] = [
     }
 ]
 
-const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadData: CallableFunction}) => {
+const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetchLeadData: CallableFunction, page: string }) => {
     const [inputAccount, setInputAccount] = useState("")
     const [details, setDetails] = useState<ClientCompleteInterface>()
     const [filteredLeadData, setFilteredLeadData] = useState<LeadInterface[]>()
@@ -68,7 +69,7 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
         catch (err) {
             console.log("error", err)
         }
-        try{
+        try {
             const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: LeadInterface[] = structuredClone(result.data)
@@ -78,14 +79,14 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
             })
             leadDataFromApi = fdata
         }
-        catch(err){
+        catch (err) {
             console.log(err)
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchClientData()
-    },[])
+    }, [])
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
@@ -103,10 +104,31 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
     function openExpanedWFilledDetails(details: ClientCompleteInterface) {
         setIsExpanded(true)
         setDetails(details)
-        let data = leadDataFromApi.filter((val)=>{
-            return val.organisation.name.toLowerCase()===details.name.toLowerCase()
+        let data = leadDataFromApi.filter((val) => {
+            return val.organisation.name.toLowerCase() === details.name.toLowerCase()
         })
         setFilteredLeadData(data)
+    }
+
+
+    const renderDetailedPage = () => {
+        switch (page) {
+            case "leads":
+                return <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details} filteredLeadData={filteredLeadData} />
+            case "accounts":
+                return<AddAcountDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details} filteredLeadData={filteredLeadData}/>
+            default:
+                return <></>
+        }
+    }
+
+    function renderTitle() {
+        switch (page) {
+            case "leads":
+                return "Add Lead"
+            case "accounts":
+                return "Add Account"
+        }
     }
 
     return (
@@ -118,7 +140,7 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
                 <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()}>
                     <DialogHeader >
                         <DialogTitle className="px-[24px] pt-[30px] pb-[10px]">
-                            <span className="text-lg">Add Lead</span>
+                            <span className="text-lg">{renderTitle()}</span>
                         </DialogTitle>
                     </DialogHeader>
                     {/* <Separator className="bg-gray-200 h-[1px] " /> */}
@@ -172,8 +194,11 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
                                     </div>
                                 }
                             </Command>
+                            {page === "accounts" && inputAccount && !doesInputOrgExists(inputAccount) && <div className='text-error-500 text-sm font-normal'>
+                                Account with this name already exists.
+                            </div>}
                         </div> : <div>
-                            <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details}  filteredLeadData={filteredLeadData}/>
+                            {renderDetailedPage()}
                         </div>}
                         {!isExpanded && <><Separator className="bg-gray-200 h-[1px]  mt-8" />
                             <div className="flex flex-row gap-2 justify-end mx-6 my-6">
@@ -193,5 +218,7 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
 export default AddLeadDialog
 
 function doesInputOrgExists(inputAccount: string) {
-    return !dataFromApi.find((data) => data.name.toLowerCase() === inputAccount)
+    const res = !dataFromApi.find((data) => data.name.toLowerCase() === inputAccount)
+    console.log(res)
+    return res
 }

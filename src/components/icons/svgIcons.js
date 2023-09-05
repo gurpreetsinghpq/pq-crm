@@ -52,7 +52,17 @@ const AccountsIcon = ({ size = "10" }) => (
       <path id="Icon" d="M6.25 5.83333H8.54166M6.25 9.16667H8.54166M6.25 12.5H8.54166M11.4583 5.83333H13.75M11.4583 9.16667H13.75M11.4583 12.5H13.75M16.6667 17.5V5.16667C16.6667 4.23325 16.6667 3.76654 16.485 3.41002C16.3252 3.09641 16.0703 2.84144 15.7566 2.68166C15.4001 2.5 14.9334 2.5 14 2.5H6C5.06658 2.5 4.59987 2.5 4.24335 2.68166C3.92974 2.84144 3.67478 3.09641 3.51499 3.41002C3.33333 3.76654 3.33333 4.23325 3.33333 5.16667V17.5M18.3333 17.5H1.66666" stroke="#667085" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
     </g>
   </svg>
+
 )
+const AccountsIcon2 = ({ size = "10" }) => (
+  <svg width="auto" height="auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="building-07">
+      <path id="Icon" d="M7.5 11H4.6C4.03995 11 3.75992 11 3.54601 11.109C3.35785 11.2049 3.20487 11.3578 3.10899 11.546C3 11.7599 3 12.0399 3 12.6V21M16.5 11H19.4C19.9601 11 20.2401 11 20.454 11.109C20.6422 11.2049 20.7951 11.3578 20.891 11.546C21 11.7599 21 12.0399 21 12.6V21M16.5 21V6.2C16.5 5.0799 16.5 4.51984 16.282 4.09202C16.0903 3.71569 15.7843 3.40973 15.408 3.21799C14.9802 3 14.4201 3 13.3 3H10.7C9.57989 3 9.01984 3 8.59202 3.21799C8.21569 3.40973 7.90973 3.71569 7.71799 4.09202C7.5 4.51984 7.5 5.0799 7.5 6.2V21M22 21H2M11 7H13M11 11H13M11 15H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  </svg>
+
+)
+
 
 const RolesIcon = ({ size = "10", color = "#667085" }) => (
   <svg width={size} height={size} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -75,6 +85,7 @@ const BuildingsIcon = ({ size = "10", color = "#344054" }) => (
     <path d="M5.00004 7.33333H3.06671C2.69334 7.33333 2.50665 7.33333 2.36405 7.406C2.23861 7.46991 2.13662 7.5719 2.0727 7.69734C2.00004 7.83995 2.00004 8.02663 2.00004 8.4V14M11 7.33333H12.9334C13.3067 7.33333 13.4934 7.33333 13.636 7.406C13.7615 7.46991 13.8635 7.5719 13.9274 7.69734C14 7.83995 14 8.02663 14 8.4V14M11 14V4.13333C11 3.3866 11 3.01323 10.8547 2.72801C10.7269 2.47713 10.5229 2.27316 10.272 2.14532C9.98681 2 9.61344 2 8.86671 2H7.13337C6.38664 2 6.01327 2 5.72805 2.14532C5.47717 2.27316 5.2732 2.47713 5.14537 2.72801C5.00004 3.01323 5.00004 3.3866 5.00004 4.13333V14M14.6667 14H1.33337M7.33337 4.66667H8.66671M7.33337 7.33333H8.66671M7.33337 10H8.66671" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
+
 
 const HomeIcon = ({ size = "10" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 25 24" fill="none">
@@ -395,27 +406,42 @@ const AlertIcon = ({ size = 24, color = "#F04438" }) => (
   </svg>
 )
 const ArchiveIcon2 = ({ size = 24, color = "#6941C6" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="15.0294" y="0.605469" width="48" height="48" rx="10" transform="rotate(15 15.0294 0.605469)" fill={color} />
-    <g filter="url(#filter0_b_1401_68470)">
+  <svg width={size} height={size} viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="15.0294" y="0.605469" width="48" height="48" rx="10" transform="rotate(15 15.0294 0.605469)" fill="#6941C6" />
+    <g filter="url(#filter0_b_1452_33426)">
       <rect y="14" width="48" height="48" rx="10" fill="white" fill-opacity="0.6" />
       <path d="M16 33.9966C15.836 33.9924 15.7169 33.9829 15.6098 33.9616C14.8164 33.8038 14.1962 33.1836 14.0384 32.3902C14 32.197 14 31.9647 14 31.5C14 31.0353 14 30.803 14.0384 30.6098C14.1962 29.8164 14.8164 29.1962 15.6098 29.0384C15.803 29 16.0353 29 16.5 29H31.5C31.9647 29 32.197 29 32.3902 29.0384C33.1836 29.1962 33.8038 29.8164 33.9616 30.6098C34 30.803 34 31.0353 34 31.5C34 31.9647 34 32.197 33.9616 32.3902C33.8038 33.1836 33.1836 33.8038 32.3902 33.9616C32.2831 33.9829 32.164 33.9924 32 33.9966M22 39H26M16 34H32V42.2C32 43.8802 32 44.7202 31.673 45.362C31.3854 45.9265 30.9265 46.3854 30.362 46.673C29.7202 47 28.8802 47 27.2 47H20.8C19.1198 47 18.2798 47 17.638 46.673C17.0735 46.3854 16.6146 45.9265 16.327 45.362C16 44.7202 16 43.8802 16 42.2V34Z" stroke="#6941C6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
       <rect x="0.5" y="14.5" width="47" height="47" rx="9.5" stroke="white" stroke-opacity="0.6" />
     </g>
     <defs>
-      <filter id="filter0_b_1401_68470" x="-16" y="-2" width="80" height="80" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <filter id="filter0_b_1452_33426" x="-16" y="-2" width="80" height="80" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
         <feFlood flood-opacity="0" result="BackgroundImageFix" />
         <feGaussianBlur in="BackgroundImageFix" stdDeviation="8" />
-        <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_1401_68470" />
-        <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_1401_68470" result="shape" />
+        <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_1452_33426" />
+        <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_1452_33426" result="shape" />
       </filter>
     </defs>
   </svg>
-
 )
 const ClosedByIcon = ({ size = 24, color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none">
     <path d="M9 9L15 15M15 9L9 15M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+)
+
+const LineChartIcon = ({ size = 24, color = "#98A2B3" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path d="M9 9L15 15M15 9L9 15M7.8 21H16.2C17.8802 21 18.7202 21 19.362 20.673C19.9265 20.3854 20.3854 19.9265 20.673 19.362C21 18.7202 21 17.8802 21 16.2V7.8C21 6.11984 21 5.27976 20.673 4.63803C20.3854 4.07354 19.9265 3.6146 19.362 3.32698C18.7202 3 17.8802 3 16.2 3H7.8C6.11984 3 5.27976 3 4.63803 3.32698C4.07354 3.6146 3.6146 4.07354 3.32698 4.63803C3 5.27976 3 6.11984 3 7.8V16.2C3 17.8802 3 18.7202 3.32698 19.362C3.6146 19.9265 4.07354 20.3854 4.63803 20.673C5.27976 21 6.11984 21 7.8 21Z" stroke={color} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+)
+const DashboardIcon = ({ size = 24, color = "#98A2B3" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={Number(size) + 1} height={size} viewBox="0 0 25 24" fill="none">
+    <mask id="mask0_1452_51957" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="25" height="24">
+      <rect x="0.5" width="24" height="24" fill="#D9D9D9" />
+    </mask>
+    <g mask="url(#mask0_1452_51957)">
+      <path d="M5.5 21C4.95 21 4.47917 20.8042 4.0875 20.4125C3.69583 20.0208 3.5 19.55 3.5 19V5C3.5 4.45 3.69583 3.97917 4.0875 3.5875C4.47917 3.19583 4.95 3 5.5 3H19.5C20.05 3 20.5208 3.19583 20.9125 3.5875C21.3042 3.97917 21.5 4.45 21.5 5V19C21.5 19.55 21.3042 20.0208 20.9125 20.4125C20.5208 20.8042 20.05 21 19.5 21H5.5ZM5.5 19H11.5V5H5.5V19ZM13.5 19H19.5V12H13.5V19ZM13.5 10H19.5V5H13.5V10Z" fill="#F4EBFF" />
+    </g>
   </svg>
 )
 
@@ -481,5 +507,8 @@ export const IconAlert = (props) => <AlertIcon {...props} />;
 export const IconEsop = (props) => <EsopIcon {...props} />;
 export const IconArchive2 = (props) => <ArchiveIcon2 {...props} />;
 export const IconClosedBy = (props) => <ClosedByIcon {...props} />;
+export const IconLineChart = (props) => <LineChartIcon {...props} />;
+export const IconDashboard = (props) => <DashboardIcon {...props} />;
+export const IconAccounts2 = (props) => <AccountsIcon2 {...props} />;
 
 

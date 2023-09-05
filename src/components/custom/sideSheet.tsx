@@ -118,7 +118,7 @@ const commonClasses2 = "text-md font-normal text-gray-900 focus:shadow-custom1 f
 const commonFontClasses = "text-sm font-medium text-gray-700"
 const requiredErrorClasses = "text-sm font-medium text-error-500"
 const selectFormMessageClasses = "pl-[36px] pb-[8px]"
-const preFilledClasses = "disabled:text-black-900"
+const preFilledClasses = "disabled:text-black-700 disabled:opacity-1"
 const disabledClasses = "bg-inherit"
 
 function SideSheet({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
@@ -387,7 +387,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY),
             last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE),
             last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT),
-
+            segment: LAST_FUNDING_STAGE.find((stage)=>form.getValues("lastFundingStage")===stage.value)?.acronym
         }
         const region = valueToLabel(form.getValues("regions"), REGIONS)
         const roleDetailsData: Partial<PatchRoleDetails> = {
@@ -1998,7 +1998,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <div className='flex flex-row justify-end'>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                        <Button disabled={data.status.toLowerCase()!=="verified"} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
                                             <span >Promote to Prospect</span> <IconArrowSquareRight size={20} />
                                         </Button>
                                     </DialogTrigger>

@@ -1,6 +1,6 @@
 "use client"
 import Prospects from "@/components/custom/prospects"
-import { IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
+import { IconAccounts, IconAccounts2, IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useState } from "react"
@@ -8,14 +8,16 @@ import Leads from "../../components/custom/leads"
 import { User } from "@/app/interfaces/interface"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
+import Accounts from "../custom/accounts"
 
 export default function DashboardComponent() {
-    const [currentTab, setCurrentTab] = useState("Leads")
+    // const [currentTab, setCurrentTab] = useState("Leads")
+    const [currentTab, setCurrentTab] = useState("Accounts")
     const [user, setUser] = useState<User>()
     const router = useRouter();
     useEffect(() => {
         const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
-        
+
         setUser(userFromLocalstorage)
     }, [])
 
@@ -32,7 +34,7 @@ export default function DashboardComponent() {
     }
 
     return <div className="flex flex-row h-full ">
-        <div className="sticky top-0 left-0 left flex flex-col w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
+        <div className="sticky top-0 left-0 left flex flex-col  w-20     2xl:w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center">
                 {/* <Image alt="pq search" src={"/pq-logo-warm.svg"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
                 {/* <Image alt="pq search" src={"/pq-search.png"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
@@ -83,13 +85,18 @@ export default function DashboardComponent() {
                 </svg>
             </div>
             <div className="h-1 w-2/3 mt-4 border-t-2 border-purple-800"></div>
-            <div className="h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
-                <svg width="auto" height="auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g id="building-07">
-                        <path id="Icon" d="M7.5 11H4.6C4.03995 11 3.75992 11 3.54601 11.109C3.35785 11.2049 3.20487 11.3578 3.10899 11.546C3 11.7599 3 12.0399 3 12.6V21M16.5 11H19.4C19.9601 11 20.2401 11 20.454 11.109C20.6422 11.2049 20.7951 11.3578 20.891 11.546C21 11.7599 21 12.0399 21 12.6V21M16.5 21V6.2C16.5 5.0799 16.5 4.51984 16.282 4.09202C16.0903 3.71569 15.7843 3.40973 15.408 3.21799C14.9802 3 14.4201 3 13.3 3H10.7C9.57989 3 9.01984 3 8.59202 3.21799C8.21569 3.40973 7.90973 3.71569 7.71799 4.09202C7.5 4.51984 7.5 5.0799 7.5 6.2V21M22 21H2M11 7H13M11 11H13M11 15H13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-                </svg>
-            </div>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div onClick={() => setCurrentTab("Accounts")} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Accounts" && 'bg-purple-600'}`}>
+                            <IconAccounts2 size={24} />
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={5}>
+                        Accounts
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
                 <svg width="auto" height="auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="user-square">
@@ -144,6 +151,7 @@ export default function DashboardComponent() {
             <div className="bottom flex flex-col flex-1">
                 {currentTab === 'Leads' && <Leads />}
                 {currentTab === 'Prospects' && <Prospects />}
+                {currentTab === 'Accounts' && <Accounts />}
 
             </div>
         </div>

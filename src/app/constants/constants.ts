@@ -1,6 +1,6 @@
 import { Deferred, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
 import { IValueLabel } from "../interfaces/interface"
-import {GodfatherIcon, HustlerIcon, RockstarIcon} from "../../components/icons/labels"
+import { GodfatherIcon, HustlerIcon, RockstarIcon } from "../../components/icons/labels"
 const REGION = [
     {
         value: "india",
@@ -1291,6 +1291,8 @@ const TIME_TO_FILL: IValueLabel[] = [
     }
 ]
 
+
+
 const INDUSTRY: IValueLabel[] = [
     {
         value: "finTech",
@@ -1390,6 +1392,14 @@ const INDUSTRY: IValueLabel[] = [
     },
 ]
 
+const INDUSTRIES: IValueLabel[] = [
+    {
+        value: "allIndustries",
+        label: "All Industries"
+    },
+    ...INDUSTRY
+]
+
 const DOMAINS: IValueLabel[] = [
     {
         value: "b2b",
@@ -1399,6 +1409,14 @@ const DOMAINS: IValueLabel[] = [
         value: "b2c",
         label: "B2C"
     }
+]
+
+const ALL_DOMAINS: IValueLabel[] = [
+    {
+        value: "allDomains",
+        label: "All Domains"
+    },
+    ...DOMAINS
 ]
 
 
@@ -1413,28 +1431,50 @@ const SIZE_OF_COMPANY: IValueLabel[] = [
     { value: "5001_to_10000", label: "5001 to 10000" },
     { value: "10001_plus", label: "10001+" }
 ]
+const ALL_SIZE_OF_COMPANY: IValueLabel[] = [
+    {value: "allSizes", label: "All Sizes"},
+    ...SIZE_OF_COMPANY
+]
 
+const segmentnames = {
+    hustler: "Hustler",
+    rockstar: "Rockstar",
+    godfather: "Godfather"
+}
 
-
+const SEGMENT: IValueLabel[] = [
+    {value:"hustler", label: segmentnames.hustler, icon: HustlerIcon},
+    {value:"rockstar", label: segmentnames.rockstar, icon: RockstarIcon},
+    {value:"godfather", label: segmentnames.godfather, icon: GodfatherIcon},
+]
+const ALL_SEGMENTS: IValueLabel[] = [
+    {value: "allSegments", label: "All Segments"},
+    ...SEGMENT
+]
 
 const LAST_FUNDING_STAGE: IValueLabel[] = [
-    { value: "pre_seed", label: "Pre-Seed", icon: HustlerIcon },
-    { value: "seed", label: "Seed", icon: HustlerIcon },
-    { value: "series_a", label: "Series A", icon: HustlerIcon  },
-    { value: "series_b", label: "Series B", icon: HustlerIcon },
-    { value: "debt_financing", label: "Debt Financing", icon:HustlerIcon },
-    { value: "convertible_note", label: "Convertible Note", icon:HustlerIcon },
-    { value: "series_c", label: "Series C" , icon:RockstarIcon},
-    { value: "series_d", label: "Series D", icon:RockstarIcon },
-    { value: "private_equity", label: "Private Equity",icon:RockstarIcon },
-    { value: "corporate_round", label: "Corporate Round",icon:RockstarIcon },
-    { value: "series_e_and_above", label: "Series E & Above", icon:RockstarIcon },
-    { value: "ipo", label: "IPO",icon:GodfatherIcon },
-    { value: "post_ipo_equity", label: "Post-IPO Equity",icon:GodfatherIcon },
-    { value: "post_ipo_debt", label: "Post-IPO Debt",icon:GodfatherIcon },
-    { value: "seondary_market", label: "Secondary Market",icon:GodfatherIcon },
-    { value: "unknown", label: "Unknown", icon:HustlerIcon },
-    { value: "notApplicable", label: "Not Applicable", icon:HustlerIcon },
+    { value: "pre_seed", label: "Pre-Seed", icon: HustlerIcon, acronym: segmentnames.hustler },
+    { value: "seed", label: "Seed", icon: HustlerIcon, acronym: segmentnames.hustler },
+    { value: "series_a", label: "Series A", icon: HustlerIcon, acronym: segmentnames.hustler },
+    { value: "series_b", label: "Series B", icon: HustlerIcon, acronym: segmentnames.hustler },
+    { value: "debt_financing", label: "Debt Financing", icon: HustlerIcon, acronym: segmentnames.hustler },
+    { value: "convertible_note", label: "Convertible Note", icon: HustlerIcon, acronym: segmentnames.hustler },
+    { value: "series_c", label: "Series C", icon: RockstarIcon, acronym: segmentnames.rockstar },
+    { value: "series_d", label: "Series D", icon: RockstarIcon, acronym: segmentnames.rockstar },
+    { value: "private_equity", label: "Private Equity", icon: RockstarIcon, acronym: segmentnames.rockstar },
+    { value: "corporate_round", label: "Corporate Round", icon: RockstarIcon, acronym: segmentnames.rockstar },
+    { value: "series_e_and_above", label: "Series E & Above", icon: RockstarIcon, acronym: segmentnames.rockstar },
+    { value: "ipo", label: "IPO", icon: GodfatherIcon, acronym: segmentnames.godfather },
+    { value: "post_ipo_equity", label: "Post-IPO Equity", icon: GodfatherIcon, acronym: segmentnames.godfather },
+    { value: "post_ipo_debt", label: "Post-IPO Debt", icon: GodfatherIcon, acronym: segmentnames.godfather },
+    { value: "seondary_market", label: "Secondary Market", icon: GodfatherIcon, acronym: segmentnames.godfather },
+    { value: "unknown", label: "Unknown", icon: HustlerIcon, acronym: segmentnames.hustler },
+    { value: "notApplicable", label: "Not Applicable", icon: HustlerIcon, acronym: segmentnames.hustler },
+];
+
+const ALL_LAST_FUNDING_STAGE: IValueLabel[] = [
+    { value: "allFundingStages", label: "All Funding Stages"},
+    ...LAST_FUNDING_STAGE
 ];
 
 const LAST_FUNDING_AMOUNT = [
@@ -1466,7 +1506,7 @@ const LAST_FUNDING_AMOUNT = [
         value: "undisclosed",
         label: "Undisclosed"
     },
-    { value: "notApplicable", label: "Not Applicable"},
+    { value: "notApplicable", label: "Not Applicable" },
 ];
 
 const RETAINER_ADVANCE: IValueLabel[] = [
@@ -1509,4 +1549,4 @@ const SERVICE_FEE_RANGE: IValueLabel[] = [
 ];
 // Now the anotherValueLabels array contains the desired value-label pairs.
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES }
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS }

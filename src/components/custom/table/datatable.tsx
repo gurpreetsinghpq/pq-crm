@@ -25,26 +25,42 @@ import {
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
-import { CREATORS, OWNERS, REGIONS, SOURCES, STATUSES } from "@/app/constants/constants"
+import { ALL_LAST_FUNDING_STAGE, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
 import { IValueLabel } from "@/app/interfaces/interface"
 import { TableContext } from "@/app/helper/context"
+
+interface LeadInterfaceFilter{
+  regions?: string[]
+  sources?: string[]
+  statuses?: string[]
+  creators?: string[]
+  owners?: string[],
+  search?: string,
+  dateRange?: any,
+  queryParamString?: string
+}
+interface AccountInterfaceFilter{
+  industries?: string[]
+  domains?: string[]
+  segments?: string[]
+  sizes?: string[]
+  fundingStages?: string[],
+  creators?: string[],
+  search?: string,
+  dateRange?: any,
+  queryParamString?: string
+}
+
+type FilterObject = LeadInterfaceFilter & AccountInterfaceFilter 
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  filterObj: {
-    regions: string[]
-    sources: string[]
-    statuses: string[]
-    creators: string[]
-    owners: string[],
-    search: string,
-    dateRange?: any,
-    queryParamString: string
-  },
+  filterObj: FilterObject,
   setTableLeadRow: CallableFunction,
   setChildDataHandler: CallableFunction,
-  setIsMultiSelectOn: CallableFunction
+  setIsMultiSelectOn: CallableFunction,
+  page: string
 }
 
 export default function DataTable<TData, TValue>({
@@ -53,7 +69,8 @@ export default function DataTable<TData, TValue>({
   filterObj,
   setTableLeadRow,
   setChildDataHandler,
-  setIsMultiSelectOn
+  setIsMultiSelectOn,
+  page
 }: DataTableProps<TData, TValue>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -86,8 +103,28 @@ export default function DataTable<TData, TValue>({
     },
   })
 
+
   useEffect(() => {
-    if (filterObj.regions.includes("allRegions")) {
+    switch (page) {
+      case "leads":
+        setLeadFilter()
+        break;
+      case "accounts":
+        setAccountFilter()
+        break;
+    }
+
+
+    console.log(filterObj)
+
+  }, [filterObj])
+  useEffect(() => {
+    setTableLeadRow(table.getFilteredRowModel())
+  }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
+
+
+  function setLeadFilter() {
+    if (filterObj?.regions && filterObj.regions.includes("allRegions")) {
       table.getColumn("region")?.setFilterValue("")
     }
     else {
@@ -95,7 +132,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("region")?.setFilterValue(regionsFilter)
     }
 
-    if (filterObj.sources.includes("allSources")) {
+    if (filterObj?.sources && filterObj.sources.includes("allSources")) {
       table.getColumn("source")?.setFilterValue("")
     }
     else {
@@ -103,7 +140,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("source")?.setFilterValue(sourcesFilter)
     }
 
-    if (filterObj.statuses.includes("allStatuses")) {
+    if (filterObj?.statuses && filterObj.statuses.includes("allStatuses")) {
       table.getColumn("status")?.setFilterValue("")
     }
     else {
@@ -111,7 +148,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("status")?.setFilterValue(statusFilter)
     }
 
-    if (filterObj.owners.includes("allOwners")) {
+    if (filterObj?.owners && filterObj.owners.includes("allOwners")) {
       table.getColumn("owner")?.setFilterValue("")
     }
     else {
@@ -119,7 +156,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("owner")?.setFilterValue(ownerFilter)
     }
 
-    if (filterObj.creators.includes("allCreators")) {
+    if (filterObj.creators && filterObj.creators.includes("allCreators")) {
       table.getColumn("created_by")?.setFilterValue("")
     }
     else {
@@ -129,27 +166,74 @@ export default function DataTable<TData, TValue>({
 
 
     // table.getColumn("id")?.setFilterValue(filterObj.ids)
-
     table.getColumn("title")?.setFilterValue(filterObj.search)
     table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
-  
-  console.log(filterObj)
+  }
 
-  }, [filterObj])
-  useEffect(() => {
-    setTableLeadRow(table.getFilteredRowModel())
-  }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
+  function setAccountFilter() {
+    if (filterObj?.industries && filterObj.industries.includes("allIndustries")) {
+      table.getColumn("industry")?.setFilterValue("")
+    }
+    else {
+      const industryFilter = valueToLabel("industries", INDUSTRIES)
+      table.getColumn("industry")?.setFilterValue(industryFilter)
+    }
 
+    if (filterObj?.domains && filterObj.domains.includes("allDomains")) {
+      table.getColumn("domain")?.setFilterValue("")
+    }
+    else {
+      const domainsFilter = valueToLabel("domains", DOMAINS)
+      table.getColumn("domain")?.setFilterValue(domainsFilter)
+    }
+
+    if (filterObj?.segments && filterObj.segments.includes("allSegments")) {
+      table.getColumn("segment")?.setFilterValue("")
+    }
+    else {
+      const segmentFilter = valueToLabel("segments", ALL_SEGMENTS)
+      table.getColumn("segment")?.setFilterValue(segmentFilter)
+    }
+
+    if (filterObj?.sizes && filterObj.sizes.includes("allSizes")) {
+      table.getColumn("size")?.setFilterValue("")
+    }
+    else {
+      const sizeFilter = valueToLabel("sizes", SIZE_OF_COMPANY)
+      table.getColumn("size")?.setFilterValue(sizeFilter)
+    }
+
+    if (filterObj?.fundingStages && filterObj.fundingStages.includes("allFundingStages")) {
+      table.getColumn("last_funding_stage")?.setFilterValue("")
+    }
+    else {
+      const fundingStageFilter = valueToLabel("fundingStages", ALL_LAST_FUNDING_STAGE)
+      table.getColumn("last_funding_stage")?.setFilterValue(fundingStageFilter)
+    }
+
+    if (filterObj.creators && filterObj.creators.includes("allCreators")) {
+      table.getColumn("created_by")?.setFilterValue("")
+    }
+    else {
+      const creatorFilter = valueToLabel("creators", CREATORS)
+      table.getColumn("created_by")?.setFilterValue(creatorFilter)
+    }
+
+
+    // table.getColumn("id")?.setFilterValue(filterObj.ids)
+    table.getColumn("title")?.setFilterValue(filterObj.search)
+    table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+  }
 
   function handleTableChange() {
     console.log("hey")
   }
 
-  function valueToLabel(key: Exclude<keyof typeof filterObj, "search" | "dateRange" | "queryParamString">, arr: IValueLabel[]) {
-    return filterObj[key].map((val) => arr.find((item) => item.value === val)?.label)
+  function valueToLabel(key: Exclude<keyof FilterObject, "search" | "dateRange" | "queryParamString">, arr: IValueLabel[]) {
+    return filterObj[key]?.map((val) => arr.find((item) => item.value === val)?.label)
   }
 
-  
+
   return (
     <div className="flex flex-col flex-1">
       <div className="border-[1px] border-gray-200 flex-1 " ref={tbl}>
@@ -181,12 +265,12 @@ export default function DataTable<TData, TValue>({
                     style={{ borderWidth: "1px" }}
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    
+
                   >
                     {row.getVisibleCells().map((cell) => {
                       return (<TableCell key={cell.id} onClick={() => {
                         console.log("from datatable ", cell)
-                        cell.column.id !== 'select' && cell.column.id !== 'actions'  && setChildDataHandler('row', row) 
+                        cell.column.id !== 'select' && cell.column.id !== 'actions' && setChildDataHandler('row', row)
                       }}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>)

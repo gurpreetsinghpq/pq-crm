@@ -83,7 +83,7 @@ export interface LeadInterface {
         funding_currency: string | null;
         segment: string | null;
         archived: boolean;
-        
+
     };
     title: string | null;
     currency: string | null;
@@ -134,7 +134,7 @@ export interface Signin {
     password: string
 }
 
-export interface PatchLead  {
+export interface PatchLead {
     id: number;
     readOnly: true;
     created_by: string;
@@ -155,9 +155,9 @@ export interface PatchLead  {
     created_at: string;
     updated_at: string;
     reason: string
-  }
-  
-  export interface PatchOrganisation {
+}
+
+export interface PatchOrganisation {
     id: number;
     contacts: any[];
     created_by: string;
@@ -176,9 +176,9 @@ export interface PatchLead  {
     funding_currency?: string | null;
     segment?: string | null;
     archived: boolean;
-  }
-  
-  export interface PatchRoleDetails {
+}
+
+export interface PatchRoleDetails {
     id: number;
     role_type: string;
     budget_range: string;
@@ -189,21 +189,21 @@ export interface PatchLead  {
     location?: string | null;
     time_To_fill?: string | null;
     archived: boolean;
-  }
+}
 
-  export interface User {
+export interface User {
     token: string;
     email: string;
     first_name: string;
     last_name: string;
     profile: {
-      id: number;
-      name: string;
+        id: number;
+        name: string;
     };
     function: string;
-  }
+}
 
-  export interface Contact {
+export interface Contact {
     name: string
     email: string
     std_code: string
@@ -212,5 +212,37 @@ export interface PatchLead  {
     type: string
     archived: boolean
     organisation: number
-  }
-  
+}
+
+export interface ClientGetResponse {
+
+    id: number;
+    contacts: {
+        id: number;
+        name: string;
+        email: string;
+        std_code: string;
+        phone: string;
+        designation: string;
+        type: string;
+        archived: boolean;
+        organisation: number;
+    }[];
+    created_by: string;
+    updated_by: string;
+    lead_count: number;
+    name: string;
+    registered_name: string | null;
+    govt_id: string | null;
+    billing_address: string | null;
+    shipping_address: string | null;
+    industry: string;
+    domain: string;
+    size: string;
+    last_funding_stage: string;
+    last_funding_amount: string;
+    funding_currency: string | null;
+    segment: string | null;
+    archived: boolean;
+
+}
