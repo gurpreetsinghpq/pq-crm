@@ -52,7 +52,7 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
         setInputAccount("")
         fetchLeadData()
         setDetails(undefined)
-        
+        setFilteredLeadData([])
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -111,11 +111,11 @@ const AddLeadDialog = ({ children, fetchLeadData }: { children: any, fetchLeadDa
 
     return (
         <>
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog open={open} onOpenChange={setOpen} >
                 <DialogTrigger asChild>
                     {children}
                 </DialogTrigger>
-                <DialogContent className="p-0" >
+                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()}>
                     <DialogHeader >
                         <DialogTitle className="px-[24px] pt-[30px] pb-[10px]">
                             <span className="text-lg">Add Lead</span>

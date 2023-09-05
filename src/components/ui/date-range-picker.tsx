@@ -18,6 +18,7 @@ import { ChevronUpIcon, ChevronDownIcon, CheckIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Separator } from './separator'
 import { IconCalendar } from '../icons/svgIcons'
+import { useSearchParams } from 'next/navigation'
 
 export interface DateRangePickerProps {
     /** Click handler for applying the updates from DateRangePicker. */
@@ -36,6 +37,7 @@ export interface DateRangePickerProps {
     locale?: string
     /** Option for showing compare feature */
     showCompare?: boolean
+    queryParamString?: string | undefined
 }
 
 const formatDate = (date: Date, locale: string = 'en-us'): string => {
@@ -82,24 +84,25 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     onUpdate,
     align = 'end',
     locale = 'en-US',
-    showCompare = false
+    showCompare = false,
+    queryParamString = undefined
+    
 }): JSX.Element => {
         const [isOpen, setIsOpen] = useState(false)
 
-        const today = new Date();
-        const lastWeek = new Date(today);
-        lastWeek.setDate(today.getDate() - 7);
-        const from = new Date()
-        const to = new Date()
-        const first = from.getDate() - from.getDay()
-        from.setDate(first)
-        from.setHours(0, 0, 0, 0)
-        to.setHours(23, 59, 59, 999)
-
+        const searchParams = useSearchParams()
+        const queryParamIds = searchParams.get("ids")
+        let queryParam:string | undefined = undefined
+        if (queryParamIds && queryParamIds?.length > 0) {
+            queryParam = queryParamIds
+        }
+        const {from, to} = getLastWeek(queryParam)
+        console.log(from,to, queryParam)
         const [range, setRange] = useState<DateRange>({
             from: from,
             to: to
         })
+
         const [rangeCompare, setRangeCompare] = useState<DateRange | undefined>(
             initialCompareFrom
                 ? {
@@ -264,6 +267,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     normalizedRangeTo.getTime() === normalizedPresetTo.getTime()
                 ) {
                     setSelectedPreset(preset.name)
+                    console.log(preset.name)
                     return
                 }
             }
@@ -272,7 +276,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         }
 
         const resetValues = (): void => {
-            const { from, to } = getLastWeek()
+            const { from, to } = getLastWeek(queryParamString)
+
             setRange({
                 from: from,
                 to: to
@@ -355,7 +360,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                                 )
                             } */}
                             <IconCalendar size="20" />
-                            {PRESETS.find((preset) => preset.name === selectedPreset)?.label || "Custom Range"}
+                            {PRESETS.find((preset) => {  return  preset.name === selectedPreset})?.label || "Custom Range"}
                         </div>
                         <div className="pl-1 opacity-60 -mr-2 scale-125 px-2">
                             {
@@ -567,16 +572,26 @@ DateRangePicker.displayName = 'DateRangePicker'
 DateRangePicker.filePath =
     'libs/shared/ui-kit/src/lib/date-range-picker/date-range-picker.tsx'
 
-export function getLastWeek() {
-    const today = new Date()
-    const lastWeek = new Date(today)
-    lastWeek.setDate(today.getDate() - 7)
+export function getLastWeek(queryParamString:string|undefined=undefined) {
+    
+    if(queryParamString){
+        let from = new Date()
+        let to = new Date()
+        from.setTime(0);
+        to.setHours(23, 59, 59, 999);
+        return { from, to }
+    }else{
+        let today = new Date()
+        let lastWeek = new Date(today)
+        lastWeek.setDate(today.getDate() - 7)
+    
+        let from = new Date()
+        let to = new Date()
+        let first = from.getDate() - from.getDay()
+        from.setDate(first)
+        from.setHours(0, 0, 0, 0)
+        to.setHours(23, 59, 59, 999)
+        return { from, to }
 
-    const from = new Date()
-    const to = new Date()
-    const first = from.getDate() - from.getDay()
-    from.setDate(first)
-    from.setHours(0, 0, 0, 0)
-    to.setHours(23, 59, 59, 999)
-    return { from, to }
+    }
 }

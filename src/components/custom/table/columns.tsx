@@ -6,7 +6,7 @@ import { IconArchive, IconArrowDown, IconEdit } from "@/components/icons/svgIcon
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { ColumnDef } from "@tanstack/react-table"
+import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
 
 
@@ -257,7 +257,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
     {
         id: "actions",
         enableHiding: false,
-        cell: ({ row }) => {
+        cell: ({ row, cell }) => {
             const payment = row.original
 
             return (
@@ -269,7 +269,7 @@ export const columns: ColumnDef<LeadInterface>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => { }}>
+                        <DropdownMenuItem onClick={() => {console.log(cell)}}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit

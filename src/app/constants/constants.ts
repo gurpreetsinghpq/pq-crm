@@ -194,7 +194,7 @@ const TYPE: IValueLabel[] = [
     {
         value: "influencer",
         label: "Influencer",
-        class: "text-purple-700 bg-purple-50 border-purple-200"
+        class: "text-purple-700 bg-purple-50 border-purple-600"
     },
     {
         value: "decisionMaker",
@@ -256,7 +256,20 @@ const LEAD_SOURCE = [
     {
         value: "socialMedia",
         label: "Social Media"
-    }
+    },
+    {
+        value: "ra_bda",
+        label: "RA/BDA"
+    },
+    {
+        value: "vc_pe",
+        label: "VC/PE"
+    },
+    {
+        value: "leadGenPartner",
+        label: "Lead Gen Partner"
+    },
+
 ]
 
 const OWNERS: IValueLabel[] = [
@@ -293,6 +306,10 @@ const OWNERS: IValueLabel[] = [
         value: "rajgopaljakhmola",
         label: "rajgopal jakhmola"
     },
+    {
+        value: "rajjakh",
+        label: "Raj Jakh"
+    },
 ]
 
 const CREATORS: IValueLabel[] = [
@@ -323,6 +340,14 @@ const CREATORS: IValueLabel[] = [
     {
         value: "anmolGoel",
         label: "Anmol Goel"
+    },
+    {
+        value: "rajgopaljakhmola",
+        label: "rajgopal jakhmola"
+    },
+    {
+        value: "rajjakh",
+        label: "Raj Jakh"
     },
 ]
 
@@ -375,26 +400,7 @@ const SOURCES: IValueLabel[] = [
         label: "All Sources",
         isDefault: true
     },
-    {
-        value: "emailCampaign",
-        label: "Email Campaign"
-    },
-    {
-        value: "referral",
-        label: "Referral"
-    },
-    {
-        value: "hoarding",
-        label: "Hoarding"
-    },
-    {
-        value: "events",
-        label: "Events"
-    },
-    {
-        value: "linkedin",
-        label: "Linkedin"
-    },
+    ...LEAD_SOURCE
 
 ]
 
@@ -404,31 +410,7 @@ const REGIONS: IValueLabel[] = [
         label: "All Regions",
         isDefault: true
     },
-    {
-        value: "india",
-        label: "India",
-        acronym: "IND"
-    },
-    {
-        value: "usa",
-        label: "USA",
-        acronym: "USA"
-    },
-    {
-        value: "mena",
-        label: "MENA",
-        acronym: "MENA"
-    },
-    {
-        value: "apac",
-        label: "APAC",
-        acronym: "APAC"
-    },
-    {
-        value: "europe",
-        label: "Europe",
-        acronym: "EU"
-    },
+    ...REGION
 ]
 
 const COUNTRY_CODE: IValueLabel[] = [

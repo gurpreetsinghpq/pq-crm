@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  Cell,
   ColumnDef,
   ColumnFiltersState,
   SortingState,
@@ -132,7 +133,7 @@ export default function DataTable<TData, TValue>({
     table.getColumn("title")?.setFilterValue(filterObj.search)
     table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
   
-
+  console.log(filterObj)
 
   }, [filterObj])
   useEffect(() => {
@@ -180,11 +181,12 @@ export default function DataTable<TData, TValue>({
                     style={{ borderWidth: "1px" }}
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    
                   >
                     {row.getVisibleCells().map((cell) => {
                       return (<TableCell key={cell.id} onClick={() => {
-                        console.log(cell)
-                        cell.column.id !== 'select' && cell.column.id !== 'actions'  && setChildDataHandler('row', row)
+                        console.log("from datatable ", cell)
+                        cell.column.id !== 'select' && cell.column.id !== 'actions'  && setChildDataHandler('row', row) 
                       }}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>)
@@ -232,3 +234,5 @@ export default function DataTable<TData, TValue>({
     </div>
   )
 }
+
+

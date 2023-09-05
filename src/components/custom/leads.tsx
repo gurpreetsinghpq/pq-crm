@@ -114,6 +114,7 @@ const Leads = () => {
         setSelectedRowIds(ids)
         setTableLength(data.rows.length)
     }
+    const searchParams = useSearchParams()
 
     const { from, to } = getLastWeek()
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -125,6 +126,7 @@ const Leads = () => {
             owners: ['allOwners'],
             creators: ['allCreators'],
             search: "",
+            queryParamString: undefined,
             dateRange: {
                 "range": {
                     "from": from,
@@ -135,14 +137,26 @@ const Leads = () => {
         }
     })
 
-    const searchParams = useSearchParams()
-    React.useEffect(() => {
+    async function checkQueryParam(){
         const queryParamIds = searchParams.get("ids")
         if (queryParamIds && queryParamIds?.length > 0) {
             form.setValue("search", queryParamIds)
             form.setValue("queryParamString", queryParamIds)
+            
+            const {from, to} = getLastWeek(queryParamIds)
+            form.setValue("dateRange", {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            })
+            await fetchLeadData(true)
+        }else{
+            fetchLeadData()
         }
-    }, [searchParams])
+    }
+
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         toast({
@@ -159,7 +173,7 @@ const Leads = () => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     getToken()
     const token_superuser = getToken()
-    async function fetchLeadData() {
+    async function fetchLeadData(noArchiveFilter:boolean=false) {
         setIsLoading(true)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -170,7 +184,7 @@ const Leads = () => {
                 return val
             })
             dataFromApi = fdata
-            const filteredData = filterInboxOrArchive(dataFromApi, isInbox)
+            const filteredData = noArchiveFilter ?  dataFromApi :  filterInboxOrArchive(dataFromApi, isInbox)
             setLeadData(filteredData)
             setIsLoading(false)
             if (filteredData.length == 0) {
@@ -187,11 +201,9 @@ const Leads = () => {
     }
 
     React.useEffect(() => {
-
-        toast({
-            description: "Lead added successfully.",
-        })
-        fetchLeadData()
+        (async () =>{
+            await checkQueryParam()
+        })()
     }, [])
 
     const watcher = form.watch()
@@ -220,14 +232,14 @@ const Leads = () => {
     }
 
 
-    async function patchArchiveLeadData(id: number) {
+    async function patchArchiveLeadData(ids: number[]) {
 
-        const url = `${baseUrl}/v1/api/lead/${id}/`;
+        const url = `${baseUrl}/v1/api/lead/bulk_archive/`;
 
         try {
             const dataResp = await fetch(url, {
                 method: "PATCH",
-                body: JSON.stringify({ archived: isInbox }),
+                body: JSON.stringify({ leads: ids, archive: isInbox }),
                 headers: {
                     "Authorization": `Token ${token_superuser}`,
                     "Accept": "application/json",
@@ -256,12 +268,10 @@ const Leads = () => {
             return;
         }
 
-        const promisesPatch = selectedRowIds?.map((val) => {
-            return patchArchiveLeadData(val)
-        })
+        const promisePatch = patchArchiveLeadData(selectedRowIds)
 
-        Promise.all(promisesPatch)
-            .then((results) => {
+        promisePatch
+            .then((resp) => {
                 // All patching operations are complete
                 // You can run your code here
                 console.log("All patching operations are done");
@@ -292,7 +302,7 @@ const Leads = () => {
                                     </FormItem>
                                 )}
                             />
-                            <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
+                            {!form.getValues("queryParamString") && <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
@@ -318,15 +328,15 @@ const Leads = () => {
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
-                            </div>
+                            </div>}
                         </div>
                         <div className="right flex flex-row gap-4 ">
-                            <AddLeadDialog fetchLeadData={fetchLeadData} >
+                            {!form.getValues("queryParamString") && <AddLeadDialog fetchLeadData={fetchLeadData} >
                                 <Button className="flex flex-row gap-2">
                                     <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
                                     Add Lead
                                 </Button>
-                            </AddLeadDialog>
+                            </AddLeadDialog>}
 
                         </div>
                     </div>
@@ -356,7 +366,7 @@ const Leads = () => {
                             </TooltipProvider>
                         </div>
                         <div className="flex-1 flex flex-row gap-3 justify-end">
-                            {isMultiSelectOn ? <div className="multi-selected flex flex-row gap-2">
+                            {isMultiSelectOn && !form.getValues("queryParamString") ? <div className="multi-selected flex flex-row gap-2">
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <Button variant={"google"} className="flex flex-row gap-2" type="button" >
@@ -374,13 +384,13 @@ const Leads = () => {
                                             <div className='flex flex-col gap-[32px] mt-[16px] max-w-[400px]'>
                                                 <div className='flex flex-col'>
                                                     <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length>1?"Leads": "Lead"} </span> will be {isInbox? "Archived" : "Inboxed" }</div>
+                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Leads" : "Lead"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
                                                 </div>
                                                 <div className='flex flex-row gap-[12px]'>
                                                     <DialogClose asChild>
                                                         <Button className='text-md font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
                                                     </DialogClose>
-                                                    <Button onClick={archiveApi} className='text-md font-semibold px-[38px] py-[10px]'>{isInbox? "Archive":"Inbox"} Selected</Button>
+                                                    <Button onClick={archiveApi} className='text-md font-semibold px-[38px] py-[10px]'>{isInbox ? "Archive" : "Confirm"} </Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -407,6 +417,7 @@ const Leads = () => {
                                             onUpdate={(values) => form.setValue("dateRange", values)}
                                             // initialDateFrom="2023-01-01"
                                             // initialDateTo="2023-12-31"
+                                            queryParamString={form.getValues("queryParamString")}
                                             align="start"
                                             locale="en-GB"
                                             showCompare={false}
@@ -462,7 +473,7 @@ const Leads = () => {
                                                             <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-[160px]">
+                                                    <DropdownMenuContent className="w-[200px]">
                                                         {
                                                             sources.map((source) => {
                                                                 return <DropdownMenuCheckboxItem

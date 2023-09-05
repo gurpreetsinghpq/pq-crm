@@ -24,6 +24,7 @@ import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { formatData, getToken } from './leads'
+import Link from 'next/link'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -385,7 +386,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 </FormItem>
                             )}
                         />
-                        {filteredLeadData && filteredLeadData?.length > 0 && <div className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' onClick={() => window.open(`/dashboard?ids=${details?.name}`)}>
+                        {filteredLeadData && filteredLeadData?.length > 0 && <Link href={`/dashboard?ids=${details?.name}`} target='_blank' className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' >
                             <span>
                                 {filteredLeadData?.length} Exisiting {filteredLeadData?.length === 1 ? "Lead" : "Leads"}
                             </span>
@@ -393,7 +394,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                 <path d="M4 12L12 4M12 4H6.66667M12 4V9.33333" stroke="#1570EF" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
-                        </div>}
+                        </Link>}
 
                         <div className="flex flex-row gap-[10px] items-center  mt-4">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">

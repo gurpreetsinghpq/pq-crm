@@ -89,15 +89,15 @@ export interface LeadInterface {
     currency: string | null;
     service_fee: number | null;
     service_fee_range: string | null;
-    retainer_advance: number | null;
-    exclusivity: string | null;
+    retainer_advance: boolean | null;
+    exclusivity: boolean | null;
     source: string;
     status: string;
     is_converted_to_prospect: boolean;
     archived: boolean;
     created_at: string;
     updated_at: string;
-    reason: string
+    reason: string;
 };
 
 export interface ClientCompleteInterface {
@@ -202,3 +202,15 @@ export interface PatchLead  {
     };
     function: string;
   }
+
+  export interface Contact {
+    name: string
+    email: string
+    std_code: string
+    phone: string
+    designation: string
+    type: string
+    archived: boolean
+    organisation: number
+  }
+  
