@@ -283,3 +283,98 @@ interface ClientContactDetailPostBody {
     designation: string;
     type: string;
 }
+
+export interface ProspectsGetResponse {
+    id: number;
+    created_by: string;
+    updated_by: string;
+    owner: string;
+    lead: {
+        id: number;
+        created_by: string;
+        updated_by: string;
+        owner: string;
+        role: {
+            id: number;
+            role_type: string;
+            budget_range: string;
+            fixed_budget: null | any; // Replace 'any' with appropriate type
+            fixed_budget_ul: null | any; // Replace 'any' with appropriate type
+            esop_rsu: null | any; // Replace 'any' with appropriate type
+            region: string;
+            location: string;
+            time_To_fill: null | any; // Replace 'any' with appropriate type
+            archived: boolean;
+        };
+        organisation: {
+            id: number;
+            contacts: {
+                id: number;
+                name: string;
+                email: string;
+                std_code: string;
+                phone: string;
+                designation: string;
+                type: string;
+                archived: boolean;
+                organisation: number;
+            }[];
+            created_by: string;
+            updated_by: string;
+            lead_count: number;
+            name: string;
+            registered_name: null | string;
+            govt_id: null | string;
+            billing_address: null | string;
+            shipping_address: null | string;
+            industry: string;
+            domain: string;
+            size: string;
+            last_funding_stage: string;
+            last_funding_amount: string;
+            funding_currency: null | string;
+            segment: string;
+            archived: boolean;
+            created_at: string;
+            updated_at: string;
+        };
+        title: string;
+        currency: null | string;
+        service_fee: null | any; // Replace 'any' with appropriate type
+        service_fee_range: null | any; // Replace 'any' with appropriate type
+        retainer_advance: boolean;
+        exclusivity: boolean;
+        source: string;
+        status: string;
+        reason: null | string;
+        is_converted_to_prospect: boolean;
+        archived: boolean;
+        created_at: string;
+        updated_at: string;
+    };
+    status: string;
+    reason: null | string;
+    is_converted_to_deal: boolean;
+    archived: boolean;
+
+}
+
+export interface PatchProspect {
+    status: string,
+    reason: string,
+    is_converted_to_deal: boolean,
+    archived: boolean
+    owner: boolean
+    lead: Partial<PatchLead>
+}
+
+export interface ContactPostBody {
+    name: string;
+    email: string;
+    std_code: string;
+    phone: string;
+    designation: string;
+    type: string;
+    archived: boolean;
+    organisation: number;
+}

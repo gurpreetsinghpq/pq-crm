@@ -45,6 +45,7 @@ import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import { columnsContacts } from "./table/columns-contact"
+import SideSheetContacts from "./sideSheetContacts"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -276,7 +277,7 @@ const Contacts = () => {
             });
     }
 
-    const addAccountDialogButton = () => <AddLeadDialog page={"accounts"} fetchLeadData={fetchLeadData} >
+    const addAccountDialogButton = () => <AddLeadDialog page={"contacts"} fetchLeadData={fetchLeadData} >
         <Button className="flex flex-row gap-2">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add Contact
@@ -336,7 +337,7 @@ const Contacts = () => {
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Contacts" : "Contact"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Contacts" : "Contact"}` : "No Contacts"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Contacts" : "Contact"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Contacts" : "Contact"}` : "No Contacts found"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -624,7 +625,7 @@ const Contacts = () => {
                         {isInbox && addAccountDialogButton()}</>}
                 </div>)
             }
-            {/* {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} />} */}
+            {childData?.row && <SideSheetContacts parentData={{ childData, setChildDataHandler }} />}
         </div>
 
 

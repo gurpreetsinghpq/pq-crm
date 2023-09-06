@@ -13,8 +13,9 @@ import Contacts from "../custom/contacts"
 
 export default function DashboardComponent() {
     // const [currentTab, setCurrentTab] = useState("Leads")
-    const [currentTab, setCurrentTab] = useState("Accounts")
-    // const [currentTab, setCurrentTab] = useState("Contacts")
+    // const [currentTab, setCurrentTab] = useState("Prospects")
+    // const [currentTab, setCurrentTab] = useState("Accounts")
+    const [currentTab, setCurrentTab] = useState("Contacts")
     const [user, setUser] = useState<User>()
     const router = useRouter();
     useEffect(() => {
@@ -123,6 +124,7 @@ export default function DashboardComponent() {
             </div>
 
         </div>
+        <div className="text-teal-700 bg-teal-50 border-teal-600"></div>
         <div className="right flex flex-col w-full h-full">
             <div className="top w-full flex flex-row justify-between items-center px-6 py-5 border-b-2 border-gray-100 ">
                 <div className="text-xl   ">
