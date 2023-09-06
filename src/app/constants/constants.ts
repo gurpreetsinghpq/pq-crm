@@ -1,6 +1,6 @@
 import { Deferred, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
 import { IValueLabel } from "../interfaces/interface"
-import { GodfatherIcon, HustlerIcon, RockstarIcon } from "../../components/icons/labels"
+import { GODFATHER_CLASS, GodfatherIcon, HUSTLER_CLASS, HustlerIcon, ROCKSTAR_CLASS, RockstarIcon, SEGEMENT_COMMON_CLASS } from "../../components/icons/labels"
 const REGION = [
     {
         value: "india",
@@ -190,6 +190,14 @@ const DESIGNATION = [
     },
 ]
 
+const ALL_DESIGNATIONS:IValueLabel[] = [
+    {
+        value: "allDesignations",
+        label: "All Designations"
+    },
+    ...DESIGNATION
+]
+
 const TYPE: IValueLabel[] = [
     {
         value: "influencer",
@@ -226,6 +234,15 @@ const TYPE: IValueLabel[] = [
         label: "Budget Holder",
         class: "text-success-700 bg-success-50 border-success-600"
     },
+]
+
+const ALL_TYPES:IValueLabel[] = [
+    {
+        value :"allTypes",
+        label: "All Types",
+        isDefault: true
+    },
+    ...TYPE
 ]
 
 const LEAD_SOURCE = [
@@ -1320,7 +1337,7 @@ const INDUSTRY: IValueLabel[] = [
     },
     {
         value: "edTech",
-        label: "Ed Tech"
+        label: "EdTech"
     },
     {
         value: "hRTech",
@@ -1443,9 +1460,9 @@ const segmentnames = {
 }
 
 const SEGMENT: IValueLabel[] = [
-    {value:"hustler", label: segmentnames.hustler, icon: HustlerIcon},
-    {value:"rockstar", label: segmentnames.rockstar, icon: RockstarIcon},
-    {value:"godfather", label: segmentnames.godfather, icon: GodfatherIcon},
+    {value:"hustler", label: segmentnames.hustler, icon: HustlerIcon, class: `${SEGEMENT_COMMON_CLASS} ${HUSTLER_CLASS}`},
+    {value:"rockstar", label: segmentnames.rockstar, icon: RockstarIcon, class: `${SEGEMENT_COMMON_CLASS} ${ROCKSTAR_CLASS}`},
+    {value:"godfather", label: segmentnames.godfather, icon: GodfatherIcon,class: `${SEGEMENT_COMMON_CLASS} ${GODFATHER_CLASS}`},
 ]
 const ALL_SEGMENTS: IValueLabel[] = [
     {value: "allSegments", label: "All Segments"},
@@ -1549,4 +1566,4 @@ const SERVICE_FEE_RANGE: IValueLabel[] = [
 ];
 // Now the anotherValueLabels array contains the desired value-label pairs.
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS }
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES }

@@ -13,7 +13,7 @@ module.exports = {
     },
     fontSize: {
 
-      'xs':[ '12px',{
+      'xs': ['12px', {
         lineHeight: "18px",
         fontWeight: "600"
       }],
@@ -43,17 +43,17 @@ module.exports = {
         }
       ],
       '2xl': ['30px',
-      {
-        lineHeight: "38px",
-        fontWeight: "600"
-      }
+        {
+          lineHeight: "38px",
+          fontWeight: "600"
+        }
 
       ]
 
     },
     colors: {
       purple: {
-        50:"#F9F5FF",
+        50: "#F9F5FF",
         100: "#F4EBFF",
         200: "#E9D7FE",
         300: "#D6BBFB",
@@ -86,8 +86,8 @@ module.exports = {
         700: "#067647"
       },
       moss: {
-        50:"#F5FBEE",
-        600:"#4F7A21"
+        50: "#F5FBEE",
+        600: "#4F7A21"
       },
       warning: {
         50: "#FFFAEB",
@@ -114,6 +114,11 @@ module.exports = {
       },
       black: {
         900: "#000000"
+      },
+      teal: {
+        50: "#F0FDF9",
+        600: "#0E9384",
+        700: "#107569"
       }
     },
     container: {

@@ -1,6 +1,6 @@
 "use client"
 import Prospects from "@/components/custom/prospects"
-import { IconAccounts, IconAccounts2, IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
+import { IconAccounts, IconAccounts2, IconContacts, IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useState } from "react"
@@ -9,10 +9,12 @@ import { User } from "@/app/interfaces/interface"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 import Accounts from "../custom/accounts"
+import Contacts from "../custom/contacts"
 
 export default function DashboardComponent() {
     // const [currentTab, setCurrentTab] = useState("Leads")
     const [currentTab, setCurrentTab] = useState("Accounts")
+    // const [currentTab, setCurrentTab] = useState("Contacts")
     const [user, setUser] = useState<User>()
     const router = useRouter();
     useEffect(() => {
@@ -97,14 +99,18 @@ export default function DashboardComponent() {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
-            <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
-                <svg width="auto" height="auto" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <g id="user-square">
-                        <path id="Icon" d="M4.00002 21.8174C4.6026 22 5.41649 22 6.8 22H17.2C18.5835 22 19.3974 22 20 21.8174M4.00002 21.8174C3.87082 21.7783 3.75133 21.7308 3.63803 21.673C3.07354 21.3854 2.6146 20.9265 2.32698 20.362C2 19.7202 2 18.8802 2 17.2V6.8C2 5.11984 2 4.27976 2.32698 3.63803C2.6146 3.07354 3.07354 2.6146 3.63803 2.32698C4.27976 2 5.11984 2 6.8 2H17.2C18.8802 2 19.7202 2 20.362 2.32698C20.9265 2.6146 21.3854 3.07354 21.673 3.63803C22 4.27976 22 5.11984 22 6.8V17.2C22 18.8802 22 19.7202 21.673 20.362C21.3854 20.9265 20.9265 21.3854 20.362 21.673C20.2487 21.7308 20.1292 21.7783 20 21.8174M4.00002 21.8174C4.00035 21.0081 4.00521 20.5799 4.07686 20.2196C4.39249 18.6329 5.63288 17.3925 7.21964 17.0769C7.60603 17 8.07069 17 9 17H15C15.9293 17 16.394 17 16.7804 17.0769C18.3671 17.3925 19.6075 18.6329 19.9231 20.2196C19.9948 20.5799 19.9996 21.0081 20 21.8174M16 9.5C16 11.7091 14.2091 13.5 12 13.5C9.79086 13.5 8 11.7091 8 9.5C8 7.29086 9.79086 5.5 12 5.5C14.2091 5.5 16 7.29086 16 9.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-                </svg>
-
-            </div>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div onClick={() => setCurrentTab("Contacts")} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Contacts" && 'bg-purple-600'}`}>
+                            <IconContacts/>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={5}>
+                        Contacts
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
             <div className="h-1 w-2/3 mt-4 border-t-2 border-purple-800"></div>
 
             <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
@@ -119,7 +125,7 @@ export default function DashboardComponent() {
         </div>
         <div className="right flex flex-col w-full h-full">
             <div className="top w-full flex flex-row justify-between items-center px-6 py-5 border-b-2 border-gray-100 ">
-                <div className="text-xl text-gray-900  ">
+                <div className="text-xl   ">
                     {currentTab}
                 </div>
                 <div className="flex flex-row ">
@@ -152,6 +158,7 @@ export default function DashboardComponent() {
                 {currentTab === 'Leads' && <Leads />}
                 {currentTab === 'Prospects' && <Prospects />}
                 {currentTab === 'Accounts' && <Accounts />}
+                {currentTab === 'Contacts' && <Contacts />}
 
             </div>
         </div>

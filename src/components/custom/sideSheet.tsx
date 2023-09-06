@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -186,9 +186,9 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     }
 
     const LabelIcon = () => {
-        const d = LAST_FUNDING_STAGE.find((val) => val.label === data.organisation.last_funding_stage)
-
-        return <>{d && <d.icon />}</>
+        // const d = LAST_FUNDING_STAGE.find((val) => val.label === data.organisation.last_funding_stage)
+        const d = SEGMENT.find(val=>val.label===data.organisation.segment) 
+        return <>{d && <d.icon /> }</>
     }
 
 
@@ -224,12 +224,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     })
     const watcher = form.watch()
 
-    useEffect(() => {
-        const mapboxtoken = "pk.eyJ1IjoicmFqZyIsImEiOiJjbG02Ymh1NWEwMGc5M2Rsd3NrZWdnODI0In0.x2wtzTtdLbRMPOKXyY_vBA"
-        fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?q=${form.getValues("locations")}&access_token=${mapboxtoken}`).then((res) => res.json()).then((data) => {
-            console.log("mapboxdata", data)
-        })
-    }, [watcher.locations])
 
     useEffect(() => {
         safeparse2()
@@ -1216,7 +1210,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                 </div>
                                 <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                     <span>Account Details</span>
-                                    {data.organisation.last_funding_stage && <LabelIcon />}
+                                    <div> <LabelIcon/> </div>
                                 </span>
                                 <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
                                     <TooltipProvider>

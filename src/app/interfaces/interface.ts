@@ -246,3 +246,40 @@ export interface ClientGetResponse {
     archived: boolean;
 
 }
+
+export interface ContactsGetResponse {
+    id: number;
+    name: string;
+    email: string;
+    std_code: string;
+    phone: string;
+    designation: string;
+    type: string;
+    archived: boolean;
+    organisation: number;
+}
+
+export interface ClientPostBody {
+    name: string;
+    govt_id: string;
+    registered_name: string;
+    billing_address: string;
+    shipping_address: string;
+    industry: string;
+    domain: string;
+    size: string;
+    last_funding_stage: string;
+    last_funding_amount: string;
+    funding_currency?: string;
+    contact_details: ClientContactDetailPostBody[];
+    segment: string;
+}
+
+interface ClientContactDetailPostBody {
+    name: string;
+    email: string;
+    std_code: string;
+    phone: string;
+    designation: string;
+    type: string;
+}

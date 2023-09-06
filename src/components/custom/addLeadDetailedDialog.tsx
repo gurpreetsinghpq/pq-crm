@@ -196,23 +196,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         const leadSourceLabel = specificValueFinder(formData.leadSource, leadSource)?.label
         const roleTypeLabel = specificValueFinder(formData.roleType, roleType)?.label
         const createdOn = new Date()
-        const createdBy = CREATORS[(Math.floor(Math.random() * (CREATORS.length - 1))) != 0 ? (Math.floor(Math.random() * (CREATORS.length - 1))) : 1].label
-        const owner = OWNERS[(Math.floor(Math.random() * (OWNERS.length - 1))) != 0 ? (Math.floor(Math.random() * (OWNERS.length - 1))) : 1].label
-        console.log(regionLabel, budgetLabel, leadSourceLabel, roleTypeLabel, createdOn, createdBy, owner)
-        // setData({
-        //     budgetRange: budgetLabel,
-        //     id: Math.floor(Math.random() * 10000).toString(),
-        //     owner: owner,
-        //     region: regionLabel,
-        //     createdBy: createdBy,
-        //     createdOn: createdOn.toISOString(),
-        //     source: leadSourceLabel,
-        //     status: "Unverified",
-        //     title: `${formData.organisationName} - ${regionLabel} - ${roleTypeLabel}`,
-        //     role: roleTypeLabel,
-        //     contacts: dummyContactData
-        // })
-
+        
         const regionAcronym = acronymFinder(regionLabel, REGION)
         const roleTypeAcronym = acronymFinder(roleTypeLabel, ROLETYPE)
 

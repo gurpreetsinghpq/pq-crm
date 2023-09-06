@@ -1,7 +1,7 @@
 "use client"
 
-import { LAST_FUNDING_STAGE, SEGMENT, STATUSES } from "@/app/constants/constants"
-import { ClientGetResponse, LeadInterface } from "@/app/interfaces/interface"
+import { LAST_FUNDING_STAGE, STATUSES, TYPE } from "@/app/constants/constants"
+import { ClientGetResponse, ContactsGetResponse, LeadInterface } from "@/app/interfaces/interface"
 import { IconArchive, IconArrowDown, IconEdit } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -37,26 +37,23 @@ import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-
 //     contactId: string
 // }
 
-function getClassOfSegment(segmentName: string) {
-    const segment = SEGMENT.find((segment) => segment.label === segmentName)
-    const render = <div className={`flex flex-row gap-2 items-center text-sm font-medium justify-center items-center pl-[8px] pr-[10px] py-[4px]  w-fit ${!segment?.isDefault && 'border border-[1.5px] rounded-[8px]'} ${segment?.class} `}>
-        {segment?.label}
+function getClassOfType(typeName: string) {
+    const status = TYPE.find((type) => type.label === typeName)
+    const render = <div className={`flex flex-row gap-2 items-center  pl-2 pr-3 py-1 w-fit ${!status?.isDefault && 'border border-[1.5px] rounded-[8px]'} ${status?.class} `}>
+        {status?.label}
     </div>
-    if(segment?.label){
-        return render
-    }else{
-        return "—"
-    }
+    return render
 }
 function getIcon(segmentName: string) {
-    const lastFundingStage = LAST_FUNDING_STAGE.find((status) => status.acronym === segmentName)
+    const lastFundingStage = TYPE.find((status) => status.acronym === segmentName)
     const render = <>{lastFundingStage?.icon && <lastFundingStage.icon /> || "—"}</>
         
     
     return render
 }
 
-export const columnsClient: ColumnDef<ClientGetResponse>[] = [
+
+export const columnsContacts: ColumnDef<ContactsGetResponse>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -101,6 +98,7 @@ export const columnsClient: ColumnDef<ClientGetResponse>[] = [
     // },    
     {
         accessorKey: "name",
+        accessorFn: (row) => `${row.name}{}${row.email}`,
         header: ({ column }) => {
             return (
                 <div
@@ -112,160 +110,142 @@ export const columnsClient: ColumnDef<ClientGetResponse>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("name")}</span>
+        cell: ({ row }) => <div><span className="text-gray-900 text-sm">{getTextMultiLine(row.getValue("name"))}</span></div>
     },
     {
-        accessorKey: "industry",
-        accessorFn: (originalRow, index) => originalRow.industry,
+        accessorKey: "organisation",
+        accessorFn: (originalRow, index) => originalRow.organisation,
         header: ({ column }) => {
             return (
                 <div
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Industry
+                    Accounts
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("industry") ||  "—" }</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("organisation") ||  "—" }</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
-        accessorKey: "domain",
+        accessorKey: "designation",
         header: ({ column }) => {
             return (
                 <div
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Domain
+                    Designation
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("domain") || "—"}</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("designation") || "—"}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
-        accessorKey: "segment",
+        accessorKey: "phone",
+        accessorFn: (row) => `${row.std_code} ${row.phone}`,
         header: ({ column }) => {
             return (
                 <div
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Segment
+                    Mobile
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 font-normal">{getClassOfSegment(row.getValue("segment"))}</div>,
+        cell: ({ row }) =>  <div className="text-gray-600 text-sm font-normal">{` ${row.getValue("phone")}` || "—"}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
-        accessorKey: "size",
-        accessorFn: (originalRow, index) => originalRow.size,
+        accessorKey: "type",
         header: ({ column }) => {
             return (
                 <div
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Size
+                    Type
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("size") || "—"}</div>,
+        cell: ({ row }) => <div className="text-gray-600 font-normal">{getClassOfType(row.getValue("type"))}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
-    {
-        accessorKey: "last_funding_stage",
-        header: ({ column }) => {
-            return (
-                <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Last Funding Stage
-                    {/* <IconArrowDown size={20} /> */}
-                </div>
-            )
-        },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("last_funding_stage") || "—"}</div>,
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
-        },
-    },
-    {
-        accessorKey: "created_by",
-        header: ({ column }) => {
-            return (
-                <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Created By
-                    {/* <IconArrowDown size={20} /> */}
-                </div>
-            )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by")}</div>,
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
-        },
-    },
-    {
-        accessorKey: "created_at",
-        header: ({ column }) => {
-            return (
-                <div
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
-                >
-                    Created On
-                    <IconArrowDown size={20} />
+    // {
+    //     accessorKey: "created_by",
+    //     header: ({ column }) => {
+    //         return (
+    //             <div
+    //                 // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+    //             >
+    //                 Created By
+    //                 {/* <IconArrowDown size={20} /> */}
+    //             </div>
+    //         )
+    //     }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by")}</div>,
+    //     filterFn: (row, id, value) => {
+    //         return value.includes(row.getValue(id))
+    //     },
+    // },
+    // {
+    //     accessorKey: "created_at",
+    //     header: ({ column }) => {
+    //         return (
+    //             <div
+    //                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+    //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
+    //             >
+    //                 Created On
+    //                 <IconArrowDown size={20} />
                     
-                </div>
-            )
-        },
-        cell: ({ row }) => <div className=" font-normal">
-            {multiLine(row.getValue("created_at"))}
+    //             </div>
+    //         )
+    //     },
+    //     cell: ({ row }) => <div className=" font-normal">
+    //         {multiLine(row.getValue("created_at"))}
 
-        </div>,
-        filterFn: (row, id, value) => {
-            const { range } = value
-            if (range) {
-                const startDate = range?.from;
-                const endDate = range?.to;
-                if (startDate && endDate) {
-                    const createdOnDate = new Date(row.getValue(id));
-                    endDate.setHours(23, 59, 0, 0)
+    //     </div>,
+    //     filterFn: (row, id, value) => {
+    //         const { range } = value
+    //         if (range) {
+    //             const startDate = range?.from;
+    //             const endDate = range?.to;
+    //             if (startDate && endDate) {
+    //                 const createdOnDate = new Date(row.getValue(id));
+    //                 endDate.setHours(23, 59, 0, 0)
 
-                    if (!startDate || !endDate) {
-                        return true; // No date range specified, don't apply filtering
-                    }
+    //                 if (!startDate || !endDate) {
+    //                     return true; // No date range specified, don't apply filtering
+    //                 }
 
 
-                    return createdOnDate >= startDate && createdOnDate <= endDate;
-                }
-                return true
-            }
-            return true
-        },
-        sortingFn: (a, b) => {
-            // console.log(a.getValue("created_at"))
-            return +new Date(b.getValue("created_at")) - +new Date(a.getValue("created_at"));
-        },
-    },
+    //                 return createdOnDate >= startDate && createdOnDate <= endDate;
+    //             }
+    //             return true
+    //         }
+    //         return true
+    //     },
+    //     sortingFn: (a, b) => {
+    //         // console.log(a.getValue("created_at"))
+    //         return +new Date(b.getValue("created_at")) - +new Date(a.getValue("created_at"));
+    //     },
+    // },
     {
         id: "actions",
         enableHiding: false,
@@ -309,6 +289,15 @@ const multiLine = (dateStr: any) => {
         <div className="text-gray-600 text-xs font-normal">{time}</div>
     </>
 }
+const getTextMultiLine = (text: any) => {
+    const [name, email] = text.split("{}");
+    return <>
+        <div className="text-gray-900 text-sm font-normal">{name}</div>
+        <div className="text-gray-600 text-xs font-normal">{email}</div>
+    </>
+}
+
+
 
 
 function formatUtcDateToLocal(backendUtcDate: any) {

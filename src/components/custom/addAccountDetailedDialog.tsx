@@ -18,7 +18,7 @@ import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
 import { IconAccounts, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
-import { Client, ClientCompleteInterface, ContactDetail, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
+import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
@@ -35,16 +35,17 @@ const required_error = {
 
 const FormSchema = z.object({
     organisationName: z.string(required_error), // [x]
-    industry: z.string().optional(), // [x]
-    domain: z.string().optional(), // [x]
-    size: z.string().optional(), // [x]
-    lastFundingStage: z.string().optional(), // [x]
-    lastFundingAmount: z.string().optional(), // [x]
+    industry: z.string(), // [x]
+    domain: z.string(), // [x]
+    size: z.string(), // [x]
+    lastFundingStage: z.string(), // [x]
+    lastFundingAmount: z.string(), // [x]
     registeredName: z.string().optional(),
     gstinVatGstNo: z.string().optional(),
     billingAddress: z.string().optional(),
-    shippingAddress: z.string().optional(),
-    contacts: z.string().optional()
+    shippingAddress: z.string(),
+    contacts: z.string().optional(),
+    sameAsBillingAddress: z.boolean().optional()
 })
 
 const FormSchema2 = z.object({
@@ -117,12 +118,19 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
 
     useEffect(() => {
         // console.log(form.getValues())
+        const same=form.getValues("sameAsBillingAddress")
+        
+        const billingAddress = form.getValues("billingAddress") || ""
+        if(same){
+            form.setValue("shippingAddress", billingAddress )
+        }else{
+            form.setValue("shippingAddress", "")
+        }
+        console.log(form.getValues())
+    }, [watcher1.sameAsBillingAddress, watcher1.billingAddress])
+    // useEffect(() => {
 
-    }, [watcher1])
-    useEffect(() => {
-        console.log(form2.getValues())
-
-    }, [watcher2])
+    // }, [watcher2])
 
     useEffect(() => {
         console.log("details", details)
@@ -138,7 +146,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
 
     }, [])
 
-    console.log(dummyContactData)
+    // console.log(dummyContactData)
 
 
     function addContact() {
@@ -188,48 +196,21 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         })
     }
 
-    async function addToLead() {
+    async function addToContact() {
         const formData = form.getValues()
-        // const regionLabel = specificValueFinder(formData.region, region)?.label
-        // const budgetLabel = specificValueFinder(formData.budget, budgetRange[form.getValues("region")])?.label
-        // const leadSourceLabel = specificValueFinder(formData.leadSource, leadSource)?.label
-        // const roleTypeLabel = specificValueFinder(formData.roleType, roleType)?.label
-        const createdOn = new Date()
-        const createdBy = CREATORS[(Math.floor(Math.random() * (CREATORS.length - 1))) != 0 ? (Math.floor(Math.random() * (CREATORS.length - 1))) : 1].label
-        const owner = OWNERS[(Math.floor(Math.random() * (OWNERS.length - 1))) != 0 ? (Math.floor(Math.random() * (OWNERS.length - 1))) : 1].label
-        // console.log(regionLabel, budgetLabel, leadSourceLabel, roleTypeLabel, createdOn, createdBy, owner)
-        // setData({
-        //     budgetRange: budgetLabel,
-        //     id: Math.floor(Math.random() * 10000).toString(),
-        //     owner: owner,
-        //     region: regionLabel,
-        //     createdBy: createdBy,
-        //     createdOn: createdOn.toISOString(),
-        //     source: leadSourceLabel,
-        //     status: "Unverified",
-        //     title: `${formData.organisationName} - ${regionLabel} - ${roleTypeLabel}`,
-        //     role: roleTypeLabel,
-        //     contacts: dummyContactData
-        // })
-
-        // const regionAcronym = acronymFinder(regionLabel, REGION)
-        // const roleTypeAcronym = acronymFinder(roleTypeLabel, ROLETYPE)
-
-        // let incrementalNumber: number = 1
-        // filteredLeadData?.forEach((val) => {
-        //     const dataArr = val.title?.split(" ").join("").split("-")
-        //     if (dataArr) {
-        //         const [orgNameL, regL, roleL] = dataArr
-        //         console.log(orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase())
-        //         console.log(orgNameL.toLowerCase(), formData.organisationName.toLowerCase(), regionAcronym?.toLowerCase(), regL.toLowerCase(), roleTypeAcronym?.toLowerCase(), roleL.toLowerCase())
-        //         if (orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase()) {
-        //             incrementalNumber++
-        //         }
-        //     }
-        // })
-        // const title = `${formData.organisationName} - ${regionAcronym} - ${roleTypeAcronym} - ${incrementalNumber}`
+        const industryLabel = specificValueFinder(formData.industry, INDUSTRY)?.label
+        const domainLabel = specificValueFinder(formData.domain, DOMAINS)?.label
+        const sizeLabel = specificValueFinder(formData.size, SIZE_OF_COMPANY)?.label
+        const lastFundingStageLabel = specificValueFinder(formData.lastFundingStage, LAST_FUNDING_STAGE)?.label
+        const lastFundingAmountLabel = specificValueFinder(formData.lastFundingAmount, LAST_FUNDING_AMOUNT)?.label
+        const registeredName = formData.registeredName || ""
+        const gstinVatGstNo = formData.gstinVatGstNo || ""
+        const billingAddress = formData.billingAddress || ""
+        const shippingAddress = formData.shippingAddress || ""
+        const organisationName = formData.organisationName || ""
+        const segment = LAST_FUNDING_STAGE.find((stage)=>form.getValues("lastFundingStage")===stage.value)?.acronym || ""
         const finalContactData = dummyContactData.filter((contact) => !contact.id)
-
+        
         let keysToRemove: any = ["contactId", "isLocallyAdded",]
         finalContactData.forEach((item) => {
             keysToRemove.forEach((key: string) => {
@@ -239,40 +220,37 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             });
         })
 
-        // const dataToSend: Client = {
-        //     title: title,
+        const dataToSend: ClientPostBody = {
+            billing_address: billingAddress,
+            shipping_address: shippingAddress,
+            contact_details: finalContactData,
+            domain: domainLabel,
+            last_funding_amount: lastFundingAmountLabel,
+            last_funding_stage: lastFundingStageLabel,
+            govt_id: gstinVatGstNo,
+            industry: industryLabel,
+            name: organisationName,
+            registered_name: registeredName,
+            size: sizeLabel,
+            segment: segment
+        }
 
-        //     organisation: {
-        //         contact_details: finalContactData,
-        //         name: formData.organisationName,
+       
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+        const token_superuser = getToken()
 
-        //     },
-        //     role_details: {
-        //         budget_range: budgetLabel,
-        //         region: regionLabel,
-        //         role_type: roleTypeLabel
-        //     },
-        //     source: leadSourceLabel
-        // }
-        // if (details?.id) {
-        //     dataToSend.organisation.id = details.id
-        // }
+        console.log(dataToSend)
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+            dataFromChild()
+            form.reset()
+            resetForm2()
 
-        // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-        // const token_superuser = getToken()
-
-        // console.log(dataToSend)
-        // try {
-        //     const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-        //     const result = await dataResp.json()
-        //     console.log(result)
-        //     dataFromChild()
-        //     form.reset()
-        //     resetForm2()
-
-        // } catch (err) {
-        //     console.log(err)
-        // }
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     function specificValueFinder(lookupValue: string, array: any[]): IValueLabel {
@@ -362,7 +340,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                             <span className="text-xs text-gray-700">ACCOUNT</span>
                             <div className="bg-gray-200 h-[1px] w-full" ></div>
                         </div>
-                        <div className="flex flex-row gap-4 w-full mt-3">
+                        <div className="flex flex-row gap-4 w-full mt-[24px]">
                             <FormField
                                 control={form.control}
                                 name="organisationName"
@@ -391,13 +369,15 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                {
-                                                    INDUSTRY.map((industry, index) => {
-                                                        return <SelectItem key={index} value={industry.value}>
-                                                            {industry.label}
-                                                        </SelectItem>
-                                                    })
-                                                }
+                                                <div className='h-[200px] overflow-y-auto'>
+                                                    {
+                                                        INDUSTRY.map((industry, index) => {
+                                                            return <SelectItem key={index} value={industry.value}>
+                                                                {industry.label}
+                                                            </SelectItem>
+                                                        })
+                                                    }
+                                                </div>
                                             </SelectContent>
                                         </Select>
                                         {/* <FormDescription>
@@ -407,8 +387,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     </FormItem>
                                 )}
                             />
+
                         </div>
-                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                        <div className='flex flex-row gap-4 mt-[24px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="domain"
@@ -462,7 +443,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 )}
                             />
                         </div>
-                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                        <div className='flex flex-row gap-4 mt-[24px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="lastFundingStage"
@@ -516,14 +497,14 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 )}
                             />
                         </div>
-                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                        <div className='flex flex-row gap-4 mt-[24px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="registeredName"
                                 render={({ field }) => (
                                     <FormItem className='flex-1'>
                                         <FormControl>
-                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Registerred Name" {...field} />
+                                            <Input type="text" className={` ${commonClasses}`} placeholder="Registered Name (Optional)" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -534,35 +515,56 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 render={({ field }) => (
                                     <FormItem className='flex-1'>
                                         <FormControl>
-                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="GSTIN/VAT/GST No" {...field} />
+                                            <Input type="text" className={` ${commonClasses}`} placeholder="GSTIN/VAT/GST No (Optional)" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
                             />
 
                         </div>
-                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                        <div className='flex flex-row gap-4 mt-[24px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="billingAddress"
                                 render={({ field }) => (
                                     <FormItem className='flex-1'>
                                         <FormControl>
-                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Billing Address" {...field} />
+                                            <Input type="text" className={` ${commonClasses}`} placeholder="Billing Address (Optional)" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
                             />
 
                         </div>
-                        <div className='flex flex-row gap-4 mt-3 w-full '>
+                        <div className='flex flex-row mt-[24px] gap-[8px]'>
+                            <FormField
+                                control={form.control}
+                                name="sameAsBillingAddress"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center gap-[8px]">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        <FormLabel >
+                                            <div className="text-sm mb-[6px] font-medium text-gray-700 ">
+                                                Same as Billing Address
+                                            </div>
+                                        </FormLabel>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <div className='flex flex-row gap-4 mt-[4px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="shippingAddress"
                                 render={({ field }) => (
                                     <FormItem className='flex-1'>
                                         <FormControl>
-                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Shipping Address" {...field} />
+                                            <Input type="text" className={` ${commonClasses}`} placeholder="Shipping Address" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -578,12 +580,12 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconContacts size="20" />
                             </div>
-                            <span className="text-xs text-gray-700">CONTACT</span>
+                            <span className="text-xs text-gray-700">CONTACTS</span>
                             <div className="bg-gray-200 h-[1px] flex-1" ></div>
                             <div className={`text-sm text-purple-700  ${!showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showContactForm && addNewForm()}>+ Add</div>
                         </div>
                         {dummyContactData.length > 0 && <div className={`flex flex-col w-full mt-4  pr-[16px] max-h-[340px] overflow-y-auto   ${showContactForm && "h-[150px] overflow-y-scroll "} `}>
-                            <div className='flex flex-col w-full'>
+                            <div className='flex flex-col w-full grid grid-cols-2 gap-[24px]'>
                                 {
                                     dummyContactData.map((item: any, index: number) => (
                                         <div className='relative flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
@@ -828,7 +830,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                     </DialogContent>
                 </Dialog>
                 {/* </DialogClose> */}
-                <Button disabled={!(form.formState.isValid && dummyContactData.length > 0)} onClick={() => addToLead()}>Save & Add</Button>
+                <Button disabled={!(form.formState.isValid && dummyContactData.length > 0)} onClick={() => addToContact()}>Save & Add</Button>
             </div>
 
         </div >

@@ -116,7 +116,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
             case "leads":
                 return <AddLeadDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details} filteredLeadData={filteredLeadData} />
             case "accounts":
-                return<AddAcountDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details} filteredLeadData={filteredLeadData}/>
+                return <AddAcountDetailedDialog dataFromChild={dataFromChild} inputAccount={inputAccount} details={details} filteredLeadData={filteredLeadData} />
             default:
                 return <></>
         }
@@ -128,6 +128,25 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                 return "Add Lead"
             case "accounts":
                 return "Add Account"
+        }
+    }
+
+    function chcekPageAndLink(details: ClientCompleteInterface) {
+        switch (page) {
+            case "leads":
+                openExpanedWFilledDetails(details)
+                break;
+            case "accounts":
+                break;
+        }
+    }
+
+    function getClassAccToPage() {
+        switch (page) {
+            case "accounts":
+                return `max-h-[600px] overflow-y-auto`
+            default:
+                return ""
         }
     }
 
@@ -144,7 +163,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                         </DialogTitle>
                     </DialogHeader>
                     {/* <Separator className="bg-gray-200 h-[1px] " /> */}
-                    <div className={`flex flex-col ${isExpanded ? 'w-[800px]' : 'w-[500px]'}`}>
+                    <div className={`flex flex-col ${isExpanded ? 'w-[830px]' : 'w-[500px]'} ${getClassAccToPage()}`}>
                         {!isExpanded ? <div className="flex flex-col mx-6 gap-2">
                             <div className="flex flex-row gap-[10px] items-center">
                                 <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
@@ -159,14 +178,14 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                                     <CommandEmpty>No results found.</CommandEmpty>
                                     {dataFromApi.map((item: ClientCompleteInterface, index) => (
                                         <CommandItem key={index} className="flex flex-row  justify-between px-0 py-0" >
-                                            <div className='flex flex-row justify-between w-full items-center pointer px-4 py-4 cursor-pointer' onClick={() => openExpanedWFilledDetails(item)}>
+                                            <div className='flex flex-row justify-between w-full items-center pointer px-4 py-4 cursor-pointer' onClick={() => chcekPageAndLink(item)}>
                                                 <div className="flex flex-row gap-2">
                                                     <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                                         <IconBuildings size="20" />
                                                     </div>
                                                     <span>{item?.name}</span>
                                                 </div>
-                                                <span className='text-lg text-gray-700'>🡵</span>
+                                                {page === "leads" && <span className='text-lg text-gray-700'>🡵</span>}
                                             </div>
                                         </CommandItem>
                                     ))}

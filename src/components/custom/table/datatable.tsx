@@ -25,11 +25,11 @@ import {
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
-import { ALL_LAST_FUNDING_STAGE, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
+import { ALL_DESIGNATIONS, ALL_LAST_FUNDING_STAGE, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
 import { IValueLabel } from "@/app/interfaces/interface"
 import { TableContext } from "@/app/helper/context"
 
-interface LeadInterfaceFilter{
+interface LeadInterfaceFilter {
   regions?: string[]
   sources?: string[]
   statuses?: string[]
@@ -39,7 +39,7 @@ interface LeadInterfaceFilter{
   dateRange?: any,
   queryParamString?: string
 }
-interface AccountInterfaceFilter{
+interface AccountInterfaceFilter {
   industries?: string[]
   domains?: string[]
   segments?: string[]
@@ -51,7 +51,15 @@ interface AccountInterfaceFilter{
   queryParamString?: string
 }
 
-type FilterObject = LeadInterfaceFilter & AccountInterfaceFilter 
+interface ContactInterfaceFilter {
+  designations?: string[]
+  types?: string[]
+  search?: string,
+  dateRange?: any,
+  queryParamString?: string
+}
+
+type FilterObject = LeadInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -111,6 +119,9 @@ export default function DataTable<TData, TValue>({
         break;
       case "accounts":
         setAccountFilter()
+        break;
+      case "contacts":
+        setContactFilter()
         break;
     }
 
@@ -221,8 +232,38 @@ export default function DataTable<TData, TValue>({
 
 
     // table.getColumn("id")?.setFilterValue(filterObj.ids)
-    table.getColumn("title")?.setFilterValue(filterObj.search)
+    table.getColumn("name")?.setFilterValue(filterObj.search)
     table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+  }
+  function setContactFilter() {
+    if (filterObj?.designations && filterObj.designations.includes("allDesignations")) {
+      table.getColumn("designation")?.setFilterValue("")
+    }
+    else {
+      const designationFilter = valueToLabel("designations", ALL_DESIGNATIONS)
+      table.getColumn("designation")?.setFilterValue(designationFilter)
+    }
+
+    if (filterObj?.types && filterObj.types.includes("allTypes")) {
+      table.getColumn("type")?.setFilterValue("")
+    }
+    else {
+      const typeFilter = valueToLabel("types", ALL_TYPES)
+      table.getColumn("type")?.setFilterValue(typeFilter)
+    }
+
+    // if (filterObj?.creators && filterObj.creators.includes("allCreators")) {
+    //   table.getColumn("creator")?.setFilterValue("")
+    // }
+    // else {
+    //   const creatorFilter = valueToLabel("creators", CREATORS)
+    //   table.getColumn("creator")?.setFilterValue(creatorFilter)
+    // }
+
+
+    // table.getColumn("id")?.setFilterValue(filterObj.ids)
+    table.getColumn("name")?.setFilterValue(filterObj.search)
+    // table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
   }
 
   function handleTableChange() {
