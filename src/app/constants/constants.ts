@@ -173,6 +173,10 @@ const DESIGNATION = [
         label: "CTO",
     },
     {
+        value: "siteLead",
+        label: "Site Lead",
+    },
+    {
         value: "taHead",
         label: "TA Head",
     },
@@ -185,8 +189,12 @@ const DESIGNATION = [
         label: "Consultant",
     },
     {
-        value: "siteLead",
-        label: "Site Lead",
+        value: "manager",
+        label: "Manager",
+    },
+    {
+        value: "executive",
+        label: "Executive",
     },
 ]
 
@@ -202,37 +210,37 @@ const TYPE: IValueLabel[] = [
     {
         value: "influencer",
         label: "Influencer",
-        class: "text-purple-700 bg-purple-50 border-purple-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-purple-700 bg-purple-50 border-purple-600"
     },
     {
         value: "decisionMaker",
         label: "Decision Maker",
-        class: "text-success-700 bg-success-50 border-success-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600"
     },
     {
         value: "gatekeeper",
         label: "Gatekeeper",
-        class: "text-error-700 bg-error-50 border-error-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-error-700 bg-error-50 border-error-600"
     },
     {
         value: "investor",
         label: "Investor",
-        class: "text-success-700 bg-success-50 border-success-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600"
     },
     {
         value: "legal",
         label: "Legal",
-        class: "text-warning-700 bg-warning-50 border-warning-500"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-warning-700 bg-warning-50 border-warning-500"
     },
     {
         value: "accountsPayable",
         label: "Accounts Payable",
-        class: "text-warning-700 bg-warning-50 border-warning-500"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-warning-700 bg-warning-50 border-warning-500"
     },
     {
         value: "budgetHolder",
         label: "Budget Holder",
-        class: "text-success-700 bg-success-50 border-success-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600"
     },
 ]
 
@@ -265,10 +273,6 @@ const LEAD_SOURCE = [
     {
         value: "linkedin",
         label: "LinkedIn"
-    },
-    {
-        value: "youtube",
-        label: "Youtube"
     },
     {
         value: "socialMedia",
@@ -386,31 +390,31 @@ const STATUSES: IValueLabel[] = [
         value: "unverified",
         label: "Unverified",
         icon: Unverified,
-        class: "border-gray-600 bg-gray-50 text-gray-700"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-gray-600 bg-gray-50 text-gray-700 "
     },
     {
         value: "verified",
         label: "Verified",
         icon: Verified,
-        class: "border-success-600 bg-success-50 text-success-600"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-success-600 bg-success-50 text-success-600"
     },
     {
         value: "deferred",
         label: "Deferred",
         icon: Deferred,
-        class: "border-warning-600 bg-warning-50 text-warning-500"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-warning-600 bg-warning-50 text-warning-500"
     },
     {
         value: "lost",
         label: "Lost",
         icon: Lost,
-        class: "border-error-600 bg-error-50 text-error-700"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
     },
     {
         value: "junk",
         label: "Junk",
         icon: Junk,
-        class: "border-yellow-700 bg-yellow-25 text-yelow-800"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-yellow-700 bg-yellow-25 text-yelow-800"
     },
 ]
 
@@ -419,32 +423,32 @@ const PROSPECT_STATUSES: IValueLabel[] = [
         value: "qualified",
         label: "Qualified",
         icon: Verified,
-        class: "border-success-600 bg-success-50 text-success-600"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-success-600 bg-success-50 text-success-600"
     },
     {
         value: "disqualified",
         label: "Disqualified",
         icon: Unverified,
-        class: "border-gray-600 bg-gray-50 text-gray-700"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-gray-600 bg-gray-50 text-gray-700"
     },
     {
         value: "deferred",
         label: "Deferred",
         icon: Deferred,
-        class: "border-warning-600 bg-warning-50 text-warning-500"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-warning-600 bg-warning-50 text-warning-500"
     },
     {
         value: "lost",
         label: "Lost",
         icon: Lost,
-        class: "border-error-600 bg-error-50 text-error-700"
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
     }
     
 ]
 const ALL_PROSPECT_STATUSES:IValueLabel[] = [
     {
         value: "allStatuses",
-        label:"Statuses",
+        label:"All Statuses",
         isDefault: true
     },
     ...PROSPECT_STATUSES
@@ -470,8 +474,8 @@ const REGIONS: IValueLabel[] = [
 
 const COUNTRY_CODE: IValueLabel[] = [
     {
-        "value": "+ 213",
-        "label": "+ 213 Algeria"
+        "value": "+213",
+        "label": "+213 Algeria"
     },
     {
         "value": "+376",
@@ -1362,6 +1366,10 @@ const INDUSTRY: IValueLabel[] = [
         label: "EnterpriseTech & SaaS"
     },
     {
+        value: "consumer_services",
+        label: "Consumer Services"
+    },
+    {
         value: "adTech",
         label: "AdTech"
     },
@@ -1371,7 +1379,7 @@ const INDUSTRY: IValueLabel[] = [
     },
     {
         value: "transportTech",
-        label: "Transport Tech"
+        label: "TransportTech"
     },
     {
         value: "edTech",
@@ -1433,10 +1441,7 @@ const INDUSTRY: IValueLabel[] = [
         value: "bfsi",
         label: "BFSI"
     },
-    {
-        value: "consumer_services",
-        label: "Consumer Services"
-    },
+    
     {
         value: "energy_and_utilities",
         label: "Energy & Utilities"
@@ -1503,7 +1508,7 @@ const SEGMENT: IValueLabel[] = [
     {value:"godfather", label: segmentnames.godfather, icon: GodfatherIcon,class: `${SEGEMENT_COMMON_CLASS} ${GODFATHER_CLASS}`},
 ]
 const ALL_SEGMENTS: IValueLabel[] = [
-    {value: "allSegments", label: "All Segments"},
+    {value: "allSegments", label: "All Segments", isDefault:true},
     ...SEGMENT
 ]
 
@@ -1601,7 +1606,71 @@ const SERVICE_FEE_RANGE: IValueLabel[] = [
         value: "gt30",
         label: "Above 30%"
     }
+]
+;
+const FUNCTION: IValueLabel[] = [
+    {
+        value: "ra",
+        label: "RA"
+    },
+    {
+        value: "sales",
+        label: "Sales"
+    },
+    {
+        value: "fulfillment",
+        label: "Fulfillment"
+    },
+    {
+        value: "finance",
+        label: "Finance"
+    },
+    {
+        value: "hr",
+        label: "HR"
+    },
+    {
+        value: "tech",
+        label: "Tech"
+    },
+    {
+        value: "leadership",
+        label: "Leadership"
+    },
+    {
+        value: "marketing",
+        label: "Marketing"
+    },
 ];
-// Now the anotherValueLabels array contains the desired value-label pairs.
+const PROFILE: IValueLabel[] = [
+    {
+        value: "admin",
+        label: "Admin"
+    },
+    {
+        value: "teamLeader",
+        label: "Team Leader"
+    },
+    {
+        value: "teamMember",
+        label: "Team Member"
+    },
+];
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY }
+const ALL_PROFILES: IValueLabel[] = [
+    {
+        value: "allProfiles",
+        label: "All Profiles"
+    },
+    ...PROFILE
+]
+
+const ALL_FUNCTIONS: IValueLabel[] = [
+    {
+        value: "allFunctions",
+        label: "All Functions"
+    },
+    ...FUNCTION
+]
+
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS }

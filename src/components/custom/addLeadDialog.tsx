@@ -6,7 +6,7 @@ import { DialogClose } from '@radix-ui/react-dialog'
 import { Button } from '../ui/button'
 import { Separator } from '../ui/separator'
 import AddLeadDetailedDialog from './addLeadDetailedDialog'
-import { IconAccounts, IconBuildings } from '../icons/svgIcons'
+import { IconAccounts, IconAccounts2, IconBuildings } from '../icons/svgIcons'
 import { ClientCompleteInterface, LeadInterface } from '@/app/interfaces/interface'
 import { getToken } from './leads'
 import AddAcountDetailedDialog from './addAccountDetailedDialog'
@@ -150,11 +150,11 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
     function getClassAccToPage() {
         switch (page) {
             case "leads":
-                return `max-h-[600px] overflow-y-auto ${isExpanded ? 'w-[830px]' : 'w-[500px]'}`
+                return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[800px]' : 'w-[500px]'}`
             case "accounts":
-                return `max-h-[600px] overflow-y-auto ${isExpanded ? 'w-[830px]' : 'w-[500px]'}`
+                return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[800px]' : 'w-[500px]'}`
             case "contacts":
-                return `max-h-[600px] overflow-y-auto ${isExpanded ? 'w-[600px]' : 'w-[500px]'}`
+                return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[600px]' : 'w-[500px]'}`
             default:
                 return ""
         }
@@ -166,7 +166,12 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                 <DialogTrigger asChild>
                     {children}
                 </DialogTrigger>
-                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()}>
+                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                        console.log("this should not be called");
+                        dataFromChild()
+                    }
+                }}>
                     <DialogHeader >
                         <DialogTitle className="px-[24px] pt-[30px] pb-[10px]">
                             <span className="text-lg">{renderTitle()}</span>
@@ -176,8 +181,8 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                     <div className={`flex flex-col  ${getClassAccToPage()}`}>
                         {!isExpanded ? <div className="flex flex-col mx-6 gap-2">
                             <div className="flex flex-row gap-[10px] items-center">
-                                <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                    <IconAccounts size="20" />
+                                <div className="h-[24px] w-[24px] text-gray-500 rounded flex flex-row justify-center items-center">
+                                    <IconAccounts2 />
                                 </div>
                                 <span className="text-xs text-gray-700">ACCOUNT</span>
                                 <div className="bg-gray-200 h-[1px] w-full" />
@@ -247,7 +252,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
 export default AddLeadDialog
 
 function doesInputOrgExists(inputAccount: string) {
-    const res = !dataFromApi.find((data) => data.name.toLowerCase() === inputAccount)
+    const res = !dataFromApi.find((data) => data.name.toLowerCase() === inputAccount.toLowerCase())
     console.log(res)
     return res
 }

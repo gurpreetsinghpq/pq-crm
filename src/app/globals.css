@@ -172,3 +172,7 @@ body{
 /* .responsive-width{
   width: auto;
 } */
+
+.responsive-popover-content-width{
+  width: clamp(21.875rem, 16.8576rem + 7.3583vw, 25.6875rem);
+}

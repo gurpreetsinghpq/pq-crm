@@ -26,7 +26,7 @@ import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
 import { ALL_DESIGNATIONS, ALL_LAST_FUNDING_STAGE, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
-import { IValueLabel } from "@/app/interfaces/interface"
+import { ContactsGetResponse, IValueLabel } from "@/app/interfaces/interface"
 import { TableContext } from "@/app/helper/context"
 
 interface LeadInterfaceFilter {
@@ -56,6 +56,7 @@ interface AccountInterfaceFilter {
   sizes?: string[]
   fundingStages?: string[],
   creators?: string[],
+  accounts?: string[],
   search?: string,
   dateRange?: any,
   queryParamString?: string
@@ -311,6 +312,14 @@ export default function DataTable<TData, TValue>({
       table.getColumn("type")?.setFilterValue(typeFilter)
     }
 
+    if (filterObj?.accounts && filterObj.accounts.includes("allAccounts")) {
+      table.getColumn("organisation")?.setFilterValue("")
+    }
+    else {
+      const accountFilter = filterObj.accounts
+      table.getColumn("organisation")?.setFilterValue(accountFilter)
+    }
+
     // if (filterObj?.creators && filterObj.creators.includes("allCreators")) {
     //   table.getColumn("creator")?.setFilterValue("")
     // }
@@ -322,7 +331,7 @@ export default function DataTable<TData, TValue>({
 
     // table.getColumn("id")?.setFilterValue(filterObj.ids)
     table.getColumn("name")?.setFilterValue(filterObj.search)
-    // table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+    table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
   }
 
   function handleTableChange() {

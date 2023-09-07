@@ -225,6 +225,7 @@ export const columnsClient: ColumnDef<ClientGetResponse>[] = [
     },
     {
         accessorKey: "created_at",
+        
         header: ({ column }) => {
             return (
                 <div
@@ -285,12 +286,6 @@ export const columnsClient: ColumnDef<ClientGetResponse>[] = [
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
-                            </div>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            <div className="flex flex-row gap-2 items-center">
-                                <IconArchive size={16} color={"#344054"} />
-                                Archive
                             </div>
                         </DropdownMenuItem>
                         {/* <DropdownMenuSeparator /> */}

@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
-import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
+import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
@@ -17,7 +17,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
-import { IconAccounts, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
+import { IconAccounts, IconAccounts2, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
 import { Client, ClientCompleteInterface, ContactDetail, ContactPostBody, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
@@ -222,8 +222,8 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                 <Form {...form}>
                     <form className='left flex flex-col w-full' onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="flex flex-row gap-[10px] items-center">
-                            <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                <IconAccounts size="20" />
+                            <div className="h-[24px] w-[24px] text-gray-500 rounded flex flex-row justify-center">
+                                <IconAccounts2 />
                             </div>
                             <span className="text-xs text-gray-700">ACCOUNT</span>
                             <div className="bg-gray-200 h-[1px] w-full" ></div>
@@ -240,15 +240,15 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                 </FormItem>
                             )}
                         />
-                        {filteredLeadData && filteredLeadData?.length > 0 && <Link href={`/dashboard?ids=${details?.name}`} target='_blank' className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' >
+                        {/* {filteredLeadData && filteredLeadData?.length > 0 && <Link href={`/dashboard?ids=${details?.name}`} target='_blank' className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' >
                             <span>
                                 {filteredLeadData?.length} Exisiting {filteredLeadData?.length === 1 ? "Lead" : "Leads"}
                             </span>
-                            {/* <ArrowUpRight className='text-blue-600 h-[18px] w-[18px]'/> */}
+                            
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                 <path d="M4 12L12 4M12 4H6.66667M12 4V9.33333" stroke="#1570EF" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
-                        </Link>}
+                        </Link>} */}
                     </form>
                 </Form>
                 <Form {...form2}>
@@ -265,43 +265,68 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                 control={form2.control}
                                 name="name"
                                 render={({ field }) => (
-                                    <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Contact Name" {...field} />
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Contact Name" {...field} />
+                                        </FormControl>
+                                    </FormItem>
                                 )}
                             />
                             <div className='flex flex-row gap-4 mt-3'>
-                                <div className='flex flex-col  w-full'>
+                                <div className='flex flex-col w-1/2 '>
                                     <FormField
                                         control={form2.control}
                                         name="designation"
                                         render={({ field }) => (
-                                            <FormItem>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={commonClasses}>
-                                                            <SelectValue placeholder="Designation" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <div className='max-h-[200px] overflow-y-auto'>
-                                                            {
-                                                                designation.map((designation, index) => {
-                                                                    return <SelectItem value={designation.value} key={index}>
-                                                                        {designation.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                {/* <FormMessage /> */}
+                                            <FormItem className='w-full '>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                    {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
+                                                                </div>
+                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[270px] p-0 ">
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Designation" />
+                                                            <CommandEmpty>Designation not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {DESIGNATION.map((designation) => (
+                                                                        <CommandItem
+                                                                            value={designation.value}
+                                                                            key={designation.value}
+                                                                            onSelect={() => {
+                                                                                form2.setValue("designation", designation.value)
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {designation.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === designation.value
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-                                <div className='flex flex-col w-full'>
+                                <div className='flex flex-col w-1/2'>
                                     <FormField
                                         control={form2.control}
                                         name="type"
@@ -336,7 +361,11 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                 control={form2.control}
                                 name="email"
                                 render={({ field }) => (
-                                    <Input type="email" className={`mt-3 ${commonClasses}`} placeholder="Email" {...field} />
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input type="email" className={`mt-3 ${commonClasses}`} placeholder="Email" {...field} />
+                                        </FormControl>
+                                    </FormItem>
                                 )}
                             />
                             <div className='flex flex-row gap-2 items-center'>
@@ -344,25 +373,22 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                     control={form2.control}
                                     name="std_code"
                                     render={({ field }) => (
-                                        <FormItem className='mt-3 '>
+                                        <FormItem className='mt-3 w-max'>
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
-                                                            {/* {
-                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
-                                                            } */}
                                                             {countryCode.find((val) => val.value === field.value)?.value}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <ChevronDown className="h-4 w-4 opacity-50" />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-[200px] p-0 ml-[114px]">
                                                     <Command>
-                                                        <CommandInput className='w-full' placeholder="Search Country Code..." />
+                                                        <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>
-                                                        <CommandGroup>
-                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                        <CommandGroup className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                            <div >
                                                                 {countryCode.map((cc) => (
                                                                     <CommandItem
                                                                         value={cc.label}
@@ -378,7 +404,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                                             <Check
                                                                                 className={cn(
                                                                                     "mr-2 h-4 w-4 text-purple-600",
-                                                                                    field.value?.includes(cc.value)
+                                                                                    field.value === (cc.value)
                                                                                         ? "opacity-100"
                                                                                         : "opacity-0"
                                                                                 )}
@@ -398,9 +424,9 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                     control={form2.control}
                                     name="phone"
                                     render={({ field }) => (
-                                        <FormItem className='flex-1'>
+                                        <FormItem className='mt-3  w-3/4 flex-1'>
                                             <FormControl>
-                                                <Input type="text" className={`mt-3  ${commonClasses}`} placeholder="Phone No" {...field} />
+                                                <Input type="text" className={` ${commonClasses}`} placeholder="Phone No" {...field} />
                                             </FormControl>
                                         </FormItem>
                                     )}

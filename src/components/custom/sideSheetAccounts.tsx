@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
+import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEdit2, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
 import { IChildData, formatData, getToken } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
@@ -22,9 +22,10 @@ import { DialogClose } from '@radix-ui/react-dialog'
 import { acronymFinder, guidGenerator } from './addLeadDetailedDialog'
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { Check, CheckCircle, CheckCircle2, MinusCircleIcon } from 'lucide-react'
+import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { contactListClasses } from '@/app/constants/classes'
 
 const required_error = {
     required_error: "This field is required"
@@ -105,7 +106,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
     const [numberOfErrors, setNumberOfErrors] = useState<number>()
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
-
+    const [editAccountNameClicked, setEditAccountNameClicked] = useState<boolean>(false);
     const [showContactForm, setShowContactForm] = useState(true)
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
     const [addDialogOpen, setAddDialogOpen] = useState(false)
@@ -123,38 +124,22 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
 
     }, [])
 
-    // useEffect(() => {
-    //     let updatedSchema:any
-    //     const status = labelToValue(data.status, STATUSES)
-    //     if (status) {
-    //         if (status.toLowerCase() !== "unverified") {
-    //             updatedSchema = FormSchema.extend({
-    //                 locations: z.string(required_error).min(1, { message: required_error.required_error }),
-    //                 fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
-    //                 industry: z.string(required_error).min(1, { message: required_error.required_error }),
-    //                 domain: z.string(required_error).min(1, { message: required_error.required_error }),
-    //                 size: z.string(required_error).min(1, { message: required_error.required_error }),
-    //                 lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
-    //                 lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
-    //             })
-    //         } else {
-    //             updatedSchema = FormSchema
-    //         }
-    //         if (addDialogOpen) {
-    //             updatedSchema = updatedSchema.extend({
-    //                 contacts: FormSchema2
-    //             })
+    useEffect(() => {
+        let updatedSchema
+        if (addDialogOpen) {
+            updatedSchema = FormSchema.extend({
+                contacts: FormSchema2
+            })
 
-    //         } else {
-    //             updatedSchema = updatedSchema.omit({ contacts: true })
-    //         }
-    //     }
-    //     setFormSchema(updatedSchema)
-    //     if (addDialogOpen) {
-    //         resetForm2()
-    //     }
-    //     safeparse2()
-    // }, [addDialogOpen])
+        } else {
+            updatedSchema = FormSchema.omit({ contacts: true })
+        }
+        setFormSchema(updatedSchema)
+        if (addDialogOpen) {
+            resetForm2()
+        }
+        safeparse2()
+    }, [addDialogOpen])
 
     function closeSideSheet() {
         setChildDataHandler('row', undefined)
@@ -322,9 +307,9 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
             size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY),
             last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE),
             last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT),
-            segment: valueToLabel(form.getValues("segment") || "", SEGMENT) || LAST_FUNDING_STAGE.find((stage)=>form.getValues("lastFundingStage")===stage.value)?.acronym
+            segment: valueToLabel(form.getValues("segment") || "", SEGMENT) || LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym
         }
-        
+
 
         const contactToSend: Contact[] = finalContactData.map((val) => {
             val.organisation = data.id
@@ -334,7 +319,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         const contacts: Contact[] = contactToSend
 
         const orgId = data.id
-        
+
 
         const apiPromises = [
             // patchOrgData(orgId, orgData),
@@ -477,6 +462,11 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         // setFormSchema(updatedSchema)
     }
 
+
+    function discardAccountName() {
+        setEditAccountNameClicked(false)
+    }
+
     return (
         <div className={`fixed flex flex-row z-[50] right-0 top-0 h-[100vh] w-[100vw] `} >
             <div className='w-full bg-gray-900 opacity-70 backdrop-blur-[8px] fade-in' onClick={closeSideSheet}>
@@ -491,9 +481,39 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                         <div className='relative pt-[24px] w-full h-full flex flex-col '>
                             <div className='flex flex-col flex-1 overflow-y-auto  pr-[0px] '>
                                 <div className='sticky top-0 bg-white-900 z-50'>
-                                    <div className='px-[24px] text-gray-900 text-xl font-semibold '>
-                                        {/* {data.title} */}
-                                    </div>
+                                    {!editAccountNameClicked ? <div className='px-[24px] flex flex-row items-center justify-between'>
+                                        <div className=' text-gray-900 text-xl font-semibold '>
+                                            {data.name}
+                                        </div>
+                                        <div className='cursor-pointer' onClick={() => setEditAccountNameClicked(true)}>
+                                            <IconEdit2 size={24} />
+                                        </div>
+                                    </div> :
+                                        <>
+                                            <FormField
+                                                control={form.control}
+                                                name="organisationName"
+                                                render={({ field }) => (
+                                                    <FormItem className='px-[16px]'>
+                                                        <FormControl >
+                                                            <Input type="text" className={`mt-3 ${commonClasses} ${commonFontClasses}`} placeholder="Organisation Name" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <div className='flex flex-row justify-end mt-2 mr-[10px] items-center gap-2 '>
+                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] cursor-pointer`} onClick={() => discardAccountName()}>
+                                                    <IconCross size={20} />
+                                                    <span className='text-gray-600 text-xs font-semibold' >Cancel</span>
+                                                </div>
+
+                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("name").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form.formState.isValid && addContact()}>
+                                                    <IconTick size={20} />
+                                                    <span className='text-gray-600 text-xs font-semibold' >Save</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    }
                                     <div className="px-[16px] mt-[24px] text-md font-medium w-full flex flex-row ">
                                         <FormField
                                             control={form.control}
@@ -513,8 +533,8 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                             {
                                                                 SEGMENT.map((segment, index) => {
                                                                     return <SelectItem key={index} value={segment.value}>
-                                                                        <div className="">
-                                                                                {segment.icon && <segment.icon />}
+                                                                        <div className={`flex flex-row gap-2 items-center ${!segment.isDefault && 'border border-[1.5px] rounded-[16px]'} ${segment.class}`}>
+                                                                            {segment.label}
                                                                         </div>
                                                                     </SelectItem>
                                                                 })
@@ -535,58 +555,33 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                 <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                     <span>Account Details</span>
                                 </span>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+
+                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
                                     <TooltipProvider>
                                         <Tooltip>
-                                            <TooltipTrigger asChild>
+                                            <TooltipTrigger>
                                                 <div>
-                                                    <IconOrgnaisation size={24} />
+                                                    <IconShield size={24} />
                                                 </div>
                                             </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Organisation Name
+                                            <TooltipContent>
+                                                Registered Name
                                             </TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>
-
                                     <FormField
                                         control={form.control}
-                                        name="orgnaisationName"
+                                        name="registeredName"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
                                                 <FormControl>
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses}`} placeholder="Organisation Name" {...field} />
+                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Registered Name" {...field} />
                                                 </FormControl>
-
                                                 <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
-                                                <IconShield size={24} />
-                                                <FormField
-                                                    control={form.control}
-                                                    name="registeredName"
-                                                    render={({ field }) => (
-                                                        <FormItem className='w-full'>
-                                                            <FormControl>
-                                                                <Input disabled className={`border-none ${commonClasses} ${commonFontClasses}  ${disabledClasses} `} placeholder="Registered Name" {...field} />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent side='right' >
-                                            Editable only in the Prospect state
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
                                 <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
@@ -949,23 +944,53 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                     control={form.control}
                                                                     name="contacts.designation"
                                                                     render={({ field }) => (
-                                                                        <FormItem>
-                                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                <FormControl>
-                                                                                    <SelectTrigger className={commonClasses2}>
-                                                                                        <SelectValue placeholder="Designation" />
-                                                                                    </SelectTrigger>
-                                                                                </FormControl>
-                                                                                <SelectContent>
-                                                                                    {DESIGNATION.map((designation, index) => {
-                                                                                        return <SelectItem value={designation.value} key={index}>
-                                                                                            {designation.label}
-                                                                                        </SelectItem>
-                                                                                    })}
-                                                                                </SelectContent>
-                                                                            </Select>
+                                                                        <FormItem className='w-full '>
+                                                                            <Popover>
+                                                                                <PopoverTrigger asChild>
+                                                                                    <FormControl>
+                                                                                        <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                                            <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
+                                                                                            </div>
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                        </Button>
+                                                                                    </FormControl>
+                                                                                </PopoverTrigger>
+                                                                                <PopoverContent className="w-[268px] p-0 ">
+                                                                                    <Command>
+                                                                                        <CommandInput className='w-full' placeholder="Search Designation" />
+                                                                                        <CommandEmpty>Designation not found.</CommandEmpty>
+                                                                                        <CommandGroup>
+                                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                                {DESIGNATION.map((designation) => (
+                                                                                                    <CommandItem
+                                                                                                        value={designation.value}
+                                                                                                        key={designation.value}
+                                                                                                        onSelect={() => {
+                                                                                                            form.setValue("contacts.designation", designation.value)
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                                            {designation.label}
+                                                                                                            <Check
+                                                                                                                className={cn(
+                                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                    field.value === designation.value
+                                                                                                                        ? "opacity-100"
+                                                                                                                        : "opacity-0"
+                                                                                                                )}
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                    </CommandItem>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        </CommandGroup>
+                                                                                    </Command>
+                                                                                </PopoverContent>
+                                                                            </Popover>
                                                                         </FormItem>
-                                                                    )} />
+                                                                    )}
+                                                                />
                                                             </div>
                                                             <div className='flex flex-col w-full'>
                                                                 <FormField
@@ -1015,13 +1040,13 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                                             {COUNTRY_CODE.find((val) => {
                                                                                                 return val.value === field.value
                                                                                             })?.value}
-                                                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>
                                                                                 <PopoverContent className="w-[200px] p-0 ml-[114px]">
                                                                                     <Command >
-                                                                                        <CommandInput className='w-full' placeholder="Search Country Code..." />
+                                                                                        <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                                         <CommandEmpty>Country code not found.</CommandEmpty>
                                                                                         <CommandGroup >
                                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
@@ -1095,7 +1120,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                         <div className='flex flex-col w-full'>
                                             {
                                                 dummyContactData.map((item, index: number) => (
-                                                    <div className='flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
+                                                    <div className={`${contactListClasses}`} key={index} >
                                                         <div className='flex flex-col'>
                                                             <div className='flex flex-row justify-between w-full'>
 

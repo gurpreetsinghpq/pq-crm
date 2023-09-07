@@ -1,6 +1,6 @@
 "use client"
 import Prospects from "@/components/custom/prospects"
-import { IconAccounts, IconAccounts2, IconContacts, IconHome, IconLeads, IconPq, IconProspects } from "@/components/icons/svgIcons"
+import { IconAccounts, IconAccounts2, IconContacts, IconHome, IconLeads, IconPq, IconProspects, IconUserManagement } from "@/components/icons/svgIcons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useState } from "react"
@@ -10,12 +10,22 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useRouter } from "next/navigation"
 import Accounts from "../custom/accounts"
 import Contacts from "../custom/contacts"
+import UserManagement from "../custom/userManagement"
+
+const TITLES = {
+    LEADS: "Leads",
+    PROSPECTS: "Prospects",
+    ACCOUNTS: "Accounts",
+    CONTACTS: "Contacts",
+    USER_MANAGEMENT: "User Management"
+}
 
 export default function DashboardComponent() {
-    // const [currentTab, setCurrentTab] = useState("Leads")
-    // const [currentTab, setCurrentTab] = useState("Prospects")
-    // const [currentTab, setCurrentTab] = useState("Accounts")
-    const [currentTab, setCurrentTab] = useState("Contacts")
+    const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
+    // const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
+    // const [currentTab, setCurrentTab] = useState(TITLES.ACCOUNTS)
+    // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
+    // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
     const [user, setUser] = useState<User>()
     const router = useRouter();
     useEffect(() => {
@@ -58,7 +68,7 @@ export default function DashboardComponent() {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div onClick={() => setCurrentTab("Leads")} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Leads" && 'bg-purple-600'}`}>
+                        <div onClick={() => setCurrentTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'}`}>
                             <IconLeads size={24} />
                         </div>
                     </TooltipTrigger>
@@ -67,16 +77,21 @@ export default function DashboardComponent() {
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
+
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div onClick={() => setCurrentTab("Prospects")} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Prospects" && 'bg-purple-600'}`}>
+                        <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'}`}>
                             <IconProspects size={24} />
                         </div>
                     </TooltipTrigger>
-                    <TooltipContent side="right" sideOffset={5}>
-                        Prospects
-                    </TooltipContent>
+                    <div className="overflow-visible">
+                        <TooltipContent side="right" sideOffset={5}>
+                            <div >
+                                Prospects
+                            </div>
+                        </TooltipContent>
+                    </div>
                 </Tooltip>
             </TooltipProvider>
             <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
@@ -91,7 +106,7 @@ export default function DashboardComponent() {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div onClick={() => setCurrentTab("Accounts")} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Accounts" && 'bg-purple-600'}`}>
+                        <div onClick={() => setCurrentTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'}`}>
                             <IconAccounts2 size={24} />
                         </div>
                     </TooltipTrigger>
@@ -103,8 +118,8 @@ export default function DashboardComponent() {
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <div onClick={() => setCurrentTab("Contacts")} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === "Contacts" && 'bg-purple-600'}`}>
-                            <IconContacts/>
+                        <div onClick={() => setCurrentTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'}`}>
+                            <IconContacts />
                         </div>
                     </TooltipTrigger>
                     <TooltipContent side="right" sideOffset={5}>
@@ -114,19 +129,29 @@ export default function DashboardComponent() {
             </TooltipProvider>
             <div className="h-1 w-2/3 mt-4 border-t-2 border-purple-800"></div>
 
-            <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
-                    <g id="users-02">
-                        <path id="Icon" d="M16.5 3.46776C17.9817 4.20411 19 5.73314 19 7.5C19 9.26686 17.9817 10.7959 16.5 11.5322M18.5 16.7664C20.0115 17.4503 21.3725 18.565 22.5 20M2.5 20C4.44649 17.5226 7.08918 16 10 16C12.9108 16 15.5535 17.5226 17.5 20M14.5 7.5C14.5 9.98528 12.4853 12 10 12C7.51472 12 5.5 9.98528 5.5 7.5C5.5 5.01472 7.51472 3 10 3C12.4853 3 14.5 5.01472 14.5 7.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-                </svg>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <div onClick={() => setCurrentTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'}`}>
+                            {/* <IconUserManagement /> */}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
+                                <g id="users-02">
+                                    <path id="Icon" d="M16.5 3.46776C17.9817 4.20411 19 5.73314 19 7.5C19 9.26686 17.9817 10.7959 16.5 11.5322M18.5 16.7664C20.0115 17.4503 21.3725 18.565 22.5 20M2.5 20C4.44649 17.5226 7.08918 16 10 16C12.9108 16 15.5535 17.5226 17.5 20M14.5 7.5C14.5 9.98528 12.4853 12 10 12C7.51472 12 5.5 9.98528 5.5 7.5C5.5 5.01472 7.51472 3 10 3C12.4853 3 14.5 5.01472 14.5 7.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </g>
+                            </svg>
 
-            </div>
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" sideOffset={5}>
+                        User Management
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
 
         </div>
         <div className="text-teal-700 bg-teal-50 border-teal-600"></div>
         <div className="right flex flex-col w-full h-full">
-            <div className="top w-full flex flex-row justify-between items-center px-6 py-5 border-b-2 border-gray-100 ">
+            <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${ currentTab!==TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2" }`} >
                 <div className="text-xl   ">
                     {currentTab}
                 </div>
@@ -157,10 +182,11 @@ export default function DashboardComponent() {
                 </div>
             </div>
             <div className="bottom flex flex-col flex-1">
-                {currentTab === 'Leads' && <Leads />}
-                {currentTab === 'Prospects' && <Prospects />}
-                {currentTab === 'Accounts' && <Accounts />}
-                {currentTab === 'Contacts' && <Contacts />}
+                {currentTab === TITLES.LEADS && <Leads />}
+                {currentTab === TITLES.PROSPECTS && <Prospects />}
+                {currentTab === TITLES.ACCOUNTS && <Accounts />}
+                {currentTab === TITLES.CONTACTS && <Contacts />}
+                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement />}
 
             </div>
         </div>

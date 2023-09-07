@@ -1,0 +1,1 @@
+export const contactListClasses = 'relative flex flex-col border-[1px] border-gray-300 rounded-[8px] p-[16px] mb-[12px]'

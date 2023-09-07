@@ -526,7 +526,7 @@ const Leads = () => {
                                                                     }}
                                                                 >
                                                                     <div className="">
-                                                                        <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
+                                                                        <div className={`flex flex-row gap-2 items-center ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
                                                                             {status.icon && <status.icon />}
                                                                             {status.label}
                                                                         </div>
@@ -610,8 +610,8 @@ const Leads = () => {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[200px] p-0">
                                                             <Command>
-                                                                <CommandInput placeholder="Search Creator..." />
-                                                                <CommandEmpty>No creators found.</CommandEmpty>
+                                                                <CommandInput placeholder="Search Owner" />
+                                                                <CommandEmpty>No Owner found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     {owners.map((owner) => (
                                                                         <CommandItem
@@ -676,7 +676,7 @@ const Leads = () => {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[200px] p-0 mr-[24px]" >
                                                             <Command>
-                                                                <CommandInput placeholder="Search Creator..." />
+                                                                <CommandInput placeholder="Search Creator" />
                                                                 <CommandEmpty>No creators found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     {creators.map((creator) => (
@@ -684,7 +684,8 @@ const Leads = () => {
                                                                             value={creator.label}
                                                                             key={creator.value}
                                                                             onSelect={() => {
-                                                                                if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
+                                                                                if (field.value.length > 0 &&
+                                                                                     field.value.includes("allCreators") && creator.value !== 'allCreators') {
                                                                                     form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
                                                                                 }
                                                                                 else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
@@ -732,7 +733,7 @@ const Leads = () => {
                     <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
-                    {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                    {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconLeads size="20" />
                     </div>
                         <div>

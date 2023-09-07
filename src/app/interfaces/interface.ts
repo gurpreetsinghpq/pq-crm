@@ -256,7 +256,26 @@ export interface ContactsGetResponse {
     designation: string;
     type: string;
     archived: boolean;
-    organisation: number;
+    organisation: {
+        id: number;
+        name: string;
+        registered_name: string | null;
+        govt_id: string | null;
+        billing_address: string | null;
+        shipping_address: string | null;
+        industry: string;
+        domain: string;
+        size: string;
+        last_funding_stage: string;
+        last_funding_amount: string;
+        funding_currency: string | null;
+        segment: string;
+        archived: boolean;
+        created_at: string;
+        updated_at: string;
+        created_by: number;
+        updated_by: number;
+    };
 }
 
 export interface ClientPostBody {

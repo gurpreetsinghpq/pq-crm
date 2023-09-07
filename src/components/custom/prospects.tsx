@@ -30,7 +30,7 @@ import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
+import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
@@ -521,7 +521,7 @@ const Prospects = () => {
                                                                     }}
                                                                 >
                                                                     <div className="">
-                                                                        <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
+                                                                        <div className={`flex flex-row gap-2 items-center  ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
                                                                             {status.icon && <status.icon />}
                                                                             {status.label}
                                                                         </div>
@@ -605,8 +605,8 @@ const Prospects = () => {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[200px] p-0">
                                                             <Command>
-                                                                <CommandInput placeholder="Search Creator..." />
-                                                                <CommandEmpty>No creators found.</CommandEmpty>
+                                                                <CommandInput placeholder="Search Owner" />
+                                                                <CommandEmpty>No owners found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     {owners.map((owner) => (
                                                                         <CommandItem
@@ -671,7 +671,7 @@ const Prospects = () => {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[200px] p-0 mr-[24px]" >
                                                             <Command>
-                                                                <CommandInput placeholder="Search Creator..." />
+                                                                <CommandInput placeholder="Search Creator" />
                                                                 <CommandEmpty>No creators found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     {creators.map((creator) => (
@@ -727,8 +727,8 @@ const Prospects = () => {
                     <DataTable columns={columnsProspects} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
-                    {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                        <IconLeads size="20" />
+                    {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                        <IconProspects size="20" />
                     </div>
                         <div>
                             <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Prospects" : "No Archive Prospects"}</p>

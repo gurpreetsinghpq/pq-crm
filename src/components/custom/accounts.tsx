@@ -54,6 +54,9 @@ const FormSchema = z.object({
     industries: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one status.",
     }),
+    accounts: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
     domains: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one status.",
     }),
@@ -129,6 +132,7 @@ const Accounts = () => {
         resolver: zodResolver(FormSchema),
         defaultValues: {
             industries: ["allIndustries"],
+            accounts: ["allAccounts"],
             domains: ["allDomains"],
             segments: ["allSegments"],
             sizes: ['allSizes'],
@@ -289,11 +293,11 @@ const Accounts = () => {
     }
 
     const addAccountDialogButton = () => <AddLeadDialog page={"accounts"} fetchLeadData={fetchLeadData} >
-    <Button className="flex flex-row gap-2">
-        <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
-        Add Account
-    </Button>
-</AddLeadDialog>
+        <Button className="flex flex-row gap-2">
+            <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+            Add Account
+        </Button>
+    </AddLeadDialog>
 
     return <div className="flex flex-col flex-1">
         <div className="bottom flex-1 flex flex-col">
@@ -452,7 +456,7 @@ const Accounts = () => {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[230px] p-0">
                                                             <Command>
-                                                                <CommandInput placeholder="Search Industry..." />
+                                                                <CommandInput placeholder="Search Industry" />
                                                                 <CommandEmpty>No Industry found.</CommandEmpty>
                                                                 <CommandGroup className="flex flex-col h-[250px] overflow-y-scroll">
                                                                     {INDUSTRIES.map((industry) => (
@@ -495,6 +499,68 @@ const Accounts = () => {
                                             )}
                                         />
                                     </div>
+                                    {/* <div> */}
+                                        {/* <FormField
+                                            control={form.control}
+                                            name="accounts"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant={"google"} className="flex flex-row gap-2">
+                                                                    {formatData(field.value, 'Accounts', data.map(val => { return { label: val.name, value: val.name } }))}
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[230px] p-0">
+                                                            <Command>
+                                                                <CommandInput placeholder="Search Account" />
+                                                                <CommandEmpty>No Account found.</CommandEmpty>
+                                                                <CommandGroup className="flex flex-col h-[250px] overflow-y-scroll">
+                                                                    {[{ label: 'All Accounts', value: 'allAccounts' }].concat(
+                                                                        data.map(val => ({ label: val.name, value: val.name }))
+                                                                    ).map((account) => (
+                                                                    <CommandItem
+                                                                        value={account.label}
+                                                                        key={account.value}
+                                                                        onSelect={() => {
+                                                                            if (field.value.length > 0 && field.value.includes("allAccounts") && account.value !== 'allAccounts') {
+                                                                                form.setValue("accounts", [...field.value.filter((value) => value !== 'allAccounts'), account.value])
+                                                                            }
+                                                                            else if ((field.value?.length === 1 && field.value?.includes(account.value) || account.value == 'allAccounts')) {
+                                                                                form.setValue("accounts", ["allAccounts"])
+
+                                                                            }
+                                                                            else if (field.value?.includes(account.value)) {
+                                                                                form.setValue("accounts", field.value?.filter((val) => val !== account.value))
+                                                                            } else {
+                                                                                form.setValue("accounts", [...field.value, account.value])
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                            {account.label}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                    field.value?.includes(account.value)
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                        </div>
+                                                                    </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormItem>
+                                            )}
+                                        /> */}
+                                    {/* </div> */}
                                     {/* <div>
                                         <FormField
                                             control={form.control}
@@ -558,9 +624,8 @@ const Accounts = () => {
                                                                     }}
                                                                 >
                                                                     <div className="">
-                                                                        <div className={`flex flex-row gap-2 items-center   py-1`}>
-                                                                            {segment.icon ? <segment.icon />: segment.label}
-                                                                            
+                                                                        <div className={`flex flex-row gap-2 items-center ${!segment.isDefault && 'border border-[1.5px] rounded-[16px]'} ${segment.class}`}>
+                                                                            {segment.label}
                                                                         </div>
                                                                     </div>
                                                                 </DropdownMenuCheckboxItem>
@@ -626,7 +691,7 @@ const Accounts = () => {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[215px] p-0 mr-[24px]" >
                                                             <Command>
-                                                                <CommandInput placeholder="Search Funding Stage..." />
+                                                                <CommandInput placeholder="Search Funding Stage" />
                                                                 <CommandEmpty>No Funding Stage found.</CommandEmpty>
                                                                 <CommandGroup className=" h-[250px] overflow-y-scroll">
                                                                     {ALL_LAST_FUNDING_STAGE.map((fundingStage) => (
@@ -687,7 +752,7 @@ const Accounts = () => {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[200px] p-0 mr-[24px]" >
                                                             <Command>
-                                                                <CommandInput placeholder="Search Creator..." />
+                                                                <CommandInput placeholder="Search Creator" />
                                                                 <CommandEmpty>No creators found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     {creators.map((creator) => (
@@ -739,10 +804,10 @@ const Accounts = () => {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsClient} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"}/>
+                    <DataTable columns={columnsClient} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                        <IconAccounts2 size="20" />
+                        <IconAccounts2 size="24" />
                     </div>
                         <div>
                             <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Accounts" : "No Archive Accounts"}</p>

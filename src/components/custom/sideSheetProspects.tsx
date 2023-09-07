@@ -22,9 +22,10 @@ import { DialogClose } from '@radix-ui/react-dialog'
 import { acronymFinder, guidGenerator } from './addLeadDetailedDialog'
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { Check, CheckCircle, CheckCircle2, MinusCircleIcon } from 'lucide-react'
+import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { contactListClasses } from '@/app/constants/classes'
 
 const required_error = {
     required_error: "This field is required"
@@ -1276,75 +1277,94 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                                <IconShield size={24} />
-                                                <FormField
-                                                    control={form.control}
-                                                    name="registeredName"
-                                                    render={({ field }) => (
-                                                        <FormItem className='w-full'>
-                                                            <FormControl>
-                                                                <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Registered Name" {...field} />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                        </TooltipTrigger>
-                                        <TooltipContent side='right' >
-                                            Editable only in the Prospect state
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div>
+                                                    <IconShield size={24} />
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                Registered Name
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                    <FormField
+                                        control={form.control}
+                                        name="registeredName"
+                                        render={({ field }) => (
+                                            <FormItem className='w-full'>
+                                                <FormControl>
+                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Registered Name" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="industry"
                                         render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconIndustry size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Industry
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
+                                            <FormItem className='w-full cursor-pointer'>
+                                                <Popover>
+                                                    <PopoverTrigger asChild >
+                                                        <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                            <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div>
+                                                                            <IconIndustry size={24} color="#98A2B3" />
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        Industry
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Industry</span>}
                                                                 </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Industry" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" />
                                                             </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent >
-                                                        <div className='h-[200px] overflow-y-scroll '>
-                                                            {
-                                                                INDUSTRY.map((industry, index) => {
-                                                                    return <SelectItem key={index} value={industry.value}>
-                                                                        {industry.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
                                                         </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
+
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="mt-[8px] p-0 responsive-popover-content-width" >
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Industry" />
+                                                            <CommandEmpty>Industry not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {INDUSTRY.map((industry) => (
+                                                                        <CommandItem
+                                                                            value={industry.value}
+                                                                            key={industry.value}
+                                                                            onSelect={() => {
+                                                                                form.setValue("industry", industry.value)
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {industry.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === industry.value
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                             </FormItem>
                                         )}
                                     />
@@ -1443,51 +1463,68 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="lastFundingStage"
                                         render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconCoinsHand size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Last Funding Stage
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
+                                            <FormItem className='w-full cursor-pointer'>
+                                                <Popover>
+                                                    <PopoverTrigger asChild >
+                                                        <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                            <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div>
+                                                                            <IconCoinsHand size={24} color="#98A2B3" />
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        Last Funding Stage
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Last Funding Stage</span>}
                                                                 </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Last Funding Stage" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" />
                                                             </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <div className='h-[200px] overflow-y-scroll '>
-                                                            {
-                                                                LAST_FUNDING_STAGE.map((lastFundingStage, index) => {
-                                                                    return <SelectItem key={index} value={lastFundingStage.value}>
-                                                                        {lastFundingStage.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
                                                         </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
+
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="mt-[8px] p-0 responsive-popover-content-width" >
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Funding Stage" />
+                                                            <CommandEmpty>Funding Stage not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {LAST_FUNDING_STAGE.map((lastFundingStage) => (
+                                                                        <CommandItem
+                                                                            value={lastFundingStage.value}
+                                                                            key={lastFundingStage.value}
+                                                                            onSelect={() => {
+                                                                                form.setValue("lastFundingStage", lastFundingStage.value)
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {lastFundingStage.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === lastFundingStage.value
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                             </FormItem>
                                         )}
                                     />
@@ -1832,23 +1869,53 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                     control={form.control}
                                                                     name="contacts.designation"
                                                                     render={({ field }) => (
-                                                                        <FormItem>
-                                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                <FormControl>
-                                                                                    <SelectTrigger className={commonClasses2}>
-                                                                                        <SelectValue placeholder="Designation" />
-                                                                                    </SelectTrigger>
-                                                                                </FormControl>
-                                                                                <SelectContent>
-                                                                                    {DESIGNATION.map((designation, index) => {
-                                                                                        return <SelectItem value={designation.value} key={index}>
-                                                                                            {designation.label}
-                                                                                        </SelectItem>
-                                                                                    })}
-                                                                                </SelectContent>
-                                                                            </Select>
+                                                                        <FormItem className='w-full '>
+                                                                            <Popover>
+                                                                                <PopoverTrigger asChild>
+                                                                                    <FormControl>
+                                                                                        <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                                            <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
+                                                                                            </div>
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                        </Button>
+                                                                                    </FormControl>
+                                                                                </PopoverTrigger>
+                                                                                <PopoverContent className="w-[268px] p-0 ">
+                                                                                    <Command>
+                                                                                        <CommandInput className='w-full' placeholder="Search Designation" />
+                                                                                        <CommandEmpty>Designation not found.</CommandEmpty>
+                                                                                        <CommandGroup>
+                                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                                {DESIGNATION.map((designation) => (
+                                                                                                    <CommandItem
+                                                                                                        value={designation.value}
+                                                                                                        key={designation.value}
+                                                                                                        onSelect={() => {
+                                                                                                            form.setValue("contacts.designation", designation.value)
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                                            {designation.label}
+                                                                                                            <Check
+                                                                                                                className={cn(
+                                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                    field.value === designation.value
+                                                                                                                        ? "opacity-100"
+                                                                                                                        : "opacity-0"
+                                                                                                                )}
+                                                                                                            />
+                                                                                                        </div>
+                                                                                                    </CommandItem>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        </CommandGroup>
+                                                                                    </Command>
+                                                                                </PopoverContent>
+                                                                            </Popover>
                                                                         </FormItem>
-                                                                    )} />
+                                                                    )}
+                                                                />
                                                             </div>
                                                             <div className='flex flex-col w-full'>
                                                                 <FormField
@@ -1898,13 +1965,13 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                                             {COUNTRY_CODE.find((val) => {
                                                                                                 return val.value === field.value
                                                                                             })?.value}
-                                                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>
                                                                                 <PopoverContent className="w-[200px] p-0 ml-[114px]">
                                                                                     <Command >
-                                                                                        <CommandInput className='w-full' placeholder="Search Country Code..." />
+                                                                                        <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                                         <CommandEmpty>Country code not found.</CommandEmpty>
                                                                                         <CommandGroup >
                                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
@@ -1978,7 +2045,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         <div className='flex flex-col w-full'>
                                             {
                                                 dummyContactData.map((item, index: number) => (
-                                                    <div className='flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
+                                                    <div className={`${contactListClasses}`} key={index} >
                                                         <div className='flex flex-col'>
                                                             <div className='flex flex-row justify-between w-full'>
 

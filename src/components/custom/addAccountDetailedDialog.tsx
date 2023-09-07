@@ -6,7 +6,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
-import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
+import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, INDUSTRIES, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, LAST_FUNDING_AMOUNT } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
@@ -17,7 +17,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
-import { IconAccounts, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
+import { IconAccounts, IconAccounts2, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
 import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
@@ -25,6 +25,7 @@ import { Tooltip } from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { formatData, getToken } from './leads'
 import Link from 'next/link'
+import { contactListClasses } from '@/app/constants/classes'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -91,7 +92,7 @@ const form2Defaults = {
 function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filteredLeadData }: { inputAccount: string, dataFromChild: CallableFunction, details: ClientCompleteInterface | undefined, filteredLeadData: LeadInterface[] | undefined }) {
 
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
-    const [showContactForm, setShowContactForm] = useState<any>(false)
+    const [showContactForm, setShowContactForm] = useState<any>(true)
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
     const [formSchema2, setFormSchema2] = useState(FormSchema2)
@@ -118,12 +119,12 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
 
     useEffect(() => {
         // console.log(form.getValues())
-        const same=form.getValues("sameAsBillingAddress")
-        
+        const same = form.getValues("sameAsBillingAddress")
+
         const billingAddress = form.getValues("billingAddress") || ""
-        if(same){
-            form.setValue("shippingAddress", billingAddress )
-        }else{
+        if (same) {
+            form.setValue("shippingAddress", billingAddress)
+        } else {
             form.setValue("shippingAddress", "")
         }
         console.log(form.getValues())
@@ -208,9 +209,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         const billingAddress = formData.billingAddress || ""
         const shippingAddress = formData.shippingAddress || ""
         const organisationName = formData.organisationName || ""
-        const segment = LAST_FUNDING_STAGE.find((stage)=>form.getValues("lastFundingStage")===stage.value)?.acronym || ""
+        const segment = LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || ""
         const finalContactData = dummyContactData.filter((contact) => !contact.id)
-        
+
         let keysToRemove: any = ["contactId", "isLocallyAdded",]
         finalContactData.forEach((item) => {
             keysToRemove.forEach((key: string) => {
@@ -235,7 +236,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             segment: segment
         }
 
-       
+
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
         const token_superuser = getToken()
 
@@ -330,22 +331,22 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
 
     return (
         <div>
-            <div className='flex flex-col gap-6 px-[24px] py[24px] w-[800px]'>
+            <div className='flex flex-row gap-6 px-[24px] py[24px] w-[800px]'>
                 <Form {...form}>
-                    <form className='left flex flex-col w-full' onSubmit={form.handleSubmit(onSubmit)}>
+                    <form className='left w-1/2 flex flex-col' onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="flex flex-row gap-[10px] items-center">
-                            <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                <IconAccounts size="20" />
+                            <div className="h-[24px] w-[24px] text-gray-500 rounded flex flex-row justify-center">
+                                <IconAccounts2 />
                             </div>
                             <span className="text-xs text-gray-700">ACCOUNT</span>
                             <div className="bg-gray-200 h-[1px] w-full" ></div>
                         </div>
-                        <div className="flex flex-row gap-4 w-full mt-[24px]">
+                        <div className='flex flex-col gap-[16px] mt-[18px]'>
                             <FormField
                                 control={form.control}
                                 name="organisationName"
                                 render={({ field }) => (
-                                    <FormItem className='flex-1'>
+                                    <FormItem >
                                         <FormControl>
                                             <Input type="text" className={` ${commonClasses}`} placeholder="Organisation Name" {...field} />
 
@@ -357,7 +358,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 control={form.control}
                                 name="industry"
                                 render={({ field }) => (
-                                    <FormItem className='flex-1'>
+                                    <FormItem >
                                         <Select onValueChange={(value) => {
                                             // form.resetField("budget", { defaultValue: undefined })
                                             // setBudgetKey(+ new Date())
@@ -387,14 +388,11 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     </FormItem>
                                 )}
                             />
-
-                        </div>
-                        <div className='flex flex-row gap-4 mt-[24px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="domain"
                                 render={({ field }) => (
-                                    <FormItem className='flex-1'>
+                                    <FormItem >
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
@@ -420,7 +418,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 control={form.control}
                                 name="size"
                                 render={({ field }) => (
-                                    <FormItem className='flex-1'>
+                                    <FormItem >
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
@@ -442,13 +440,11 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     </FormItem>
                                 )}
                             />
-                        </div>
-                        <div className='flex flex-row gap-4 mt-[24px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="lastFundingStage"
                                 render={({ field }) => (
-                                    <FormItem className='flex-1'>
+                                    <FormItem >
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
@@ -474,7 +470,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 control={form.control}
                                 name="lastFundingAmount"
                                 render={({ field }) => (
-                                    <FormItem className='flex-1'>
+                                    <FormItem >
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
@@ -497,7 +493,8 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 )}
                             />
                         </div>
-                        <div className='flex flex-row gap-4 mt-[24px] w-full '>
+
+                        {/* <div className='flex flex-row gap-4 mt-[24px] w-full '>
                             <FormField
                                 control={form.control}
                                 name="registeredName"
@@ -570,12 +567,12 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 )}
                             />
 
-                        </div>
+                        </div> */}
                     </form>
                 </Form>
                 <div className="w-[1px] bg-gray-200 "></div>
                 <Form {...form2}>
-                    <form className='right flex flex-col ' onSubmit={form2.handleSubmit(onSubmit2)}>
+                    <form className='right w-1/2 flex flex-col ' onSubmit={form2.handleSubmit(onSubmit2)}>
                         <div className="flex flex-row gap-[10px] items-center">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconContacts size="20" />
@@ -585,10 +582,10 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                             <div className={`text-sm text-purple-700  ${!showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showContactForm && addNewForm()}>+ Add</div>
                         </div>
                         {dummyContactData.length > 0 && <div className={`flex flex-col w-full mt-4  pr-[16px] max-h-[340px] overflow-y-auto   ${showContactForm && "h-[150px] overflow-y-scroll "} `}>
-                            <div className='flex flex-col w-full grid grid-cols-2 gap-[24px]'>
+                            <div className='flex flex-col w-full gap-[24px]'>
                                 {
                                     dummyContactData.map((item: any, index: number) => (
-                                        <div className='relative flex flex-col border-[1px] border-gray-200 rounded-[8px] p-[16px] mb-[12px]' key={index} >
+                                        <div className={`${contactListClasses}`} key={index} >
                                             <div className='flex flex-col'>
                                                 <div className='flex flex-row justify-between w-full items-baseline '>
                                                     <span className='text-sm font-semibold flex-1'>
@@ -634,47 +631,72 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                         </div>}
                         {dummyContactData?.length > 0 && showContactForm && <div className="bg-gray-200 h-[1px]" ></div>}
                         {showContactForm && <div className='flex flex-col'>
-                            <FormField
+                        <FormField
                                 control={form2.control}
                                 name="name"
                                 render={({ field }) => (
-                                    <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Contact Name" {...field} />
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Contact Name" {...field} />
+                                        </FormControl>
+                                    </FormItem>
                                 )}
                             />
                             <div className='flex flex-row gap-4 mt-3'>
-                                <div className='flex flex-col  w-full'>
+                                <div className='flex flex-col w-1/2 '>
                                     <FormField
                                         control={form2.control}
                                         name="designation"
                                         render={({ field }) => (
-                                            <FormItem>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={commonClasses}>
-                                                            <SelectValue placeholder="Designation" />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <div className='max-h-[200px] overflow-y-auto'>
-                                                            {
-                                                                designation.map((designation, index) => {
-                                                                    return <SelectItem value={designation.value} key={index}>
-                                                                        {designation.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                {/* <FormMessage /> */}
+                                            <FormItem className='w-full '>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                    {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
+                                                                </div>
+                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[200px] p-0 ml-[32px]">
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Designation" />
+                                                            <CommandEmpty>Designation not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {DESIGNATION.map((designation) => (
+                                                                        <CommandItem
+                                                                            value={designation.value}
+                                                                            key={designation.value}
+                                                                            onSelect={() => {
+                                                                                form2.setValue("designation", designation.value)
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {designation.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === designation.value
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-                                <div className='flex flex-col w-full'>
+                                <div className='flex flex-col w-1/2'>
                                     <FormField
                                         control={form2.control}
                                         name="type"
@@ -709,7 +731,11 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 control={form2.control}
                                 name="email"
                                 render={({ field }) => (
-                                    <Input type="email" className={`mt-3 ${commonClasses}`} placeholder="Email" {...field} />
+                                    <FormItem>
+                                        <FormControl>
+                                            <Input type="email" className={`mt-3 ${commonClasses}`} placeholder="Email" {...field} />
+                                        </FormControl>
+                                    </FormItem>
                                 )}
                             />
                             <div className='flex flex-row gap-2 items-center'>
@@ -717,25 +743,22 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     control={form2.control}
                                     name="std_code"
                                     render={({ field }) => (
-                                        <FormItem className='mt-3 w-fit'>
+                                        <FormItem className='mt-3 w-max'>
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
-                                                            {/* {
-                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
-                                                            } */}
                                                             {countryCode.find((val) => val.value === field.value)?.value}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <ChevronDown className="h-4 w-4 opacity-50" />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
                                                 <PopoverContent className="w-[200px] p-0 ml-[114px]">
                                                     <Command>
-                                                        <CommandInput className='w-full' placeholder="Search Country Code..." />
+                                                        <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>
-                                                        <CommandGroup>
-                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                        <CommandGroup className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                            <div >
                                                                 {countryCode.map((cc) => (
                                                                     <CommandItem
                                                                         value={cc.label}
@@ -751,7 +774,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                                             <Check
                                                                                 className={cn(
                                                                                     "mr-2 h-4 w-4 text-purple-600",
-                                                                                    field.value?.includes(cc.value)
+                                                                                    field.value === (cc.value)
                                                                                         ? "opacity-100"
                                                                                         : "opacity-0"
                                                                                 )}
@@ -771,9 +794,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     control={form2.control}
                                     name="phone"
                                     render={({ field }) => (
-                                        <FormItem className='w-full flex-1'>
+                                        <FormItem className='mt-3  w-3/4 flex-1'>
                                             <FormControl>
-                                                <Input type="text" className={`mt-3  ${commonClasses}`} placeholder="Phone No" {...field} />
+                                                <Input type="text" className={` ${commonClasses}`} placeholder="Phone No" {...field} />
                                             </FormControl>
                                         </FormItem>
                                     )}
