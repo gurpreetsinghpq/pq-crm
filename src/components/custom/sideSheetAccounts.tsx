@@ -26,6 +26,7 @@ import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from '
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { PopoverClose } from '@radix-ui/react-popover'
 
 const required_error = {
     required_error: "This field is required"
@@ -575,7 +576,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="industry"
@@ -583,7 +584,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -605,7 +606,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[8px] p-0 w-[32vw]" >
+                                                    <PopoverContent className="mt-[2px] p-0 w-[calc(32vw-6px)]" >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Industry" />
                                                             <CommandEmpty>Industry not found.</CommandEmpty>
@@ -619,17 +620,19 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                                 form.setValue("industry", industry.value)
                                                                             }}
                                                                         >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {industry.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value === industry.value
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {industry.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === industry.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
                                                                         </CommandItem>
                                                                     ))}
                                                                 </div>
@@ -637,6 +640,8 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
+                                                <FormMessage className={selectFormMessageClasses} />
+
                                             </FormItem>
                                         )}
                                     />
@@ -735,7 +740,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="lastFundingStage"
@@ -743,7 +748,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -765,7 +770,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[8px] p-0 w-[32vw]" >
+                                                    <PopoverContent className="mt-[2px] p-0 w-[calc(32vw-6px)]" >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                             <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -779,17 +784,19 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                                 form.setValue("lastFundingStage", lastFundingStage.value)
                                                                             }}
                                                                         >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {lastFundingStage.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value === lastFundingStage.value
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {lastFundingStage.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === lastFundingStage.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
                                                                         </CommandItem>
                                                                     ))}
                                                                 </div>
@@ -797,6 +804,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
+                                                <FormMessage className={selectFormMessageClasses} />
                                             </FormItem>
                                         )}
                                     />
@@ -997,17 +1005,20 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                                                             form.setValue("contacts.designation", designation.value)
                                                                                                         }}
                                                                                                     >
-                                                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                                                            {designation.label}
-                                                                                                            <Check
-                                                                                                                className={cn(
-                                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                                    field.value === designation.value
-                                                                                                                        ? "opacity-100"
-                                                                                                                        : "opacity-0"
-                                                                                                                )}
-                                                                                                            />
-                                                                                                        </div>
+                                                                                                        <PopoverClose asChild>
+                                                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                                                {designation.label}
+                                                                                                                <Check
+                                                                                                                    className={cn(
+                                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                        field.value === designation.value
+                                                                                                                            ? "opacity-100"
+                                                                                                                            : "opacity-0"
+                                                                                                                    )}
+                                                                                                                />
+                                                                                                            </div>
+                                                                                                        </PopoverClose>
+
                                                                                                     </CommandItem>
                                                                                                 ))}
                                                                                             </div>
@@ -1178,7 +1189,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                 </div>
                             </div>
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                
+
                                 <div className='flex flex-row flex-1 justify-end '>
                                     <Button variant="default" type="submit" >Save</Button>
 

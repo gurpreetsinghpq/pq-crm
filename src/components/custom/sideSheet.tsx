@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { PopoverClose } from '@radix-ui/react-popover'
 
 const required_error = {
     required_error: "This field is required"
@@ -129,48 +130,28 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     const [budgetKey, setBudgetKey] = React.useState<number>(+new Date())
     const [places, setPlaces] = React.useState([])
     const [beforePromoteToProspectDivsArray, setBeforePromoteToProspectDivsArray] = useState<any[]>([]);
-
+    // used for handling on side sheet open and result from api as side sheet is not been closed when clicked on save (usage: promote to prospect)
+    const [rowState, setRowState] = useState<Partial<LeadInterface>>()
     const { childData: { row }, setChildDataHandler } = parentData
 
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: LeadInterface = row.original
     useEffect(() => {
+        setRowState({
+            status: data.status
+        })
         setDummyContactData(data.organisation.contacts)
         const status = labelToValue(data.status, STATUSES)
         if (status) {
             updateFormSchemaOnStatusChange(status)
         }
-
-
     }, [])
 
     useEffect(() => {
-        let updatedSchema
-        const status = labelToValue(data.status, STATUSES)
+        const status = labelToValue(form.getValues("statuses"), STATUSES)
         if (status) {
-            if (status.toLowerCase() !== "unverified") {
-                updatedSchema = FormSchema.extend({
-                    locations: z.string(required_error).min(1, { message: required_error.required_error }),
-                    fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
-                    industry: z.string(required_error).min(1, { message: required_error.required_error }),
-                    domain: z.string(required_error).min(1, { message: required_error.required_error }),
-                    size: z.string(required_error).min(1, { message: required_error.required_error }),
-                    lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
-                    lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
-                })
-            } else {
-                updatedSchema = FormSchema
-            }
-            if (addDialogOpen) {
-                updatedSchema = updatedSchema.extend({
-                    contacts: FormSchema2
-                })
-
-            } else {
-                updatedSchema = updatedSchema.omit({ contacts: true })
-            }
+            updateFormSchemaOnStatusChange(status)
         }
-        setFormSchema(updatedSchema)
         if (addDialogOpen) {
             resetForm2()
         }
@@ -335,7 +316,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                 const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
                 if (result.message === "success") {
-                    closeSideSheet()
+                    // closeSideSheet()
                 }
             }
             catch (err) {
@@ -348,7 +329,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     async function patchData() {
 
-
+        setNumberOfErrors(undefined)
         const finalContactData = dummyContactData.filter((contact) => !contact.id)
         let keysToRemove: any = ["contactId", "isLocallyAdded",]
         finalContactData.forEach((item) => {
@@ -412,7 +393,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         try {
             const results = await Promise.all(apiPromises);
             console.log("All API requests completed:", results);
-            closeSideSheet()
+            // closeSideSheet()
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -445,23 +426,47 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     function updateFormSchemaOnStatusChange(value: string) {
         let updatedSchema
         if (value.toLowerCase() !== "unverified") {
-            updatedSchema = FormSchema.extend({
-                locations: z.string(required_error).min(1, { message: required_error.required_error }),
-                fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
-                industry: z.string(required_error).min(1, { message: required_error.required_error }),
-                domain: z.string(required_error).min(1, { message: required_error.required_error }),
-                size: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
-            })
+            if (value.toLowerCase() === "verified") {
+                updatedSchema = FormSchema.extend({
+                    reasons: z.string().optional(),
+                    locations: z.string(required_error).min(1, { message: required_error.required_error }),
+                    fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
+                    industry: z.string(required_error).min(1, { message: required_error.required_error }),
+                    domain: z.string(required_error).min(1, { message: required_error.required_error }),
+                    size: z.string(required_error).min(1, { message: required_error.required_error }),
+                    lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
+                    lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
+                })
+            } else {
+                updatedSchema = FormSchema.extend({
+                    reasons: z.string(required_error).min(1, { message: required_error.required_error }),
+                    locations: z.string(required_error).min(1, { message: required_error.required_error }),
+                    fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
+                    industry: z.string(required_error).min(1, { message: required_error.required_error }),
+                    domain: z.string(required_error).min(1, { message: required_error.required_error }),
+                    size: z.string(required_error).min(1, { message: required_error.required_error }),
+                    lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
+                    lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
+                })
+            }
         } else {
             console.log("neh")
             updatedSchema = FormSchema
         }
+        if (addDialogOpen) {
+            updatedSchema = updatedSchema.extend({
+                contacts: FormSchema2
+            })
+
+        } else {
+            updatedSchema = updatedSchema.omit({ contacts: true })
+        }
         setFormSchema(updatedSchema)
+        setNumberOfErrors(undefined)
+        form.clearErrors()
     }
 
-    
+
 
     function preprocess() {
         console.log("preprocess")
@@ -619,7 +624,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
@@ -674,7 +679,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                 <IconProfile size={24} />
                                                                             </TooltipTrigger>
                                                                             <TooltipContent side="top">
-                                                                                Owner
+                                                                                Owned By
                                                                             </TooltipContent>
                                                                         </Tooltip>
                                                                     </TooltipProvider>
@@ -962,7 +967,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         )}
                                     />
                                 </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 ">
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
@@ -976,7 +981,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         </Tooltip>
                                     </TooltipProvider>
 
-                                    <div className='flex ml-[2px] flex-row w-full items-center'>
+                                    <div className='flex ml-[2px] flex-row w-full items-start'>
                                         <FormField
                                             control={form.control}
                                             name="fixedCtcBudgetCurrency"
@@ -1001,7 +1006,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
                                                 </FormItem>
                                             )}
                                         />
@@ -1018,7 +1022,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage className='ml-[-82px]'/>
                                                 </FormItem>
 
                                             )}
@@ -1039,7 +1043,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         </Tooltip>
                                     </TooltipProvider>
 
-                                    <div className='flex ml-[2px] flex-row w-full items-center'>
+                                    <div className='flex ml-[2px] flex-row w-full items-start'>
                                         <FormField
                                             control={form.control}
                                             name="fixedBudgetUlCurrency"
@@ -1064,7 +1068,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
                                                 </FormItem>
                                             )}
                                         />
@@ -1081,7 +1084,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage className='ml-[-82px]'/>
                                                 </FormItem>
                                             )}
                                         />
@@ -1101,7 +1104,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         </Tooltip>
                                     </TooltipProvider>
 
-                                    <div className='flex ml-[2px] flex-row w-full items-center'>
+                                    <div className='flex ml-[2px] flex-row w-full items-start'>
                                         <FormField
                                             control={form.control}
                                             name="esopRsusUlCurrency"
@@ -1126,7 +1129,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
                                                 </FormItem>
                                             )}
                                         />
@@ -1143,7 +1145,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage className='ml-[-82px]'/>
                                                 </FormItem>
                                             )}
                                         />
@@ -1252,7 +1254,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="industry"
@@ -1260,7 +1262,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1282,7 +1284,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[8px] p-0 responsive-popover-content-width" >
+                                                    <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Industry" />
                                                             <CommandEmpty>Industry not found.</CommandEmpty>
@@ -1296,17 +1298,19 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                 form.setValue("industry", industry.value)
                                                                             }}
                                                                         >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {industry.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value === industry.value
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {industry.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === industry.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
                                                                         </CommandItem>
                                                                     ))}
                                                                 </div>
@@ -1314,6 +1318,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
+                                                <FormMessage className={selectFormMessageClasses} />
+
                                             </FormItem>
                                         )}
                                     />
@@ -1412,7 +1418,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="lastFundingStage"
@@ -1420,7 +1426,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1442,7 +1448,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[8px] p-0 responsive-popover-content-width" >
+                                                    <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                             <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -1456,17 +1462,19 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                 form.setValue("lastFundingStage", lastFundingStage.value)
                                                                             }}
                                                                         >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {lastFundingStage.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value === lastFundingStage.value
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {lastFundingStage.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === lastFundingStage.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
                                                                         </CommandItem>
                                                                     ))}
                                                                 </div>
@@ -1474,6 +1482,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
+                                                <FormMessage className={selectFormMessageClasses} />
                                             </FormItem>
                                         )}
                                     />
@@ -1844,17 +1853,19 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                             form.setValue("contacts.designation", designation.value)
                                                                                                         }}
                                                                                                     >
-                                                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                                                            {designation.label}
-                                                                                                            <Check
-                                                                                                                className={cn(
-                                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                                    field.value === designation.value
-                                                                                                                        ? "opacity-100"
-                                                                                                                        : "opacity-0"
-                                                                                                                )}
-                                                                                                            />
-                                                                                                        </div>
+                                                                                                        <PopoverClose asChild>
+                                                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                                                {designation.label}
+                                                                                                                <Check
+                                                                                                                    className={cn(
+                                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                        field.value === designation.value
+                                                                                                                            ? "opacity-100"
+                                                                                                                            : "opacity-0"
+                                                                                                                    )}
+                                                                                                                />
+                                                                                                            </div>
+                                                                                                        </PopoverClose>
                                                                                                     </CommandItem>
                                                                                                 ))}
                                                                                             </div>
@@ -2025,8 +2036,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                 </div>
                             </div>
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs'>
-                                    <IconAlert size={16} />
+                                {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
+                                    <IconRequiredError size={16} />
                                     <span>
                                         {numberOfErrors} field(s) missing
                                     </span>
@@ -2044,7 +2055,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <div className='flex flex-row justify-end'>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button disabled={data.status.toLowerCase() !== "verified"} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                        <Button disabled={rowState?.status ? rowState?.status.toLowerCase() !== "verified" : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
                                             <span >Promote to Prospect</span> <IconArrowSquareRight size={20} />
                                         </Button>
                                     </DialogTrigger>
@@ -2052,7 +2063,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         <DialogHeader>
                                             <DialogTitle className="pt-[20px] pb-[10px]">
                                                 <div className="flex flex-row gap-4 items-center">
-                                                    <IconRequiredError size={28} />
+                                                    <IconRequiredError size={32} />
                                                     <span className="text-xl font-semibold">Missing Information</span>
                                                 </div>
 
@@ -2108,7 +2119,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     )
 
-    
+
 
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
         try {
@@ -2141,7 +2152,11 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/`, { method: "PATCH", body: JSON.stringify(leadData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            if (result.message === "success") {
+            if (result.message.toLowerCase() === "success") {
+                const { data: { status } } = result
+                setRowState({
+                    status: status
+                })
             }
         }
         catch (err) {
@@ -2183,12 +2198,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         }
     }
 
-    function requiredErrorComponent() {
-        return <div className={`${requiredErrorClasses} flex flex-row gap-[5px] items-center`}>
-            Required
-            <IconRequiredError size={16} />
-        </div>
-    }
+
 
 }
 

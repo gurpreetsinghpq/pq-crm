@@ -26,6 +26,7 @@ import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from '
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { PopoverClose } from '@radix-ui/react-popover'
 
 const required_error = {
     required_error: "This field is required"
@@ -66,20 +67,20 @@ const FormSchema = z.object({
     // creators: z.array(z.string()).refine((value) => value.some((item) => item), {
     //     message: "You have to select at least one Creator.",
     // }),
-    owners: z.string(required_error), // [x]
-    regions: z.string(required_error), // [x]
+    owners: z.string(), // [x]
+    regions: z.string(), // [x]
     sources: z.string(),
     statuses: z.string(),
     reasons: z.string().optional(),
-    role: z.string(required_error), // [x]
-    budget: z.string(required_error), // [x]
+    role: z.string(), // [x]
+    budget: z.string(), // [x]
     closedBy: z.string().optional(),
     fulfilledBy: z.string().optional(),
     locations: z.string().optional(), // [x]
     fixedCtcBudget: z.string().optional(), // [x]
     fixedCtcBudgetCurrency: z.string().optional(),
     dealValue: z.string().optional(),
-    orgnaisationName: z.string(required_error), // [x]
+    orgnaisationName: z.string(), // [x]
     registeredName: z.string().optional(),
     industry: z.string().optional(), // [x]
     domain: z.string().optional(), // [x]
@@ -127,7 +128,8 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
     const [budgetKey, setBudgetKey] = React.useState<number>(+new Date())
     const [places, setPlaces] = React.useState([])
     const [beforePromoteToProspectDivsArray, setBeforePromoteToProspectDivsArray] = useState<any[]>([]);
-
+    // used for handling on side sheet open and result from api as side sheet is not been closed when clicked on save (usage: promote to prospect)
+    const [rowState, setRowState] = useState<Partial<ProspectsGetResponse>>()
     const { childData: { row }, setChildDataHandler } = parentData
 
 
@@ -135,6 +137,9 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ProspectsGetResponse = row.original
     useEffect(() => {
+        setRowState({
+            status: data.status
+        })
         setDummyContactData(data.lead.organisation.contacts)
         const status = labelToValue(data.status, PROSPECT_STATUSES)
         if (status) {
@@ -142,40 +147,9 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         }
 
 
+
     }, [])
 
-    useEffect(() => {
-        let updatedSchema
-        const status = labelToValue(data.status, PROSPECT_STATUSES)
-        if (status) {
-            if (status.toLowerCase() !== "unverified") {
-                updatedSchema = FormSchema.extend({
-                    locations: z.string(required_error).min(1, { message: required_error.required_error }),
-                    fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
-                    industry: z.string(required_error).min(1, { message: required_error.required_error }),
-                    domain: z.string(required_error).min(1, { message: required_error.required_error }),
-                    size: z.string(required_error).min(1, { message: required_error.required_error }),
-                    lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
-                    lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
-                })
-            } else {
-                updatedSchema = FormSchema
-            }
-            if (addDialogOpen) {
-                updatedSchema = updatedSchema.extend({
-                    contacts: FormSchema2
-                })
-
-            } else {
-                updatedSchema = updatedSchema.omit({ contacts: true })
-            }
-        }
-        setFormSchema(updatedSchema)
-        if (addDialogOpen) {
-            resetForm2()
-        }
-        safeparse2()
-    }, [addDialogOpen])
 
     function closeSideSheet() {
         setChildDataHandler('row', undefined)
@@ -215,16 +189,28 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
             fixedCtcBudgetCurrency: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getCurrencyCode() || "INR",
             fixedBudgetUlCurrency: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getCurrencyCode() || "INR",
             esopRsusUlCurrency: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getCurrencyCode() || "INR",
-            registeredName: data.lead.organisation.registered_name,
-            billingAddress: data.lead.organisation.billing_address,
-            shippingAddress: data.lead.organisation.shipping_address,
-            gstinVatGstNo: data.lead.organisation.govt_id,
-            serviceFee: data.lead.service_fee
+            registeredName: data.lead.organisation.registered_name || "",
+            billingAddress: data.lead.organisation.billing_address || "",
+            shippingAddress: data.lead.organisation.shipping_address || "",
+            gstinVatGstNo: data.lead.organisation.govt_id || "",
+            serviceFee: data.lead.service_fee || ""
         },
         mode: "all"
     })
     const watcher = form.watch()
 
+
+
+    useEffect(() => {
+        const status = labelToValue(form.getValues("statuses"), PROSPECT_STATUSES)
+        if (status) {
+            updateFormSchemaOnStatusChange(status)
+        }
+        if (addDialogOpen) {
+            resetForm2()
+        }
+        safeparse2()
+    }, [addDialogOpen])
 
     useEffect(() => {
         safeparse2()
@@ -340,7 +326,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                 const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
                 if (result.message === "success") {
-                    closeSideSheet()
+                    // closeSideSheet()
                 }
             }
             catch (err) {
@@ -353,7 +339,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
     async function patchData() {
 
-
+        setNumberOfErrors(undefined)
         const finalContactData = dummyContactData.filter((contact) => !contact.id)
         let keysToRemove: any = ["contactId", "isLocallyAdded",]
         finalContactData.forEach((item) => {
@@ -429,7 +415,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         try {
             const results = await Promise.all(apiPromises);
             console.log("All API requests completed:", results);
-            closeSideSheet()
+            // closeSideSheet()
         } catch (error) {
             console.error("Error fetching data:", error);
         }
@@ -461,21 +447,29 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
     }
     function updateFormSchemaOnStatusChange(value: string) {
         let updatedSchema
-        if (value.toLowerCase() !== "unverified") {
+        if (value.toLowerCase() !== "qualified") {
+            console.log("else")
             updatedSchema = FormSchema.extend({
-                locations: z.string(required_error).min(1, { message: required_error.required_error }),
-                fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
-                industry: z.string(required_error).min(1, { message: required_error.required_error }),
-                domain: z.string(required_error).min(1, { message: required_error.required_error }),
-                size: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
+                reasons: z.string(required_error).min(1, { message: required_error.required_error }),
             })
         } else {
-            console.log("neh")
-            updatedSchema = FormSchema
+            console.log("aualified")
+            updatedSchema = FormSchema.extend({
+                reasons: z.string().optional()
+            })
+        }
+        if (addDialogOpen) {
+            updatedSchema = updatedSchema.extend({
+                contacts: FormSchema2
+            })
+
+        } else {
+            updatedSchema = updatedSchema.omit({ contacts: true })
         }
         setFormSchema(updatedSchema)
+        setNumberOfErrors(undefined)
+        form.clearErrors()
+        console.log("first ", FormSchema)
     }
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -641,10 +635,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             }
                                                         </SelectContent>
                                                     </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
@@ -699,7 +690,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                                 <IconProfile size={24} />
                                                                             </TooltipTrigger>
                                                                             <TooltipContent side="top">
-                                                                                Owner
+                                                                                Owned By
                                                                             </TooltipContent>
                                                                         </Tooltip>
                                                                     </TooltipProvider>
@@ -727,45 +718,29 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                     />
 
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ">
+
+                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div className='text-[#98A2B3]'>
+                                                    <IconClosedBy size={24} />
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top">
+                                                Closed By
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+
                                     <FormField
                                         control={form.control}
-                                        name="owners"
+                                        name="closedBy"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
-                                                                <div className='text-[#98A2B3]'>
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger>
-                                                                                <IconClosedBy size={24} />
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Closed By
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select Closed By" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            CLOSEDBY.filter((closedBy) => closedBy.value !== 'allOwners').map((closedBy, index) => {
-                                                                return <SelectItem key={index} value={closedBy.value}>
-                                                                    {closedBy.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
+                                                <FormControl>
+                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Closed By" {...field} />
+                                                </FormControl>
                                                 <FormMessage className={selectFormMessageClasses} />
                                             </FormItem>
                                         )}
@@ -1018,7 +993,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         </Tooltip>
                                     </TooltipProvider>
 
-                                    <div className='flex ml-[2px] flex-row w-full items-center'>
+                                    <div className='flex ml-[2px] flex-row w-full items-start'>
                                         <FormField
                                             control={form.control}
                                             name="fixedCtcBudgetCurrency"
@@ -1043,7 +1018,6 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                     {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
                                                 </FormItem>
                                             )}
                                         />
@@ -1060,7 +1034,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage className='ml-[-82px]'/>
                                                 </FormItem>
 
                                             )}
@@ -1081,7 +1055,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         </Tooltip>
                                     </TooltipProvider>
 
-                                    <div className='flex ml-[2px] flex-row w-full items-center'>
+                                    <div className='flex ml-[2px] flex-row w-full items-start'>
                                         <FormField
                                             control={form.control}
                                             name="fixedBudgetUlCurrency"
@@ -1106,7 +1080,6 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                     {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
                                                 </FormItem>
                                             )}
                                         />
@@ -1123,7 +1096,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage className='ml-[-82px]'/>
                                                 </FormItem>
                                             )}
                                         />
@@ -1143,7 +1116,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         </Tooltip>
                                     </TooltipProvider>
 
-                                    <div className='flex ml-[2px] flex-row w-full items-center'>
+                                    <div className='flex ml-[2px] flex-row w-full items-start'>
                                         <FormField
                                             control={form.control}
                                             name="esopRsusUlCurrency"
@@ -1168,7 +1141,6 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                     {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
                                                 </FormItem>
                                             )}
                                         />
@@ -1185,7 +1157,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage />
+                                                    <FormMessage className='ml-[-82px]'/>
                                                 </FormItem>
                                             )}
                                         />
@@ -1296,7 +1268,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="industry"
@@ -1304,7 +1276,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1326,7 +1298,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[8px] p-0 responsive-popover-content-width" >
+                                                    <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Industry" />
                                                             <CommandEmpty>Industry not found.</CommandEmpty>
@@ -1338,19 +1310,22 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                             key={industry.value}
                                                                             onSelect={() => {
                                                                                 form.setValue("industry", industry.value)
+
                                                                             }}
                                                                         >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {industry.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value === industry.value
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {industry.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === industry.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
                                                                         </CommandItem>
                                                                     ))}
                                                                 </div>
@@ -1358,6 +1333,8 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
+                                                <FormMessage className={selectFormMessageClasses} />
+
                                             </FormItem>
                                         )}
                                     />
@@ -1456,7 +1433,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="lastFundingStage"
@@ -1464,7 +1441,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1486,7 +1463,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[8px] p-0 responsive-popover-content-width" >
+                                                    <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                             <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -1500,17 +1477,19 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                                 form.setValue("lastFundingStage", lastFundingStage.value)
                                                                             }}
                                                                         >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {lastFundingStage.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value === lastFundingStage.value
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {lastFundingStage.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === lastFundingStage.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
                                                                         </CommandItem>
                                                                     ))}
                                                                 </div>
@@ -1518,6 +1497,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
+                                                <FormMessage className={selectFormMessageClasses} />
                                             </FormItem>
                                         )}
                                     />
@@ -1594,7 +1574,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <FormControl>
                                                     <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Billing Address" {...field} />
                                                 </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -1622,7 +1602,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <FormControl>
                                                     <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Shipping Address" {...field} />
                                                 </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -1652,7 +1632,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <FormControl>
                                                     <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="GSTIN/VAT/GST Number" {...field} />
                                                 </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -1821,7 +1801,11 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
                                                 <FormControl>
-                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Service Fee" {...field} />
+                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Service Fee" {...field}
+                                                        onKeyPress={handleKeyPress}
+                                                        onChange={event => {
+                                                            return handleOnChangeNumericDecimal(event, field)
+                                                        }} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -1888,17 +1872,19 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                                                             form.setValue("contacts.designation", designation.value)
                                                                                                         }}
                                                                                                     >
-                                                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                                                            {designation.label}
-                                                                                                            <Check
-                                                                                                                className={cn(
-                                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                                    field.value === designation.value
-                                                                                                                        ? "opacity-100"
-                                                                                                                        : "opacity-0"
-                                                                                                                )}
-                                                                                                            />
-                                                                                                        </div>
+                                                                                                        <PopoverClose asChild>
+                                                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                                                {designation.label}
+                                                                                                                <Check
+                                                                                                                    className={cn(
+                                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                        field.value === designation.value
+                                                                                                                            ? "opacity-100"
+                                                                                                                            : "opacity-0"
+                                                                                                                    )}
+                                                                                                                />
+                                                                                                            </div>
+                                                                                                        </PopoverClose>
                                                                                                     </CommandItem>
                                                                                                 ))}
                                                                                             </div>
@@ -2069,8 +2055,8 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                 </div>
                             </div>
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs'>
-                                    <IconAlert size={16} />
+                                {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
+                                    <IconRequiredError size={16} />
                                     <span>
                                         {numberOfErrors} field(s) missing
                                     </span>
@@ -2088,7 +2074,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                             <div className='flex flex-row justify-end'>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button disabled={data.status.toLowerCase() !== "verified"} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                        <Button disabled={rowState?.status ? rowState?.status.toLowerCase() !== "qualified" : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
                                             <span >Promote to Deal</span> <IconArrowSquareRight size={20} />
                                         </Button>
                                     </DialogTrigger>
@@ -2096,7 +2082,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         <DialogHeader>
                                             <DialogTitle className="pt-[20px] pb-[10px]">
                                                 <div className="flex flex-row gap-4 items-center">
-                                                    <IconRequiredError size={28} />
+                                                    <IconRequiredError size={32} />
                                                     <span className="text-xl font-semibold">Missing Information</span>
                                                 </div>
 
@@ -2160,6 +2146,15 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         } else {
             return field.onChange((+cleanedValue).toString())
         }
+    }
+
+    function handleOnChangeNumericDecimal(event: React.ChangeEvent<HTMLInputElement>, field: any, isSeparator: boolean = true) {
+        // Remove all non-numeric characters except the first one and allow a single decimal point.
+        const cleanedValue = event.target.value.replace(/[^0-9.]+/g, '').replace(/^(\d*\.\d*).*$/, '$1');
+        console.log(cleanedValue);
+
+        // Return the cleaned numeric value as a string without formatting.
+        return field.onChange(Number(cleanedValue));
     }
 
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
@@ -2248,7 +2243,11 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
             })
 
             const result = await dataResp.json();
-            if (result.message === "success") {
+            if (result.status == "1") {
+                const { data: { status } } = result
+                setRowState({
+                    status: status
+                })
                 // Handle success for each contact if needed
             }
         } catch (err) {
@@ -2256,15 +2255,5 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         }
     }
 }
-
-function requiredErrorComponent() {
-    return <div className={`${requiredErrorClasses} flex flex-row gap-[5px] items-center`}>
-        Required
-        <IconRequiredError size={16} />
-    </div>
-}
-
-
-
 
 export default SideSheetProspects

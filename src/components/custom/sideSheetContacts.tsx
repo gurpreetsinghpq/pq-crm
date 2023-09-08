@@ -26,6 +26,7 @@ import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon, Phone }
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { PopoverClose } from '@radix-ui/react-popover'
 
 const required_error = {
     required_error: "This field is required"
@@ -424,7 +425,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                                         </Tooltip>
                                                                     </TooltipProvider>
                                                                 </div>
-                                                                <SelectValue placeholder="Designation" />
+                                                                <SelectValue placeholder="Organisation Name" />
                                                             </div>
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -484,7 +485,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className="mt-[8px] p-0 w-[32vw]" >
+                                                            <PopoverContent className="mt-[8px] p-0 w-[33vw]" >
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Designation" />
                                                                     <CommandEmpty>Designation not found.</CommandEmpty>
@@ -498,17 +499,19 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                                                         form.setValue("designation", designation.value)
                                                                                     }}
                                                                                 >
-                                                                                    <div className="flex flex-row items-center justify-between w-full">
-                                                                                        {designation.label}
-                                                                                        <Check
-                                                                                            className={cn(
-                                                                                                "mr-2 h-4 w-4 text-purple-600",
-                                                                                                field.value === designation.value
-                                                                                                    ? "opacity-100"
-                                                                                                    : "opacity-0"
-                                                                                            )}
-                                                                                        />
-                                                                                    </div>
+                                                                                    <PopoverClose asChild>
+                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                            {designation.label}
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                    field.value === designation.value
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </PopoverClose>
                                                                                 </CommandItem>
                                                                             ))}
                                                                         </div>
@@ -620,7 +623,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                     render={({ field }) => (
                                                         <FormItem className='flex-1 '>
                                                             <FormControl>
-                                                                <Input type="text"  className={`border-none ${commonClasses} ${commonFontClasses} `}  placeholder="Phone No" {...field} />
+                                                                <Input type="text" className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Phone No" {...field} />
                                                             </FormControl>
                                                         </FormItem>
                                                     )}
