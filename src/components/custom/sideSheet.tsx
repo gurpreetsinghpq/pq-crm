@@ -1945,6 +1945,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                             form.setValue("contacts.std_code", cc.value)
                                                                                                         }}
                                                                                                     >
+                                                                                                        <PopoverClose asChild>
                                                                                                         <div className="flex flex-row items-center justify-between w-full">
                                                                                                             {cc.label}
                                                                                                             <Check
@@ -1955,6 +1956,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                                         : "opacity-0"
                                                                                                                 )} />
                                                                                                         </div>
+                                                                                                        </PopoverClose>
                                                                                                     </CommandItem>
                                                                                                 ))}
                                                                                             </div>

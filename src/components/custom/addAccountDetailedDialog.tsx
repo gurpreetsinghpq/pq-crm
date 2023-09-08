@@ -26,6 +26,7 @@ import Image from 'next/image'
 import { formatData, getToken } from './leads'
 import Link from 'next/link'
 import { contactListClasses } from '@/app/constants/classes'
+import { PopoverClose } from '@radix-ui/react-popover'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -631,7 +632,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                         </div>}
                         {dummyContactData?.length > 0 && showContactForm && <div className="bg-gray-200 h-[1px]" ></div>}
                         {showContactForm && <div className='flex flex-col'>
-                        <FormField
+                            <FormField
                                 control={form2.control}
                                 name="name"
                                 render={({ field }) => (
@@ -769,17 +770,19 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                                             form2.setValue("std_code", cc.value)
                                                                         }}
                                                                     >
-                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                            {cc.label}
-                                                                            <Check
-                                                                                className={cn(
-                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                    field.value === (cc.value)
-                                                                                        ? "opacity-100"
-                                                                                        : "opacity-0"
-                                                                                )}
-                                                                            />
-                                                                        </div>
+                                                                        <PopoverClose asChild>
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {cc.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === (cc.value)
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </PopoverClose>
                                                                     </CommandItem>
                                                                 ))}
                                                             </div>

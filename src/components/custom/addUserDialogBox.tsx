@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
 import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { PopoverClose } from '@radix-ui/react-popover'
 
 const FormSchema = z.object({
     firstName: z.string({
@@ -171,16 +172,18 @@ function AddUserDialogBox({ children }: { children: any }) {
                                                                                             form.setValue("std_code", cc.value)
                                                                                         }}
                                                                                     >
-                                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                                            {cc.label}
-                                                                                            <Check
-                                                                                                className={cn(
-                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                    field.value?.includes(cc.value)
-                                                                                                        ? "opacity-100"
-                                                                                                        : "opacity-0"
-                                                                                                )} />
-                                                                                        </div>
+                                                                                        <PopoverClose asChild>
+                                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                                {cc.label}
+                                                                                                <Check
+                                                                                                    className={cn(
+                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                        field.value?.includes(cc.value)
+                                                                                                            ? "opacity-100"
+                                                                                                            : "opacity-0"
+                                                                                                    )} />
+                                                                                            </div>
+                                                                                        </PopoverClose>
                                                                                     </CommandItem>
                                                                                 ))}
                                                                             </div>
