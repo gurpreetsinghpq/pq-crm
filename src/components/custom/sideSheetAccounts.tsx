@@ -25,7 +25,7 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { contactListClasses } from '@/app/constants/classes'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 
 const required_error = {
     required_error: "This field is required"
@@ -66,7 +66,7 @@ const FormSchema = z.object({
     // creators: z.array(z.string()).refine((value) => value.some((item) => item), {
     //     message: "You have to select at least one Creator.",
     // }),
-    orgnaisationName: z.string(required_error), // [x]
+    organisationName: z.string(required_error).min(1), // [x]
     registeredName: z.string().optional(),
     industry: z.string().optional(), // [x]
     domain: z.string().optional(), // [x]
@@ -93,13 +93,6 @@ const form2Defaults: z.infer<typeof FormSchema2> = {
 }
 
 
-const commonClasses = "shadow-none focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonClasses2 = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonFontClasses = "text-sm font-medium text-gray-700"
-const requiredErrorClasses = "text-sm font-medium text-error-500"
-const selectFormMessageClasses = "pl-[36px] pb-[8px]"
-const preFilledClasses = "disabled:text-black-700 disabled:opacity-1"
-const disabledClasses = "bg-inherit"
 
 function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
 
@@ -155,7 +148,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            orgnaisationName: data.name,
+            organisationName: data.name,
             industry: labelToValue(data.industry || "", INDUSTRY),
             domain: labelToValue(data.domain || "", DOMAINS),
             size: labelToValue(data.size || "", SIZE_OF_COMPANY),
@@ -301,7 +294,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         })
 
         const orgData: Partial<PatchOrganisation> = {
-            name: form.getValues("orgnaisationName"),
+            name: form.getValues("organisationName"),
             industry: valueToLabel(form.getValues("industry") || "", INDUSTRY),
             domain: valueToLabel(form.getValues("domain") || "", DOMAINS),
             size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY),
@@ -363,13 +356,13 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         let updatedSchema
         if (value.toLowerCase() !== "unverified") {
             updatedSchema = FormSchema.extend({
-                locations: z.string(required_error).min(1, { message: required_error.required_error }),
-                fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
-                industry: z.string(required_error).min(1, { message: required_error.required_error }),
-                domain: z.string(required_error).min(1, { message: required_error.required_error }),
-                size: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
+                locations: z.string(required_error).optional(),
+                fixedCtcBudget: z.string(required_error).optional(),
+                industry: z.string(required_error).optional(),
+                domain: z.string(required_error).optional(),
+                size: z.string(required_error).optional(),
+                lastFundingStage: z.string(required_error).optional(),
+                lastFundingAmount: z.string(required_error).optional(), // [x]
             })
         } else {
             console.log("neh")
@@ -507,7 +500,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                     <span className='text-gray-600 text-xs font-semibold' >Cancel</span>
                                                 </div>
 
-                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("name").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form.formState.isValid && addContact()}>
+                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("organisationName").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form.formState.isValid && addContact()}>
                                                     <IconTick size={20} />
                                                     <span className='text-gray-600 text-xs font-semibold' >Save</span>
                                                 </div>
@@ -582,51 +575,68 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                         )}
                                     />
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="industry"
                                         render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconIndustry size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Industry
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
+                                            <FormItem className='w-full cursor-pointer'>
+                                                <Popover>
+                                                    <PopoverTrigger asChild >
+                                                        <div className='flex flex-row gap-[8px] items-center text-gray-700 ' >
+                                                            <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div>
+                                                                            <IconIndustry size={24} color="#98A2B3" />
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        Industry
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Industry</span>}
                                                                 </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Industry" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" />
                                                             </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent >
-                                                        <div className='h-[200px] overflow-y-scroll '>
-                                                            {
-                                                                INDUSTRY.map((industry, index) => {
-                                                                    return <SelectItem key={index} value={industry.value}>
-                                                                        {industry.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
                                                         </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
+
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="mt-[8px] p-0 w-[32vw]" >
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Industry" />
+                                                            <CommandEmpty>Industry not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {INDUSTRY.map((industry) => (
+                                                                        <CommandItem
+                                                                            value={industry.value}
+                                                                            key={industry.value}
+                                                                            onSelect={() => {
+                                                                                form.setValue("industry", industry.value)
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {industry.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === industry.value
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                             </FormItem>
                                         )}
                                     />
@@ -725,51 +735,68 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                         )}
                                     />
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="lastFundingStage"
                                         render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconCoinsHand size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Last Funding Stage
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
+                                            <FormItem className='w-full cursor-pointer'>
+                                                <Popover>
+                                                    <PopoverTrigger asChild >
+                                                        <div className='flex flex-row gap-[8px] items-center text-gray-700 ' >
+                                                            <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div>
+                                                                            <IconCoinsHand size={24} color="#98A2B3" />
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        Last Funding Stage
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Last Funding Stage</span>}
                                                                 </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Last Funding Stage" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" />
                                                             </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <div className='h-[200px] overflow-y-scroll '>
-                                                            {
-                                                                LAST_FUNDING_STAGE.map((lastFundingStage, index) => {
-                                                                    return <SelectItem key={index} value={lastFundingStage.value}>
-                                                                        {lastFundingStage.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
                                                         </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
+
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="mt-[8px] p-0 w-[32vw]" >
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Funding Stage" />
+                                                            <CommandEmpty>Funding Stage not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {LAST_FUNDING_STAGE.map((lastFundingStage) => (
+                                                                        <CommandItem
+                                                                            value={lastFundingStage.value}
+                                                                            key={lastFundingStage.value}
+                                                                            onSelect={() => {
+                                                                                form.setValue("lastFundingStage", lastFundingStage.value)
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {lastFundingStage.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === lastFundingStage.value
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                             </FormItem>
                                         )}
                                     />
@@ -1151,12 +1178,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                 </div>
                             </div>
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs'>
-                                    <IconAlert size={16} />
-                                    <span>
-                                        {numberOfErrors} field(s) missing
-                                    </span>
-                                </div>}
+                                
                                 <div className='flex flex-row flex-1 justify-end '>
                                     <Button variant="default" type="submit" >Save</Button>
 

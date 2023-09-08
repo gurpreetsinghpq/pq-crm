@@ -25,10 +25,8 @@ import { Tooltip } from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { formatData, getToken } from './leads'
 import Link from 'next/link'
-import { contactListClasses } from '@/app/constants/classes'
+import { commonClasses, commonFontClassesAddDialog, contactListClasses } from '@/app/constants/classes'
 
-
-const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
 
 
 const FormSchema = z.object({
@@ -365,7 +363,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
+                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses}`} placeholder="Organisation Name" {...field} />
 
                                     </FormControl>
                                 </FormItem>
@@ -400,7 +398,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                             return field.onChange(value)
                                         }} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className={commonClasses}>
+                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                     <SelectValue placeholder="Select Region" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -430,7 +428,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     <FormItem>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className={commonClasses}>
+                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                     <SelectValue placeholder="Select Role Type" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -462,7 +460,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     <FormItem>
                                         <Select onValueChange={field.onChange} key={budgetKey}>
                                             <FormControl>
-                                                <SelectTrigger disabled={!form.getValues("region")} className={commonClasses}>
+                                                <SelectTrigger disabled={!form.getValues("region")} className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                     <SelectValue placeholder="Select Budget Range" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -503,7 +501,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     <FormItem>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className={commonClasses}>
+                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                     <SelectValue placeholder="Select Lead Source" />
                                                 </SelectTrigger>
                                             </FormControl>
@@ -594,7 +592,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <Input type="text" className={`mt-3 ${commonClasses}`} placeholder="Contact Name" {...field} />
+                                            <Input type="text" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses}`} placeholder="Contact Name" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -661,7 +659,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                             <FormItem>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={commonClasses}>
+                                                        <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                             <SelectValue placeholder="Type" />
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -690,7 +688,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
-                                            <Input type="email" className={`mt-3 ${commonClasses}`} placeholder="Email" {...field} />
+                                            <Input type="email" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses}`} placeholder="Email" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}
@@ -753,7 +751,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     render={({ field }) => (
                                         <FormItem className='mt-3  w-3/4 flex-1'>
                                             <FormControl>
-                                                <Input type="text" className={` ${commonClasses}`} placeholder="Phone No" {...field} />
+                                                <Input type="text" className={` ${commonFontClassesAddDialog} ${commonClasses}`} placeholder="Phone No" {...field} />
                                             </FormControl>
                                         </FormItem>
                                     )}

@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
 import { ALL_DESIGNATIONS, ALL_LAST_FUNDING_STAGE, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
@@ -103,6 +103,10 @@ export default function DataTable<TData, TValue>({
   // const { tableLeadLength, setTableLeadRow } = useContext(TableContext)
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  
+  const getRowId = useCallback((row:any) => {
+    return row.id
+  }, [])
 
   const table = useReactTable({
     data,
@@ -118,8 +122,8 @@ export default function DataTable<TData, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
-
     },
+    getRowId
   })
 
 

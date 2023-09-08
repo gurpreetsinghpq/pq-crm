@@ -1,1 +1,9 @@
 export const contactListClasses = 'relative flex flex-col border-[1px] border-gray-300 rounded-[8px] p-[16px] mb-[12px]'
+export const commonClasses = "shadow-none focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
+export const commonClasses2 = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
+export const commonFontClasses = "text-sm font-medium text-gray-700"
+export const requiredErrorClasses = "text-sm font-medium text-error-500"
+export const selectFormMessageClasses = "pl-[36px] pb-[8px]"
+export const preFilledClasses = "disabled:text-black-700 disabled:opacity-1"
+export const disabledClasses = "bg-inherit"
+export const commonFontClassesAddDialog = "text-md font-normal text-gray-900"

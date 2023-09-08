@@ -34,7 +34,7 @@ import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCros
 import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User, UsersGetResponse } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -46,6 +46,8 @@ import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import { columnsContacts } from "./table/columns-contact"
 import SideSheetContacts from "./sideSheetContacts"
+import AddUserDialogBox from "./addUserDialogBox"
+import { columnsUsers } from "./table/columns-users"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -77,7 +79,7 @@ const FormSchema = z.object({
 export interface IChildData {
     row: any
 }
-let dataFromApi: LeadInterface[] = []
+let dataFromApi: UsersGetResponse[] = []
 
 const COMMON_TAB_CLASSES = "text-md font-semibold py-[8px] px-[12px] cursor-pointer"
 const SELECTED_TAB_CLASSES = "bg-purple-100 rounded-[6px] text-purple-700 "
@@ -92,7 +94,7 @@ const UserManagement = () => {
 
     const router = useRouter();
 
-    const [data, setContactData] = React.useState<ContactsGetResponse[]>([])
+    const [data, setUserData] = React.useState<UsersGetResponse[]>([])
     const [currentTab, setCurrentTab] = React.useState<string>(TABS.USERS)
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
@@ -187,11 +189,11 @@ const UserManagement = () => {
     async function fetchLeadData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            let data: ContactsGetResponse[] = structuredClone(result.data)
+            let data: UsersGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
-            setContactData(dataFromApi)
+            setUserData(dataFromApi)
             setIsLoading(false)
             // if (filteredData.length == 0) {
             //     setTableLength(0)
@@ -220,7 +222,7 @@ const UserManagement = () => {
     }, [watcher])
 
     // React.useEffect(() => {
-    //     setContactData(filterInboxOrArchive(dataFromApi, isInbox))
+    //     setUserData(filterInboxOrArchive(dataFromApi, isInbox))
     // }, [isInbox])
     // console.log(tableLeadLength)
 
@@ -290,12 +292,12 @@ const UserManagement = () => {
             });
     }
 
-    const addAccountDialogButton = () => <AddLeadDialog page={"contacts"} fetchLeadData={fetchLeadData} >
-        <Button className="flex flex-row gap-2">
+    const addAccountDialogButton = () => <AddUserDialogBox>
+        <Button className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add User
         </Button>
-    </AddLeadDialog>
+    </AddUserDialogBox>
 
     return <div className="flex flex-col flex-1">
         <div className="flex flex-row px-6 py-3 border-b-2 border-gray-100">
@@ -329,7 +331,7 @@ const UserManagement = () => {
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
-                                            Activated
+                                            Active Users
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
@@ -342,7 +344,7 @@ const UserManagement = () => {
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
-                                            Deactivated
+                                            Deactive Users
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
@@ -487,7 +489,7 @@ const UserManagement = () => {
                                                                                     form.setValue("functions", [...field.value.filter((value) => value !== 'allFunctions'), func.value])
                                                                                 }
                                                                                 else if ((field.value?.length === 1 && field.value?.includes(func.value) || func.value == 'allFunctions')) {
-                                                                                    form.setValue("functions", ["allfunctions"])
+                                                                                    form.setValue("functions", ["allFunctions"])
 
                                                                                 }
                                                                                 else if (field.value?.includes(func.value)) {
@@ -592,7 +594,7 @@ const UserManagement = () => {
                                             }}
                                         />
                                     </div> */}
-                                    <div className="text-md font-medium">
+                                    {/* <div className="text-md font-medium">
                                         <FormField
                                             control={form.control}
                                             name="statuses"
@@ -632,7 +634,7 @@ const UserManagement = () => {
                                             }}
                                         />
 
-                                    </div>
+                                    </div> */}
                                 </>}
                         </div>
                     </div>
@@ -642,7 +644,7 @@ const UserManagement = () => {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsContacts} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"contacts"} />
+                    <DataTable columns={columnsUsers} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"contacts"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconUsers size="20" />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEdit2, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
+import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEdit2, IconEmail, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
 import { IChildData, formatData, getToken } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
@@ -22,9 +22,10 @@ import { DialogClose } from '@radix-ui/react-dialog'
 import { acronymFinder, guidGenerator } from './addLeadDetailedDialog'
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
+import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 
 const required_error = {
     required_error: "This field is required"
@@ -60,13 +61,6 @@ const formDefaults: z.infer<typeof FormSchema> = {
 }
 
 
-const commonClasses = "shadow-none focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonClasses2 = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonFontClasses = "text-sm font-medium text-gray-700"
-const requiredErrorClasses = "text-sm font-medium text-error-500"
-const selectFormMessageClasses = "pl-[36px] pb-[8px]"
-const preFilledClasses = "disabled:text-black-700 disabled:opacity-1"
-const disabledClasses = "bg-inherit"
 
 function SideSheetContacts({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
 
@@ -227,12 +221,12 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
         if (value.toLowerCase() !== "unverified") {
             updatedSchema = FormSchema.extend({
                 locations: z.string(required_error).min(1, { message: required_error.required_error }),
-                fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
-                industry: z.string(required_error).min(1, { message: required_error.required_error }),
-                domain: z.string(required_error).min(1, { message: required_error.required_error }),
-                size: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
-                lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
+                fixedCtcBudget: z.string(required_error).optional(),
+                industry: z.string(required_error).optional(),
+                domain: z.string(required_error).optional(),
+                size: z.string(required_error).optional(),
+                lastFundingStage: z.string(required_error).optional(),
+                lastFundingAmount: z.string(required_error).optional(), // [x]
             })
         } else {
             console.log("neh")
@@ -400,8 +394,8 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
 
                                     </div>
                                 </div>
-                                <div className="bg-gray-200 mt-[20px] h-[1px]" ></div>
-                                <span className='px-[16px] mt-[10px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
+                                {/* <div className="bg-gray-200 mt-[20px] h-[1px]" ></div> */}
+                                <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                     <span>Account Details</span>
                                     <div className="bg-gray-200 mt-[20px] h-[1px]" ></div>
                                 </span>
@@ -457,113 +451,59 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                 <span className='px-[16px] mt-[24px] mb-[4px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                     <span>Contact Details</span>
                                 </span>
-                                <div className="bg-gray-200 h-[1px] mt-[10px]" ></div>
-                                <div className='px-[16px] flex flex-col w-full' >
-                                    {<div className='flex flex-col'>
-                                        <div className='flex flex-row gap-4 mt-3'>
-                                            <div className='flex flex-col  w-full'>
-                                                <FormField
-                                                    control={form.control}
-                                                    name="designation"
-                                                    render={({ field }) => (
-                                                        <FormItem className='w-full '>
-                                                            <Popover>
-                                                                <PopoverTrigger asChild>
-                                                                    <FormControl>
-                                                                        <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                            <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
-                                                                            </div>
-                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
-                                                                        </Button>
-                                                                    </FormControl>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent className="w-[610px] p-0">
-                                                                    <Command>
-                                                                        <CommandInput className='w-full' placeholder="Search Designation" />
-                                                                        <CommandEmpty>Designation not found.</CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                {DESIGNATION.map((designation) => (
-                                                                                    <CommandItem
-                                                                                        value={designation.value}
-                                                                                        key={designation.value}
-                                                                                        onSelect={() => {
-                                                                                            form.setValue("designation", designation.value)
-                                                                                        }}
-                                                                                    >
-                                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                                            {designation.label}
-                                                                                            <Check
-                                                                                                className={cn(
-                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                    field.value === designation.value
-                                                                                                        ? "opacity-100"
-                                                                                                        : "opacity-0"
-                                                                                                )}
-                                                                                            />
-                                                                                        </div>
-                                                                                    </CommandItem>
-                                                                                ))}
-                                                                            </div>
-                                                                        </CommandGroup>
-                                                                    </Command>
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-
-                                        </div>
-                                        <FormField
-                                            control={form.control}
-                                            name="email"
-                                            render={({ field }) => (
-                                                <Input type="email" className={`mt-3 ${commonClasses} ${commonFontClasses}`} placeholder="Email" {...field} />
-                                            )}
-                                        />
-
-                                        <div className='flex flex-row gap-2 items-center'>
+                                {/* <div className="bg-gray-200 h-[1px] mt-[10px]" ></div> */}
+                                <div className=' flex flex-col w-full' >
+                                    <div className='flex flex-col'>
+                                        <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                             <FormField
                                                 control={form.control}
-                                                name="std_code"
+                                                name="designation"
                                                 render={({ field }) => (
-                                                    <FormItem className='mt-3 '>
+                                                    <FormItem className='w-full cursor-pointer'>
                                                         <Popover>
-                                                            <PopoverTrigger asChild>
-                                                                <FormControl>
-                                                                    <Button variant={"google"} className="flex flex-row gap-2">
-                                                                        {/* {
-                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
-                                                            } */}
-                                                                        {COUNTRY_CODE.find((val) => val.value === field.value)?.value}
-                                                                        <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                                    </Button>
-                                                                </FormControl>
+                                                            <PopoverTrigger asChild >
+                                                                <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger asChild>
+                                                                                <div>
+                                                                                    <IconIndustry size={24} color="#98A2B3" />
+                                                                                </div>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent side="top">
+                                                                                Designation
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
+                                                                    <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                        <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                            {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
+                                                                        </div>
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                    </div>
+                                                                </div>
+
                                                             </PopoverTrigger>
-                                                            <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                            <PopoverContent className="mt-[8px] p-0 w-[32vw]" >
                                                                 <Command>
-                                                                    <CommandInput className='w-full' placeholder="Search Country Code" />
-                                                                    <CommandEmpty>Country code not found.</CommandEmpty>
+                                                                    <CommandInput className='w-full' placeholder="Search Designation" />
+                                                                    <CommandEmpty>Designation not found.</CommandEmpty>
                                                                     <CommandGroup>
                                                                         <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                            {COUNTRY_CODE.map((cc) => (
+                                                                            {DESIGNATION.map((designation) => (
                                                                                 <CommandItem
-                                                                                    value={cc.label}
-                                                                                    key={cc.label}
+                                                                                    value={designation.value}
+                                                                                    key={designation.value}
                                                                                     onSelect={() => {
-                                                                                        console.log("std_code", cc.value)
-                                                                                        changeStdCode(cc.value)
-                                                                                        form.setValue("std_code", cc.value)
+                                                                                        form.setValue("designation", designation.value)
                                                                                     }}
                                                                                 >
                                                                                     <div className="flex flex-row items-center justify-between w-full">
-                                                                                        {cc.label}
+                                                                                        {designation.label}
                                                                                         <Check
                                                                                             className={cn(
                                                                                                 "mr-2 h-4 w-4 text-purple-600",
-                                                                                                field.value?.includes(cc.value)
+                                                                                                field.value === designation.value
                                                                                                     ? "opacity-100"
                                                                                                     : "opacity-0"
                                                                                             )}
@@ -579,29 +519,125 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                     </FormItem>
                                                 )}
                                             />
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconEmail size={24} color={"#98A2B3"} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        Email
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
                                             <FormField
                                                 control={form.control}
-                                                name="phone"
+                                                name="email"
                                                 render={({ field }) => (
-                                                    <FormItem className='flex-1'>
+                                                    <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input type="text" className={`mt-3  ${commonClasses} ${commonFontClasses}`} placeholder="Phone No" {...field} />
+                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Registered Name" {...field} />
                                                         </FormControl>
+                                                        <FormMessage />
                                                     </FormItem>
                                                 )}
                                             />
                                         </div>
-                                    </div>}
+                                        <div className='flex flex-row  gap-2 items-center px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200' >
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <Phone size={22} color={"#98A2B3"} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        Phone
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                            <div className='flex flex-row flex-1 gap-2 items-center'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="std_code"
+                                                    render={({ field }) => (
+                                                        <FormItem >
+                                                            <Popover>
+                                                                <PopoverTrigger asChild>
+                                                                    <FormControl>
+                                                                        <Button variant={"ghost"} className="flex flex-row gap-2">
+                                                                            {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                                            {COUNTRY_CODE.find((val) => val.value === field.value)?.value}
+                                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                        </Button>
+                                                                    </FormControl>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                    <Command>
+                                                                        <CommandInput className='w-full' placeholder="Search Country Code" />
+                                                                        <CommandEmpty>Country code not found.</CommandEmpty>
+                                                                        <CommandGroup>
+                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                {COUNTRY_CODE.map((cc) => (
+                                                                                    <CommandItem
+                                                                                        value={cc.label}
+                                                                                        key={cc.label}
+                                                                                        onSelect={() => {
+                                                                                            console.log("std_code", cc.value)
+                                                                                            changeStdCode(cc.value)
+                                                                                            form.setValue("std_code", cc.value)
+                                                                                        }}
+                                                                                    >
+                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                            {cc.label}
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                    field.value?.includes(cc.value)
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </CommandItem>
+                                                                                ))}
+                                                                            </div>
+                                                                        </CommandGroup>
+                                                                    </Command>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="phone"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1 '>
+                                                            <FormControl>
+                                                                <Input type="text"  className={`border-none ${commonClasses} ${commonFontClasses} `}  placeholder="Phone No" {...field} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </div>
                             </div>
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs'>
+                                {/* {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs'>
                                     <IconAlert size={16} />
                                     <span>
                                         {numberOfErrors} field(s) missing
                                     </span>
-                                </div>}
+                                </div>} */}
                                 <div className='flex flex-row flex-1 justify-end '>
                                     <Button variant="default" type="submit" >Save</Button>
 

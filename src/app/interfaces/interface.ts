@@ -397,3 +397,31 @@ export interface ContactPostBody {
     archived: boolean;
     organisation: number;
 }
+
+export interface UsersGetResponse {
+    id: number;
+    last_login: string | null;
+    is_superuser: boolean;
+    first_name: string;
+    last_name: string;
+    is_staff: boolean;
+    is_active: boolean;
+    date_joined: string;
+    mobile: string;
+    email: string;
+    region: string | null;
+    function: string;
+    time_zone: string | null;
+    gauth: Record<string, any>;
+    is_email_verified: boolean;
+    gender: string;
+    archived: boolean;
+    created_at: string;
+    updated_at: string;
+    profile: number;
+    reporting_to: number | null;
+    created_by: number;
+    updated_by: number;
+    groups: number[];
+    user_permissions: number[];
+}

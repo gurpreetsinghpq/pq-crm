@@ -25,7 +25,7 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { contactListClasses } from '@/app/constants/classes'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 
 const required_error = {
     required_error: "This field is required"
@@ -114,13 +114,6 @@ const form2Defaults: z.infer<typeof FormSchema2> = {
 }
 
 
-const commonClasses = "shadow-none focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonClasses2 = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonFontClasses = "text-sm font-medium text-gray-700"
-const requiredErrorClasses = "text-sm font-medium text-error-500"
-const selectFormMessageClasses = "pl-[36px] pb-[8px]"
-const preFilledClasses = "disabled:text-black-700 disabled:opacity-1"
-const disabledClasses = "bg-inherit"
 
 function SideSheetProspects({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
 

@@ -25,7 +25,8 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { contactListClasses } from '@/app/constants/classes'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 
 const required_error = {
     required_error: "This field is required"
@@ -114,13 +115,7 @@ const form2Defaults: z.infer<typeof FormSchema2> = {
 }
 
 
-const commonClasses = "shadow-none focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonClasses2 = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
-const commonFontClasses = "text-sm font-medium text-gray-700"
-const requiredErrorClasses = "text-sm font-medium text-error-500"
-const selectFormMessageClasses = "pl-[36px] pb-[8px]"
-const preFilledClasses = "disabled:text-black-700 disabled:opacity-1"
-const disabledClasses = "bg-inherit"
+
 
 function SideSheet({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
 
@@ -466,15 +461,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         setFormSchema(updatedSchema)
     }
 
-    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        const keyValue = event.key;
-        const validCharacters = /^[0-9.,\b]+$/; // Allow numbers, comma, period, and backspace (\b)
-
-
-        if (!validCharacters.test(keyValue)) {
-            event.preventDefault();
-        }
-    };
+    
 
     function preprocess() {
         console.log("preprocess")
@@ -579,7 +566,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     }
                                                     } defaultValue={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className={`border-gray-300 ${commonClasses}`}>
+                                                            <SelectTrigger className={`border-gray-300 ${commonClasses2}`}>
                                                                 <SelectValue defaultValue={field.value} placeholder="Select a Status" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -2121,15 +2108,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     )
 
-    function handleOnChangeNumeric(event: React.ChangeEvent<HTMLInputElement>, field: any, isSeparator: boolean = true) {
-        const cleanedValue = event.target.value.replace(/[,\.]/g, '')
-        console.log(cleanedValue)
-        if (isSeparator) {
-            return field.onChange((+cleanedValue).toLocaleString())
-        } else {
-            return field.onChange((+cleanedValue).toString())
-        }
-    }
+    
 
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
         try {
@@ -2212,6 +2191,5 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     }
 
 }
-
 
 export default SideSheet

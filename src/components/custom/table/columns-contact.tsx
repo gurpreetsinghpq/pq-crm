@@ -105,7 +105,7 @@ export const columnsContacts: ColumnDef<ContactsGetResponse>[] = [
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Name
+                    Name & Email
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
