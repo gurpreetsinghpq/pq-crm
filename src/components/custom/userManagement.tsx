@@ -292,7 +292,7 @@ const UserManagement = () => {
             });
     }
 
-    const addAccountDialogButton = () => <AddUserDialogBox>
+    const addUserDialogButton = () => <AddUserDialogBox>
         <Button className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add User
@@ -351,7 +351,7 @@ const UserManagement = () => {
                             </div>}
                         </div>
                         <div className="right flex flex-row gap-4 ">
-                            {!form.getValues("queryParamString") && addAccountDialogButton()}
+                            {!form.getValues("queryParamString") && addUserDialogButton()}
 
                         </div>
                     </div>
@@ -423,6 +423,7 @@ const UserManagement = () => {
                                             align="start"
                                             locale="en-GB"
                                             showCompare={false}
+                                            classFromParent="mr-[30px]"
                                         />
                                     </div> <div className="">
                                         <FormField
@@ -644,7 +645,7 @@ const UserManagement = () => {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsUsers} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"contacts"} />
+                    <DataTable columns={columnsUsers} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"users"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconUsers size="20" />
@@ -653,10 +654,10 @@ const UserManagement = () => {
                             <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Users" : "No Archive Users"}</p>
 
                         </div>
-                        {isInbox && addAccountDialogButton()}</>}
+                        {isInbox && addUserDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <SideSheetContacts parentData={{ childData, setChildDataHandler }} />}
+            {childData?.row && <AddUserDialogBox  parentData={{ childData, setChildDataHandler, open:true}} />}
         </div>
 
 

@@ -21,11 +21,11 @@ const TITLES = {
 }
 
 export default function DashboardComponent() {
-    const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
+    // const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
     // const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.ACCOUNTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
-    // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
+    const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
     const [user, setUser] = useState<User>()
     const router = useRouter();
     useEffect(() => {

@@ -25,7 +25,7 @@ import {
 import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
-import { ALL_DESIGNATIONS, ALL_LAST_FUNDING_STAGE, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
+import { ALL_DESIGNATIONS, ALL_FUNCTIONS, ALL_LAST_FUNDING_STAGE, ALL_PROFILES, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
 import { ContactsGetResponse, IValueLabel } from "@/app/interfaces/interface"
 import { TableContext } from "@/app/helper/context"
 
@@ -70,7 +70,17 @@ interface ContactInterfaceFilter {
   queryParamString?: string
 }
 
-type FilterObject = LeadInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter
+interface UsersInterfaceFilter {
+  functions: string[]
+  profiles: string[]
+  regions: string[]
+  statuses: string[]
+  search?: string,
+  dateRange?: any,
+  queryParamString?: string
+}
+
+type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -103,8 +113,8 @@ export default function DataTable<TData, TValue>({
   // const { tableLeadLength, setTableLeadRow } = useContext(TableContext)
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  
-  const getRowId = useCallback((row:any) => {
+
+  const getRowId = useCallback((row: any) => {
     return row.id
   }, [])
 
@@ -140,6 +150,9 @@ export default function DataTable<TData, TValue>({
         break;
       case "contacts":
         setContactFilter()
+        break;
+      case "users":
+        setUsersFilter()
         break;
     }
 
@@ -322,6 +335,44 @@ export default function DataTable<TData, TValue>({
     else {
       const accountFilter = filterObj.accounts
       table.getColumn("organisation")?.setFilterValue(accountFilter)
+    }
+
+    // if (filterObj?.creators && filterObj.creators.includes("allCreators")) {
+    //   table.getColumn("creator")?.setFilterValue("")
+    // }
+    // else {
+    //   const creatorFilter = valueToLabel("creators", CREATORS)
+    //   table.getColumn("creator")?.setFilterValue(creatorFilter)
+    // }
+
+
+    // table.getColumn("id")?.setFilterValue(filterObj.ids)
+    table.getColumn("name")?.setFilterValue(filterObj.search)
+    table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+  }
+  function setUsersFilter() {
+    if (filterObj.functions && filterObj.functions.includes("allFunctions")) {
+      table.getColumn("function")?.setFilterValue("")
+    }
+    else {
+      const functionFilter = valueToLabel("functions", ALL_FUNCTIONS)
+      table.getColumn("function")?.setFilterValue(functionFilter)
+    }
+
+    if (filterObj.profiles && filterObj.profiles.includes("allProfiles")) {
+      table.getColumn("profile")?.setFilterValue("")
+    }
+    else {
+      const profileFilter = valueToLabel("profiles", ALL_PROFILES)
+      table.getColumn("profile")?.setFilterValue(profileFilter)
+    }
+
+    if (filterObj?.regions && filterObj.regions.includes("allRegions")) {
+      table.getColumn("region")?.setFilterValue("")
+    }
+    else {
+      const regionFilter = filterObj.regions
+      table.getColumn("region")?.setFilterValue(regionFilter)
     }
 
     // if (filterObj?.creators && filterObj.creators.includes("allCreators")) {

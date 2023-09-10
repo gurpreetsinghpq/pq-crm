@@ -37,7 +37,8 @@ export interface DateRangePickerProps {
     locale?: string
     /** Option for showing compare feature */
     showCompare?: boolean
-    queryParamString?: string | undefined
+    queryParamString?: string | undefined,
+    classFromParent?: string
 }
 
 const formatDate = (date: Date, locale: string = 'en-us'): string => {
@@ -85,7 +86,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     align = 'end',
     locale = 'en-US',
     showCompare = false,
-    queryParamString = undefined
+    queryParamString = undefined,
+    classFromParent = ""
     
 }): JSX.Element => {
         const [isOpen, setIsOpen] = useState(false)
@@ -369,7 +371,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                         </div>
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent align={align} className="w-auto xl:max-h-[350px] 2xl:max-h-fit overflow-y-auto">
+                <PopoverContent align={align} className={`w-auto sm:max-h-[200px] xl:max-h-[350px] 2xl:max-h-fit overflow-y-auto ${classFromParent}`}>
                     <div >
 
                         <div className="flex py-2">

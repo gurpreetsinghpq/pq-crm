@@ -265,12 +265,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         // console.log(reasonMap[form.getValues("reasons")])
     }, [form.watch()])
 
-    function labelToValue(lookup: string, arr: IValueLabel[]) {
-        return arr.find((item) => item.label === lookup)?.value
-    }
-    function valueToLabel(lookup: string, arr: IValueLabel[]) {
-        return arr.find((item) => item.value === lookup)?.label
-    }
+    
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
@@ -2202,6 +2197,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
 
 
+}
+export function labelToValue(lookup: string, arr: IValueLabel[]) {
+    return arr.find((item) => item.label === lookup)?.value
+}
+export function valueToLabel(lookup: string, arr: IValueLabel[]) {
+    return arr.find((item) => item.value === lookup)?.label
 }
 
 export default SideSheet

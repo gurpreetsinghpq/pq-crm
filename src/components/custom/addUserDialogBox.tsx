@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { Form, FormControl, FormField, FormItem } from '../ui/form'
 import { Input } from '../ui/input'
@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { Check, ChevronDown } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
-import { COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, TYPE } from '@/app/constants/constants'
+import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, TYPE } from '@/app/constants/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { commonClasses, commonClasses2, commonFontClassesAddDialog } from '@/app/constants/classes'
 import { Separator } from '../ui/separator'
@@ -17,6 +17,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
 import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
+import { DialogClose } from '@radix-ui/react-dialog'
+import { beforeCancelDialog } from './addLeadDetailedDialog'
+import { IChildData } from './userManagement'
+import { UsersGetResponse } from '@/app/interfaces/interface'
+import { labelToValue } from './sideSheet'
+import { IconPower } from '../icons/svgIcons'
 
 const FormSchema = z.object({
     firstName: z.string({
@@ -48,8 +54,9 @@ const FormSchema = z.object({
     })
 })
 
-function AddUserDialogBox({ children }: { children: any }) {
+function AddUserDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
+    const [data, setData] = useState()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -80,17 +87,40 @@ function AddUserDialogBox({ children }: { children: any }) {
         setFormSchema(updatedSchema)
     }
 
-    function yesDiscard(): void {
-        // throw new Error('Function not implemented.')
+    function yesDiscard() {
+        setOpen(false)
     }
 
-    function addContact(): void {
-        // throw new Error('Function not implemented.')
+    function addContact() {
+
+    }
+
+    useEffect(() => {
+        if (parentData?.open) {
+            setOpen(parentData?.open)
+            const { childData: { row }, setChildDataHandler } = parentData
+            const data: UsersGetResponse = row.original
+            form.setValue("firstName", data.first_name)
+            form.setValue("lastName", data.last_name)
+            form.setValue("email", data.email)
+            form.setValue("phone", data.mobile)
+            // form.setValue("std_code", data.)
+            // form.setValue("reportingTo", data.reporting_to)
+            // form.setValue("region", data.region)
+            // form.setValue("profile", data.profile)
+            form.setValue("function", labelToValue(data.function, ALL_FUNCTIONS) || "")
+        } else {
+            setOpen(false)
+        }
+    }, [parentData])
+
+    function updateContact(): void {
+        throw new Error('Function not implemented.')
     }
 
     return (
         <div>
-            <Dialog open={open} onOpenChange={setOpen}>
+            <Dialog open={open} onOpenChange={setOpen} >
                 <DialogTrigger asChild>
                     <div>
                         {children}
@@ -99,7 +129,7 @@ function AddUserDialogBox({ children }: { children: any }) {
                 <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
-                            <div className='text-lg text-gray-900 font-semibold'>Add User</div>
+                            <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit User" : "Add User"}</div>
                         </DialogTitle>
                     </DialogHeader>
                     <div>
@@ -240,17 +270,19 @@ function AddUserDialogBox({ children }: { children: any }) {
                                                                                     form.setValue("reportingTo", designation.value)
                                                                                 }}
                                                                             >
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {designation.label}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value === designation.value
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </div>
+                                                                                <PopoverClose asChild>
+                                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                                        {designation.label}
+                                                                                        <Check
+                                                                                            className={cn(
+                                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                                field.value === designation.value
+                                                                                                    ? "opacity-100"
+                                                                                                    : "opacity-0"
+                                                                                            )}
+                                                                                        />
+                                                                                    </div>
+                                                                                </PopoverClose>
                                                                             </CommandItem>
                                                                         ))}
                                                                     </div>
@@ -511,11 +543,28 @@ function AddUserDialogBox({ children }: { children: any }) {
 
                                 <div>
                                     <Separator className="bg-gray-200 h-[1px]  mt-8" />
-                                    <div className="flex flex-row gap-2 justify-end mx-6 my-6">
-                                        <Button variant={"google"} onClick={() => yesDiscard()}>Cancel</Button>
-                                        <Button type='button' disabled={!form.formState.isValid} onClick={() => addContact()}>
-                                            Save & Add
-                                        </Button>
+                                    <div className={`flex flex-row gap-2 mx-6 my-6`}>
+                                        {parentData?.open ?
+                                            <div className='flex flex-row w-full justify-between '>
+                                                <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
+                                                    <IconPower size={20}/>
+                                                    Deactivate User
+                                                </div>
+                                                <div className='flex flex-row gap-2'>
+                                                    {beforeCancelDialog(yesDiscard)}
+                                                    <Button type='button' disabled={!form.formState.isValid} onClick={() => updateContact()}>
+                                                        Update
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            :
+                                            <div className='flex flex-row flex-row gap-2 w-full justify-end'>
+                                                {beforeCancelDialog(yesDiscard)}
+                                                <Button type='button' disabled={!form.formState.isValid} onClick={() => addContact()}>
+                                                    Save & Add
+                                                </Button>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                             </form>
