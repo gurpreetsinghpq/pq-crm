@@ -250,6 +250,10 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
+            toast({
+                title: "Lead Created Succesfully!",
+                variant: "dark"
+            })
             console.log(result)
             dataFromChild()
             form.reset()
@@ -288,6 +292,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     }
 
     function addNewForm(): void {
+
         resetForm2()
         setShowContactForm(true)
     }

@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
+import { useToast } from '../ui/use-toast'
 
 const required_error = {
     required_error: "This field is required"
@@ -123,6 +124,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
     const [numberOfErrors, setNumberOfErrors] = useState<number>()
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
+    const [isPromoteToProspectClicked, setPromoteToProspectClicked] = useState<boolean>(false)
 
     const [showContactForm, setShowContactForm] = useState(true)
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
@@ -136,6 +138,9 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: LeadInterface = row.original
+
+    const { toast } = useToast()
+
     useEffect(() => {
         setRowState({
             status: data.status
@@ -233,7 +238,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         if (result.success) {
             setContactFieldValid(true)
         } else {
-            console.log("safe prase 2 ", result.error.errors)
             setContactFieldValid(false)
         }
     }
@@ -260,7 +264,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         // form.resetField("contacts", { defaultValue: form2Defaults })
         form.reset({ "contacts": form2Defaults })
     }
-    console.log(form.formState.errors)
     useEffect(() => {
         // console.log(reasonMap[form.getValues("reasons")])
     }, [form.watch()])
@@ -271,36 +274,11 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     const token_superuser = getToken()
 
     async function promoteToProspect() {
-        const status = form.getValues("statuses")
+        setPromoteToProspectClicked(true)
+        const status = rowState?.status
         if (status) {
             updateFormSchemaOnStatusChange(status, true)
-            await safeprs() 
-            await form.trigger()
         }
-
-
-
-        // old logic 
-        // const fieldsNeccessary = [
-        //     { name: "esopRsusUl", label: "ESOP RSUS UL" },
-        //     { name: "esopRsusUlCurrency", label: "ESOP RSUS UL Currency" },
-        //     { name: "fixedBudgetUl", label: "Fixed Budget UL" },
-        //     { name: "fixedBudgetUlCurrency", label: "Fixed Budget UL Currency" },
-        //     { name: "timeToFill", label: "Time to Fill" },
-        //     { name: "industry", label: "Industry" },
-        //     { name: "domain", label: "Domain" },
-        //     { name: "size", label: "Size" },
-        //     { name: "lastFundingStage", label: "Last Funding Stage" },
-        //     { name: "lastFundingAmount", label: "Last Funding Amount" },
-        //     { name: "retainerAdvance", label: "Retainer Advance" },
-        //     { name: "exclusivity", label: "Exclusivity" },
-        //     { name: "serviceFeeRange", label: "Service Fee Range" },
-        // ];
-
-        // const missingFields = fieldsNeccessary.filter((field) => {
-        //     const value = form.getValues(field.name);
-        //     return !value; // Check if value is falsy (empty or undefined)
-        // });
 
 
         // const beforePromoteToProspectDivsArray: any[] = fieldsNeccessary.map((field) => {
@@ -330,6 +308,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         //     }
         // }
 
+      
 
     }
 
@@ -399,6 +378,10 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         try {
             const results = await Promise.all(apiPromises);
             console.log("All API requests completed:", results);
+            toast({
+                title: "Lead Updated Successfully!",
+                variant: "dark"
+            })
             // closeSideSheet()
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -406,8 +389,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     }
 
-    async function safeprs() {
-        const result = await formSchema.safeParseAsync(form.getValues())
+    function safeprs() {
+        const result = formSchema.safeParse(form.getValues())
         console.log(result)
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
@@ -418,6 +401,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     function onSubmit() {
         console.log("submitted")
+        
         // safeprs()
         console.log(numberOfErrors)
         patchData()
@@ -481,14 +465,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         }
         setFormSchema(updatedSchema)
         // if(!isPromoteToProspect){
-            setNumberOfErrors(undefined)
-            form.clearErrors()
+        setNumberOfErrors(undefined)
+        form.clearErrors()
         // }
     }
 
 
 
     function preprocess() {
+        updateFormSchemaOnStatusChange(form.getValues("statuses"))
         safeprs()
     }
 
@@ -541,7 +526,58 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         setFormSchema(updatedSchema)
     }, [watcher.contacts?.std_code])
 
-    console.log(formSchema)
+    useEffect(()=>{
+        console.log(formSchema, isPromoteToProspectClicked)
+        if(isPromoteToProspectClicked){
+            console.log("promote to prospect clickeed")
+            safeprs()
+            form.trigger()
+            postPromoteToProspectSafeParse()  
+        }
+    },[formSchema])
+
+
+    async function postPromoteToProspectSafeParse(){
+        setPromoteToProspectClicked(false)
+        const fieldsNeccessary = [
+            { name: "esopRsusUl", label: "ESOP RSUS UL" },
+            { name: "esopRsusUlCurrency", label: "ESOP RSUS UL Currency" },
+            { name: "fixedBudgetUl", label: "Fixed Budget UL" },
+            { name: "fixedBudgetUlCurrency", label: "Fixed Budget UL Currency" },
+            { name: "timeToFill", label: "Time to Fill" },
+            { name: "industry", label: "Industry" },
+            { name: "domain", label: "Domain" },
+            { name: "size", label: "Size" },
+            { name: "lastFundingStage", label: "Last Funding Stage" },
+            { name: "lastFundingAmount", label: "Last Funding Amount" },
+            { name: "retainerAdvance", label: "Retainer Advance" },
+            { name: "exclusivity", label: "Exclusivity" },
+            { name: "serviceFeeRange", label: "Service Fee Range" },
+        ];
+
+        const missingFields = fieldsNeccessary.filter((field) => {
+            const value = form.getValues(field.name);
+            return !value; 
+        });
+        if (missingFields.length === 0) {
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                if (result.message === "success") {
+                    closeSideSheet()
+                    toast({
+                        title: "Promoted to Prospect!",
+                        variant: "dark"
+                    })
+                }
+            }
+            catch (err) {
+                console.log("error", err)
+            }
+        }
+
+    } 
+
 
     function changeStdCode(value: string) {
         // let updatedSchema
@@ -1959,7 +1995,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                         value={cc.label}
                                                                                                         key={cc.label}
                                                                                                         onSelect={() => {
-                                                                                                            console.log("contacts.std_code", cc.value)
                                                                                                             changeStdCode(cc.value)
                                                                                                             form.setValue("contacts.std_code", cc.value)
                                                                                                         }}
@@ -2064,7 +2099,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     </span>
                                 </div>}
                                 <div className='flex flex-row flex-1 justify-end '>
-                                    <Button variant="default" type="submit" >Save</Button>
+                                    <Button variant="default" type="submit" disabled={!form.formState.isDirty} >Save</Button>
 
                                 </div>
                             </div>
@@ -2076,7 +2111,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <div className='flex flex-row justify-end'>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button disabled={rowState?.status ? rowState?.status.toLowerCase() !== "verified" : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                        <Button disabled={rowState?.status ? (rowState?.status.toLowerCase() !== "verified" || form.getValues("statuses").toLowerCase() !== "verified") : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
                                             <span >Promote to Prospect</span> <IconArrowSquareRight size={20} />
                                         </Button>
                                     </DialogTrigger>

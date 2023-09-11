@@ -45,6 +45,7 @@ import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import SideSheetAccounts from "./sideSheetAccounts"
+import { getToken } from "./leads"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -329,53 +330,8 @@ const Accounts = ({form}:{form:UseFormReturn<{
                             </TooltipProvider>
                         </div>
                         <div className="flex-1 flex flex-row gap-3 justify-end">
-                            {isMultiSelectOn && !form.getValues("queryParamString") ? <div className="multi-selected flex flex-row gap-2">
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button variant={"google"} className="flex flex-row gap-2" type="button" >
-                                            <IconArchive size={20} color="#344054" />
-                                            {isInbox ? "Archive" : "Inbox"}
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
-                                        <div className='w-fit'>
-                                            <DialogHeader>
-                                                <div className=' rounded-full w-fit'>
-                                                    <IconArchive2 size={62} />
-                                                </div>
-                                            </DialogHeader>
-                                            <div className='flex flex-col gap-[32px] mt-[16px] min-w-[380px] '>
-                                                <div className='flex flex-col gap-[5px]'>
-                                                    <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Leads" : "Lead"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
-                                                </div>
-                                                <div className='flex flex-row gap-[12px] w-full'>
-                                                    <DialogClose asChild>
-                                                        <Button className='text-md flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
-                                                    </DialogClose>
-                                                    <Button onClick={archiveApi} className='flex-1 text-md font-semibold px-[38px] py-[10px]'>{isInbox ? "Archive" : "Confirm"} </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
-                                {/* <Button variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>Promote to Prospect <IconArrowSquareRight size={20} /></Button> */}
-                            </div> :
                                 <>
                                     <div>
-                                        {/* <DropdownMenu > */}
-                                        {/* <DropdownMenuTrigger asChild>
-                                        <Button variant="google" className="flex flex-row gap-2 items-center">
-                                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <g id="calendar">
-                                                    <path id="Icon" d="M17.5 8.33342H2.5M13.3333 1.66675V5.00008M6.66667 1.66675V5.00008M6.5 18.3334H13.5C14.9001 18.3334 15.6002 18.3334 16.135 18.0609C16.6054 17.8212 16.9878 17.4388 17.2275 16.9684C17.5 16.4336 17.5 15.7335 17.5 14.3334V7.33342C17.5 5.93328 17.5 5.23322 17.2275 4.69844C16.9878 4.22803 16.6054 3.84558 16.135 3.6059C15.6002 3.33341 14.9001 3.33341 13.5 3.33341H6.5C5.09987 3.33341 4.3998 3.33341 3.86502 3.6059C3.39462 3.84558 3.01217 4.22803 2.77248 4.69844C2.5 5.23322 2.5 5.93328 2.5 7.33341V14.3334C2.5 15.7335 2.5 16.4336 2.77248 16.9684C3.01217 17.4388 3.39462 17.8212 3.86502 18.0609C4.3998 18.3334 5.09987 18.3334 6.5 18.3334Z" stroke="#344054" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
-                                                </g>
-                                            </svg>
-                                            Last 7 Days
-                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                        </Button>
-                                    </DropdownMenuTrigger> */}
-                                        {/* <DropdownMenuContent className="w-56"> */}
                                         <DateRangePicker
                                             onUpdate={(values) => form.setValue("dateRange", values)}
                                             initialDateFrom={form.getValues("dateRange").range.from}
@@ -385,9 +341,6 @@ const Accounts = ({form}:{form:UseFormReturn<{
                                             locale="en-GB"
                                             showCompare={false}
                                         />
-
-                                        {/* </DropdownMenuContent>
-                                </DropdownMenu> */}
                                     </div>
                                     <div>
                                         <FormField
@@ -452,103 +405,7 @@ const Accounts = ({form}:{form:UseFormReturn<{
                                             )}
                                         />
                                     </div>
-                                    {/* <div> */}
-                                        {/* <FormField
-                                            control={form.control}
-                                            name="accounts"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex flex-row gap-2">
-                                                                    {formatData(field.value, 'Accounts', data.map(val => { return { label: val.name, value: val.name } }))}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
-                                                            <Command>
-                                                                <CommandInput placeholder="Search Account" />
-                                                                <CommandEmpty>No Account found.</CommandEmpty>
-                                                                <CommandGroup className="flex flex-col h-[250px] overflow-y-scroll">
-                                                                    {[{ label: 'All Accounts', value: 'allAccounts' }].concat(
-                                                                        data.map(val => ({ label: val.name, value: val.name }))
-                                                                    ).map((account) => (
-                                                                    <CommandItem
-                                                                        value={account.label}
-                                                                        key={account.value}
-                                                                        onSelect={() => {
-                                                                            if (field.value.length > 0 && field.value.includes("allAccounts") && account.value !== 'allAccounts') {
-                                                                                form.setValue("accounts", [...field.value.filter((value) => value !== 'allAccounts'), account.value])
-                                                                            }
-                                                                            else if ((field.value?.length === 1 && field.value?.includes(account.value) || account.value == 'allAccounts')) {
-                                                                                form.setValue("accounts", ["allAccounts"])
-
-                                                                            }
-                                                                            else if (field.value?.includes(account.value)) {
-                                                                                form.setValue("accounts", field.value?.filter((val) => val !== account.value))
-                                                                            } else {
-                                                                                form.setValue("accounts", [...field.value, account.value])
-                                                                            }
-                                                                        }}
-                                                                    >
-                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                            {account.label}
-                                                                            <Check
-                                                                                className={cn(
-                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                    field.value?.includes(account.value)
-                                                                                        ? "opacity-100"
-                                                                                        : "opacity-0"
-                                                                                )}
-                                                                            />
-                                                                        </div>
-                                                                    </CommandItem>
-                                                                    ))}
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        /> */}
-                                    {/* </div> */}
-                                    {/* <div>
-                                        <FormField
-                                            control={form.control}
-                                            name="domains"
-                                            render={({ field }) => {
-                                                return <DropdownMenu >
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Domains', ALL_DOMAINS)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-[200px]">
-                                                        {
-                                                            ALL_DOMAINS.map((domain) => {
-                                                                return <DropdownMenuCheckboxItem
-                                                                    key={domain.value}
-                                                                    checked={domain.isDefault && field.value.length === 0 ? true : field.value?.includes(domain.value)}
-                                                                    onCheckedChange={(checked) => {
-                                                                        if ((!checked && field.value.length === 1) || domain.value === 'allDomains') {
-                                                                            return field.onChange(['allDomains'])
-                                                                        } else if (checked && field.value.includes('allDomains') && domain.value !== 'allDomains') {
-                                                                            return field.onChange([...field.value?.filter((value) => value != 'allDomains'), domain.value])
-                                                                        }
-                                                                        return checked ? field.onChange([...field.value, domain.value]) : field.onChange(field.value?.filter((value) => value != domain.value))
-                                                                    }}
-                                                                >
-                                                                    {domain.label}
-                                                                </DropdownMenuCheckboxItem>
-                                                            })
-                                                        }
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            }}
-                                        />
-                                    </div> */}
+                                  
 
                                     <div className="text-md font-medium">
                                         <FormField
@@ -592,41 +449,6 @@ const Accounts = ({form}:{form:UseFormReturn<{
                                     </div>
 
 
-                                    {/* <div className="">
-                                        <FormField
-                                            control={form.control}
-                                            name="sizes"
-                                            render={({ field }) => {
-                                                return <DropdownMenu >
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Sizes', ALL_SIZE_OF_COMPANY)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-[160px]">
-                                                        {
-                                                            ALL_SIZE_OF_COMPANY.map((size) => {
-                                                                return <DropdownMenuCheckboxItem
-                                                                    key={size.value}
-                                                                    checked={size.isDefault && field.value.length === 0 ? true : field.value?.includes(size.value)}
-                                                                    onCheckedChange={(checked) => {
-                                                                        if ((!checked && field.value.length === 1) || size.value === 'allSizes') {
-                                                                            return field.onChange(['allSizes'])
-                                                                        } else if (checked && field.value.includes('allSizes') && size.value !== 'allSizes') {
-                                                                            return field.onChange([...field.value?.filter((value) => value != 'allSizes'), size.value])
-                                                                        }
-                                                                        return checked ? field.onChange([...field.value, size.value]) : field.onChange(field.value?.filter((value) => value != size.value))
-                                                                    }}
-                                                                >
-                                                                    {size.label}
-                                                                </DropdownMenuCheckboxItem>
-                                                            })
-                                                        }
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            }}
-                                        />
-                                    </div> */}
                                     <div className='flex flex-col  '>
                                         <FormField
                                             control={form.control}
@@ -748,7 +570,7 @@ const Accounts = ({form}:{form:UseFormReturn<{
                                         />
 
                                     </div>
-                                </>}
+                                </>
                         </div>
                     </div>
                 </form>
@@ -774,12 +596,6 @@ const Accounts = ({form}:{form:UseFormReturn<{
 
 
     </div>
-}
-
-export function getToken() {
-    const userFromLocalstorage: User | undefined = JSON.parse(localStorage.getItem("user") || "")
-    const token = userFromLocalstorage?.token
-    return token
 }
 
 function filterInboxOrArchive(data: LeadInterface[], isInbox: boolean) {

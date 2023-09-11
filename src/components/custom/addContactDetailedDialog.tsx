@@ -175,6 +175,10 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                 dataFromChild()
                 form.reset()
                 resetForm2()
+                toast({
+                    title: "Contact Created Successfully!",
+                    variant: "dark"
+                })
 
             } catch (err) {
                 console.log(err)

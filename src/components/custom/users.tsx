@@ -83,7 +83,7 @@ function Users({ form }: {
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
     const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
-    const [isInbox, setIsInbox] = React.useState<boolean>(true)
+    const [isActivated, setIsActivated] = React.useState<boolean>(true)
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
     const [tableLeadLength, setTableLength] = React.useState<any>()
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
@@ -176,8 +176,8 @@ function Users({ form }: {
     }, [watcher])
 
     // React.useEffect(() => {
-    //     setUserData(filterInboxOrArchive(dataFromApi, isInbox))
-    // }, [isInbox])
+    //     setUserData(filterInboxOrArchive(dataFromApi, isActivated))
+    // }, [isActivated])
     // console.log(tableLeadLength)
 
     async function promoteToProspect() {
@@ -201,7 +201,7 @@ function Users({ form }: {
         try {
             const dataResp = await fetch(url, {
                 method: "PATCH",
-                body: JSON.stringify({ leads: ids, archive: isInbox }),
+                body: JSON.stringify({ leads: ids, archive: isActivated }),
                 headers: {
                     "Authorization": `Token ${token_superuser}`,
                     "Accept": "application/json",
@@ -275,8 +275,8 @@ function Users({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
-                                                <IconUserCheck size={20} />
+                                            <Button type="button" variant={"ghost"} className={`rounded-r-none ${isActivated && "bg-gray-100"}`} onClick={() => setIsActivated(true)}>
+                                                <IconUserCheck size={20} color={isActivated ? "#1D2939" : "#667085"}/>
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
@@ -288,8 +288,8 @@ function Users({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
-                                                <IconUserCross size={20} />
+                                            <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isActivated && "bg-gray-100"}`} onClick={() => setIsActivated(false)}>
+                                                <IconUserCross size={20} color={!isActivated ? "#1D2939" : "#667085"}/>
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
@@ -335,7 +335,7 @@ function Users({ form }: {
                                     <DialogTrigger asChild>
                                         <Button variant={"google"} className="flex flex-row gap-2" type="button" >
                                             <IconArchive size={20} color="#344054" />
-                                            {isInbox ? "Archive" : "Inbox"}
+                                            {isActivated ? "Deactivate" : "Activate"}
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
@@ -348,13 +348,13 @@ function Users({ form }: {
                                             <div className='flex flex-col gap-[32px] mt-[16px] min-w-[380px] '>
                                                 <div className='flex flex-col gap-[5px]'>
                                                     <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Leads" : "Lead"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
+                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Users" : "User"} </span> will be {isActivated ? "Deactivated" : "Activated"}</div>
                                                 </div>
                                                 <div className='flex flex-row gap-[12px] w-full'>
                                                     <DialogClose asChild>
                                                         <Button className='text-md flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
                                                     </DialogClose>
-                                                    <Button onClick={archiveApi} className='flex-1 text-md font-semibold px-[38px] py-[10px]'>{isInbox ? "Archive" : "Confirm"} </Button>
+                                                    <Button onClick={archiveApi} className='flex-1 text-md font-semibold px-[38px] py-[10px]'>{isActivated ? "Deactivate" : "Activate"} </Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -599,10 +599,10 @@ function Users({ form }: {
                         <IconUsers size="20" />
                     </div>
                         <div>
-                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Users" : "No Archive Users"}</p>
+                            <p className="text-md text-gray-900 font-semibold">{isActivated ? "No Users" : "No Archive Users"}</p>
 
                         </div>
-                        {isInbox && addUserDialogButton()}</>}
+                        {isActivated && addUserDialogButton()}</>}
                 </div>)
             }
             {childData?.row && <AddUserDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}

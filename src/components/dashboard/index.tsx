@@ -15,6 +15,8 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { getLastWeek } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Toaster } from "../ui/toaster"
+import { toast } from "../ui/use-toast"
 
 
 const LeadFormSchema = z.object({
@@ -289,10 +291,14 @@ export default function DashboardComponent() {
     function logOut() {
         localStorage.removeItem("user")
         router.replace("/signin")
+        toast({
+            title: "Logged out!",
+            variant: "dark"
+        })
     }
 
     return <div className="flex flex-row h-full ">
-        <div className="sticky top-0 left-0 left flex flex-col  w-20     2xl:w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
+        <div className="sticky top-0 left-0 left z-[1] flex flex-col  w-20     2xl:w-24 px-1  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center">
                 {/* <Image alt="pq search" src={"/pq-logo-warm.svg"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
                 {/* <Image alt="pq search" src={"/pq-search.png"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
@@ -396,7 +402,7 @@ export default function DashboardComponent() {
         </div>
         <div className="text-teal-700 bg-teal-50 border-teal-600"></div>
         <div className="right flex flex-col w-full h-full">
-            <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${ currentTab!==TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2" }`} >
+            <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${currentTab !== TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2"}`} >
                 <div className="text-xl   ">
                     {currentTab}
                 </div>
@@ -428,11 +434,12 @@ export default function DashboardComponent() {
             </div>
             <div className="bottom flex flex-col flex-1">
                 {currentTab === TITLES.LEADS && <Leads form={LeadForm} />}
-                {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm}/>}
-                {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm}/>}
-                {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm}/>}
+                {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm} />}
+                {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} />}
+                {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} />}
                 {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} />}
 
+                <Toaster />
             </div>
         </div>
     </div>

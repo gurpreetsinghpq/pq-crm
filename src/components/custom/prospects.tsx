@@ -45,6 +45,7 @@ import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsProspects } from "./table/columns-prospect"
 import SideSheetProspects from "./sideSheetProspects"
+import { getToken } from "./leads"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -57,16 +58,18 @@ export interface IChildData {
 }
 let dataFromApi: ProspectsGetResponse[] = []
 
-const Prospects = ({form}:{form:UseFormReturn<{
-    owners: string[];
-    creators: string[];
-    regions: string[];
-    sources: string[];
-    statuses: string[];
-    search: string;
-    queryParamString: string;
-    dateRange?: any;
-}, any, undefined>}) => {
+const Prospects = ({ form }: {
+    form: UseFormReturn<{
+        owners: string[];
+        creators: string[];
+        regions: string[];
+        sources: string[];
+        statuses: string[];
+        search: string;
+        queryParamString: string;
+        dateRange?: any;
+    }, any, undefined>
+}) => {
     const { toast } = useToast()
 
     const router = useRouter();
@@ -107,7 +110,7 @@ const Prospects = ({form}:{form:UseFormReturn<{
     }
     const searchParams = useSearchParams()
 
-    
+
 
     async function checkQueryParam() {
         const queryParamIds = searchParams.get("ids")
@@ -295,7 +298,7 @@ const Prospects = ({form}:{form:UseFormReturn<{
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length ===0 ? "No Prospects" : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Prospects" : "Prospect"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Prospects" : "Prospect"}` : "No Prospects"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length === 0 ? "No Prospects" : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Prospects" : "Prospect"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Prospects" : "Prospect"}` : "No Prospects"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -308,7 +311,10 @@ const Prospects = ({form}:{form:UseFormReturn<{
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
+                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => {
+                                            fetchLeadData()
+                                            
+                                        }}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
@@ -701,11 +707,6 @@ const Prospects = ({form}:{form:UseFormReturn<{
     </div>
 }
 
-export function getToken() {
-    const userFromLocalstorage: User | undefined = JSON.parse(localStorage.getItem("user") || "")
-    const token = userFromLocalstorage?.token
-    return token
-}
 
 function filterInboxOrArchive(data: ProspectsGetResponse[], isInbox: boolean) {
     return data.filter((val) => val.archived !== isInbox)

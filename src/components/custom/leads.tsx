@@ -43,6 +43,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { columns } from "./table/columns"
 import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
+import { Toaster } from "../ui/toaster"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -53,16 +54,18 @@ export interface IChildData {
 }
 let dataFromApi: LeadInterface[] = []
 
-const Leads = ({form}:{form:UseFormReturn<{
-    search: string;
-    queryParamString: string;
-    regions: string[];
-    sources: string[];
-    statuses: string[];
-    owners: string[];
-    creators: string[];
-    dateRange?: any;
-}, any, undefined>}) => {
+const Leads = ({ form }: {
+    form: UseFormReturn<{
+        search: string;
+        queryParamString: string;
+        regions: string[];
+        sources: string[];
+        statuses: string[];
+        owners: string[];
+        creators: string[];
+        dateRange?: any;
+    }, any, undefined>
+}) => {
     const { toast } = useToast()
 
     const router = useRouter();
@@ -95,9 +98,9 @@ const Leads = ({form}:{form:UseFormReturn<{
     // }, [childData?.row])
 
     const watcher = form.watch()
-    React.useEffect(()=>{
+    React.useEffect(() => {
         console.log(form.getValues("dateRange"))
-    },[])
+    }, [])
 
     function setTableLeadRow(data: any) {
         const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
@@ -108,7 +111,7 @@ const Leads = ({form}:{form:UseFormReturn<{
     }
     const searchParams = useSearchParams()
 
-    
+
 
     async function checkQueryParam() {
         const queryParamIds = searchParams.get("ids")
@@ -190,14 +193,17 @@ const Leads = ({form}:{form:UseFormReturn<{
 
             if (result.message === "success") {
                 fetchLeadData()
-
-                return result; 
+                toast({
+                    title: `${ids.length} ${ids.length>1? "Leads": "Lead"} moved to ${ isInbox? "Archive" : "Inbox"} Succesfully!`,
+                    variant: "dark"
+                })
+                return result;
             } else {
-                throw new Error("Failed to patch lead data"); 
+                throw new Error("Failed to patch lead data");
             }
         } catch (err) {
             console.error("Error during patching:", err);
-            throw err; 
+            throw err;
         }
     }
 
@@ -213,7 +219,7 @@ const Leads = ({form}:{form:UseFormReturn<{
 
         promisePatch
             .then((resp) => {
-             
+
                 console.log("All patching operations are done");
 
             })
@@ -241,7 +247,7 @@ const Leads = ({form}:{form:UseFormReturn<{
                                 name="search"
                                 render={({ field }) => (
                                     <FormItem className="w-2/3">
-                                        <FormControl> 
+                                        <FormControl>
                                             <Input placeholder="Search" className="text-md border" {...field} />
                                         </FormControl>
                                     </FormItem>
@@ -252,7 +258,7 @@ const Leads = ({form}:{form:UseFormReturn<{
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button type="button" variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
-                                                <IconInbox size={20} color={isInbox?"#1D2939":"#667085"}/>
+                                                <IconInbox size={20} color={isInbox ? "#1D2939" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
@@ -265,7 +271,7 @@ const Leads = ({form}:{form:UseFormReturn<{
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
-                                                <IconArchive size={20} color={!isInbox?"#1D2939":"#667085"}/>
+                                                <IconArchive size={20} color={!isInbox ? "#1D2939" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
@@ -282,7 +288,7 @@ const Leads = ({form}:{form:UseFormReturn<{
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length ===0 ? "No Leads": isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Leads" : "Lead"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length === 0 ? "No Leads" : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Leads" : "Lead"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -295,7 +301,9 @@ const Leads = ({form}:{form:UseFormReturn<{
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
+                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => {
+                                            fetchLeadData()
+                                        }}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
@@ -624,7 +632,7 @@ const Leads = ({form}:{form:UseFormReturn<{
                                                                             key={creator.value}
                                                                             onSelect={() => {
                                                                                 if (field.value.length > 0 &&
-                                                                                     field.value.includes("allCreators") && creator.value !== 'allCreators') {
+                                                                                    field.value.includes("allCreators") && creator.value !== 'allCreators') {
                                                                                     form.setValue("creators", [...field.value.filter((value: string) => value !== 'allCreators'), creator.value])
                                                                                 }
                                                                                 else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
@@ -662,6 +670,7 @@ const Leads = ({form}:{form:UseFormReturn<{
                                 </>}
                         </div>
                     </div>
+                    
                 </form>
             </Form>
             {
@@ -669,7 +678,7 @@ const Leads = ({form}:{form:UseFormReturn<{
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTable columns={columns(setChildDataHandler,patchArchiveLeadData, isInbox)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} />
+                    <DataTable columns={columns(setChildDataHandler, patchArchiveLeadData, isInbox)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
@@ -684,13 +693,12 @@ const Leads = ({form}:{form:UseFormReturn<{
             }
             {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} />}
         </div>
-
-
+        
     </div>
 }
 
 export function getToken() {
-    const userFromLocalstorage: User | undefined = JSON.parse(localStorage.getItem("user") || "")
+    const userFromLocalstorage: User | undefined = localStorage.getItem("user")  ? JSON.parse(localStorage.getItem("user") || "") : ""
     const token = userFromLocalstorage?.token
     return token
 }

@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "../ui/use-toast"
 import ToastMe from "../custom/toastMe"
+import { Toaster } from "../ui/toaster"
 
 
 const FormSchema = z.object({
@@ -43,6 +44,10 @@ export default function Signin() {
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
+        defaultValues: {
+            email:"",
+            password:""
+        },
         mode: "all"
     })
 
@@ -61,12 +66,24 @@ export default function Signin() {
                 localStorage.setItem("user", JSON.stringify(data))
                 router.replace('/dashboard')
                 setPostLogin({ message: "Succesfully logged in", status: 1, show: true })
+                toast({
+                    title: "Logged in!",
+                    variant: "dark"
+                })
             } else {
                 const errormsg = "User Not Active | Unable to login with given credentials!"
                 if (result?.error?.non_field_errors?.includes(errormsg)) {
-                    setPostLogin({ message: errormsg, status: 0, show: true })
+                    toast({
+                        title: errormsg,
+                        variant: "destructive"
+                    })
+                    // setPostLogin({ message: errormsg, status: 0, show: true })
                 } else {
-                    setPostLogin({ message: "Sorry some error have occured", status: 0, show: true })
+                    // setPostLogin({ message: "Sorry some error have occured", status: 0, show: true })
+                    toast({
+                        title: "Sorry some error have occured",
+                        variant: "destructive"
+                    })
                 }
             }
             setTimeout(()=>{
@@ -82,11 +99,6 @@ export default function Signin() {
     }
 
     function onSubmit() {
-        toast({
-            title: "Scheduled: Catch up ",
-            description: "Friday, February 10, 2023 at 5:57 PM",
-            
-          })
         login()
     }
 
@@ -166,11 +178,7 @@ export default function Signin() {
                 <Button variant={"google"} disabled={isLoading} >
                     <Image src="/google.png" className="mr-3" height={24} width={24} alt="google search icon" /> Sign in with Google
                 </Button>
-                {postLogin?.show && <ToastMe
-                    title={postLogin?.message}
-                    bgColor={`${postLogin.status === 1 ? "bg-inverse-900" : "bg-error-700"}`}
-                    textColor="text-inverse-100"
-                />}
+                <Toaster/>
             </form>
         </Form>
     </div>

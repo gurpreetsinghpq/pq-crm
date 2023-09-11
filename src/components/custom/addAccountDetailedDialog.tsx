@@ -249,6 +249,10 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             dataFromChild()
             form.reset()
             resetForm2()
+            toast({
+                title: "Account Created Successfully!",
+                variant: "dark"
+            })
 
         } catch (err) {
             console.log(err)
