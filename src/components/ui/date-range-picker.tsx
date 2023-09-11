@@ -88,31 +88,33 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     showCompare = false,
     queryParamString = undefined,
     classFromParent = ""
-    
+
 }): JSX.Element => {
         const [isOpen, setIsOpen] = useState(false)
 
         const searchParams = useSearchParams()
         const queryParamIds = searchParams.get("ids")
-        let queryParam:string | undefined = undefined
+        let queryParam: string | undefined = undefined
         if (queryParamIds && queryParamIds?.length > 0) {
             queryParam = queryParamIds
         }
-        const {from, to} = getLastWeek(queryParam)
-        console.log(from,to, queryParam)
+        console.log(initialCompareFrom, initialCompareTo)
         const [range, setRange] = useState<DateRange>({
-            from: from,
-            to: to
+            from: new Date((new Date(initialDateFrom)).setHours(0, 0, 0, 0)),
+            to: initialDateTo ? new Date((new Date(initialDateTo)).setHours(0, 0, 0, 0)) : new Date((new Date(initialDateFrom)).setHours(0, 0, 0, 0))
         })
 
         const [rangeCompare, setRangeCompare] = useState<DateRange | undefined>(
             initialCompareFrom
-                ? {
-                    from: from,
-                    to: to
+              ? {
+                  from: new Date((new Date(initialCompareFrom)).setHours(0, 0, 0, 0)),
+                  to: initialCompareTo
+                    ? new Date((new Date(initialCompareTo)).setHours(0, 0, 0, 0))
+                    : new Date((new Date(initialCompareFrom)).setHours(0, 0, 0, 0))
                 }
-                : undefined
-        )
+              : undefined
+          )
+        
 
         // Refs to store the values of range and rangeCompare when the date picker is opened
         const openedRangeRef = useRef<DateRange | undefined>();
@@ -230,6 +232,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
 
         const setPreset = (preset: string): void => {
             const range = getPresetRange(preset)
+            console.log(preset, range)
             setRange(range)
             if (rangeCompare) {
                 const rangeCompare = {
@@ -362,7 +365,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                                 )
                             } */}
                             <IconCalendar size="20" />
-                            {PRESETS.find((preset) => {  return  preset.name === selectedPreset})?.label || "Custom Range"}
+                            {PRESETS.find((preset) => { return preset.name === selectedPreset })?.label || "Custom Range"}
                         </div>
                         <div className="pl-1 opacity-60 -mr-2 scale-125 px-2">
                             {
@@ -574,25 +577,27 @@ DateRangePicker.displayName = 'DateRangePicker'
 DateRangePicker.filePath =
     'libs/shared/ui-kit/src/lib/date-range-picker/date-range-picker.tsx'
 
-export function getLastWeek(queryParamString:string|undefined=undefined) {
-    
-    if(queryParamString){
+export function getLastWeek(queryParamString: string | undefined = undefined) {
+
+    if (queryParamString) {
         let from = new Date()
         let to = new Date()
         from.setTime(0);
         to.setHours(23, 59, 59, 999);
+        console.log("if",queryParamString, from,to)
         return { from, to }
-    }else{
+    } else {
         let today = new Date()
         let lastWeek = new Date(today)
         lastWeek.setDate(today.getDate() - 7)
-    
+        
         let from = new Date()
         let to = new Date()
         let first = from.getDate() - from.getDay()
         from.setDate(first)
         from.setHours(0, 0, 0, 0)
         to.setHours(23, 59, 59, 999)
+        console.log("else",queryParamString, from,to)
         return { from, to }
 
     }

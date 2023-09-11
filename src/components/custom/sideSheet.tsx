@@ -148,7 +148,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     }, [])
 
     useEffect(() => {
-        const status = labelToValue(form.getValues("statuses"), STATUSES)
+        const status = form.getValues("statuses")
         if (status) {
             updateFormSchemaOnStatusChange(status)
         }
@@ -265,59 +265,70 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         // console.log(reasonMap[form.getValues("reasons")])
     }, [form.watch()])
 
-    
+
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
 
     async function promoteToProspect() {
-        const fieldsNeccessary = [
-            { name: "esopRsusUl", label: "ESOP RSUS UL" },
-            { name: "esopRsusUlCurrency", label: "ESOP RSUS UL Currency" },
-            { name: "fixedBudgetUl", label: "Fixed Budget UL" },
-            { name: "fixedBudgetUlCurrency", label: "Fixed Budget UL Currency" },
-            { name: "timeToFill", label: "Time to Fill" },
-            { name: "industry", label: "Industry" },
-            { name: "domain", label: "Domain" },
-            { name: "size", label: "Size" },
-            { name: "lastFundingStage", label: "Last Funding Stage" },
-            { name: "lastFundingAmount", label: "Last Funding Amount" },
-            { name: "retainerAdvance", label: "Retainer Advance" },
-            { name: "exclusivity", label: "Exclusivity" },
-            { name: "serviceFeeRange", label: "Service Fee Range" },
-        ];
-
-        const missingFields = fieldsNeccessary.filter((field) => {
-            const value = form.getValues(field.name);
-            return !value; // Check if value is falsy (empty or undefined)
-        });
-
-        const beforePromoteToProspectDivsArray: any[] = fieldsNeccessary.map((field) => {
-            const isMissing = missingFields.some((missingField) => missingField.name === field.name);
-            const icon = isMissing ? <MinusCircleIcon size={20} color="red" /> : <CheckCircle2 size={20} color="#17B26A" />
-
-            return (
-                <div className={`flex text-md flex-row gap-[8px] items-center {${isMissing ? "" : "font-normal opacity-[0.7]"}`} key={field.name}>
-                    {icon}
-                    <span className={`${isMissing ? "font-semibold text-gray-900 " : "font-normal opacity-[0.7]"}`}>{field.label}</span>
-                </div>
-            );
-        });
-        if (missingFields.length > 0 && beforePromoteToProspectDivsArray.length > 0) {
-            setBeforePromoteToProspectDivsArray(beforePromoteToProspectDivsArray);
-        } else {
-            setBeforePromoteToProspectDivsArray([]);
-            try {
-                const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-                const result = await dataResp.json()
-                if (result.message === "success") {
-                    // closeSideSheet()
-                }
-            }
-            catch (err) {
-                console.log("error", err)
-            }
+        const status = form.getValues("statuses")
+        if (status) {
+            updateFormSchemaOnStatusChange(status, true)
+            await safeprs() 
+            await form.trigger()
         }
+
+
+
+        // old logic 
+        // const fieldsNeccessary = [
+        //     { name: "esopRsusUl", label: "ESOP RSUS UL" },
+        //     { name: "esopRsusUlCurrency", label: "ESOP RSUS UL Currency" },
+        //     { name: "fixedBudgetUl", label: "Fixed Budget UL" },
+        //     { name: "fixedBudgetUlCurrency", label: "Fixed Budget UL Currency" },
+        //     { name: "timeToFill", label: "Time to Fill" },
+        //     { name: "industry", label: "Industry" },
+        //     { name: "domain", label: "Domain" },
+        //     { name: "size", label: "Size" },
+        //     { name: "lastFundingStage", label: "Last Funding Stage" },
+        //     { name: "lastFundingAmount", label: "Last Funding Amount" },
+        //     { name: "retainerAdvance", label: "Retainer Advance" },
+        //     { name: "exclusivity", label: "Exclusivity" },
+        //     { name: "serviceFeeRange", label: "Service Fee Range" },
+        // ];
+
+        // const missingFields = fieldsNeccessary.filter((field) => {
+        //     const value = form.getValues(field.name);
+        //     return !value; // Check if value is falsy (empty or undefined)
+        // });
+
+
+        // const beforePromoteToProspectDivsArray: any[] = fieldsNeccessary.map((field) => {
+        //     const isMissing = missingFields.some((missingField) => missingField.name === field.name);
+        //     const icon = isMissing ? <MinusCircleIcon size={20} color="red" /> : <CheckCircle2 size={20} color="#17B26A" />
+
+        //     return (
+        //         <div className={`flex text-md flex-row gap-[8px] items-center {${isMissing ? "" : "font-normal opacity-[0.7]"}`} key={field.name}>
+        //             {icon}
+        //             <span className={`${isMissing ? "font-semibold text-gray-900 " : "font-normal opacity-[0.7]"}`}>{field.label}</span>
+        //         </div>
+        //     );
+        // });
+        // if (missingFields.length > 0 && beforePromoteToProspectDivsArray.length > 0) {
+        //     setBeforePromoteToProspectDivsArray(beforePromoteToProspectDivsArray);
+        // } else {
+        //     setBeforePromoteToProspectDivsArray([]);
+        //     try {
+        //         const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+        //         const result = await dataResp.json()
+        //         if (result.message === "success") {
+        //             // closeSideSheet()
+        //         }
+        //     }
+        //     catch (err) {
+        //         console.log("error", err)
+        //     }
+        // }
 
 
     }
@@ -395,8 +406,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     }
 
-    function safeprs() {
-        const result = formSchema.safeParse(form.getValues())
+    async function safeprs() {
+        const result = await formSchema.safeParseAsync(form.getValues())
         console.log(result)
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
@@ -418,7 +429,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
 
     }
-    function updateFormSchemaOnStatusChange(value: string) {
+    function updateFormSchemaOnStatusChange(value: string, isPromoteToProspect: boolean = false) {
+        console.log(value, isPromoteToProspect)
         let updatedSchema
         if (value.toLowerCase() !== "unverified") {
             if (value.toLowerCase() === "verified") {
@@ -432,6 +444,17 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                     lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
                     lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
                 })
+
+                if (isPromoteToProspect) {
+                    updatedSchema = updatedSchema.extend({
+                        esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error }),
+                        fixedBudgetUl: z.string(required_error).min(1, { message: required_error.required_error }),
+                        timeToFill: z.string(required_error).min(1, { message: required_error.required_error }),
+                        retainerAdvance: z.string(required_error).min(1, { message: required_error.required_error }),
+                        exclusivity: z.string(required_error).min(1, { message: required_error.required_error }),
+                        serviceFeeRange: z.string(required_error).min(1, { message: required_error.required_error }),
+                    })
+                }
             } else {
                 updatedSchema = FormSchema.extend({
                     reasons: z.string(required_error).min(1, { message: required_error.required_error }),
@@ -457,14 +480,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             updatedSchema = updatedSchema.omit({ contacts: true })
         }
         setFormSchema(updatedSchema)
-        setNumberOfErrors(undefined)
-        form.clearErrors()
+        // if(!isPromoteToProspect){
+            setNumberOfErrors(undefined)
+            form.clearErrors()
+        // }
     }
 
 
 
     function preprocess() {
-        console.log("preprocess")
         safeprs()
     }
 
@@ -666,7 +690,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div className='text-[#98A2B3]'>
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -796,7 +820,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -850,7 +874,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 }} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -924,7 +948,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1017,7 +1041,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage className='ml-[-82px]'/>
+                                                    <FormMessage className='ml-[-82px]' />
                                                 </FormItem>
 
                                             )}
@@ -1079,7 +1103,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage className='ml-[-82px]'/>
+                                                    <FormMessage className='ml-[-82px]' />
                                                 </FormItem>
                                             )}
                                         />
@@ -1140,7 +1164,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage className='ml-[-82px]'/>
+                                                    <FormMessage className='ml-[-82px]' />
                                                 </FormItem>
                                             )}
                                         />
@@ -1155,7 +1179,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1257,7 +1281,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1313,7 +1337,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
 
                                             </FormItem>
                                         )}
@@ -1328,7 +1352,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1375,7 +1399,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1421,7 +1445,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1477,7 +1501,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                {!form.getValues("lastFundingStage") && <FormMessage className={selectFormMessageClasses} />}
                                             </FormItem>
                                         )}
                                     />
@@ -1491,7 +1515,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1629,7 +1653,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2  ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1676,7 +1700,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1723,7 +1747,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1941,16 +1965,16 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                         }}
                                                                                                     >
                                                                                                         <PopoverClose asChild>
-                                                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                                                            {cc.label}
-                                                                                                            <Check
-                                                                                                                className={cn(
-                                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                                    field.value?.includes(cc.value)
-                                                                                                                        ? "opacity-100"
-                                                                                                                        : "opacity-0"
-                                                                                                                )} />
-                                                                                                        </div>
+                                                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                                                {cc.label}
+                                                                                                                <Check
+                                                                                                                    className={cn(
+                                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                        field.value?.includes(cc.value)
+                                                                                                                            ? "opacity-100"
+                                                                                                                            : "opacity-0"
+                                                                                                                    )} />
+                                                                                                            </div>
                                                                                                         </PopoverClose>
                                                                                                     </CommandItem>
                                                                                                 ))}
@@ -2056,7 +2080,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                             <span >Promote to Prospect</span> <IconArrowSquareRight size={20} />
                                         </Button>
                                     </DialogTrigger>
-                                    {beforePromoteToProspectDivsArray.length > 0 && <DialogContent>
+                                    {/* {beforePromoteToProspectDivsArray.length > 0 && <DialogContent>
                                         <DialogHeader>
                                             <DialogTitle className="pt-[20px] pb-[10px]">
                                                 <div className="flex flex-row gap-4 items-center">
@@ -2084,7 +2108,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                 </DialogClose>
                                             </div>
                                         </div>
-                                    </DialogContent>}
+                                    </DialogContent>} */}
                                 </Dialog>
 
                             </div>

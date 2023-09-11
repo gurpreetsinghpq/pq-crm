@@ -23,7 +23,7 @@ import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Check, ChevronDownIcon, Search } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
@@ -50,27 +50,6 @@ type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 
 
-const FormSchema = z.object({
-    owners: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one Owner.",
-    }),
-    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one Creator.",
-    }),
-    regions: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one region.",
-    }),
-    sources: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one source.",
-    }),
-    statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    search: z.string(),
-    dateRange: z.any(),
-    queryParamString: z.string()
-})
-
 // let tableLeadLength = 0
 
 export interface IChildData {
@@ -78,7 +57,16 @@ export interface IChildData {
 }
 let dataFromApi: ProspectsGetResponse[] = []
 
-const Prospects = () => {
+const Prospects = ({form}:{form:UseFormReturn<{
+    owners: string[];
+    creators: string[];
+    regions: string[];
+    sources: string[];
+    statuses: string[];
+    search: string;
+    queryParamString: string;
+    dateRange?: any;
+}, any, undefined>}) => {
     const { toast } = useToast()
 
     const router = useRouter();
@@ -95,7 +83,7 @@ const Prospects = () => {
     const [childData, setChildData] = React.useState<IChildData>()
 
 
-    
+
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
         setChildData((prev) => {
@@ -119,26 +107,7 @@ const Prospects = () => {
     }
     const searchParams = useSearchParams()
 
-    const { from, to } = getLastWeek()
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
-        defaultValues: {
-            regions: ["allRegions"],
-            sources: ["allSources"],
-            statuses: ["allStatuses"],
-            owners: ['allOwners'],
-            creators: ['allCreators'],
-            search: "",
-            queryParamString: undefined,
-            dateRange: {
-                "range": {
-                    "from": from,
-                    "to": to
-                },
-                rangeCompare: undefined
-            }
-        }
-    })
+    
 
     async function checkQueryParam() {
         const queryParamIds = searchParams.get("ids")
@@ -158,18 +127,6 @@ const Prospects = () => {
         } else {
             fetchLeadData()
         }
-    }
-
-
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        })
     }
 
 
@@ -311,7 +268,7 @@ const Prospects = () => {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button type="button" variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
-                                                <IconInbox size={20} />
+                                                <IconInbox size={20} color={isInbox ? "#1D2939" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
@@ -324,7 +281,7 @@ const Prospects = () => {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
-                                                <IconArchive size={20} />
+                                                <IconArchive size={20} color={!isInbox ? "#1D2939" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
@@ -338,7 +295,7 @@ const Prospects = () => {
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Prospects" : "Prospect"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Prospects" : "Prospect"}` : "No Prospects"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length ===0 ? "No Prospects" : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Prospects" : "Prospect"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Prospects" : "Prospect"}` : "No Prospects"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -380,7 +337,7 @@ const Prospects = () => {
                                             <div className='flex flex-col gap-[32px] mt-[16px] min-w-[380px] '>
                                                 <div className='flex flex-col gap-[5px]'>
                                                     <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Leads" : "Lead"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
+                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Prospects" : "Prospect"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
                                                 </div>
                                                 <div className='flex flex-row gap-[12px] w-full'>
                                                     <DialogClose asChild>
@@ -411,8 +368,8 @@ const Prospects = () => {
                                         {/* <DropdownMenuContent className="w-56"> */}
                                         <DateRangePicker
                                             onUpdate={(values) => form.setValue("dateRange", values)}
-                                            // initialDateFrom="2023-01-01"
-                                            // initialDateTo="2023-12-31"
+                                            initialDateFrom={form.getValues("dateRange").range.from}
+                                            initialDateTo={form.getValues("dateRange").range.to}
                                             queryParamString={form.getValues("queryParamString")}
                                             align="start"
                                             locale="en-GB"
@@ -724,7 +681,7 @@ const Prospects = () => {
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTable columns={columnsProspects} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
+                    <DataTable columns={columnsProspects(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">

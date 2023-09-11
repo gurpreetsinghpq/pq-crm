@@ -584,7 +584,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -655,7 +655,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -702,7 +702,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -748,7 +748,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -818,7 +818,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>

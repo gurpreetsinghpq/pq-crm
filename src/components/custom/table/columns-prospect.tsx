@@ -46,7 +46,7 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export const columnsProspects: ColumnDef<ProspectsGetResponse>[] = [
+export function columnsProspects(setChildDataHandler:CallableFunction): ColumnDef<ProspectsGetResponse>[] {return [
     {
         id: "select",
         header: ({ table }) => (
@@ -275,7 +275,7 @@ export const columnsProspects: ColumnDef<ProspectsGetResponse>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => {console.log(cell)}}>
+                        <DropdownMenuItem onClick={()=>setChildDataHandler('row',row)}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
@@ -294,7 +294,7 @@ export const columnsProspects: ColumnDef<ProspectsGetResponse>[] = [
         },
     },
 
-]
+]}
 const multiLine = (dateStr: any) => {
     const formattedDate = formatUtcDateToLocal(dateStr);
     const [date, time] = formattedDate.split("@");

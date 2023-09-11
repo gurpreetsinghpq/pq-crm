@@ -71,16 +71,23 @@ interface ContactInterfaceFilter {
 }
 
 interface UsersInterfaceFilter {
-  functions: string[]
-  profiles: string[]
-  regions: string[]
-  statuses: string[]
+  functions?: string[]
+  profiles?: string[]
+  regions?: string[]
+  statuses?: string[]
   search?: string,
   dateRange?: any,
   queryParamString?: string
 }
 
-type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter
+interface TeamsInterfaceFilter {
+  teamLeaders?: string[]
+  search?: string,
+  dateRange?: any,
+  queryParamString?: string
+}
+
+type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter & TeamsInterfaceFilter
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -154,6 +161,10 @@ export default function DataTable<TData, TValue>({
       case "users":
         setUsersFilter()
         break;
+      case "teams":
+        setTeamsFilter()
+        break;
+
     }
 
 
@@ -385,6 +396,19 @@ export default function DataTable<TData, TValue>({
 
 
     // table.getColumn("id")?.setFilterValue(filterObj.ids)
+    table.getColumn("name")?.setFilterValue(filterObj.search)
+    table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+  }
+
+  function setTeamsFilter() {
+    if (filterObj.teamLeaders && filterObj.teamLeaders.includes("allTeamLeaders")) {
+      table.getColumn("teamLeader")?.setFilterValue("")
+    }
+    else {
+      const teamLeader = valueToLabel("functions", ALL_FUNCTIONS)
+      table.getColumn("teamLeader")?.setFilterValue(teamLeader)
+    }
+
     table.getColumn("name")?.setFilterValue(filterObj.search)
     table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
   }

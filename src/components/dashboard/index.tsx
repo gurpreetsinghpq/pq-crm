@@ -11,6 +11,133 @@ import { useRouter } from "next/navigation"
 import Accounts from "../custom/accounts"
 import Contacts from "../custom/contacts"
 import UserManagement from "../custom/userManagement"
+import { z } from "zod"
+import { useForm } from "react-hook-form"
+import { getLastWeek } from "../ui/date-range-picker"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+
+const LeadFormSchema = z.object({
+    owners: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Owner.",
+    }),
+    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    regions: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one region.",
+    }),
+    sources: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one source.",
+    }),
+    statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
+
+
+const ProspectFormSchema = z.object({
+    owners: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Owner.",
+    }),
+    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    regions: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one region.",
+    }),
+    sources: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one source.",
+    }),
+    statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
+
+const AccountFormSchema = z.object({
+    industries: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    accounts: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    domains: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    segments: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    sizes: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    fundingStages: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    // owners: z.array(z.string()).refine((value) => value.some((item) => item), {
+    //     message: "You have to select at least one Owner.",
+    // }),
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
+
+const ContactsFormSchema = z.object({
+    designations: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    accounts: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    types: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
+const UsersFormSchema = z.object({
+    regions: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    functions: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    profiles: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
+
+const TeamsFormSchema = z.object({
+    teamLeaders: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
 
 const TITLES = {
     LEADS: "Leads",
@@ -21,13 +148,131 @@ const TITLES = {
 }
 
 export default function DashboardComponent() {
-    // const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
+    const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
     // const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.ACCOUNTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
-    const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
+    // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
     const [user, setUser] = useState<User>()
     const router = useRouter();
+    const { from, to } = getLastWeek()
+    const LeadForm = useForm<z.infer<typeof LeadFormSchema>>({
+        resolver: zodResolver(LeadFormSchema),
+        defaultValues: {
+            regions: ["allRegions"],
+            sources: ["allSources"],
+            statuses: ["allStatuses"],
+            owners: ['allOwners'],
+            creators: ['allCreators'],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+
+    const ProspectForm = useForm<z.infer<typeof ProspectFormSchema>>({
+        resolver: zodResolver(ProspectFormSchema),
+        defaultValues: {
+            regions: ["allRegions"],
+            sources: ["allSources"],
+            statuses: ["allStatuses"],
+            owners: ['allOwners'],
+            creators: ['allCreators'],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+
+    const AccountsForm = useForm<z.infer<typeof AccountFormSchema>>({
+        resolver: zodResolver(AccountFormSchema),
+        defaultValues: {
+            industries: ["allIndustries"],
+            accounts: ["allAccounts"],
+            domains: ["allDomains"],
+            segments: ["allSegments"],
+            sizes: ['allSizes'],
+            fundingStages: ['allFundingStages'],
+            creators: ['allCreators'],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+
+
+    const ContactsForm = useForm<z.infer<typeof ContactsFormSchema>>({
+        resolver: zodResolver(ContactsFormSchema),
+        defaultValues: {
+            designations: ["allDesignations"],
+            types: ["allTypes"],
+            accounts: ["allAccounts"],
+            creators: ['allCreators'],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+
+    const UsersForm = useForm<z.infer<typeof UsersFormSchema>>({
+        resolver: zodResolver(UsersFormSchema),
+        defaultValues: {
+            functions: ["allFunctions"],
+            profiles: ["allProfiles"],
+            regions: ["allRegions"],
+            statuses: ["allStatuses"],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+
+    const TeamsForm = useForm<z.infer<typeof TeamsFormSchema>>({
+        resolver: zodResolver(TeamsFormSchema),
+        defaultValues: {
+            teamLeaders: ["allTeamLeaders"],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+
     useEffect(() => {
         const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
 
@@ -182,11 +427,11 @@ export default function DashboardComponent() {
                 </div>
             </div>
             <div className="bottom flex flex-col flex-1">
-                {currentTab === TITLES.LEADS && <Leads />}
-                {currentTab === TITLES.PROSPECTS && <Prospects />}
-                {currentTab === TITLES.ACCOUNTS && <Accounts />}
-                {currentTab === TITLES.CONTACTS && <Contacts />}
-                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement />}
+                {currentTab === TITLES.LEADS && <Leads form={LeadForm} />}
+                {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm}/>}
+                {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm}/>}
+                {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm}/>}
+                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} />}
 
             </div>
         </div>

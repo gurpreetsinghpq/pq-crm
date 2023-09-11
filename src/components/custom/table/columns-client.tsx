@@ -56,7 +56,7 @@ function getIcon(segmentName: string) {
     return render
 }
 
-export const columnsClient: ColumnDef<ClientGetResponse>[] = [
+export function columnsClient(setChildDataHandler:CallableFunction): ColumnDef<ClientGetResponse>[] { return [
     {
         id: "select",
         header: ({ table }) => (
@@ -282,7 +282,7 @@ export const columnsClient: ColumnDef<ClientGetResponse>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => { console.log(cell) }}>
+                        <DropdownMenuItem onClick={()=>setChildDataHandler('row',row)}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
@@ -295,7 +295,7 @@ export const columnsClient: ColumnDef<ClientGetResponse>[] = [
         },
     },
 
-]
+]}
 const multiLine = (dateStr: any) => {
     const formattedDate = formatUtcDateToLocal(dateStr);
     const [date, time] = formattedDate.split("@");

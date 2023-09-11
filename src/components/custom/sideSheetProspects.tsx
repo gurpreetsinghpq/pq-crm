@@ -682,7 +682,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div className='text-[#98A2B3]'>
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -813,7 +813,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -867,7 +867,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 }} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -941,7 +941,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1172,7 +1172,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1276,7 +1276,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1333,7 +1333,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
 
                                             </FormItem>
                                         )}
@@ -1348,7 +1348,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1395,7 +1395,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1441,7 +1441,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                             <FormItem className='w-full cursor-pointer'>
                                                 <Popover>
                                                     <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center text-gray-700 ' >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1497,7 +1497,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                {!form.getValues("lastFundingStage") && <FormMessage className={selectFormMessageClasses} />}
                                             </FormItem>
                                         )}
                                     />
@@ -1511,7 +1511,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1649,7 +1649,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2  ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1696,7 +1696,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1743,7 +1743,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>

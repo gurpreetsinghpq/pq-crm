@@ -193,7 +193,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                                     <CommandEmpty>No results found.</CommandEmpty>
                                     {dataFromApi.map((item: ClientCompleteInterface, index) => (
                                         <CommandItem key={index} className="flex flex-row  justify-between px-0 py-0" >
-                                            <div className='flex flex-row justify-between w-full items-center pointer px-4 py-4 cursor-pointer' onClick={() => checkPageAndLink(item)}>
+                                            <div className={`flex flex-row justify-between w-full items-center pointer px-4 py-4 ${page==='leads'&& 'cursor-pointer'}`}  onClick={() => checkPageAndLink(item)}>
                                                 <div className="flex flex-row gap-2">
                                                     <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                                         <IconBuildings size="20" />

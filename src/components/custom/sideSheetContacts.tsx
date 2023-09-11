@@ -410,7 +410,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center text-gray-700 ' >
+                                                            <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div className='text-[#98A2B3]'>
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -463,7 +463,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                     <FormItem className='w-full cursor-pointer'>
                                                         <Popover>
                                                             <PopoverTrigger asChild >
-                                                                <div className='flex flex-row gap-[10px] items-center text-gray-700 ' >
+                                                                <div className='flex flex-row gap-[10px] items-center  ' >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
                                                                             <TooltipTrigger asChild>

@@ -1,9 +1,9 @@
+import TestComponent from '@/components/test/testComponent'
 import React from 'react'
-import Test from '../testing/page'
 
 function page() {
   return (
-    <div><Test/></div>
+    <div><TestComponent/></div>
   )
 }
 

@@ -23,7 +23,7 @@ import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Check, ChevronDownIcon, Search } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { FieldValues, UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
@@ -46,29 +46,6 @@ import { RowModel } from "@tanstack/react-table"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
-
-
-const FormSchema = z.object({
-    owners: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one Owner.",
-    }),
-    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one Creator.",
-    }),
-    regions: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one region.",
-    }),
-    sources: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one source.",
-    }),
-    statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    search: z.string(),
-    dateRange: z.any(),
-    queryParamString: z.string()
-})
-
 // let tableLeadLength = 0
 
 export interface IChildData {
@@ -76,7 +53,16 @@ export interface IChildData {
 }
 let dataFromApi: LeadInterface[] = []
 
-const Leads = () => {
+const Leads = ({form}:{form:UseFormReturn<{
+    search: string;
+    queryParamString: string;
+    regions: string[];
+    sources: string[];
+    statuses: string[];
+    owners: string[];
+    creators: string[];
+    dateRange?: any;
+}, any, undefined>}) => {
     const { toast } = useToast()
 
     const router = useRouter();
@@ -104,9 +90,15 @@ const Leads = () => {
     }
 
 
-    React.useEffect(() => {
-        console.log(childData)
-    }, [childData?.row])
+    // React.useEffect(() => {
+    //     console.log(childData)
+    // }, [childData?.row])
+
+    const watcher = form.watch()
+    React.useEffect(()=>{
+        console.log(form.getValues("dateRange"))
+    },[])
+
     function setTableLeadRow(data: any) {
         const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
         setIsMultiSelectOn(selectedRows.length !== 0)
@@ -116,26 +108,7 @@ const Leads = () => {
     }
     const searchParams = useSearchParams()
 
-    const { from, to } = getLastWeek()
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
-        defaultValues: {
-            regions: ["allRegions"],
-            sources: ["allSources"],
-            statuses: ["allStatuses"],
-            owners: ['allOwners'],
-            creators: ['allCreators'],
-            search: "",
-            queryParamString: undefined,
-            dateRange: {
-                "range": {
-                    "from": from,
-                    "to": to
-                },
-                rangeCompare: undefined
-            }
-        }
-    })
+    
 
     async function checkQueryParam() {
         const queryParamIds = searchParams.get("ids")
@@ -156,19 +129,6 @@ const Leads = () => {
             fetchLeadData()
         }
     }
-
-
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        })
-    }
-
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     getToken()
@@ -206,30 +166,9 @@ const Leads = () => {
         })()
     }, [])
 
-    const watcher = form.watch()
-
-
-    React.useEffect(() => {
-        console.log(watcher)
-    }, [watcher])
-
     React.useEffect(() => {
         setLeadData(filterInboxOrArchive(dataFromApi, isInbox))
     }, [isInbox])
-    // console.log(tableLeadLength)
-
-    async function promoteToProspect() {
-        try {
-            // const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            // const result = await dataResp.json()
-            // if (result.message === "success") {
-            //     closeSideSheet()
-            // }
-        }
-        catch (err) {
-            console.log("error", err)
-        }
-    }
 
 
     async function patchArchiveLeadData(ids: number[]) {
@@ -250,13 +189,15 @@ const Leads = () => {
             const result = await dataResp.json();
 
             if (result.message === "success") {
-                return result; // Return the result or any data you need
+                fetchLeadData()
+
+                return result; 
             } else {
-                throw new Error("Failed to patch lead data"); // Throw an error for non-success responses
+                throw new Error("Failed to patch lead data"); 
             }
         } catch (err) {
             console.error("Error during patching:", err);
-            throw err; // Re-throw the error to be caught by Promise.all
+            throw err; 
         }
     }
 
@@ -272,10 +213,8 @@ const Leads = () => {
 
         promisePatch
             .then((resp) => {
-                // All patching operations are complete
-                // You can run your code here
+             
                 console.log("All patching operations are done");
-                fetchLeadData()
 
             })
             .catch((error) => {
@@ -302,7 +241,7 @@ const Leads = () => {
                                 name="search"
                                 render={({ field }) => (
                                     <FormItem className="w-2/3">
-                                        <FormControl>
+                                        <FormControl> 
                                             <Input placeholder="Search" className="text-md border" {...field} />
                                         </FormControl>
                                     </FormItem>
@@ -313,7 +252,7 @@ const Leads = () => {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button type="button" variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
-                                                <IconInbox size={20} />
+                                                <IconInbox size={20} color={isInbox?"#1D2939":"#667085"}/>
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
@@ -326,7 +265,7 @@ const Leads = () => {
                                     <Tooltip>
                                         <TooltipTrigger asChild>
                                             <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
-                                                <IconArchive size={20} />
+                                                <IconArchive size={20} color={!isInbox?"#1D2939":"#667085"}/>
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
@@ -343,7 +282,7 @@ const Leads = () => {
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Leads" : "Lead"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length ===0 ? "No Leads": isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Leads" : "Lead"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Leads" : "Lead"}` : "No Leads"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -416,8 +355,8 @@ const Leads = () => {
                                         {/* <DropdownMenuContent className="w-56"> */}
                                         <DateRangePicker
                                             onUpdate={(values) => form.setValue("dateRange", values)}
-                                            // initialDateFrom="2023-01-01"
-                                            // initialDateTo="2023-12-31"
+                                            initialDateFrom={form.getValues("dateRange").range.from}
+                                            initialDateTo={form.getValues("dateRange").range.to}
                                             queryParamString={form.getValues("queryParamString")}
                                             align="start"
                                             locale="en-GB"
@@ -449,9 +388,9 @@ const Leads = () => {
                                                                         if ((!checked && field.value.length === 1) || region.value === 'allRegions') {
                                                                             return field.onChange(['allRegions'])
                                                                         } else if (checked && field.value.includes('allRegions') && region.value !== 'allRegions') {
-                                                                            return field.onChange([...field.value?.filter((value) => value != 'allRegions'), region.value])
+                                                                            return field.onChange([...field.value?.filter((value: string) => value != 'allRegions'), region.value])
                                                                         }
-                                                                        return checked ? field.onChange([...field.value, region.value]) : field.onChange(field.value?.filter((value) => value != region.value))
+                                                                        return checked ? field.onChange([...field.value, region.value]) : field.onChange(field.value?.filter((value: string) => value != region.value))
                                                                     }}
                                                                 >
                                                                     {region.label}
@@ -484,9 +423,9 @@ const Leads = () => {
                                                                         if ((!checked && field.value.length === 1) || source.value === 'allSources') {
                                                                             return field.onChange(['allSources'])
                                                                         } else if (checked && field.value.includes('allSources') && source.value !== 'allSources') {
-                                                                            return field.onChange([...field.value?.filter((value) => value != 'allSources'), source.value])
+                                                                            return field.onChange([...field.value?.filter((value: string) => value != 'allSources'), source.value])
                                                                         }
-                                                                        return checked ? field.onChange([...field.value, source.value]) : field.onChange(field.value?.filter((value) => value != source.value))
+                                                                        return checked ? field.onChange([...field.value, source.value]) : field.onChange(field.value?.filter((value: string) => value != source.value))
                                                                     }}
                                                                 >
                                                                     {source.label}
@@ -520,9 +459,9 @@ const Leads = () => {
                                                                         if ((!checked && field.value.length === 1) || status.value === 'allStatuses') {
                                                                             return field.onChange(['allStatuses'])
                                                                         } else if (checked && field.value.includes('allStatuses') && status.value !== 'allStatuses') {
-                                                                            return field.onChange([...field.value?.filter((value) => value != 'allStatuses'), status.value])
+                                                                            return field.onChange([...field.value?.filter((value: string) => value != 'allStatuses'), status.value])
                                                                         }
-                                                                        return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value) => value != status.value))
+                                                                        return checked ? field.onChange([...field.value, status.value]) : field.onChange(field.value?.filter((value: string) => value != status.value))
                                                                     }}
                                                                 >
                                                                     <div className="">
@@ -619,14 +558,14 @@ const Leads = () => {
                                                                             key={owner.value}
                                                                             onSelect={() => {
                                                                                 if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
-                                                                                    form.setValue("owners", [...field.value.filter((value) => value !== 'allOwners'), owner.value])
+                                                                                    form.setValue("owners", [...field.value.filter((value: string) => value !== 'allOwners'), owner.value])
                                                                                 }
                                                                                 else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value == 'allOwners')) {
                                                                                     form.setValue("owners", ["allOwners"])
 
                                                                                 }
                                                                                 else if (field.value?.includes(owner.value)) {
-                                                                                    form.setValue("owners", field.value?.filter((val) => val !== owner.value))
+                                                                                    form.setValue("owners", field.value?.filter((val: string) => val !== owner.value))
                                                                                 } else {
                                                                                     form.setValue("owners", [...field.value, owner.value])
                                                                                 }
@@ -686,13 +625,13 @@ const Leads = () => {
                                                                             onSelect={() => {
                                                                                 if (field.value.length > 0 &&
                                                                                      field.value.includes("allCreators") && creator.value !== 'allCreators') {
-                                                                                    form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
+                                                                                    form.setValue("creators", [...field.value.filter((value: string) => value !== 'allCreators'), creator.value])
                                                                                 }
                                                                                 else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
                                                                                     form.setValue("creators", ["allCreators"])
                                                                                 }
                                                                                 else if (field.value?.includes(creator.value)) {
-                                                                                    form.setValue("creators", field.value?.filter((val) => val !== creator.value))
+                                                                                    form.setValue("creators", field.value?.filter((val: string) => val !== creator.value))
                                                                                 } else {
                                                                                     form.setValue("creators", [...field.value, creator.value])
                                                                                 }
@@ -730,7 +669,7 @@ const Leads = () => {
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTable columns={columns} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} />
+                    <DataTable columns={columns(setChildDataHandler,patchArchiveLeadData, isInbox)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">

@@ -25,7 +25,7 @@ import { Tooltip } from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { formatData, getToken } from './leads'
 import Link from 'next/link'
-import { commonClasses, commonFontClassesAddDialog, contactListClasses } from '@/app/constants/classes'
+import { commonClasses, commonFontClassesAddDialog, contactListClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 
 
@@ -364,7 +364,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses}`} placeholder="Organisation Name" {...field} />
+                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} />
 
                                     </FormControl>
                                 </FormItem>

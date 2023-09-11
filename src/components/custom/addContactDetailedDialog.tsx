@@ -26,6 +26,7 @@ import Image from 'next/image'
 import { formatData, getToken } from './leads'
 import Link from 'next/link'
 import { PopoverClose } from '@radix-ui/react-popover'
+import { preFilledClasses } from '@/app/constants/classes'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -235,7 +236,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses}`} placeholder="Organisation Name" {...field} />
+                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} />
 
                                     </FormControl>
                                 </FormItem>

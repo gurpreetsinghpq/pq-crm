@@ -53,7 +53,7 @@ function getIcon(segmentName: string) {
 }
 
 
-export const columnsUsers: ColumnDef<UsersGetResponse>[] = [
+export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<UsersGetResponse>[]  {return[
     {
         id: "select",
         header: ({ table }) => (
@@ -140,7 +140,7 @@ export const columnsUsers: ColumnDef<UsersGetResponse>[] = [
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Designation
+                    Reporting to
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
@@ -283,7 +283,7 @@ export const columnsUsers: ColumnDef<UsersGetResponse>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => { console.log(cell) }}>
+                        <DropdownMenuItem onClick={() => { setChildDataHandler('row', row) }}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
@@ -296,7 +296,7 @@ export const columnsUsers: ColumnDef<UsersGetResponse>[] = [
         },
     },
 
-]
+]}
 const multiLine = (dateStr: any) => {
     const formattedDate = formatUtcDateToLocal(dateStr);
     const [date, time] = formattedDate.split("@");

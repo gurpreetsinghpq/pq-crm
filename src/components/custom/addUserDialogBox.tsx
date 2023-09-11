@@ -258,8 +258,8 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[290px] p-0">
                                                             <Command>
-                                                                <CommandInput className='w-full' placeholder="Search Reporter" />
-                                                                <CommandEmpty>Reporter not found.</CommandEmpty>
+                                                                <CommandInput className='w-full' placeholder="Search Reporting Manager" />
+                                                                <CommandEmpty>Reporting Manager not found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {DESIGNATION.map((designation) => (

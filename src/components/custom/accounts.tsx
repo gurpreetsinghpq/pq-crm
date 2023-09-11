@@ -23,7 +23,7 @@ import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Check, ChevronDownIcon, Search } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
@@ -50,35 +50,7 @@ type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 
 
-const FormSchema = z.object({
-    industries: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    accounts: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    domains: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    segments: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    sizes: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    fundingStages: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one status.",
-    }),
-    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one Creator.",
-    }),
-    // owners: z.array(z.string()).refine((value) => value.some((item) => item), {
-    //     message: "You have to select at least one Owner.",
-    // }),
-    search: z.string(),
-    dateRange: z.any(),
-    queryParamString: z.string()
-})
+
 
 // let tableLeadLength = 0
 
@@ -87,7 +59,18 @@ export interface IChildData {
 }
 let dataFromApi: LeadInterface[] = []
 
-const Accounts = () => {
+const Accounts = ({form}:{form:UseFormReturn<{
+    search: string;
+    creators: string[];
+    queryParamString: string;
+    industries: string[];
+    accounts: string[];
+    domains: string[];
+    segments: string[];
+    sizes: string[];
+    fundingStages: string[];
+    dateRange?: any;
+}, any, undefined>}) => {
     const { toast } = useToast()
 
     const router = useRouter();
@@ -127,28 +110,7 @@ const Accounts = () => {
     }
     const searchParams = useSearchParams()
 
-    const { from, to } = getLastWeek()
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
-        defaultValues: {
-            industries: ["allIndustries"],
-            accounts: ["allAccounts"],
-            domains: ["allDomains"],
-            segments: ["allSegments"],
-            sizes: ['allSizes'],
-            fundingStages: ['allFundingStages'],
-            creators: ['allCreators'],
-            search: "",
-            queryParamString: undefined,
-            dateRange: {
-                "range": {
-                    "from": from,
-                    "to": to
-                },
-                rangeCompare: undefined
-            }
-        }
-    })
+   
 
     async function checkQueryParam() {
         const queryParamIds = searchParams.get("ids")
@@ -171,16 +133,7 @@ const Accounts = () => {
     }
 
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        })
-    }
+
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -425,8 +378,8 @@ const Accounts = () => {
                                         {/* <DropdownMenuContent className="w-56"> */}
                                         <DateRangePicker
                                             onUpdate={(values) => form.setValue("dateRange", values)}
-                                            // initialDateFrom="2023-01-01"
-                                            // initialDateTo="2023-12-31"
+                                            initialDateFrom={form.getValues("dateRange").range.from}
+                                            initialDateTo={form.getValues("dateRange").range.to}
                                             queryParamString={form.getValues("queryParamString")}
                                             align="start"
                                             locale="en-GB"
@@ -804,7 +757,7 @@ const Accounts = () => {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsClient} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} />
+                    <DataTable columns={columnsClient(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconAccounts2 size="24" />
