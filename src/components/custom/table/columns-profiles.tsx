@@ -53,7 +53,7 @@ function getIcon(segmentName: string) {
 }
 
 
-export const columnsTeamsDialog: ColumnDef<UsersGetResponse>[] = [
+export const columnsProfiles: ColumnDef<UsersGetResponse>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -82,7 +82,7 @@ export const columnsTeamsDialog: ColumnDef<UsersGetResponse>[] = [
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Name & Email
+                    Name
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
@@ -90,7 +90,7 @@ export const columnsTeamsDialog: ColumnDef<UsersGetResponse>[] = [
         cell: ({ row }) => <div><span className="text-gray-900 text-sm">{getTextMultiLine(row.getValue("name"))}</span></div>
     },
     {
-        accessorKey: "mobile",
+        accessorKey: "assignedUsers",
         accessorFn: (originalRow, index) => originalRow.mobile,
         header: ({ column }) => {
             return (
@@ -98,7 +98,7 @@ export const columnsTeamsDialog: ColumnDef<UsersGetResponse>[] = [
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Mobile
+                    Assigned Users
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
@@ -108,6 +108,96 @@ export const columnsTeamsDialog: ColumnDef<UsersGetResponse>[] = [
             return value.includes(row.getValue(id))
         },
     },
+    {
+        accessorKey: "created_by",
+        accessorFn: (originalRow, index) => originalRow.profile,
+        header: ({ column }) => {
+            return (
+                <div
+                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                >
+                    Created By
+                    {/* <IconArrowDown size={20} /> */}
+                </div>
+            )
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by") || "—"}</div>,
+        filterFn: (row, id, value) => {
+            return value.includes(row.getValue(id))
+        },
+    },
+    {
+        accessorKey: "created_at",
+        accessorFn: (originalRow, index) => originalRow.created_at,
+        header: ({ column }) => {
+            return (
+                <div
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
+                >
+                    Created On
+                    <IconArrowDown size={20} />
+                    
+                </div>
+            )
+        },
+        cell: ({ row }) => <div className=" font-normal">
+            {multiLine(row.getValue("created_at"))}
+
+        </div>,
+        filterFn: (row, id, value) => {
+            const { range } = value
+            if (range) {
+                const startDate = range?.from;
+                const endDate = range?.to;
+                if (startDate && endDate) {
+                    const createdOnDate = new Date(row.getValue(id));
+                    endDate.setHours(23, 59, 0, 0)
+
+                    if (!startDate || !endDate) {
+                        return true; // No date range specified, don't apply filtering
+                    }
+
+
+                    return createdOnDate >= startDate && createdOnDate <= endDate;
+                }
+                return true
+            }
+            return true
+        },
+        sortingFn: (a, b) => {
+            // console.log(a.getValue("created_at"))
+            return +new Date(b.getValue("created_at")) - +new Date(a.getValue("created_at"));
+        },
+    },
+    {
+        id: "actions",
+        enableHiding: false,
+        cell: ({ row, cell }) => {
+            const payment = row.original
+
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreVertical className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => { console.log(cell) }}>
+                            <div className="flex flex-row gap-2 items-center" >
+                                <IconEdit size={16} />
+                                Edit
+                            </div>
+                        </DropdownMenuItem>
+                        {/* <DropdownMenuSeparator /> */}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )
+        },
+    },
+
 ]
 const multiLine = (dateStr: any) => {
     const formattedDate = formatUtcDateToLocal(dateStr);

@@ -5,11 +5,11 @@ import { Form, FormControl, FormField, FormItem } from '../ui/form'
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
-import { Check, ChevronDown } from 'lucide-react'
+import { Check, ChevronDown, MinusCircle } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
-import { ALL_FUNCTIONS, ALL_TEAM_LEADERS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, TYPE } from '@/app/constants/constants'
+import { ALL_FUNCTIONS, ALL_TEAM_LEADERS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, TEAM_LEADERS, TYPE } from '@/app/constants/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { COMMON_TAB_CLASSES, SELECTED_TAB_CLASSES, commonClasses, commonClasses2, commonFontClassesAddDialog } from '@/app/constants/classes'
+import { COMMON_TAB_CLASSES, SELECTED_TAB_CLASSES, commonClasses, commonClasses2, commonFontClassesAddDialog, tableHeaderClass } from '@/app/constants/classes'
 import { Separator } from '../ui/separator'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
@@ -20,21 +20,29 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { UsersGetResponse } from '@/app/interfaces/interface'
+import { ClientGetResponse, IValueLabel, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
 import { IconPower, IconUsers } from '../icons/svgIcons'
 import DataTable from './table/datatable'
+import { columnsTeamsDialog } from './table/columns-team-dialog'
+import { getToken } from './leads'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+import DataTableAddTeamDialog from './table/datatable-addteam'
 
 const FormSchema = z.object({
     search: z.string({}),
     teamName: z.string({
         // required_error: "Please enter a name.",
-    }).min(2),
+    }).min(1),
     teamLeader: z.string({
-
-    })
+    }).min(1)
 
 })
+
+const tabs: IValueLabel[] = [
+    { label: "All Users", value: "allUsers" },
+    { label: "Selected Users", value: "selectedUsers" },
+];
 
 
 const TABS = {
@@ -45,17 +53,40 @@ const TABS = {
 function AddTeamDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
     const [userAssigned, setUserAssigned] = useState<boolean>(true)
-    const [data, setData] = useState()
-    const [showAssignUser, setShowAssignUser] = useState<boolean>(true)
+    const [showAssignUser, setShowAssignUser] = useState<boolean>(false)
+    const [showAssignUserTable, setShowAssignUserTable] = useState<boolean>(false)
     const [currentTab, setCurrentTab] = React.useState<string>(TABS.ALL_USERS)
+    const [isLoading, setIsLoading] = React.useState<boolean>(true)
+    const [data, setUserData] = React.useState<UsersGetResponse[]>([])
+    const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
+    const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
+    const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
+    const [childData, setChildData] = React.useState<IChildData>()
+    const [tableLeadLength, setTableLength] = React.useState<any>()
+    const [selectedRows, setSelectedRows] = React.useState<UsersGetResponse[]>()
+    const [table, setTable] = React.useState<any>()
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
+            search: "",
             teamName: "",
-            teamLeader: undefined
+            teamLeader: ""
         }
     })
     const [formSchema, setFormSchema] = useState(FormSchema)
+
+    function setTableLeadRow(data: any) {
+        const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
+        setIsMultiSelectOn(selectedRows.length !== 0)
+        const ids = selectedRows.map((val: any) => val.original.id)
+        setSelectedRowIds(ids)
+        setTableLength(data.rows.length)
+        setSelectedRows(selectedRows.map((row: any) => row.original))
+        console.log(data)
+    }
+
+    console.log(selectedRows)
 
     function changeStdCode(value: string) {
         let updatedSchema
@@ -73,11 +104,58 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
 
     function yesDiscard() {
         setOpen(false)
+        form.reset()
+        setShowAssignUser(false)
+        setShowAssignUserTable(false)
+        setCurrentTab(TABS.ALL_USERS)
+        parentData?.setChildDataHandler('row', undefined)
+
     }
 
     function addContact() {
 
     }
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    getToken()
+    const token_superuser = getToken()
+    async function fetchLeadData(noArchiveFilter: boolean = false) {
+        setIsLoading(true)
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data: UsersGetResponse[] = structuredClone(result.data)
+            let dataFromApi = data
+            console.log(data)
+            setUserData(dataFromApi)
+            setIsLoading(false)
+            // if (filteredData.length == 0) {
+            //     setTableLength(0)
+            //     setIsMultiSelectOn(false)
+            //     setSelectedRowIds([])
+            // }
+        }
+        catch (err) {
+            setIsLoading(false)
+            setIsNetworkError(true)
+            console.log("error", err)
+        }
+    }
+
+    useEffect(() => {
+        fetchLeadData()
+    }, [])
+
+    
+    function setChildDataHandler(key: keyof IChildData, data: any) {
+        setChildData((prev) => {
+            return { ...prev, [key]: data }
+        })
+        if (!data) {
+            fetchLeadData()
+        }
+    }
+
+
 
     useEffect(() => {
         if (parentData?.open) {
@@ -94,9 +172,49 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
     }
 
     function assignUsers(): void {
+        setShowAssignUserTable(true)
         setShowAssignUser(false)
     }
 
+
+
+    function resetSelectedFields(selectedRow: any) {
+        console.log(selectedRow, selectedRows)
+        let deselectObj: any = {}
+        selectedRows?.map((val: any) => {
+            console.log(val)
+            if (val.id === selectedRow.id) {
+                deselectObj[val.id] = false
+            } else {
+                deselectObj[val.id] = true
+            }
+        })
+        console.log(deselectObj)
+        // const filteredrows = selectedRows?.map(val => val.id)
+        // console.log(filteredrows)
+        // const deselectRows = filteredrows?.reduce((obj: any, val: any) => {
+        //     obj[val] = false;
+        //     return obj;
+        // }, {});
+
+        // console.log(deselectRows)
+        table.setRowSelection((val: any) => {
+            console.log(val)
+            return deselectObj
+        })
+    }
+
+    const watcher = form.watch()
+    useEffect(()=>{
+        console.log(watcher.teamName, watcher.teamLeader, form.formState.isValid, form.getFieldState("teamName").invalid, form.getFieldState("teamLeader").invalid )
+        // form.trigger()
+        if(form.formState.isValid){
+            setShowAssignUser(true)
+        }else{
+            setShowAssignUser(false)
+            // setShowAssignUserTable(false)
+        }
+    },[watcher])
 
     return (
         <div>
@@ -106,13 +224,18 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                         {children}
                     </div>
                 </DialogTrigger>
-                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()}>
+                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                        console.log("this should not be called");
+                        yesDiscard()
+                    }
+                }}>
                     <DialogHeader>
                         <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
                             <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Team" : "Add Team"}</div>
                         </DialogTitle>
                     </DialogHeader>
-                    <div>
+                    <div className='xl:max-h-[520px] 2xl:max-h-[600px] min-w-[600px] overflow-y-auto'>
                         <Form {...form}>
                             <form>
                                 <div className='w-fit min-w-[600px]  px-[24px]'>
@@ -138,7 +261,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {ALL_TEAM_LEADERS.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Team Leader</span>}
+                                                                        {TEAM_LEADERS.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Team Leader</span>}
                                                                     </div>
                                                                     <ChevronDown className="h-4 w-4 opacity-50" />
                                                                 </Button>
@@ -150,12 +273,12 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                                 <CommandEmpty>Team Leader not found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {ALL_TEAM_LEADERS.map((teamLeader) => (
+                                                                        {TEAM_LEADERS.map((teamLeader) => (
                                                                             <CommandItem
                                                                                 value={teamLeader.value}
                                                                                 key={teamLeader.value}
                                                                                 onSelect={() => {
-                                                                                    form.setValue("teamLeader", teamLeader.value)
+                                                                                    form.setValue("teamLeader", teamLeader.value,{shouldDirty:true, shouldValidate:true})
                                                                                 }}
                                                                             >
                                                                                 <PopoverClose asChild>
@@ -186,19 +309,36 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                         <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                             <IconUsers size="20" />
                                         </div>
-                                        <span className="text-xs text-gray-700">CONTACT</span>
+                                        <span className="text-xs text-gray-700">USERS</span>
                                         <div className="bg-gray-200 h-[1px] flex-1" ></div>
-                                        <div className={`text-sm text-purple-700  ${!showAssignUser ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showAssignUser && assignUsers()}>+ Assign Users</div>
+                                        <div className={`text-sm text-purple-700  ${showAssignUser && !showAssignUserTable ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => showAssignUser && !showAssignUserTable && assignUsers()}>+ Assign Users</div>
                                     </div>
                                     <div className='text-gray-500 text-xs font-medium w-full mt-[24px] '>
-                                        {!userAssigned ? <div className='flex flex-row w-full justify-center'>
+                                        {!showAssignUserTable ? <div className='flex flex-row w-full justify-center'>
                                             No Users Assigned
                                         </div> :
                                             <div className='flex flex-col gap-[24px]'>
                                                 <div className="flex flex-row ">
                                                     <div onClick={() => setCurrentTab(TABS.ALL_USERS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.ALL_USERS && SELECTED_TAB_CLASSES}`}>{TABS.ALL_USERS}</div>
-                                                    <div onClick={() => setCurrentTab(TABS.SELECTED_USERS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.SELECTED_USERS && SELECTED_TAB_CLASSES}`}>{TABS.SELECTED_USERS}</div>
+                                                    <div onClick={() => {
+
+                                                        setCurrentTab(TABS.SELECTED_USERS)
+
+                                                    }} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.SELECTED_USERS && SELECTED_TAB_CLASSES}`}>{TABS.SELECTED_USERS} ({selectedRowIds?.length})</div>
                                                 </div>
+                                                {/* <Tabs defaultValue="allUsers" className="w-full ">
+                                                    <TabsList className='w-full justify-start px-[24px]' >
+                                                        {tabs.map((tab) => {
+                                                            return <TabsTrigger key={tab.value} value={tab.value} ><div className='text-sm font-semibold '>{tab.label}</div></TabsTrigger>
+                                                        })}
+                                                    </TabsList>
+                                                    <TabsContent value={"allUsers"}>
+                                                        <DataTable columns={columnsTeamsDialog} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />
+                                                    </TabsContent>
+                                                    <TabsContent value={"selectedUsers"}>
+                                                        {selectedRows && <DataTable columns={columnsTeamsDialog} data={selectedRows} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />}
+                                                    </TabsContent>
+                                                </Tabs> */}
                                                 <FormField
                                                     control={form.control}
                                                     name="search"
@@ -211,7 +351,42 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                     )}
                                                 />
                                                 <div>
-                                                {/* <DataTable columns={columnsTeamsDialog} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} /> */}
+                                                    {
+                                                        <div className={`${currentTab === TABS.ALL_USERS ? "block" : "hidden"}`}>
+                                                            <DataTableAddTeamDialog setTable={setTable} columns={columnsTeamsDialog} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />
+                                                        </div>
+                                                    }
+                                                    {/* <DataTable columns={columnsTeamsDialog} data={ data } filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} /> */}
+                                                    {
+                                                        currentTab === TABS.SELECTED_USERS &&
+                                                        <div className='grid grid-cols-2 border border-[1px] border-gray-200 w-full max-h-[200px] overflow-y-auto'>
+                                                            <div className={tableHeaderClass}>
+                                                                Name & Email
+                                                            </div>
+                                                            <div className={tableHeaderClass}>
+                                                                Mobile
+                                                            </div>
+                                                            {
+                                                                selectedRows && selectedRows?.length > 0 ? selectedRows?.map((val) => {
+                                                                    return <>
+                                                                        <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200'>
+                                                                            <div className='text-sm font-medium text-gray-900'>{val.first_name} {val.last_name}</div>
+                                                                            <div className='text-sm font-normal text-gray-600'>{val.email}</div>
+                                                                        </div>
+                                                                        <div className='flex flex-row justify-between px-[24px] py-[16px] items-center border-b-[1px] border-gray-200'>
+                                                                            <div className='text-sm font-medium text-gray-900'>{val.mobile}</div>
+                                                                            <div >
+                                                                                <MinusCircle color='#D92D20' className="cursor-pointer" onClick={() => resetSelectedFields(val)} />
+                                                                            </div>
+                                                                        </div>
+                                                                    </>
+                                                                }) :
+                                                                    <div className='flex flex-col px-[24px] py-[16px] text-center col-span-2'>
+                                                                        No user selected.
+                                                                    </div>
+                                                            }
+                                                            <div></div>
+                                                        </div>}
                                                 </div>
                                             </div>
                                         }

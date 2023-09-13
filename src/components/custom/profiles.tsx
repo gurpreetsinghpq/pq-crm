@@ -51,6 +51,8 @@ import { columnsUsers } from "./table/columns-users"
 import { formatData, getToken } from "./leads"
 import { columnsTeams } from "./table/columns-teams"
 import AddTeamDialogBox from "./addTeamDialogBox"
+import { columnsProfiles } from "./table/columns-profiles"
+import AddProfileDialogBox from "./addProfileDialog"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -64,9 +66,8 @@ export interface IChildData {
 }
 
 
-function Teams({ form }: {
-    form: UseFormReturn<{
-        teamLeaders: string[];
+function Profiles({ form }: {
+    form:  UseFormReturn<{
         search: string;
         queryParamString: string;
         dateRange?: any;
@@ -243,12 +244,12 @@ function Teams({ form }: {
             });
     }
 
-    const addTeamDialogButton = () => <AddTeamDialogBox>
+    const addProfileDialogButton = () => <AddProfileDialogBox>
         <Button className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
-            Add Team
+            Add Profile
         </Button>
-    </AddTeamDialogBox>
+    </AddProfileDialogBox>
 
 
     return (
@@ -270,13 +271,13 @@ function Teams({ form }: {
                             />
                         </div>
                         <div className="right flex flex-row gap-4 ">
-                            {!form.getValues("queryParamString") && addTeamDialogButton()}
+                            {!form.getValues("queryParamString") && addProfileDialogButton()}
 
                         </div>
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Teams" : "Team"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Teams" : "Team"}` : "No Teams"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Profiles" : "Profile"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Profiles" : "Profile"}` : "No Profiles"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -318,7 +319,7 @@ function Teams({ form }: {
                                             <div className='flex flex-col gap-[32px] mt-[16px] min-w-[380px] '>
                                                 <div className='flex flex-col gap-[5px]'>
                                                     <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Leads" : "Lead"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
+                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Profiles" : "Profile"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
                                                 </div>
                                                 <div className='flex flex-row gap-[12px] w-full'>
                                                     <DialogClose asChild>
@@ -344,66 +345,6 @@ function Teams({ form }: {
                                             showCompare={false}
                                         />
                                     </div>
-                                    <div>
-                                        <FormField
-                                            control={form.control}
-                                            name="teamLeaders"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex flex-row gap-2">
-                                                                    {formatData(field.value, 'Team Leaders', ALL_TEAM_LEADERS)}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
-                                                            <Command>
-                                                                <CommandInput placeholder="Search Team Leader" />
-                                                                <CommandEmpty>No Team Leader found.</CommandEmpty>
-                                                                <CommandGroup className="flex flex-col h-[250px] overflow-y-scroll">
-                                                                    {ALL_TEAM_LEADERS.map((func) => (
-                                                                        <CommandItem
-                                                                            value={func.label}
-                                                                            key={func.value}
-                                                                            onSelect={() => {
-                                                                                if (field.value.length > 0 && field.value.includes("allTeamLeaders") && func.value !== 'allTeamLeaders') {
-                                                                                    form.setValue("teamLeaders", [...field.value.filter((value) => value !== 'allTeamLeaders'), func.value])
-                                                                                }
-                                                                                else if ((field.value?.length === 1 && field.value?.includes(func.value) || func.value == 'allTeamLeaders')) {
-                                                                                    form.setValue("teamLeaders", ["allTeamLeaders"])
-
-                                                                                }
-                                                                                else if (field.value?.includes(func.value)) {
-                                                                                    form.setValue("teamLeaders", field.value?.filter((val) => val !== func.value))
-                                                                                } else {
-                                                                                    form.setValue("teamLeaders", [...field.value, func.value])
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {func.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value?.includes(func.value)
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
                                 </>}
                         </div>
                     </div>
@@ -413,21 +354,21 @@ function Teams({ form }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsTeams} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teams"} />
+                    <DataTable columns={columnsProfiles} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teams"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconUsers size="20" />
                     </div>
                         <div>
-                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Teams" : "No Archive Teams"}</p>
+                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Profiles" : "No Archive Profiles"}</p>
 
                         </div>
-                        {isInbox && addTeamDialogButton()}</>}
+                        {isInbox && addProfileDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <AddTeamDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}
+            {childData?.row && <AddProfileDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}
         </>
     )
 }
 
-export default Teams
+export default Profiles

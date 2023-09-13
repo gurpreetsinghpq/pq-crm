@@ -27,10 +27,8 @@ import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
+import { required_error } from './sideSheet'
 
-const required_error = {
-    required_error: "This field is required"
-}
 
 const FormSchema = z.object({
     organisationName: z.string({}).min(1),
@@ -468,7 +466,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                                         <Tooltip>
                                                                             <TooltipTrigger asChild>
                                                                                 <div>
-                                                                                    <IconIndustry size={24} color="#98A2B3" />
+                                                                                    <IconContacts size={24} color="#98A2B3" />
                                                                                 </div>
                                                                             </TooltipTrigger>
                                                                             <TooltipContent side="top">

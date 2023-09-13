@@ -30,7 +30,7 @@ import { toast, useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, DESIGNATION, ALL_DESIGNATIONS, ALL_TYPES, ALL_FUNCTIONS, ALL_PROFILES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCross, IconInbox, IconUserCheck, IconUserCross, IconUsers, Unverified } from "../icons/svgIcons"
+import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCross, IconInbox, IconUserActive, IconUserCheck, IconUserCross, IconUserDeactive, IconUsers, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
@@ -275,8 +275,8 @@ function Users({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-r-none ${isActivated && "bg-gray-100"}`} onClick={() => setIsActivated(true)}>
-                                                <IconUserCheck size={20} color={isActivated ? "#1D2939" : "#667085"}/>
+                                            <Button type="button" variant={isActivated ? "default" : "ghost"} className={`rounded-r-none ${isActivated && "bg-success-500 hover:bg-success-600"}`} onClick={() => setIsActivated(true)}>
+                                                <IconUserActive size={20} color={isActivated ? "white" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
@@ -288,12 +288,12 @@ function Users({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isActivated && "bg-gray-100"}`} onClick={() => setIsActivated(false)}>
-                                                <IconUserCross size={20} color={!isActivated ? "#1D2939" : "#667085"}/>
+                                            <Button type="button" variant={!isActivated ? "default" : "ghost"} className={`rounded-l-none ${!isActivated && "bg-error-500 hover:bg-error-600"}`} onClick={() => setIsActivated(false)}>
+                                                <IconUserDeactive size={20} color={!isActivated ? "white" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
-                                            Deactive Users
+                                            Deactivated Users
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
@@ -599,10 +599,12 @@ function Users({ form }: {
                         <IconUsers size="20" />
                     </div>
                         <div>
-                            <p className="text-md text-gray-900 font-semibold">{isActivated ? "No Users" : "No Archive Users"}</p>
+                            <p className="text-md text-gray-900 font-semibold">{isActivated ? "No Active Users" : "No Deactivated Users"}</p>
 
                         </div>
-                        {isActivated && addUserDialogButton()}</>}
+                        {/* {isActivated && addUserDialogButton()} */}
+                    </>
+                    }
                 </div>)
             }
             {childData?.row && <AddUserDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}

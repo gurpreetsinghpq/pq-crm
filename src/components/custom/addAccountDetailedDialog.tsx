@@ -27,13 +27,11 @@ import { formatData, getToken } from './leads'
 import Link from 'next/link'
 import { contactListClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
+import { required_error } from './sideSheet'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
 
-const required_error = {
-    required_error: "This field is required"
-}
 
 const FormSchema = z.object({
     organisationName: z.string(required_error), // [x]
@@ -103,7 +101,10 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-
+            lastFundingStage:undefined,
+            lastFundingAmount:undefined,
+            domain: undefined,
+            size: undefined
         }
     })
 
@@ -174,7 +175,27 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         form2.reset(form2Defaults)
     }
 
-
+    // function checkVcIndutsry() {
+    //     const industry = form.getValues("industry")
+    //     let updatedSchema
+    //     if (form.getValues("industry") === "vc_pe") {
+    //         updatedSchema = FormSchema.extend({
+    //             domain: z.string().optional(),
+    //             size: z.string().optional(),
+    //             lastFundingStage: z.string().optional(),
+    //             lastFundingAmount: z.string().optional(),
+    //         })
+    //     }
+    //     if (industry === "vc_pe") {
+    //         setIsVcIndustrySelected(true)
+    //         form.setValue("lastFundingStage", undefined)
+    //         form.setValue("lastFundingAmount", undefined)
+    //         form.setValue("domain", undefined)
+    //         form.setValue("size", undefined)
+    //     } else {
+    //         setIsVcIndustrySelected(false)
+    //     }
+    // }
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
         toast({

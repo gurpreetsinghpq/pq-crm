@@ -52,6 +52,8 @@ import Users from "./users"
 import Teams from "./teams"
 import { COMMON_TAB_CLASSES, SELECTED_TAB_CLASSES } from "@/app/constants/classes"
 import { UseFormReturn } from "react-hook-form"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
+import Profiles from "./profiles"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -91,40 +93,62 @@ const TABS = {
     PROFILES: "Profiles"
 }
 
-const UserManagement = ({usersForm, teamsForm }:{usersForm: UseFormReturn<{
-    regions: string[];
-    functions: string[];
-    profiles: string[];
-    statuses: string[];
-    search: string;
-    queryParamString: string;
-    dateRange?: any;
-}, any, undefined>, teamsForm:  UseFormReturn<{
-    teamLeaders: string[];
-    search: string;
-    queryParamString: string;
-    dateRange?: any;
-}, any, undefined>}) => {
+const tabs: IValueLabel[] = [
+    { value: TABS.USERS, label: TABS.USERS },
+    { value: TABS.TEAMS, label: TABS.TEAMS },
+    { value: TABS.PROFILES, label: TABS.PROFILES }
+];
+
+
+const UserManagement = ({ usersForm, teamsForm, profilesForm }: {
+    usersForm: UseFormReturn<{
+        regions: string[];
+        functions: string[];
+        profiles: string[];
+        statuses: string[];
+        search: string;
+        queryParamString: string;
+        dateRange?: any;
+    }, any, undefined>, teamsForm: UseFormReturn<{
+        teamLeaders: string[];
+        search: string;
+        queryParamString: string;
+        dateRange?: any;
+    }, any, undefined>,
+    profilesForm: UseFormReturn<{
+        search: string;
+        queryParamString: string;
+        dateRange?: any;
+    }, any, undefined>
+}) => {
     const { toast } = useToast()
 
     const [currentTab, setCurrentTab] = React.useState<string>(TABS.USERS)
-   
+
     return <div className="flex flex-col flex-1">
-        <div className="flex flex-row px-6 py-3 border-b-2 border-gray-100">
-            <div onClick={() => setCurrentTab(TABS.USERS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.USERS && SELECTED_TAB_CLASSES}`}>{TABS.USERS}</div>
+        {/* <div onClick={() => setCurrentTab(TABS.USERS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.USERS && SELECTED_TAB_CLASSES}`}>{TABS.USERS}</div>
             <div onClick={() => setCurrentTab(TABS.TEAMS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.TEAMS && SELECTED_TAB_CLASSES}`}>{TABS.TEAMS}</div>
-            <div onClick={() => setCurrentTab(TABS.PROFILES)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.PROFILES && SELECTED_TAB_CLASSES}`}>{TABS.PROFILES}</div>
-        </div>
-        <div className="bottom flex-1 flex flex-col  ">
-            {currentTab === TABS.USERS &&
-                <Users form={usersForm}/>
-            }
-            {currentTab === TABS.TEAMS &&
-                <Teams form={teamsForm}/>
-            }
-        </div>
-
-
+        <div onClick={() => setCurrentTab(TABS.PROFILES)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.PROFILES && SELECTED_TAB_CLASSES}`}>{TABS.PROFILES}</div> */}
+        <Tabs defaultValue={TABS.PROFILES} className="flex flex-col flex-1">
+            <div className="flex flex-row px-6 py-3 border-b-2 border-gray-100">
+                <TabsList className=' justify-start px-[12px] py-[2px] gap-[12px]' >
+                    {tabs.map((tab) => {
+                        return <TabsTrigger key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+                    })}
+                </TabsList>
+            </div>
+            <div className="bottom flex-1 flex flex-col  ">
+                <TabsContent value={TABS.USERS} className="flex flex-col flex-1">
+                    <Users form={usersForm} />
+                </TabsContent>
+                <TabsContent value={TABS.TEAMS} className="flex flex-col flex-1">
+                    <Teams form={teamsForm} />
+                </TabsContent>
+                <TabsContent value={TABS.PROFILES} className="flex flex-col flex-1">
+                    <Profiles form={profilesForm} />
+                </TabsContent>
+            </div>
+        </Tabs>
     </div>
 }
 

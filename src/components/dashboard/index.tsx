@@ -141,6 +141,12 @@ const TeamsFormSchema = z.object({
     queryParamString: z.string()
 })
 
+const ProfilesFormSchema = z.object({
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
 const TITLES = {
     LEADS: "Leads",
     PROSPECTS: "Prospects",
@@ -263,6 +269,21 @@ export default function DashboardComponent() {
         resolver: zodResolver(TeamsFormSchema),
         defaultValues: {
             teamLeaders: ["allTeamLeaders"],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+
+    const ProfilesForm = useForm<z.infer<typeof ProfilesFormSchema>>({
+        resolver: zodResolver(ProfilesFormSchema),
+        defaultValues: {
             search: "",
             queryParamString: undefined,
             dateRange: {
@@ -437,9 +458,9 @@ export default function DashboardComponent() {
                 {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm} />}
                 {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} />}
                 {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} />}
-                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} />}
+                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm}/>}
 
-                <Toaster />
+                
             </div>
         </div>
     </div>

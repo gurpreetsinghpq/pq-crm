@@ -25,12 +25,10 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
+import { required_error } from './sideSheet'
 
-const required_error = {
-    required_error: "This field is required"
-}
 
 const FormSchema2 = z.object({
     name: z.string({
@@ -1034,7 +1032,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage className='ml-[-82px]' />
+                                                    <FormMessage className={inputFormMessageClassesWithSelect} />
                                                 </FormItem>
 
                                             )}
@@ -1096,7 +1094,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage className='ml-[-82px]' />
+                                                    <FormMessage className={inputFormMessageClassesWithSelect} />
                                                 </FormItem>
                                             )}
                                         />
@@ -1157,7 +1155,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             }}
                                                         />
                                                     </FormControl>
-                                                    <FormMessage className='ml-[-82px]' />
+                                                    <FormMessage className={inputFormMessageClassesWithSelect} />
                                                 </FormItem>
                                             )}
                                         />

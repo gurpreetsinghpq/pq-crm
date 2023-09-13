@@ -632,7 +632,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                                             value={designation.value}
                                                                             key={designation.value}
                                                                             onSelect={() => {
-                                                                                form2.setValue("designation", designation.value)
+                                                                                form2.setValue("designation", designation.value, {shouldDirty:true, shouldValidate:true})
                                                                             }}
                                                                         >
                                                                             <div className="flex flex-row items-center justify-between w-full">

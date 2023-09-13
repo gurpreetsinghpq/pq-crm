@@ -270,8 +270,8 @@ const Prospects = ({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
-                                                <IconInbox size={20} color={isInbox ? "#1D2939" : "#667085"} />
+                                            <Button type="button" variant={isInbox ? "default" : "ghost"} className={`rounded-r-none ${isInbox && "bg-purple-600"}`} onClick={() => setIsInbox(true)}>
+                                                <IconInbox size={20} color={isInbox ? "white" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
@@ -283,8 +283,8 @@ const Prospects = ({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
-                                                <IconArchive size={20} color={!isInbox ? "#1D2939" : "#667085"} />
+                                            <Button type="button" variant={!isInbox ? "default" : "ghost"} className={`rounded-l-none ${!isInbox && "bg-purple-600"}`} onClick={() => setIsInbox(false)}>
+                                                <IconArchive size={20} color={!isInbox ? "white" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
@@ -313,7 +313,7 @@ const Prospects = ({ form }: {
                                     <TooltipTrigger asChild>
                                         <Button variant={"google"} className="p-[8px]" type="button" onClick={() => {
                                             fetchLeadData()
-                                            
+
                                         }}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>

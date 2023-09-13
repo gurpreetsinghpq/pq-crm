@@ -375,11 +375,50 @@ const CREATORS: IValueLabel[] = [
     },
 ]
 
+const TEAM_LEADERS: IValueLabel[] = [
+    {
+        value: "ashokKumar",
+        label: "Ashok Kumar"
+    },
+    {
+        value: "varunAggarwal",
+        label: "Varun Aggarwal"
+    },
+    {
+        value: "rupeshYadav",
+        label: "Rupesh Yadav"
+    },
+    {
+        value: "sonuKumar",
+        label: "Sonu Kumar"
+    },
+    {
+        value: "rupangkanKalita",
+        label: "Rupangkan Kalita"
+    },
+    {
+        value: "anmolGoel",
+        label: "Anmol Goel"
+    },
+    {
+        value: "rajgopaljakhmola",
+        label: "rajgopal jakhmola"
+    },
+    {
+        value: "rajjakh",
+        label: "Raj Jakh"
+    },
+]
 const ALL_TEAM_LEADERS: IValueLabel[] = [
     {
         value: "allTeamLeaders",
         label: "All Team Leaders"
     },
+    ...TEAM_LEADERS
+]
+
+const REPORTING_MANAGERS: IValueLabel[] = [
+    
     {
         value: "ashokKumar",
         label: "Ashok Kumar"
@@ -1712,4 +1751,4 @@ const ALL_FUNCTIONS: IValueLabel[] = [
     ...FUNCTION
 ]
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, ALL_TEAM_LEADERS }
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, TEAM_LEADERS, ALL_TEAM_LEADERS, REPORTING_MANAGERS }

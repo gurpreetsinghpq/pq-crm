@@ -27,10 +27,8 @@ import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
+import { required_error } from './sideSheet'
 
-const required_error = {
-    required_error: "This field is required"
-}
 
 const FormSchema2 = z.object({
     name: z.string({

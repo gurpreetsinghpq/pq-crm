@@ -194,7 +194,7 @@ const Leads = ({ form }: {
             if (result.message === "success") {
                 fetchLeadData()
                 toast({
-                    title: `${ids.length} ${ids.length>1? "Leads": "Lead"} moved to ${ isInbox? "Archive" : "Inbox"} Succesfully!`,
+                    title: `${ids.length} ${ids.length > 1 ? "Leads" : "Lead"} moved to ${isInbox ? "Archive" : "Inbox"} Succesfully!`,
                     variant: "dark"
                 })
                 return result;
@@ -257,8 +257,8 @@ const Leads = ({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-r-none ${isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(true)}>
-                                                <IconInbox size={20} color={isInbox ? "#1D2939" : "#667085"} />
+                                            <Button type="button" variant={isInbox ? "default" : "ghost"} className={`rounded-r-none ${isInbox && "bg-purple-600"}`} onClick={() => setIsInbox(true)}>
+                                                <IconInbox size={20} color={isInbox ? "white" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5}>
@@ -270,8 +270,8 @@ const Leads = ({ form }: {
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
-                                            <Button type="button" variant={"ghost"} className={`rounded-l-none ${!isInbox && "bg-gray-100"}`} onClick={() => setIsInbox(false)}>
-                                                <IconArchive size={20} color={!isInbox ? "#1D2939" : "#667085"} />
+                                            <Button type="button" variant={!isInbox ? "default" : "ghost"} className={`rounded-l-none ${!isInbox && "bg-purple-600"}`} onClick={() => setIsInbox(false)}>
+                                                <IconArchive size={20} color={!isInbox ? "white" : "#667085"} />
                                             </Button>
                                         </TooltipTrigger>
                                         <TooltipContent side={"bottom"} sideOffset={5} >
@@ -670,7 +670,7 @@ const Leads = ({ form }: {
                                 </>}
                         </div>
                     </div>
-                    
+
                 </form>
             </Form>
             {
@@ -693,12 +693,12 @@ const Leads = ({ form }: {
             }
             {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} />}
         </div>
-        
+
     </div>
 }
 
 export function getToken() {
-    const userFromLocalstorage: User | undefined = localStorage.getItem("user")  ? JSON.parse(localStorage.getItem("user") || "") : ""
+    const userFromLocalstorage: User | undefined = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "") : ""
     const token = userFromLocalstorage?.token
     return token
 }
