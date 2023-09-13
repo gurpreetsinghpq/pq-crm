@@ -392,7 +392,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                                     </div>
                                 </div>)
                             }
-                            <div className="h-[full] w-[1px] bg-gray-200 mr-2"></div>
+                            {!isSmallScreen && <div className="h-[full] w-[1px] bg-gray-200 mr-2"></div>}
                             <div className="flex">
                                 <div className="flex flex-col">
                                     <div className="flex flex-col lg:flex-row gap-2 px-3 justify-end items-center lg:items-start pb-4 lg:pb-0">
@@ -541,6 +541,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                             </div>
 
                         </div>
+                        
                         <div className="h-[1px] w-full bg-gray-200 mb-2"></div>
                         <div className="flex justify-end gap-2 py-2 pr-4">
                             <Button

@@ -11,15 +11,16 @@ const Select = SelectPrimitive.Root
 const SelectGroup = SelectPrimitive.Group
 
 const SelectValue = SelectPrimitive.Value
-
+// disabled:placeholder:text-gray-400
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
+    onClick={()=>console.log(children)}
     className={cn(
-      "flex h-10 w-full  items-center justify-between rounded-md border border-[1px] border-gray-300 border-solid bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground data-[placeholder]:text-muted-foreground placeholder:text-md  disabled:cursor-not-allowed disabled:opacity-50 ",
+      "flex h-10 w-full  items-center justify-between rounded-md border border-[1px] border-gray-300 border-solid bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground data-[placeholder]:text-muted-foreground placeholder:text-md  disabled:cursor-not-allowed  disabled:placeholder:text-gray-400 ",
       className
     )}
     {...props}

@@ -439,7 +439,7 @@ export default function DashboardComponent() {
                 {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} />}
                 {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} />}
 
-                <Toaster />
+                
             </div>
         </div>
     </div>

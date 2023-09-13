@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { Check, ChevronDown } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
-import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, TYPE } from '@/app/constants/constants'
+import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, TYPE } from '@/app/constants/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { commonClasses, commonClasses2, commonFontClassesAddDialog } from '@/app/constants/classes'
 import { Separator } from '../ui/separator'
@@ -20,7 +20,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { UsersGetResponse } from '@/app/interfaces/interface'
+import { IValueLabel, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
 import { IconPower } from '../icons/svgIcons'
 
@@ -51,8 +51,13 @@ const FormSchema = z.object({
     }),
     profile: z.string({
 
+    }),
+    timeZone: z.string({
+
     })
 })
+
+const allTimezones = getAllTimezones()
 
 function AddUserDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
@@ -68,9 +73,13 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
             region: undefined,
             function: undefined,
             reportingTo: undefined,
-            profile: undefined
+            profile: undefined,
+            timeZone: getClientTimezone()
         }
     })
+
+
+
     const [formSchema, setFormSchema] = useState(FormSchema)
 
     function changeStdCode(value: string) {
@@ -117,6 +126,13 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
     function updateContact(): void {
         throw new Error('Function not implemented.')
     }
+
+    const watcher = form.watch()
+    useEffect(() => {
+        console.log(form.getValues())
+        console.log(allTimezones.find((val) => console.log(val.value, form.getValues("timeZone")))?.label)
+
+    }, [watcher])
 
     return (
         <div>
@@ -250,33 +266,33 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Reporting To</span>}
+                                                                        {REPORTING_MANAGERS.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Reporting To</span>}
                                                                     </div>
                                                                     <ChevronDown className="h-4 w-4 opacity-50" />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[290px] p-0">
+                                                        <PopoverContent className="w-[350px] p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search Reporting Manager" />
                                                                 <CommandEmpty>Reporting Manager not found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {DESIGNATION.map((designation) => (
+                                                                        {REPORTING_MANAGERS.map((reportingManager) => (
                                                                             <CommandItem
-                                                                                value={designation.value}
-                                                                                key={designation.value}
+                                                                                value={reportingManager.value}
+                                                                                key={reportingManager.value}
                                                                                 onSelect={() => {
-                                                                                    form.setValue("reportingTo", designation.value)
+                                                                                    form.setValue("reportingTo", reportingManager.value)
                                                                                 }}
                                                                             >
                                                                                 <PopoverClose asChild>
                                                                                     <div className="flex flex-row items-center justify-between w-full">
-                                                                                        {designation.label}
+                                                                                        {reportingManager.label}
                                                                                         <Check
                                                                                             className={cn(
                                                                                                 "mr-2 h-4 w-4 text-purple-600",
-                                                                                                field.value === designation.value
+                                                                                                field.value === reportingManager.value
                                                                                                     ? "opacity-100"
                                                                                                     : "opacity-0"
                                                                                             )}
@@ -293,159 +309,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                 </FormItem>
                                             )}
                                         />
-                                        {/* <FormField
-                                            control={form.control}
-                                            name="region"
-                                            render={({ field }) => (
-                                                <FormItem className='w-full '>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {REGION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Region</span>}
-                                                                    </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[290px] p-0">
-                                                            <Command>
-                                                                <CommandInput className='w-full' placeholder="Search Reporter" />
-                                                                <CommandEmpty>Region not found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {REGION.map((region) => (
-                                                                            <CommandItem
-                                                                                value={region.value}
-                                                                                key={region.value}
-                                                                                onSelect={() => {
-                                                                                    form.setValue("reportingTo", region.value)
-                                                                                }}
-                                                                            >
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {region.label}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value === region.value
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </div>
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </div>
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />  
-                                        <FormField
-                                            control={form.control}
-                                            name="function"
-                                            render={({ field }) => (
-                                                <FormItem className='w-full '>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {FUNCTION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Function</span>}
-                                                                    </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[290px] p-0">
-                                                            <Command>
-                                                                <CommandInput className='w-full' placeholder="Search Function" />
-                                                                <CommandEmpty>Function not found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {FUNCTION.map((func) => (
-                                                                            <CommandItem
-                                                                                value={func.value}
-                                                                                key={func.value}
-                                                                                onSelect={() => {
-                                                                                    form.setValue("function", func.value)
-                                                                                }}
-                                                                            >
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {func.label}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value === func.value
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </div>
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </div>
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="profile"
-                                            render={({ field }) => (
-                                                <FormItem className='w-full '>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {PROFILE.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Profile</span>}
-                                                                    </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[290px] p-0">
-                                                            <Command>
-                                                                <CommandInput className='w-full' placeholder="Search Profile" />
-                                                                <CommandEmpty>Profile not found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {PROFILE.map((profile) => (
-                                                                            <CommandItem
-                                                                                value={profile.value}
-                                                                                key={profile.value}
-                                                                                onSelect={() => {
-                                                                                    form.setValue("reportingTo", profile.value)
-                                                                                }}
-                                                                            >
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {profile.label}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value === profile.value
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </div>
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </div>
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        /> */}
+
 
                                         <FormField
                                             control={form.control}
@@ -537,6 +401,61 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                 </FormItem>
                                             )}
                                         />
+                                        <FormField
+                                            control={form.control}
+                                            name="timeZone"
+                                            render={({ field }) => (
+                                                <FormItem className='w-full col-span-2'>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                        {allTimezones.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Time Zone</span>}
+                                                                    </div>
+                                                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[713px] p-0">
+                                                            <Command>
+                                                                <CommandInput className='w-full' placeholder="Search Timezone" />
+                                                                <CommandEmpty>Search Time Zone.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                        {allTimezones.map((timeZone) => (
+                                                                            <CommandItem
+                                                                                value={timeZone.value}
+                                                                                key={timeZone.value}
+                                                                                onSelect={() => {
+                                                                                    form.setValue("timeZone", timeZone.value)
+                                                                                }}
+                                                                            >
+                                                                                <PopoverClose asChild>
+                                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                                        {timeZone.label}
+                                                                                        <Check
+                                                                                            className={cn(
+                                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                                field.value === timeZone.value
+                                                                                                    ? "opacity-100"
+                                                                                                    : "opacity-0"
+                                                                                            )}
+                                                                                        />
+                                                                                    </div>
+                                                                                </PopoverClose>
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                    </div>
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <div className='text-sm text-gray-600 font-normal col-span-2'>Timezone is updated automatically to match your computer timezone</div>
+
                                     </div>
 
                                 </div>
@@ -547,7 +466,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                         {parentData?.open ?
                                             <div className='flex flex-row w-full justify-between '>
                                                 <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
-                                                    <IconPower size={20}/>
+                                                    <IconPower size={20} />
                                                     Deactivate User
                                                 </div>
                                                 <div className='flex flex-row gap-2'>
@@ -574,6 +493,38 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
             </Dialog>
         </div>
     )
+}
+
+function getClientTimezone() {
+    const timeZoneOffsetMinutes = new Date().getTimezoneOffset();
+    const hours = Math.floor(Math.abs(timeZoneOffsetMinutes) / 60);
+    const minutes = Math.abs(timeZoneOffsetMinutes) % 60;
+    const sign = timeZoneOffsetMinutes > 0 ? '-' : '+';
+
+    const timeZoneString = `Time Zone (${sign}${hours}:${minutes < 10 ? '0' : ''}${minutes})`;
+    const timeZoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    return `${timeZoneString} ${timeZoneName}`;
+}
+
+function getAllTimezones(): IValueLabel[] {
+    const allTimezones = Intl.supportedValuesOf('timeZone');
+
+    const timezoneOptions: IValueLabel[] = allTimezones
+        .map((timezone) => ({
+            value: `Time Zone (${getUserTimezoneOffset(timezone)}) ${timezone}`,
+            label: `Time Zone (${getUserTimezoneOffset(timezone)}) ${timezone}`,
+        }));
+
+    return timezoneOptions;
+}
+
+function getUserTimezoneOffset(timezone: string): string {
+    const now = new Date();
+    const userTimezoneOffset = now
+        .toLocaleTimeString('en-us', { timeZone: timezone, timeZoneName: 'short' })
+        .split(' ')[2];
+    return userTimezoneOffset;
 }
 
 export default AddUserDialogBox

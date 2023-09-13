@@ -178,7 +178,6 @@ export default function Signin() {
                 <Button variant={"google"} disabled={isLoading} >
                     <Image src="/google.png" className="mr-3" height={24} width={24} alt="google search icon" /> Sign in with Google
                 </Button>
-                <Toaster/>
             </form>
         </Form>
     </div>

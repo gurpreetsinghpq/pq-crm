@@ -20,10 +20,13 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { UsersGetResponse } from '@/app/interfaces/interface'
+import { ClientGetResponse, IValueLabel, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
 import { IconPower, IconUsers } from '../icons/svgIcons'
 import DataTable from './table/datatable'
+import { columnsTeamsDialog } from './table/columns-team-dialog'
+import { getToken } from './leads'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 
 const FormSchema = z.object({
     search: z.string({}),
@@ -36,6 +39,11 @@ const FormSchema = z.object({
 
 })
 
+const tabs: IValueLabel[] = [
+    { label: "All Users", value: "allUsers" },
+    { label: "Selected Users", value: "selectedUsers" },
+];
+
 
 const TABS = {
     ALL_USERS: "All Users",
@@ -45,17 +53,37 @@ const TABS = {
 function AddTeamDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
     const [userAssigned, setUserAssigned] = useState<boolean>(true)
-    const [data, setData] = useState()
     const [showAssignUser, setShowAssignUser] = useState<boolean>(true)
     const [currentTab, setCurrentTab] = React.useState<string>(TABS.ALL_USERS)
+    const [isLoading, setIsLoading] = React.useState<boolean>(true)
+    const [data, setUserData] = React.useState<UsersGetResponse[]>([])
+    const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
+    const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
+    const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
+    const [childData, setChildData] = React.useState<IChildData>()
+    const [tableLeadLength, setTableLength] = React.useState<any>()
+    const [selectedRows, setSelectedRows] = React.useState<UsersGetResponse[]>()
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
+            search: "",
             teamName: "",
             teamLeader: undefined
         }
     })
     const [formSchema, setFormSchema] = useState(FormSchema)
+
+    function setTableLeadRow(data: any) {
+        const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
+        setIsMultiSelectOn(selectedRows.length !== 0)
+        const ids = selectedRows.map((val: any) => val.original.id)
+        setSelectedRowIds(ids)
+        setTableLength(data.rows.length)
+        setSelectedRows(selectedRows.map((row: any) => row.original))
+    }
+
+    console.log(selectedRows)
 
     function changeStdCode(value: string) {
         let updatedSchema
@@ -78,6 +106,51 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
     function addContact() {
 
     }
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    getToken()
+    const token_superuser = getToken()
+    async function fetchLeadData(noArchiveFilter: boolean = false) {
+        setIsLoading(true)
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data: UsersGetResponse[] = structuredClone(result.data)
+            let dataFromApi = data
+            console.log(data)
+            setUserData(dataFromApi)
+            setIsLoading(false)
+            // if (filteredData.length == 0) {
+            //     setTableLength(0)
+            //     setIsMultiSelectOn(false)
+            //     setSelectedRowIds([])
+            // }
+        }
+        catch (err) {
+            setIsLoading(false)
+            setIsNetworkError(true)
+            console.log("error", err)
+        }
+    }
+
+    useEffect(() => {
+        fetchLeadData()
+    }, [])
+
+    const watcher = form.watch()
+    // useEffect(()=>{
+    //     console.log(form.getValues())
+    // },[watcher])
+
+    function setChildDataHandler(key: keyof IChildData, data: any) {
+        setChildData((prev) => {
+            return { ...prev, [key]: data }
+        })
+        if (!data) {
+            fetchLeadData()
+        }
+    }
+
+
 
     useEffect(() => {
         if (parentData?.open) {
@@ -186,7 +259,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                         <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                             <IconUsers size="20" />
                                         </div>
-                                        <span className="text-xs text-gray-700">CONTACT</span>
+                                        <span className="text-xs text-gray-700">USERS</span>
                                         <div className="bg-gray-200 h-[1px] flex-1" ></div>
                                         <div className={`text-sm text-purple-700  ${!showAssignUser ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showAssignUser && assignUsers()}>+ Assign Users</div>
                                     </div>
@@ -197,8 +270,25 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                             <div className='flex flex-col gap-[24px]'>
                                                 <div className="flex flex-row ">
                                                     <div onClick={() => setCurrentTab(TABS.ALL_USERS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.ALL_USERS && SELECTED_TAB_CLASSES}`}>{TABS.ALL_USERS}</div>
-                                                    <div onClick={() => setCurrentTab(TABS.SELECTED_USERS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.SELECTED_USERS && SELECTED_TAB_CLASSES}`}>{TABS.SELECTED_USERS}</div>
+                                                    <div onClick={() => {
+                                                        
+                                                        setCurrentTab(TABS.SELECTED_USERS)
+
+                                                    }} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.SELECTED_USERS && SELECTED_TAB_CLASSES}`}>{TABS.SELECTED_USERS} ({selectedRowIds?.length})</div>
                                                 </div>
+                                                {/* <Tabs defaultValue="allUsers" className="w-full ">
+                                                    <TabsList className='w-full justify-start px-[24px]' >
+                                                        {tabs.map((tab) => {
+                                                            return <TabsTrigger key={tab.value} value={tab.value} ><div className='text-sm font-semibold '>{tab.label}</div></TabsTrigger>
+                                                        })}
+                                                    </TabsList>
+                                                    <TabsContent value={"allUsers"}>
+                                                        <DataTable columns={columnsTeamsDialog} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />
+                                                    </TabsContent>
+                                                    <TabsContent value={"selectedUsers"}>
+                                                        {selectedRows && <DataTable columns={columnsTeamsDialog} data={selectedRows} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />}
+                                                    </TabsContent>
+                                                </Tabs> */}
                                                 <FormField
                                                     control={form.control}
                                                     name="search"
@@ -211,7 +301,8 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                     )}
                                                 />
                                                 <div>
-                                                {/* <DataTable columns={columnsTeamsDialog} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} /> */}
+                                                    <DataTable columns={columnsTeamsDialog} data={currentTab===TABS.ALL_USERS ? data :  selectedRows ? selectedRows : []} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />
+                                                    {/* <DataTable columns={columnsTeamsDialog} data={ data } filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} /> */}
                                                 </div>
                                             </div>
                                         }

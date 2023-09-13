@@ -37,10 +37,10 @@ function setPassword() {
 
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [started, setStarted] = useState(false); // Track whether the countdown has started
-
+    
     const [errorChecks, setErrorChecks] = useState<Partial<ErrorChecks>>()
     const [seconds, setSeconds] = useState<number>(5)
-
+    
     useEffect(() => {
         let timer: any
         if (started) {
@@ -50,7 +50,7 @@ function setPassword() {
                 } else {
                     clearInterval(timer);
                     // router.replace("/signin");
-
+                    
                 }
             }, 1000);
         }
@@ -58,15 +58,16 @@ function setPassword() {
             clearInterval(timer)
         };
     }, [started, seconds]);
-
+    
     const [isPasswordSet, setIsPasswordSet] = useState(false)
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         mode: "all"
     })
-
+    
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-
+    
+    
     const searchParams = useSearchParams()
 
     async function setPasswordApi() {
