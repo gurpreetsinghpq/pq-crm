@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Contact, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { Contact, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -25,7 +25,7 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useToast } from '../ui/use-toast'
@@ -106,7 +106,6 @@ const FormSchema = z.object({
 
 
 
-
 const form2Defaults: z.infer<typeof FormSchema2> = {
     name: "",
     email: "",
@@ -118,10 +117,7 @@ const form2Defaults: z.infer<typeof FormSchema2> = {
 }
 
 
-interface IErrors {
-    requiredErrors: number,
-    invalidErrors: number
-}
+
 function SideSheet({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
@@ -142,7 +138,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     const [places, setPlaces] = React.useState([])
     const [beforePromoteToProspectDivsArray, setBeforePromoteToProspectDivsArray] = useState<any[]>([]);
     // used for handling on side sheet open and result from api as side sheet is not been closed when clicked on save (usage: promote to prospect)
-    const [rowState, setRowState] = useState<Partial<LeadInterface>>()
+    const [rowState, setRowState] = useState<DeepPartial<LeadInterface>>()
     const { childData: { row }, setChildDataHandler } = parentData
 
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
@@ -187,7 +183,10 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     useEffect(() => {
         setRowState({
-            status: data.status
+            status: data.status,
+            organisation: {
+                segment: data.organisation.segment
+            }
         })
         setDummyContactData(data.organisation.contacts)
         const status = labelToValue(data.status, STATUSES)
@@ -197,12 +196,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         if (form.getValues("industry") === "vc_pe") {
             setIsVcIndustrySelected(true)
         }
-        form.setValue("reasons", data.reason || undefined, {shouldDirty:true, shouldValidate:true})
-        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]), {shouldDirty:true, shouldValidate:true})
-        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS), {shouldDirty:true, shouldValidate:true})
-        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY), {shouldDirty:true, shouldValidate:true})
-        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE), {shouldDirty:true, shouldValidate:true})
-        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT), {shouldDirty:true, shouldValidate:true})
+        form.setValue("reasons", data.reason || undefined, { shouldDirty: true, shouldValidate: true })
+        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]), { shouldDirty: true, shouldValidate: true })
+        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS), { shouldDirty: true, shouldValidate: true })
+        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY), { shouldDirty: true, shouldValidate: true })
+        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE), { shouldDirty: true, shouldValidate: true })
+        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT), { shouldDirty: true, shouldValidate: true })
 
         // form.unregister(["fixedBudgetUl"])
 
@@ -235,7 +234,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     const LabelIcon = () => {
         // const d = LAST_FUNDING_STAGE.find((val) => val.label === data.organisation.last_funding_stage)
-        const d = SEGMENT.find(val => val.label === data.organisation.segment)
+        const d = SEGMENT.find(val => val.label === rowState?.organisation?.segment)
         return <>{d && <d.icon />}</>
     }
 
@@ -243,9 +242,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     const watcher = form.watch()
 
     useEffect(() => {
-        safeparse2()
-        console.log("form errors", form.formState.errors)
-    }, [watcher])
+        const subscription = form.watch(() => {
+            safeparse2()
+            setShowErrors(false)
+            console.log("showErrors setter", false)
+        }
+        )
+        return () => subscription.unsubscribe()
+    }, [form.watch])
+    console.log("showErrors", showErrors)
 
 
     // useEffect(()=>{
@@ -317,6 +322,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     async function promoteToProspect() {
         setPromoteToProspectClicked(true)
         setShowErrors(true)
+        console.log("showErrors setter", true)
         const status = rowState?.status
         if (status) {
             updateFormSchemaOnStatusChange(status, true)
@@ -433,12 +439,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     function safeprs(isPromoteToProspect: boolean = false) {
         const result = formSchema.safeParse(form.getValues())
-        console.log(formSchema)
-        console.log(result)
+        if (isPromoteToProspect) {
+            setPromoteToProspectClicked(false)
+        }
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
-            console.log(errorMap)
-
+            console.log("errormap", errorMap)
             // Initialize error counters
             let requiredErrorsCount = 0;
             let invalidErrorsCount = 0;
@@ -447,7 +453,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             for (const field in errorMap) {
                 const errors = errorMap[field];
                 for (const error of errors) {
-                    if (error.includes("required")) {
+                    if (error.includes("Required")) {
                         requiredErrorsCount++;
                     } else {
                         invalidErrorsCount++;
@@ -462,12 +468,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
             setNumberOfErrors(errorState)
             if (isPromoteToProspect) {
+                console.log("isPromoteToProspect if", isPromoteToProspect)
                 setPromoteToProspectErrors(true)
             } else {
+                console.log("isPromoteToProspect else", isPromoteToProspect)
                 setPromoteToProspectErrors(false)
             }
-        }else{
-            if(isPromoteToProspect){
+        } else {
+            if (isPromoteToProspect) {
                 postPromoteToProspectSafeParse()
 
             }
@@ -475,7 +483,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
     }
 
     function onSubmit() {
-        console.log("submitted")
 
         console.log(numberOfErrors)
         patchData()
@@ -524,10 +531,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                 })
             }
         } else {
-            console.log("neh")
             updatedSchema = FormSchema
         }
-        console.log(form.getValues("industry"), form.getValues("industry") === "vc_pe")
 
         if (form.getValues("industry") === "vc_pe") {
             updatedSchema = updatedSchema.extend({
@@ -544,20 +549,56 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         } else {
             updatedSchema = updatedSchema.omit({ contacts: true })
         }
-        console.log("befor refine", updatedSchema)
-        updatedSchema = updatedSchema.refine((data) => {
-            console.log('inside refine filxedbudgetul else')
-            const fixedBudgetUl = data.fixedBudgetUl || 0;
-            const fixedCtcBudget = data.fixedCtcBudget || 0;
-            const fixedBudgetUlNumeric = Number(fixedBudgetUl.toLocaleString().replace(/\D/g, ''));
-            const fixedCtcBudgetNumeric = Number(fixedCtcBudget.toLocaleString().replace(/\D/g, ''));
-            const isFixedBudgetGreaterOrEqual = fixedBudgetUlNumeric >= fixedCtcBudgetNumeric;
-            return isFixedBudgetGreaterOrEqual
+        updatedSchema = updatedSchema.superRefine((data, ctx) => {
+            const fixedBudgetUl = data.fixedBudgetUl;
+            const fixedCtcBudget = data.fixedCtcBudget;
+            const esopRsusUl = data.esopRsusUl;
 
-        }, {
-            path: ["fixedBudgetUl"],
-            message: "This value should be gte Cash CTC Budget",
-        })
+            // Check if fixedBudgetUl is a valid number greater than or equal to fixedCtcBudget
+            if (fixedBudgetUl !== null && fixedBudgetUl !== '' && fixedBudgetUl != undefined && fixedCtcBudget !== null && fixedCtcBudget !== '' && fixedCtcBudget != undefined) {
+                const fixedBudgetUlNumeric = Number(fixedBudgetUl?.toLocaleString().replace(/\D/g, ''));
+                const fixedCtcBudgetNumeric = Number(fixedCtcBudget?.toLocaleString().replace(/\D/g, ''));
+                const isFixedBudgetGreaterOrEqual = fixedBudgetUlNumeric >= fixedCtcBudgetNumeric;
+
+                if (!isFixedBudgetGreaterOrEqual) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "Fixed Budget should be greater than or equal to Fixed CTC Budget.",
+                        path: ["fixedBudgetUl"],
+                    });
+                }
+            }
+
+            // Check if fixedCtcBudget is a valid number greater than or equal to 49999
+            if (fixedCtcBudget !== null && fixedCtcBudget !== '' && fixedCtcBudget !== undefined) {
+                const fixedCtcBudgetNumeric = Number(fixedCtcBudget?.toLocaleString().replace(/\D/g, ''));
+                const isFixedCtcBudgetValid = fixedCtcBudgetNumeric >= 49999;
+
+                if (!isFixedCtcBudgetValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "Fixed CTC Budget should be greater than or equal to 49999.",
+                        path: ["fixedCtcBudget"],
+                    });
+                }
+            }
+
+            // Check if esopRsusUl is a valid number greater than or equal to 9999
+            if (esopRsusUl !== null && esopRsusUl !== '' && esopRsusUl !== undefined) {
+                const esopRsusUlNumeric = Number(esopRsusUl?.toLocaleString().replace(/\D/g, ''));
+                const isEsopRsusUlValid = esopRsusUlNumeric >= 9999;
+
+                if (!isEsopRsusUlValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        path: ["esopRsusUl"],
+                    });
+                }
+            }
+
+            return data; // Return the data
+        });
 
         // updatedSchema = updatedSchema.superRefine((data,ctx) => {
         //     console.log('inside refine filxedbudgetul else')
@@ -585,7 +626,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         if (changeReason) {
             form.setValue("reasons", undefined)
         }
-        console.log("updateFormSchemaOnStatusChange", formSchema, value)
 
     }
 
@@ -606,6 +646,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         updateFormSchemaOnStatusChange(form.getValues("statuses"))
         safeprs()
         setShowErrors(true)
+        
+        console.log("showErrors setter", true)
 
     }
 
@@ -627,19 +669,9 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         }
     }
 
-    // Example usage:
-    const inputString = "INR 2,320,434.35";
-    const parsed = parseCurrencyValue(inputString);
 
-    if (parsed) {
-        console.log("Currency Code:", parsed.getCurrencyCode());
-        console.log("Numeric Value:", parsed.getNumericValue());
-    } else {
-        console.log("Invalid input string.");
-    }
 
     useEffect(() => {
-        console.log(form.getValues("contacts.std_code"))
         let updatedSchema = formSchema
         if (form.getValues("contacts.std_code") === "+91") {
             formSchema.extend({
@@ -658,14 +690,17 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         setFormSchema(updatedSchema)
     }, [watcher.contacts?.std_code])
 
+    // console.log("isPromoteToProspectClicked",isPromoteToProspectClicked)
+    console.log("isPromoteToProspectErrors", isPromoteToProspectErrors)
     useEffect(() => {
-        console.log(formSchema, isPromoteToProspectClicked)
+        // console.log(formSchema, isPromoteToProspectClicked)
         if (isPromoteToProspectClicked) {
             console.log("promote to prospect clickeed")
             safeprs(true)
             form.trigger()
+        } else {
+            safeprs()
         }
-        safeprs()
     }, [formSchema])
 
 
@@ -1462,14 +1497,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             </TooltipProvider>
                                                             <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Industry</span>}
+                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Industry</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
+                                                    <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Industry" />
                                                             <CommandEmpty>Industry not found.</CommandEmpty>
@@ -1480,7 +1515,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                             value={industry.value}
                                                                             key={industry.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("industry", industry.value, { shouldDirty: true , shouldValidate:true})
+                                                                                form.setValue("industry", industry.value, { shouldDirty: true, shouldValidate: true })
                                                                                 checkVcIndutsry()
                                                                             }}
                                                                         >
@@ -1518,7 +1553,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                             <FormItem className='w-full'>
                                                 <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && disabledClasses} `}>
+                                                        <SelectTrigger className={`border-none mb-2   ${commonFontClasses} ${isVcIndustrySelected && disabledClasses} `}>
                                                             <div className='flex flex-row gap-[22px] items-center ' >
                                                                 <div >
                                                                     <TooltipProvider>
@@ -1627,14 +1662,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             </TooltipProvider>
                                                             <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground ${isVcIndustrySelected && disabledClasses}`} >Last Funding Stage</span>}
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={ isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    {!isVcIndustrySelected && <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
+                                                    {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}  >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                             <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -1645,7 +1680,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                             value={lastFundingStage.value}
                                                                             key={lastFundingStage.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("lastFundingStage", lastFundingStage.value, { shouldDirty: true, shouldValidate:true })
+                                                                                form.setValue("lastFundingStage", lastFundingStage.value, { shouldDirty: true, shouldValidate: true })
                                                                             }}
                                                                         >
                                                                             <PopoverClose asChild>
@@ -2019,9 +2054,9 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                     <FormControl>
                                                                                         <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                                             <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
+                                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground`}>Designation</span>}
                                                                                             </div>
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>
@@ -2036,7 +2071,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                         value={designation.value}
                                                                                                         key={designation.value}
                                                                                                         onSelect={() => {
-                                                                                                            form.setValue("contacts.designation", designation.value, {shouldDirty:true, shouldValidate:true})
+                                                                                                            form.setValue("contacts.designation", designation.value, { shouldDirty: true, shouldValidate: true })
                                                                                                         }}
                                                                                                     >
                                                                                                         <PopoverClose asChild>
@@ -2111,7 +2146,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                             {COUNTRY_CODE.find((val) => {
                                                                                                 return val.value === field.value
                                                                                             })?.value}
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>
@@ -2127,7 +2162,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                         key={cc.label}
                                                                                                         onSelect={() => {
                                                                                                             changeStdCode(cc.value)
-                                                                                                            form.setValue("contacts.std_code", cc.value ,{shouldDirty:true, shouldValidate:true})
+                                                                                                            form.setValue("contacts.std_code", cc.value, { shouldDirty: true, shouldValidate: true })
                                                                                                         }}
                                                                                                     >
                                                                                                         <PopoverClose asChild>
@@ -2230,7 +2265,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                             {numberOfErrors.requiredErrors} field(s) missing
                                         </span>}
                                         {numberOfErrors.invalidErrors > 0 && <span>
-                                            {numberOfErrors.invalidErrors} field(s) are Invalid
+                                            {numberOfErrors.invalidErrors} field(s) with Invalid Input
                                         </span>}
                                     </div>
                                 </div>}
@@ -2256,43 +2291,9 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         </span>}
                                     </div>
                                 </div>}
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button disabled={rowState?.status ? (rowState?.status.toLowerCase() !== "verified" || form.getValues("statuses").toLowerCase() !== "verified") : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
-                                            <span >Promote to Prospect</span> <IconArrowSquareRight size={20} />
-                                        </Button>
-                                    </DialogTrigger>
-                                    {/* {beforePromoteToProspectDivsArray.length > 0 && <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle className="pt-[20px] pb-[10px]">
-                                                <div className="flex flex-row gap-4 items-center">
-                                                    <IconRequiredError size={32} />
-                                                    <span className="text-xl font-semibold">Missing Information</span>
-                                                </div>
-
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        <div className="w-[600px]">
-                                            <div className='flex flex-col'>
-                                                <div className='text-gray-900 font-medium text-lg'>
-                                                    To proceed with the promotion, please make sure to fill in the following required fields:
-                                                </div>
-                                                <div className="mt-4 flex flex-col gap-[5px]">
-                                                    {beforePromoteToProspectDivsArray}
-                                                </div>
-                                            </div>
-                                            <div className="bg-gray-200 h-[1px]  mt-8" ></div>
-                                            <div className='flex flex-row gap-[12px] mt-6 '>
-                                                <DialogClose asChild>
-                                                    <div className="flex flex-row justify-end w-full">
-                                                        <Button className='text-md font-medium px-[38px] py-[10px]'>I'll Fill It</Button>
-                                                    </div>
-                                                </DialogClose>
-                                            </div>
-                                        </div>
-                                    </DialogContent>} */}
-                                </Dialog>
-
+                                <Button disabled={rowState?.status ? (rowState?.status.toLowerCase() !== "verified" || form.getValues("statuses").toLowerCase() !== "verified") : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                    <span >Promote to Prospect</span> <IconArrowSquareRight size={20} />
+                                </Button>
                             </div>
                             <div className='flex flex-row'>
                                 <div className='flex flex-col w-full mt-[24px]'>
@@ -2328,7 +2329,19 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            if (result.message === "success") {
+            console.log(result)
+            if (result.status == "1") {
+                const { data: { segment } } = result
+                console.log(data)
+                setRowState((prevState) => {
+                    return {
+                        ...prevState,
+                        organisation: {
+                            ...prevState?.organisation,
+                            segment: segment
+                        }
+                    }
+                })
             }
         }
         catch (err) {
@@ -2357,8 +2370,11 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             const result = await dataResp.json()
             if (result.message.toLowerCase() === "success") {
                 const { data: { status } } = result
-                setRowState({
-                    status: status
+                setRowState((prevState) => {
+                    return {
+                        ...prevState,
+                        status: status
+                    }
                 })
             }
         }

@@ -5,7 +5,7 @@ import { Form, FormControl, FormField, FormItem } from '../ui/form'
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
-import { Check, ChevronDown } from 'lucide-react'
+import { Check, ChevronDown, ClipboardSignature } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
 import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, TYPE } from '@/app/constants/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
@@ -41,13 +41,21 @@ const FieldSchemaModified = z.object({
     update: z.string(),
 });
 
+const FieldSchemaModified2 = z.object({
+    all: z.boolean(),
+    access: z.boolean(),
+    create: z.string(),
+    read: z.boolean(),
+    update: z.boolean(),
+});
+
 const FormSchema = z.object({
     profileName: z.string(),
     Insights: FieldSchemaModified,
     Dashboard: FieldSchemaModified,
     Leads: FieldSchema,
-    Prospects: FieldSchema,
-    Deals: FieldSchema,
+    Prospects: FieldSchemaModified2,
+    Deals: FieldSchemaModified2,
     Accounts: FieldSchema,
     Contacts: FieldSchema,
     UserManagement: FieldSchema,
@@ -71,6 +79,14 @@ const defaultModifiedFormSchema = {
     update: "NA"
 }
 
+const defaultModifiedFormSchema2 = {
+    all: false,
+    access: false,
+    create: "NA",
+    read: false,
+    update: false
+}
+
 export type FormField = keyof typeof FormSchema['shape'];
 
 // const allTimezones = getAllTimezones()
@@ -78,6 +94,7 @@ export type FormField = keyof typeof FormSchema['shape'];
 function AddProfileDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
     const [data, setData] = useState()
+    const [checkFields, setCheckFields] = useState<boolean>(false)
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -85,9 +102,9 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
             Dashboard: defaultModifiedFormSchema,
             Accounts: defaultFormSchema,
             Contacts: defaultFormSchema,
-            Deals: defaultFormSchema,
+            Deals: defaultModifiedFormSchema2,
             Leads: defaultFormSchema,
-            Prospects: defaultFormSchema,
+            Prospects: defaultModifiedFormSchema2,
             UserManagement: defaultFormSchema,
             profileName: "",
             allTheFields: false
@@ -148,13 +165,52 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
     }
 
     const watcher = form.watch()
-    useEffect(() => {
-        console.log(form.getValues())
-        // console.log(allTimezones.find((val) => console.log(val.value, form.getValues("timeZone")))?.label)
+    // useEffect(() => {
+    //     //     console.log(form.getValues("Leads"))
+    //     //     // console.log(allTimezones.find((val) => console.log(val.value, form.getValues("timeZone")))?.label)
+    //     const subscription = form.watch((data) => {
+    //         console.log(data.Leads)
+    //         form.setValue("Leads.all",true)
+    //     })
+    //     return () => subscription.unsubscribe()
 
-    }, [watcher])
+    // }, [form.watch()])
 
-    function handleSuperAllCheckboxChange(val:boolean){
+    useEffect(()=>{
+        if(checkFields){
+            setCheckFields(false)
+            const superRes= Object.keys(FormSchema.shape).filter((val)=>val!=="profileName").map((fieldName:any)=>{
+                const fieldData = form.getValues(fieldName)
+                const keys = ["access", "create", "read", "update"]
+                const keyMakeUp:any = `${fieldName}.all`
+                const keyAll:FormField = keyMakeUp
+                const result = Object.keys(fieldData).filter((key) => key != "all").every((key) => {
+                    console.log(fieldName, key)
+                    return fieldData[key]
+                })   
+                // const result2 = Object.keys(fieldData).filter((key) => key != "all").some((key) => {
+                //     console.log(fieldName, key)  
+                //     return fieldData[key]
+                // })   
+                // if(result2){
+                //     form.setValue(keyAll, unde)
+                // }else{
+                form.setValue(keyAll, result)
+                // }
+                return result
+            }).every(val=>{
+                return val
+            })
+            form.setValue("allTheFields",superRes)
+            // keys.man((key)=>{
+            //     console.log(Leads[key])
+            // })
+ 
+        }
+    },[checkFields])
+
+
+    function handleSuperAllCheckboxChange(val: boolean) {
         const defaultAllValue = {
             access: val,
             create: val,
@@ -162,28 +218,35 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
             update: val,
             all: val,
         }
-        const defaultModifiedValue ={
+        const defaultModifiedValue = {
             access: val,
             create: "NA",
             read: "NA",
             update: "NA",
             all: val,
         }
-        form.setValue("Accounts",defaultAllValue)
-        form.setValue("Contacts",defaultAllValue)
-        form.setValue("Dashboard",defaultModifiedValue)
-        form.setValue("Deals",defaultAllValue)
-        form.setValue("Insights",defaultModifiedValue)
-        form.setValue("Deals",defaultAllValue)
-        form.setValue("Leads",defaultAllValue)
-        form.setValue("Prospects",defaultAllValue)
-        form.setValue("UserManagement",defaultAllValue)
+        const defaultModifiedValue2 = {
+            access: val,
+            create: "NA",
+            read: val,
+            update: val,
+            all: val,
+        }
+        form.setValue("Accounts", defaultAllValue)
+        form.setValue("Contacts", defaultAllValue)
+        form.setValue("Dashboard", defaultModifiedValue)
+        form.setValue("Deals", defaultModifiedValue2)
+        form.setValue("Insights", defaultModifiedValue)
+        form.setValue("Leads", defaultAllValue)
+        form.setValue("Prospects", defaultModifiedValue2)
+        form.setValue("UserManagement", defaultAllValue)
     }
 
 
     function handleAllCheckboxChange(k2: string, val: boolean) {
         const [key1, key2] = k2.split(".")
         const keys = ["access", "read", "update", "create"]
+        console.log("handlre all check box")
         if (key2 === "all") {
             const k1: any = key1
             const keyToUpdate1: FormField = k1
@@ -195,7 +258,17 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                     read: "NA",
                     update: "NA"
                 }, { shouldDirty: true })
-            } else {
+            }
+            else if (key1.toLowerCase() === "prospects" || key1.toLowerCase() === "deals") {
+                form.setValue(keyToUpdate1, {
+                    all: !val,
+                    access: !val,
+                    create: "NA",
+                    read: !val,
+                    update: !val
+                }, { shouldDirty: true })
+            }
+            else {
                 form.setValue(keyToUpdate1, {
                     all: !val,
                     access: !val,
@@ -206,6 +279,8 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
 
             }
         }
+        
+        setCheckFields(true)
         // if(key2==="all"){
         //     keys.map(val=>{
         //         const k1:any = key1
@@ -339,7 +414,6 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                                                                 render={({ field }) => {
                                                                                     const value: any = field.value
                                                                                     const fieldValue: boolean = value === "NA" ? false : value
-
                                                                                     // console.log(field)
                                                                                     return <FormItem >
                                                                                         <FormControl>

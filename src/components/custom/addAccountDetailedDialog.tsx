@@ -18,14 +18,14 @@ import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
 import { IconAccounts, IconAccounts2, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
-import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
+import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, IErrors, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 import Image from 'next/image'
 import { formatData, getToken } from './leads'
 import Link from 'next/link'
-import { contactListClasses, preFilledClasses } from '@/app/constants/classes'
+import { contactListClasses, disabledClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 
@@ -34,18 +34,18 @@ const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 fo
 
 
 const FormSchema = z.object({
-    organisationName: z.string(required_error), // [x]
-    industry: z.string(), // [x]
-    domain: z.string(), // [x]
-    size: z.string(), // [x]
-    lastFundingStage: z.string(), // [x]
-    lastFundingAmount: z.string(), // [x]
-    registeredName: z.string().optional(),
-    gstinVatGstNo: z.string().optional(),
-    billingAddress: z.string().optional(),
-    shippingAddress: z.string(),
-    contacts: z.string().optional(),
-    sameAsBillingAddress: z.boolean().optional()
+    organisationName: z.string().min(1), // [x]
+    industry: z.string().min(1), // [x]
+    domain: z.string().min(1).transform((val) => val === undefined ? undefined : val.trim()), // [x]
+    size: z.string().min(1).transform((val) => val === undefined ? undefined : val.trim()), // [x]
+    lastFundingStage: z.string().min(1).transform((val) => val === undefined ? undefined : val.trim()), // [x]
+    lastFundingAmount: z.string().min(1).transform((val) => val === undefined ? undefined : val.trim()), // [x]
+    // registeredName: z.string().optional(),
+    // gstinVatGstNo: z.string().optional(),
+    // billingAddress: z.string().optional(),
+    // shippingAddress: z.string(),
+    // contacts: z.string().optional(),
+    // sameAsBillingAddress: z.boolean().optional()
 })
 
 const FormSchema2 = z.object({
@@ -76,6 +76,7 @@ const form2Defaults = {
     std_code: "+91"
 }
 
+
 // function transformContactsToBackendStructure(contacts: any): ContactDetail[] {
 //     return contacts.map((contact: any) => ({
 //         name: contact.contactName,
@@ -88,6 +89,7 @@ const form2Defaults = {
 // }
 
 
+
 function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filteredLeadData }: { inputAccount: string, dataFromChild: CallableFunction, details: ClientCompleteInterface | undefined, filteredLeadData: LeadInterface[] | undefined }) {
 
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
@@ -95,16 +97,24 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
     const [formSchema2, setFormSchema2] = useState(FormSchema2)
+    const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const { toast } = useToast()
+    const [numberOfErrors, setNumberOfErrors] = useState<IErrors>({
+        invalidErrors: 0,
+        requiredErrors: 0
+    })
+    const [formSchema, setFormSchema] = useState<any>(FormSchema);
 
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
-            lastFundingStage:undefined,
-            lastFundingAmount:undefined,
+            lastFundingStage: undefined,
+            lastFundingAmount: undefined,
             domain: undefined,
-            size: undefined
+            size: undefined,
+            organisationName: undefined,
+            industry: undefined
         }
     })
 
@@ -114,26 +124,48 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
 
     })
 
+    function safeprs() {
+        const result = formSchema.safeParse(form.getValues())
+        if (!result.success) {
+            const errorMap = result.error.formErrors.fieldErrors
+            console.log("errormap", errorMap)
+            // Initialize error counters
+            let requiredErrorsCount = 0;
+            let invalidErrorsCount = 0;
+
+            // Iterate through the error map
+            for (const field in errorMap) {
+                const errors = errorMap[field];
+                for (const error of errors) {
+                    if (error.includes("Required")) {
+                        requiredErrorsCount++;
+                    } else {
+                        invalidErrorsCount++;
+                    }
+                }
+            }
+            const errorState = {
+                requiredErrors: requiredErrorsCount,
+                invalidErrors: invalidErrorsCount
+            };
+            setNumberOfErrors(errorState)
+
+            console.log("errors", errorState)
+        }
+    }
 
 
-    const watcher1 = form.watch()
-    const watcher2 = form2.watch()
+    const watcher = form.watch()
 
     useEffect(() => {
-        // console.log(form.getValues())
-        const same = form.getValues("sameAsBillingAddress")
+        console.log("errors", form.formState.errors, "valid", form.formState.isValid)
 
-        const billingAddress = form.getValues("billingAddress") || ""
-        if (same) {
-            form.setValue("shippingAddress", billingAddress)
-        } else {
-            form.setValue("shippingAddress", "")
-        }
-        console.log(form.getValues())
-    }, [watcher1.sameAsBillingAddress, watcher1.billingAddress])
-    // useEffect(() => {
+    }, [watcher])
 
-    // }, [watcher2])
+    useEffect(() => {
+        form.trigger()
+        // safeprs()
+    }, [formSchema])
 
     useEffect(() => {
         console.log("details", details)
@@ -222,10 +254,10 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     async function addToContact() {
         const formData = form.getValues()
         const industryLabel = specificValueFinder(formData.industry, INDUSTRY)?.label
-        const domainLabel = specificValueFinder(formData.domain, DOMAINS)?.label
-        const sizeLabel = specificValueFinder(formData.size, SIZE_OF_COMPANY)?.label
-        const lastFundingStageLabel = specificValueFinder(formData.lastFundingStage, LAST_FUNDING_STAGE)?.label
-        const lastFundingAmountLabel = specificValueFinder(formData.lastFundingAmount, LAST_FUNDING_AMOUNT)?.label
+        const domainLabel = specificValueFinder(formData.domain || "", DOMAINS)?.label
+        const sizeLabel = specificValueFinder(formData.size || "", SIZE_OF_COMPANY)?.label
+        const lastFundingStageLabel = specificValueFinder(formData.lastFundingStage || "", LAST_FUNDING_STAGE)?.label
+        const lastFundingAmountLabel = specificValueFinder(formData.lastFundingAmount || "", LAST_FUNDING_AMOUNT)?.label
         const registeredName = formData.registeredName || ""
         const gstinVatGstNo = formData.gstinVatGstNo || ""
         const billingAddress = formData.billingAddress || ""
@@ -353,6 +385,35 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             updatedSchema = FormSchema2
         }
         setFormSchema2(updatedSchema)
+
+    }
+
+    function checkVcIndutsry() {
+        const industry = form.getValues("industry")
+        if (industry === "vc_pe") {
+            setIsVcIndustrySelected(true)
+            form.setValue("lastFundingStage", undefined)
+            form.setValue("lastFundingAmount", undefined)
+            form.setValue("domain", undefined)
+            form.setValue("size", undefined)
+        } else {
+            setIsVcIndustrySelected(false)
+        }
+        updateFormSchema()
+    }
+    function updateFormSchema() {
+        let updatedSchema
+        if (form.getValues("industry") === "vc_pe") {
+            updatedSchema = FormSchema.extend({
+                domain: z.string().optional(),
+                size: z.string().optional(),
+                lastFundingStage: z.string().optional(),
+                lastFundingAmount: z.string().optional(),
+            })
+        } else {
+            updatedSchema = FormSchema
+        }
+        setFormSchema(updatedSchema)
     }
 
     return (
@@ -384,33 +445,53 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 control={form.control}
                                 name="industry"
                                 render={({ field }) => (
-                                    <FormItem >
-                                        <Select onValueChange={(value) => {
-                                            // form.resetField("budget", { defaultValue: undefined })
-                                            // setBudgetKey(+ new Date())
-                                            return field.onChange(value)
-                                        }} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Industry" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <div className='h-[200px] overflow-y-auto'>
-                                                    {
-                                                        INDUSTRY.map((industry, index) => {
-                                                            return <SelectItem key={index} value={industry.value}>
-                                                                {industry.label}
-                                                            </SelectItem>
-                                                        })
-                                                    }
-                                                </div>
-                                            </SelectContent>
-                                        </Select>
-                                        {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                        {/* <FormMessage /> */}
+                                    <FormItem className='w-full '>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                        <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                            {INDUSTRY.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Industry</span>}
+                                                        </div>
+                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-[350px] p-0 ">
+                                                <Command>
+                                                    <CommandInput className='w-full' placeholder="Search Industry" />
+                                                    <CommandEmpty>Industry not found.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                            {INDUSTRY.map((industry) => (
+                                                                <CommandItem
+                                                                    value={industry.value}
+                                                                    key={industry.value}
+                                                                    onSelect={() => {
+                                                                        form.setValue("industry", industry.value, { shouldDirty: true, shouldValidate: true })
+                                                                        checkVcIndutsry()
+                                                                    }}
+                                                                >
+                                                                    <PopoverClose asChild>
+                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                            {industry.label}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                    field.value === industry.value
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                        </div>
+                                                                    </PopoverClose>
+                                                                </CommandItem>
+                                                            ))}
+                                                        </div>
+                                                    </CommandGroup>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
                                     </FormItem>
                                 )}
                             />
@@ -419,7 +500,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 name="domain"
                                 render={({ field }) => (
                                     <FormItem >
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
                                                     <SelectValue placeholder="Domain" />
@@ -445,7 +526,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 name="size"
                                 render={({ field }) => (
                                     <FormItem >
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
                                                     <SelectValue placeholder="Size" />
@@ -470,25 +551,52 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 control={form.control}
                                 name="lastFundingStage"
                                 render={({ field }) => (
-                                    <FormItem >
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger className={commonClasses}>
-                                                    <SelectValue placeholder="Last Funding Stage" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent >
-                                                <div className='max-h-[200px] overflow-y-auto '>
-                                                    {
-                                                        LAST_FUNDING_STAGE.map((lastFundingStage, index) => {
-                                                            return <SelectItem key={index} value={lastFundingStage.value}>
-                                                                {lastFundingStage.label}
-                                                            </SelectItem>
-                                                        })
-                                                    }
-                                                </div>
-                                            </SelectContent>
-                                        </Select>
+                                    <FormItem className='w-full '>
+                                        <Popover>
+                                            <PopoverTrigger asChild disabled={isVcIndustrySelected}>
+                                                <FormControl>
+                                                    <Button  variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] disabled:opacity-1">
+                                                        <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                        </div>
+                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            {!isVcIndustrySelected && <PopoverContent className="w-[350px] p-0 ">
+                                                <Command>
+                                                    <CommandInput className='w-full' placeholder="Search Funding Stage" />
+                                                    <CommandEmpty>Funding Stage not found.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                            {LAST_FUNDING_STAGE.map((lastFundingStage) => (
+                                                                <CommandItem
+                                                                    value={lastFundingStage.value}
+                                                                    key={lastFundingStage.value}
+                                                                    onSelect={() => {
+                                                                        form.setValue("lastFundingStage", lastFundingStage.value, { shouldDirty: true, shouldValidate: true })
+                                                                    }}
+                                                                >
+                                                                    <PopoverClose asChild>
+                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                            {lastFundingStage.label}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                    field.value === lastFundingStage.value
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                        </div>
+                                                                    </PopoverClose>
+                                                                </CommandItem>
+                                                            ))}
+                                                        </div>
+                                                    </CommandGroup>
+                                                </Command>
+                                            </PopoverContent>}
+                                        </Popover>
                                     </FormItem>
                                 )}
                             />
@@ -497,7 +605,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 name="lastFundingAmount"
                                 render={({ field }) => (
                                     <FormItem >
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={commonClasses}>
                                                     <SelectValue placeholder="Last Funding Amount" />
@@ -601,7 +709,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                     <form className='right w-1/2 flex flex-col ' onSubmit={form2.handleSubmit(onSubmit2)}>
                         <div className="flex flex-row gap-[10px] items-center">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                <IconContacts size="20" />
+                                <IconContacts size="20" color="#667085" />
                             </div>
                             <span className="text-xs text-gray-700">CONTACTS</span>
                             <div className="bg-gray-200 h-[1px] flex-1" ></div>
@@ -682,7 +790,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                                 <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                     {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
@@ -775,7 +883,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
                                                             {countryCode.find((val) => val.value === field.value)?.value}
-                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>

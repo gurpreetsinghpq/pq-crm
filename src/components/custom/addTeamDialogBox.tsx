@@ -22,7 +22,7 @@ import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
 import { ClientGetResponse, IValueLabel, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
-import { IconPower, IconUsers } from '../icons/svgIcons'
+import { IconPower, IconTrash, IconUsers } from '../icons/svgIcons'
 import DataTable from './table/datatable'
 import { columnsTeamsDialog } from './table/columns-team-dialog'
 import { getToken } from './leads'
@@ -30,12 +30,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import DataTableAddTeamDialog from './table/datatable-addteam'
 
 const FormSchema = z.object({
-    search: z.string({}),
+    search: z.string({}).optional(),
     teamName: z.string({
         // required_error: "Please enter a name.",
     }).min(1),
     teamLeader: z.string({
-    }).min(1)
+    }).min(1),
+    searchSelected: z.string().optional()
 
 })
 
@@ -65,25 +66,34 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
     const [tableLeadLength, setTableLength] = React.useState<any>()
     const [selectedRows, setSelectedRows] = React.useState<UsersGetResponse[]>()
     const [table, setTable] = React.useState<any>()
+    const [valueToSearch, setValueToSearch] = useState<string>()
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             search: "",
             teamName: "",
-            teamLeader: ""
+            teamLeader: "",
+            searchSelected: ""
         }
     })
     const [formSchema, setFormSchema] = useState(FormSchema)
 
-    function setTableLeadRow(data: any) {
-        const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
+    function setTableLeadRow(data: any, selectedData: any) {
+        console.log("table", table)
+        // const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
+        const selectedRows = selectedData.rows.filter((val: any) => val.getIsSelected())
+
         setIsMultiSelectOn(selectedRows.length !== 0)
         const ids = selectedRows.map((val: any) => val.original.id)
         setSelectedRowIds(ids)
         setTableLength(data.rows.length)
         setSelectedRows(selectedRows.map((row: any) => row.original))
         console.log(data)
+    }
+
+    function setTableSelectedRow(data: any) {
+
     }
 
     console.log(selectedRows)
@@ -145,7 +155,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
         fetchLeadData()
     }, [])
 
-    
+
     function setChildDataHandler(key: keyof IChildData, data: any) {
         setChildData((prev) => {
             return { ...prev, [key]: data }
@@ -205,17 +215,31 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
     }
 
     const watcher = form.watch()
-    useEffect(()=>{
-        console.log(watcher.teamName, watcher.teamLeader, form.formState.isValid, form.getFieldState("teamName").invalid, form.getFieldState("teamLeader").invalid )
+    useEffect(() => {
+        // console.log(watcher.teamName, watcher.teamLeader, form.formState.isValid, form.getFieldState("teamName").invalid, form.getFieldState("teamLeader").invalid )
+        // console.log(form.getValues())
         // form.trigger()
-        if(form.formState.isValid){
+        if (form.formState.isValid) {
             setShowAssignUser(true)
-        }else{
+        } else {
             setShowAssignUser(false)
             // setShowAssignUserTable(false)
         }
-    },[watcher])
 
+    }, [watcher])
+
+    useEffect(() => {
+        console.log(form.getValues("searchSelected"))
+        setValueToSearch(form.getValues("searchSelected"))
+    }, [watcher.searchSelected])
+
+    const filteredData = selectedRows?.filter((val) => {
+        // console.log(valueToSearch,  `${val.first_name} ${val.last_name}`.toLowerCase().includes(valueToSearch) || val.email.toLowerCase() === valueToSearch,  `${val.first_name} ${val.last_name}`.toLowerCase(), `${val.first_name} ${val.last_name}`.toLowerCase() === valueToSearch , val.email.toLowerCase(), val.email.toLowerCase() === valueToSearch)
+        if (valueToSearch && valueToSearch?.trim().length > 0) {
+            return `${val.first_name} ${val.last_name}`.toLowerCase().includes(valueToSearch) || val.email.toLowerCase().includes(valueToSearch)
+        }
+        return val
+    })
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen} >
@@ -232,7 +256,21 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                 }}>
                     <DialogHeader>
                         <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
-                            <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Team" : "Add Team"}</div>
+                            <div className='flex flex-row justify-between w-full items-center'>
+                                <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Team" : "Add Team"}</div>
+                                {
+                                    parentData?.open &&
+                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600'>
+                                        <IconTrash size={20} color={ "white"}/>
+                                        Delete Team
+                                        </Button>
+                                    // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
+                                    //     <IconPower size={20} />
+                                    //     Deactivate User
+                                    // </div>
+
+                                }
+                            </div>
                         </DialogTitle>
                     </DialogHeader>
                     <div className='xl:max-h-[520px] 2xl:max-h-[600px] min-w-[600px] overflow-y-auto'>
@@ -263,7 +301,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                         {TEAM_LEADERS.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Team Leader</span>}
                                                                     </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
@@ -278,7 +316,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                                                 value={teamLeader.value}
                                                                                 key={teamLeader.value}
                                                                                 onSelect={() => {
-                                                                                    form.setValue("teamLeader", teamLeader.value,{shouldDirty:true, shouldValidate:true})
+                                                                                    form.setValue("teamLeader", teamLeader.value, { shouldDirty: true, shouldValidate: true })
                                                                                 }}
                                                                             >
                                                                                 <PopoverClose asChild>
@@ -311,7 +349,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                         </div>
                                         <span className="text-xs text-gray-700">USERS</span>
                                         <div className="bg-gray-200 h-[1px] flex-1" ></div>
-                                        <div className={`text-sm text-purple-700  ${showAssignUser && !showAssignUserTable ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => showAssignUser && !showAssignUserTable && assignUsers()}>+ Assign Users</div>
+                                        {!parentData?.open && <div className={`text-sm text-purple-700  ${showAssignUser && !showAssignUserTable ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => showAssignUser && !showAssignUserTable && assignUsers()}>+ Assign Users</div>}
                                     </div>
                                     <div className='text-gray-500 text-xs font-medium w-full mt-[24px] '>
                                         {!showAssignUserTable ? <div className='flex flex-row w-full justify-center'>
@@ -339,17 +377,28 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                         {selectedRows && <DataTable columns={columnsTeamsDialog} data={selectedRows} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />}
                                                     </TabsContent>
                                                 </Tabs> */}
-                                                <FormField
+                                                {currentTab === TABS.ALL_USERS && <FormField
                                                     control={form.control}
                                                     name="search"
                                                     render={({ field }) => (
                                                         <FormItem className="w-2/3">
                                                             <FormControl>
-                                                                <Input placeholder="Search" className="text-md border" {...field} />
+                                                                <Input placeholder="Search all users" className="text-md border" {...field} />
                                                             </FormControl>
                                                         </FormItem>
                                                     )}
-                                                />
+                                                />}
+                                                {currentTab === TABS.SELECTED_USERS && <FormField
+                                                    control={form.control}
+                                                    name="searchSelected"
+                                                    render={({ field }) => (
+                                                        <FormItem className="w-2/3">
+                                                            <FormControl>
+                                                                <Input placeholder="Search selected users" className="text-md border" {...field} />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />}
                                                 <div>
                                                     {
                                                         <div className={`${currentTab === TABS.ALL_USERS ? "block" : "hidden"}`}>
@@ -367,7 +416,8 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                                 Mobile
                                                             </div>
                                                             {
-                                                                selectedRows && selectedRows?.length > 0 ? selectedRows?.map((val) => {
+                                                                selectedRows && selectedRows?.length > 0 ? (filteredData && filteredData?.length > 0 ? filteredData?.map((val) => {
+                                                                    console.log("inside", val)
                                                                     return <>
                                                                         <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200'>
                                                                             <div className='text-sm font-medium text-gray-900'>{val.first_name} {val.last_name}</div>
@@ -382,8 +432,12 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                                     </>
                                                                 }) :
                                                                     <div className='flex flex-col px-[24px] py-[16px] text-center col-span-2'>
-                                                                        No user selected.
+                                                                        No search results found.
                                                                     </div>
+                                                                ) : (<div className='flex flex-col px-[24px] py-[16px] text-center col-span-2'>
+                                                                    No user selected.
+                                                                </div>)
+
                                                             }
                                                             <div></div>
                                                         </div>}
@@ -397,17 +451,11 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                     <Separator className="bg-gray-200 h-[1px]  mt-8" />
                                     <div className={`flex flex-row gap-2 mx-6 my-6`}>
                                         {parentData?.open ?
-                                            <div className='flex flex-row w-full justify-between '>
-                                                <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
-                                                    <IconPower size={20} />
-                                                    Deactivate Team
-                                                </div>
-                                                <div className='flex flex-row gap-2'>
-                                                    {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid} onClick={() => updateContact()}>
-                                                        Update
-                                                    </Button>
-                                                </div>
+                                            <div className='flex flex-row gap-2 w-full justify-end'>
+                                                {beforeCancelDialog(yesDiscard)}
+                                                <Button type='button' disabled={!form.formState.isValid} onClick={() => updateContact()}>
+                                                    Update
+                                                </Button>
                                             </div>
                                             :
                                             <div className='flex flex-row flex-row gap-2 w-full justify-end'>

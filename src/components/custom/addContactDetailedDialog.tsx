@@ -261,7 +261,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                     <form className='right flex flex-col w-full' onSubmit={form2.handleSubmit(onSubmit2)}>
                         <div className="flex flex-row gap-[10px] items-center">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                <IconContacts size="20" />
+                                <IconContacts size="20" color="#667085" />
                             </div>
                             <span className="text-xs text-gray-700">CONTACTS</span>
                             <div className="bg-gray-200 h-[1px] flex-1" ></div>
@@ -292,7 +292,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                                 <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                     {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
@@ -385,7 +385,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
                                                             {countryCode.find((val) => val.value === field.value)?.value}
-                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>

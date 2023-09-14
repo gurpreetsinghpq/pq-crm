@@ -1291,7 +1291,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
                                                                     {INDUSTRY.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Industry</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
@@ -1456,7 +1456,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
                                                                     {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Last Funding Stage</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
@@ -1852,7 +1852,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                                             <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                                                 {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
                                                                                             </div>
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>
@@ -1942,7 +1942,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                                             {COUNTRY_CODE.find((val) => {
                                                                                                 return val.value === field.value
                                                                                             })?.value}
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>

@@ -218,7 +218,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                                             {COUNTRY_CODE.find((val) => {
                                                                                 return val.value === field.value
                                                                             })?.value}
-                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
@@ -288,7 +288,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                         {REPORTING_MANAGERS.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Reporting To</span>}
                                                                     </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
@@ -433,7 +433,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                         {allTimezones.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Time Zone</span>}
                                                                     </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>

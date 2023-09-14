@@ -478,7 +478,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                                         <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
                                                                             {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
                                                                         </div>
-                                                                        <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                     </div>
                                                                 </div>
 

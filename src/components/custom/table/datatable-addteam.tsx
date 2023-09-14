@@ -159,12 +159,14 @@ export default function DataTableAddTeamDialog<TData, TValue>({
 
   }, [filterObj])
   useEffect(() => {
-    setTableLeadRow(table.getFilteredRowModel())
-  }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
-  useEffect(() => {
     setTable(table)
+    table.getSelectedRowModel().rows
     
   }, [])
+  useEffect(() => {
+    setTableLeadRow(table.getFilteredRowModel(),table.getSelectedRowModel())
+    table.getSelectedRowModel
+  }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
 
   function setTeamsDialogFilter() {
     console.log(filterObj.search)

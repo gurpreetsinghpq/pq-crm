@@ -614,7 +614,7 @@ const Contacts = ({ form }: {
                     <DataTable columns={columnsContacts(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"contacts"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                        <IconContacts size="20" />
+                        <IconContacts size="20" color="#667085" />
                     </div>
                         <div>
                             <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Contacts" : "No Archive Contacts"}</p>

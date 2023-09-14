@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientGetResponse, Contact, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientGetResponse, Contact, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -96,7 +96,10 @@ const form2Defaults: z.infer<typeof FormSchema2> = {
 function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
-    const [numberOfErrors, setNumberOfErrors] = useState<number>()
+    const [numberOfErrors, setNumberOfErrors] = useState<IErrors>({
+        invalidErrors: 0,
+        requiredErrors: 0
+    })
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
     const [editAccountNameClicked, setEditAccountNameClicked] = useState<boolean>(false);
     const [showContactForm, setShowContactForm] = useState(true)
@@ -105,7 +108,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     const [budgetKey, setBudgetKey] = React.useState<number>(+new Date())
     const [places, setPlaces] = React.useState([])
     const [beforePromoteToProspectDivsArray, setBeforePromoteToProspectDivsArray] = useState<any[]>([]);
-
+    const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const { childData: { row }, setChildDataHandler } = parentData
 
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
@@ -113,7 +116,10 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     useEffect(() => {
         console.log(data)
         setDummyContactData(data.contacts)
-
+        form.setValue("domain", labelToValue(data.domain || "", DOMAINS), { shouldDirty: true, shouldValidate: true })
+        form.setValue("size", labelToValue(data.size || "", SIZE_OF_COMPANY), { shouldDirty: true, shouldValidate: true })
+        form.setValue("lastFundingStage", labelToValue(data.last_funding_stage || "", LAST_FUNDING_STAGE), { shouldDirty: true, shouldValidate: true })
+        form.setValue("lastFundingAmount", labelToValue(data.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT), { shouldDirty: true, shouldValidate: true })
     }, [])
 
     useEffect(() => {
@@ -133,6 +139,65 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         safeparse2()
     }, [addDialogOpen])
 
+    function checkVcIndutsry() {
+        const industry = form.getValues("industry")
+        if (industry === "vc_pe") {
+            setIsVcIndustrySelected(true)
+            form.setValue("lastFundingStage", undefined)
+            form.setValue("lastFundingAmount", undefined)
+            form.setValue("domain", undefined)
+            form.setValue("size", undefined)
+        } else {
+            setIsVcIndustrySelected(false)
+        }
+        updateFormSchema()
+    }
+
+    function updateFormSchema() {
+        let updatedSchema
+        if (form.getValues("industry") === "vc_pe") {
+            updatedSchema = FormSchema.extend({
+                domain: z.string().optional(),
+                size: z.string().optional(),
+                lastFundingStage: z.string().optional(),
+                lastFundingAmount: z.string().optional(),
+            })
+        } else {
+            updatedSchema = FormSchema
+        }
+        setFormSchema(updatedSchema)
+    }
+
+    function safeprs() {
+        const result = formSchema.safeParse(form.getValues())
+        if (!result.success) {
+            const errorMap = result.error.formErrors.fieldErrors
+            console.log("errormap", errorMap)
+            // Initialize error counters
+            let requiredErrorsCount = 0;
+            let invalidErrorsCount = 0;
+
+            // Iterate through the error map
+            for (const field in errorMap) {
+                const errors = errorMap[field];
+                for (const error of errors) {
+                    if (error.includes("Required")) {
+                        requiredErrorsCount++;
+                    } else {
+                        invalidErrorsCount++;
+                    }
+                }
+            }
+            const errorState = {
+                requiredErrors: requiredErrorsCount,
+                invalidErrors: invalidErrorsCount
+            };
+            setNumberOfErrors(errorState)
+
+            console.log("errors", errorState)
+        }
+    }
+
     function closeSideSheet() {
         setChildDataHandler('row', undefined)
     }
@@ -149,10 +214,10 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         defaultValues: {
             organisationName: data.name,
             industry: labelToValue(data.industry || "", INDUSTRY),
-            domain: labelToValue(data.domain || "", DOMAINS),
-            size: labelToValue(data.size || "", SIZE_OF_COMPANY),
-            lastFundingStage: labelToValue(data.last_funding_stage || "", LAST_FUNDING_STAGE),
-            lastFundingAmount: labelToValue(data.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT),
+            domain: undefined,
+            size: undefined,
+            lastFundingStage: undefined,
+            lastFundingAmount: undefined,
             segment: labelToValue(data.segment || "", SEGMENT)
         },
         mode: "all"
@@ -326,16 +391,6 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         //     console.error("Error fetching data:", error);
         // }
 
-    }
-
-    function safeprs() {
-        const result = formSchema.safeParse(form.getValues())
-        console.log(result)
-        if (!result.success) {
-            const errorMap = result.error.formErrors.fieldErrors
-            console.log(errorMap)
-            setNumberOfErrors(Object.keys(errorMap).length)
-        }
     }
 
     function onSubmit() {
@@ -597,14 +652,14 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                             </TooltipProvider>
                                                             <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Industry</span>}
+                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Industry</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[2px] p-0 w-[calc(32vw-6px)]" >
+                                                    <PopoverContent className={`mt-[2px] p-0 w-[calc(32vw-6px)]`}>
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Industry" />
                                                             <CommandEmpty>Industry not found.</CommandEmpty>
@@ -615,7 +670,8 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                             value={industry.value}
                                                                             key={industry.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("industry", industry.value)
+                                                                                form.setValue("industry", industry.value, { shouldDirty: true, shouldValidate: true })
+                                                                                checkVcIndutsry()
                                                                             }}
                                                                         >
                                                                             <PopoverClose asChild>
@@ -638,22 +694,22 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                         </Command>
                                                     </PopoverContent>
                                                 </Popover>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
 
                                             </FormItem>
                                         )}
                                     />
                                 </div>
                                 <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
+                                <FormField
                                         control={form.control}
                                         name="domain"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
+                                                        <SelectTrigger className={`border-none mb-2   ${commonFontClasses} ${isVcIndustrySelected && disabledClasses} `}>
+                                                            <div className='flex flex-row gap-[22px] items-center ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -692,14 +748,14 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                     />
                                 </div>
                                 <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
+                                <FormField
                                         control={form.control}
                                         name="size"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && disabledClasses}`}>
                                                             <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
@@ -739,14 +795,14 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                     />
                                 </div>
                                 <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
+                                <FormField
                                         control={form.control}
                                         name="lastFundingStage"
                                         render={({ field }) => (
                                             <FormItem className='w-full cursor-pointer'>
-                                                <Popover>
-                                                    <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
+                                                <Popover >
+                                                    <PopoverTrigger asChild disabled={isVcIndustrySelected}>
+                                                        <div className={`flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ${isVcIndustrySelected ? `${disabledClasses} cursor-not-allowed ` : ""}`}  >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -759,16 +815,16 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </TooltipProvider>
-                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Last Funding Stage</span>}
+                                                            <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={ isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
                                                                 </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[2px] p-0 w-[calc(32vw-6px)]" >
+                                                    {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 w-[calc(32vw-6px)]`}  >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                             <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -779,7 +835,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                             value={lastFundingStage.value}
                                                                             key={lastFundingStage.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("lastFundingStage", lastFundingStage.value)
+                                                                                form.setValue("lastFundingStage", lastFundingStage.value, { shouldDirty: true, shouldValidate: true })
                                                                             }}
                                                                         >
                                                                             <PopoverClose asChild>
@@ -800,22 +856,22 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                 </div>
                                                             </CommandGroup>
                                                         </Command>
-                                                    </PopoverContent>
+                                                    </PopoverContent>}
                                                 </Popover>
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                {!form.getValues("lastFundingStage") && <FormMessage className={selectFormMessageClasses} />}
                                             </FormItem>
                                         )}
                                     />
                                 </div>
                                 <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
+                                <FormField
                                         control={form.control}
                                         name="lastFundingAmount"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && `${disabledClasses}  `}`}>
                                                             <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
@@ -985,7 +1041,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                                             <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                                                 {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
                                                                                             </div>
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>
@@ -1076,7 +1132,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                                             {COUNTRY_CODE.find((val) => {
                                                                                                 return val.value === field.value
                                                                                             })?.value}
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                                         </Button>
                                                                                     </FormControl>
                                                                                 </PopoverTrigger>

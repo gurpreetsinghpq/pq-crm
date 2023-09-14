@@ -129,7 +129,7 @@ const UserManagement = ({ usersForm, teamsForm, profilesForm }: {
         {/* <div onClick={() => setCurrentTab(TABS.USERS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.USERS && SELECTED_TAB_CLASSES}`}>{TABS.USERS}</div>
             <div onClick={() => setCurrentTab(TABS.TEAMS)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.TEAMS && SELECTED_TAB_CLASSES}`}>{TABS.TEAMS}</div>
         <div onClick={() => setCurrentTab(TABS.PROFILES)} className={`${COMMON_TAB_CLASSES} ${currentTab === TABS.PROFILES && SELECTED_TAB_CLASSES}`}>{TABS.PROFILES}</div> */}
-        <Tabs defaultValue={TABS.PROFILES} className="flex flex-col flex-1">
+        <Tabs defaultValue={TABS.USERS} className="flex flex-col flex-1">
             <div className="flex flex-row px-6 py-3 border-b-2 border-gray-100">
                 <TabsList className=' justify-start px-[12px] py-[2px] gap-[12px]' >
                     {tabs.map((tab) => {
