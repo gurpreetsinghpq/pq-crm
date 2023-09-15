@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, SET_VALUE_CONFIG } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -128,9 +128,9 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     useEffect(() => {
         console.log("details", details)
         if (details?.name) {
-            form.setValue("organisationName", details?.name)
+            form.setValue("organisationName", details?.name, SET_VALUE_CONFIG)
         } else {
-            form.setValue("organisationName", inputAccount)
+            form.setValue("organisationName", inputAccount, SET_VALUE_CONFIG)
         }
         if (details?.contacts && details?.contacts?.length > 0) {
             setDummyContactData(details?.contacts)
@@ -275,17 +275,17 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         // console.log(finalData.contactType)
         const fDesignation = DESIGNATION.find((des) => des.label === finalData.designation)?.value
 
-        form2.setValue("name", item.name)
+        form2.setValue("name", item.name, SET_VALUE_CONFIG)
         if (ftype) {
-            form2.setValue("type", ftype)
+            form2.setValue("type", ftype, SET_VALUE_CONFIG)
         }
-        form2.setValue("std_code", item.std_code)
+        form2.setValue("std_code", item.std_code, SET_VALUE_CONFIG)
         if (fDesignation) {
-            form2.setValue("designation", fDesignation)
+            form2.setValue("designation", fDesignation, SET_VALUE_CONFIG)
         }
-        form2.setValue("email", item.email)
-        form2.setValue("phone", item.phone)
-        form2.setValue("contactId", item.contactId)
+        form2.setValue("email", item.email, SET_VALUE_CONFIG)
+        form2.setValue("phone", item.phone,SET_VALUE_CONFIG)
+        form2.setValue("contactId", item.contactId,SET_VALUE_CONFIG)
         console.log(form2.getValues())
         setShowContactForm(true)
         setFormInUpdateState(true)
@@ -357,7 +357,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                 <Form {...form}>
                     <form className='left flex flex-col w-1/2' onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="flex flex-row gap-[10px] items-center">
-                            <div className="h-[24px] w-[24px] text-gray-500 rounded flex flex-row justify-center">
+                            <div className="h-[24px] w-[30px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconAccounts2 />
                             </div>
                             <span className="text-xs text-gray-700">ACCOUNT</span>
@@ -632,7 +632,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                                             value={designation.value}
                                                                             key={designation.value}
                                                                             onSelect={() => {
-                                                                                form2.setValue("designation", designation.value, {shouldDirty:true, shouldValidate:true})
+                                                                                form2.setValue("designation", designation.value, SET_VALUE_CONFIG)
                                                                             }}
                                                                         >
                                                                             <div className="flex flex-row items-center justify-between w-full">
@@ -727,7 +727,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                                         onSelect={() => {
                                                                             console.log("std_code", cc.value)
                                                                             changeStdCode(cc.value)
-                                                                            form2.setValue("std_code", cc.value)
+                                                                            form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
                                                                         }}
                                                                     >
                                                                         <PopoverClose asChild>

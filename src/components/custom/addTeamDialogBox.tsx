@@ -347,7 +347,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                         <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                             <IconUsers size="20" />
                                         </div>
-                                        <span className="text-xs text-gray-700">USERS</span>
+                                        <span className="text-xs text-gray-700">ASSIGN USERS</span>
                                         <div className="bg-gray-200 h-[1px] flex-1" ></div>
                                         {!parentData?.open && <div className={`text-sm text-purple-700  ${showAssignUser && !showAssignUserTable ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => showAssignUser && !showAssignUserTable && assignUsers()}>+ Assign Users</div>}
                                     </div>

@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, INDUSTRIES, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, LAST_FUNDING_AMOUNT } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, INDUSTRIES, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, LAST_FUNDING_AMOUNT, SET_VALUE_CONFIG } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -170,9 +170,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     useEffect(() => {
         console.log("details", details)
         if (details?.name) {
-            form.setValue("organisationName", details?.name)
+            form.setValue("organisationName", details?.name, SET_VALUE_CONFIG)
         } else {
-            form.setValue("organisationName", inputAccount)
+            form.setValue("organisationName", inputAccount, SET_VALUE_CONFIG)
         }
         // if (details?.contacts && details?.contacts?.length > 0) {
         //     setDummyContactData(details?.contacts)
@@ -323,17 +323,17 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         // console.log(finalData.contactType)
         const fDesignation = DESIGNATION.find((des) => des.label === finalData.designation)?.value
 
-        form2.setValue("name", item.name)
+        form2.setValue("name", item.name, SET_VALUE_CONFIG)
         if (ftype) {
-            form2.setValue("type", ftype)
+            form2.setValue("type", ftype, SET_VALUE_CONFIG)
         }
-        form2.setValue("std_code", item.std_code)
+        form2.setValue("std_code", item.std_code, SET_VALUE_CONFIG)
         if (fDesignation) {
-            form2.setValue("designation", fDesignation)
+            form2.setValue("designation", fDesignation, SET_VALUE_CONFIG)
         }
-        form2.setValue("email", item.email)
-        form2.setValue("phone", item.phone)
-        form2.setValue("contactId", item.contactId)
+        form2.setValue("email", item.email, SET_VALUE_CONFIG)
+        form2.setValue("phone", item.phone, SET_VALUE_CONFIG)
+        form2.setValue("contactId", item.contactId, SET_VALUE_CONFIG)
         console.log(form2.getValues())
         setShowContactForm(true)
         setFormInUpdateState(true)
@@ -392,10 +392,10 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         const industry = form.getValues("industry")
         if (industry === "vc_pe") {
             setIsVcIndustrySelected(true)
-            form.setValue("lastFundingStage", undefined)
-            form.setValue("lastFundingAmount", undefined)
-            form.setValue("domain", undefined)
-            form.setValue("size", undefined)
+            form.setValue("lastFundingStage", undefined, SET_VALUE_CONFIG)
+            form.setValue("lastFundingAmount", undefined, SET_VALUE_CONFIG)
+            form.setValue("domain", undefined, SET_VALUE_CONFIG)
+            form.setValue("size", undefined,SET_VALUE_CONFIG)
         } else {
             setIsVcIndustrySelected(false)
         }
@@ -574,7 +574,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                                     value={lastFundingStage.value}
                                                                     key={lastFundingStage.value}
                                                                     onSelect={() => {
-                                                                        form.setValue("lastFundingStage", lastFundingStage.value, { shouldDirty: true, shouldValidate: true })
+                                                                        form.setValue("lastFundingStage", lastFundingStage.value, SET_VALUE_CONFIG)
                                                                     }}
                                                                 >
                                                                     <PopoverClose asChild>
@@ -805,7 +805,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                                             value={designation.value}
                                                                             key={designation.value}
                                                                             onSelect={() => {
-                                                                                form2.setValue("designation", designation.value)
+                                                                                form2.setValue("designation", designation.value, SET_VALUE_CONFIG)
                                                                             }}
                                                                         >
                                                                             <div className="flex flex-row items-center justify-between w-full">
@@ -900,7 +900,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                                         onSelect={() => {
                                                                             console.log("std_code", cc.value)
                                                                             changeStdCode(cc.value)
-                                                                            form2.setValue("std_code", cc.value)
+                                                                            form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
                                                                         }}
                                                                     >
                                                                         <PopoverClose asChild>

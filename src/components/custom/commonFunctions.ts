@@ -38,3 +38,12 @@ export const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => 
         event.preventDefault();
     }
 };
+export function camelCaseToTitleCase(input:string) {
+  // Replace capital letters with a space followed by the same letter in uppercase
+  return input.replace(/([A-Z])/g, ' $1')
+    // Capitalize the first letter and remove leading spaces
+    .replace(/^./, function(str) {
+      return str.toUpperCase();
+    })
+    .trim();
+}

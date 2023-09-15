@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { Check, ChevronDown, ClipboardSignature } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
-import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, TYPE } from '@/app/constants/constants'
+import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, SET_VALUE_CONFIG, TYPE } from '@/app/constants/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { commonClasses, commonClasses2, commonFontClassesAddDialog, tableHeaderClass } from '@/app/constants/classes'
 import { Separator } from '../ui/separator'
@@ -15,7 +15,7 @@ import { z } from 'zod'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
-import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { camelCaseToTitleCase, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
@@ -195,13 +195,13 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                 // if(result2){
                 //     form.setValue(keyAll, unde)
                 // }else{
-                form.setValue(keyAll, result)
+                form.setValue(keyAll, result, SET_VALUE_CONFIG)
                 // }
                 return result
             }).every(val=>{
                 return val
             })
-            form.setValue("allTheFields",superRes)
+            form.setValue("allTheFields",superRes, SET_VALUE_CONFIG)
             // keys.man((key)=>{
             //     console.log(Leads[key])
             // })
@@ -232,14 +232,14 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
             update: val,
             all: val,
         }
-        form.setValue("Accounts", defaultAllValue)
-        form.setValue("Contacts", defaultAllValue)
-        form.setValue("Dashboard", defaultModifiedValue)
-        form.setValue("Deals", defaultModifiedValue2)
-        form.setValue("Insights", defaultModifiedValue)
-        form.setValue("Leads", defaultAllValue)
-        form.setValue("Prospects", defaultModifiedValue2)
-        form.setValue("UserManagement", defaultAllValue)
+        form.setValue("Accounts", defaultAllValue,SET_VALUE_CONFIG)
+        form.setValue("Contacts", defaultAllValue,SET_VALUE_CONFIG)
+        form.setValue("Dashboard", defaultModifiedValue,SET_VALUE_CONFIG)
+        form.setValue("Deals", defaultModifiedValue2,SET_VALUE_CONFIG)
+        form.setValue("Insights", defaultModifiedValue,SET_VALUE_CONFIG)
+        form.setValue("Leads", defaultAllValue,SET_VALUE_CONFIG)
+        form.setValue("Prospects", defaultModifiedValue2,SET_VALUE_CONFIG)
+        form.setValue("UserManagement", defaultAllValue,SET_VALUE_CONFIG)
     }
 
 
@@ -257,7 +257,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                     create: "NA",
                     read: "NA",
                     update: "NA"
-                }, { shouldDirty: true })
+                }, SET_VALUE_CONFIG)
             }
             else if (key1.toLowerCase() === "prospects" || key1.toLowerCase() === "deals") {
                 form.setValue(keyToUpdate1, {
@@ -266,7 +266,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                     create: "NA",
                     read: !val,
                     update: !val
-                }, { shouldDirty: true })
+                }, SET_VALUE_CONFIG)
             }
             else {
                 form.setValue(keyToUpdate1, {
@@ -275,7 +275,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                     create: !val,
                     read: !val,
                     update: !val
-                }, { shouldDirty: true })
+                }, SET_VALUE_CONFIG)
 
             }
         }
@@ -404,7 +404,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                                                     return <>
                                                                         {
                                                                             index === 1 && <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200 text-sm font-medium text-gray-900 col-span-3'>
-                                                                                {key}
+                                                                                <div>{camelCaseToTitleCase(key)}</div>
                                                                             </div>
                                                                         }
                                                                         {<div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200'>

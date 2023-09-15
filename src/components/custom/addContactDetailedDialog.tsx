@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, SET_VALUE_CONFIG } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -35,7 +35,7 @@ const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 fo
 const FormSchema = z.object({
     organisationName: z.string({
         // required_error: "Please enter a name.",
-    }).min(2),
+    }).min(1),
 })
 
 const FormSchema2 = z.object({
@@ -106,7 +106,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
 
     useEffect(() => {
         // console.log(form.getValues())
-
+        console.log(form.formState.isValid, form2.formState.isValid)
     }, [watcher1])
     useEffect(() => {
         console.log(form2.getValues())
@@ -116,9 +116,9 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
     useEffect(() => {
         console.log("details", details)
         if (details?.name) {
-            form.setValue("organisationName", details?.name)
+            form.setValue("organisationName", details?.name, SET_VALUE_CONFIG)
         } else {
-            form.setValue("organisationName", inputAccount)
+            form.setValue("organisationName", inputAccount, SET_VALUE_CONFIG)
         }
 
     }, [])
@@ -307,7 +307,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                                             value={designation.value}
                                                                             key={designation.value}
                                                                             onSelect={() => {
-                                                                                form2.setValue("designation", designation.value)
+                                                                                form2.setValue("designation", designation.value, SET_VALUE_CONFIG)
                                                                             }}
                                                                         >
                                                                             <div className="flex flex-row items-center justify-between w-full">
@@ -402,7 +402,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                                         onSelect={() => {
                                                                             console.log("std_code", cc.value)
                                                                             changeStdCode(cc.value)
-                                                                            form2.setValue("std_code", cc.value)
+                                                                            form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
                                                                         }}
                                                                     >
                                                                         <PopoverClose asChild>

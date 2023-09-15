@@ -685,7 +685,7 @@ const Leads = ({ form }: {
                         <IconLeads size="20" />
                     </div>
                         <div>
-                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Leads" : "No Archive Leads"}</p>
+                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Leads" : "No Archived Leads"}</p>
 
                         </div>
                         {isInbox && addLeadDialogButton()}</>}

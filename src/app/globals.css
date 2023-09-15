@@ -176,3 +176,27 @@ body{
 .responsive-popover-content-width{
   width: clamp(21.875rem, 16.8576rem + 7.3583vw, 25.6875rem);
 }
+
+/* .pq-sidebar::-webkit-scrollbar{
+  display: none;
+} */
+
+/* Custom scrollbar for the sidebar */
+.pq-sidebar::-webkit-scrollbar {
+  width: 4px; /* Set the width of the scrollbar */
+}
+
+/* Show scrollbar handle on hover */
+
+
+/* Handle */
+.pq-sidebar::-webkit-scrollbar-thumb {
+  background: #7F56D9; /* Color of the scrollbar handle */
+  border-radius: 3px; /* Rounded corners for the scrollbar handle */
+  
+}
+
+/* Handle on hover */
+.pq-sidebar::-webkit-scrollbar-thumb:hover {
+  background:  #D6BBFB; /* Color of the scrollbar handle on hover */
+}

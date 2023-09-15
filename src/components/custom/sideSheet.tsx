@@ -182,6 +182,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
 
     useEffect(() => {
+        console.log("touched fields", form.formState.touchedFields)
         setRowState({
             status: data.status,
             organisation: {
@@ -196,12 +197,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         if (form.getValues("industry") === "vc_pe") {
             setIsVcIndustrySelected(true)
         }
-        form.setValue("reasons", data.reason || undefined, { shouldDirty: true, shouldValidate: true })
-        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]), { shouldDirty: true, shouldValidate: true })
-        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS), { shouldDirty: true, shouldValidate: true })
-        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY), { shouldDirty: true, shouldValidate: true })
-        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE), { shouldDirty: true, shouldValidate: true })
-        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT), { shouldDirty: true, shouldValidate: true })
+        form.setValue("reasons", data.reason || undefined, )
+        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]), )
+        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS), )
+        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY), )
+        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE), )
+        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT), )
 
         // form.unregister(["fixedBudgetUl"])
 
@@ -510,7 +511,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
                 if (isPromoteToProspect) {
                     updatedSchema = updatedSchema.extend({
-                        esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error }),
+                        // esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error }),
                         fixedBudgetUl: z.string(required_error).min(1, { message: required_error.required_error }),
                         timeToFill: z.string(required_error).min(1, { message: required_error.required_error }),
                         retainerAdvance: z.string(required_error).min(1, { message: required_error.required_error }),
@@ -563,7 +564,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                 if (!isFixedBudgetGreaterOrEqual) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        message: "Fixed Budget should be greater than or equal to Fixed CTC Budget.",
+                        // message: "Fixed Budget should be greater than or equal to Fixed CTC Budget.",
+                        message: "Invalid Input",
                         path: ["fixedBudgetUl"],
                     });
                 }
@@ -577,7 +579,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                 if (!isFixedCtcBudgetValid) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        message: "Fixed CTC Budget should be greater than or equal to 49999.",
+                        // message: "Fixed CTC Budget should be greater than or equal to 49999.",
+                        message: "Invalid Input",
                         path: ["fixedCtcBudget"],
                     });
                 }
@@ -591,7 +594,8 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                 if (!isEsopRsusUlValid) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        message: "Invalid Input",
                         path: ["esopRsusUl"],
                     });
                 }

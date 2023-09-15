@@ -694,7 +694,7 @@ const Prospects = ({ form }: {
                         <IconProspects size="20" />
                     </div>
                         <div>
-                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Prospects" : "No Archive Prospects"}</p>
+                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Prospects" : "No Archived Prospects"}</p>
 
                         </div>
                     </>}
