@@ -31,7 +31,7 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, DESIGNATION, ALL_DESIGNATIONS, ALL_TYPES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCross, IconInbox, Unverified } from "../icons/svgIcons"
-import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
+import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User } from "@/app/interfaces/interface"
@@ -118,7 +118,7 @@ const Contacts = ({ form }: {
             form.setValue("search", queryParamIds)
             form.setValue("queryParamString", queryParamIds)
 
-            const { from, to } = getLastWeek(queryParamIds)
+            const { from, to } = getThisMonth(queryParamIds)
             form.setValue("dateRange", {
                 "range": {
                     "from": from,

@@ -2,7 +2,7 @@
 
 import { PROSPECT_STATUSES, STATUSES } from "@/app/constants/constants"
 import { LeadInterface, ProspectsGetResponse } from "@/app/interfaces/interface"
-import { IconArchive, IconArrowDown, IconEdit } from "@/components/icons/svgIcons"
+import { IconArchive, IconArrowDown, IconEdit, IconInbox } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
@@ -46,7 +46,7 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export function columnsProspects(setChildDataHandler:CallableFunction): ColumnDef<ProspectsGetResponse>[] {return [
+export function columnsProspects(setChildDataHandler:CallableFunction,patchArchiveProspectData: CallableFunction, isInbox:boolean): ColumnDef<ProspectsGetResponse>[] {return [
     {
         id: "select",
         header: ({ table }) => (
@@ -281,10 +281,10 @@ export function columnsProspects(setChildDataHandler:CallableFunction): ColumnDe
                                 Edit
                             </div>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={()=>{patchArchiveProspectData([row.original.id])}}>
                             <div className="flex flex-row gap-2 items-center">
-                                <IconArchive size={16} color={"#344054"} />
-                                Archive
+                                {isInbox?  <IconArchive size={16} color={"#344054"} />: <IconInbox size={16} color={"#344054"} />}
+                                {isInbox? "Archive": "Inbox"}
                             </div>
                         </DropdownMenuItem>
                         {/* <DropdownMenuSeparator /> */}

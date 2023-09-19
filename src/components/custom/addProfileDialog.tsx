@@ -20,33 +20,35 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { IValueLabel, UsersGetResponse } from '@/app/interfaces/interface'
+import { AccessCategoryGetResponse, IValueLabel, ProfilePostBody, SpecificProfileGetResponse, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
 import { IconCheckDone, IconPower, IconUserDeactive } from '../icons/svgIcons'
 import { Checkbox } from '../ui/checkbox'
+import { getToken } from './leads'
+import { toast } from '../ui/use-toast'
 
 
 const FieldSchema = z.object({
     all: z.boolean(),
     access: z.boolean(),
-    create: z.boolean(),
-    read: z.boolean(),
-    update: z.boolean(),
+    add: z.boolean(),
+    view: z.boolean(),
+    change: z.boolean(),
 });
 const FieldSchemaModified = z.object({
     all: z.boolean(),
     access: z.boolean(),
-    create: z.string(),
-    read: z.string(),
-    update: z.string(),
+    add: z.string(),
+    view: z.string(),
+    change: z.string(),
 });
 
 const FieldSchemaModified2 = z.object({
     all: z.boolean(),
     access: z.boolean(),
-    create: z.string(),
-    read: z.boolean(),
-    update: z.boolean(),
+    add: z.string(),
+    view: z.boolean(),
+    change: z.boolean(),
 });
 
 const FormSchema = z.object({
@@ -65,26 +67,26 @@ const FormSchema = z.object({
 const defaultFormSchema = {
     all: false,
     access: false,
-    create: false,
-    read: false,
-    update: false
+    add: false,
+    view: false,
+    change: false
 }
 
 
 const defaultModifiedFormSchema = {
     all: false,
     access: false,
-    create: "NA",
-    read: "NA",
-    update: "NA"
+    add: "NA",
+    view: "NA",
+    change: "NA"
 }
 
 const defaultModifiedFormSchema2 = {
     all: false,
     access: false,
-    create: "NA",
-    read: false,
-    update: false
+    add: "NA",
+    view: false,
+    change: false
 }
 
 export type FormField = keyof typeof FormSchema['shape'];
@@ -95,6 +97,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
     const [open, setOpen] = useState<boolean>(false)
     const [data, setData] = useState()
     const [checkFields, setCheckFields] = useState<boolean>(false)
+    const [accessCategory, setAccessCategory] = useState<AccessCategoryGetResponse[]>()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -136,7 +139,76 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
         form.reset()
     }
 
-    function addContact() {
+    async function addProfile(isUpdate: boolean = false) {
+        console.log(form.getValues())
+        const preProcessData: any = removeKeyAndConvertNaToFalse(form.getValues())
+        // Object.keys(preProcessData).map((key)=>{
+        //     const keys = ["access", "view", "change", "add"]
+        //     keys
+
+        // })
+
+        // console.log("preProcessData",preProcessData)
+        const finalData: any = preProcessData
+
+        Object.keys(finalData).map((key) => {
+            console.log(key)
+            accessCategory?.map(val => {
+                if (val.name.toLowerCase() === "organisation") {
+                    finalData["Accounts"] = {
+                        ...finalData["Accounts"],
+                        access_category: val.id
+                    }
+                }
+                else if (camelCaseToTitleCase(key).toLowerCase().includes(val.name.toLowerCase())) {
+
+                    finalData[key] = {
+                        ...finalData[key],
+                        access_category: val.id
+                    }
+                }
+            })
+        })
+
+        // uncomment this later
+        // const keysToDelete = ["profileName", "allTheFields"]
+        // to be reomved
+        const keysToDelete = ["profileName", "allTheFields", "Deals", "Insights", "Dashboard"]
+        keysToDelete.map((keyName) => {
+            delete finalData[keyName]
+        })
+        // console.log("finalData",finalData)
+        const finalDataArray = structuredClone(convertObjectToArray(finalData))
+        const dataToSend: ProfilePostBody = {
+            group_details: {
+                name: form.getValues("profileName")
+            },
+            permissions: structuredClone(finalDataArray)
+        }
+        // console.log("dataToSend",dataToSend)
+
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/${isUpdate ? `${parentData?.childData.row.original.id}/` : ""}`, { method: isUpdate ? "PUT" : "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+
+            const result = await dataResp.json()
+            if (result.status == "1") {
+                toast({
+                    title: `Profile ${isUpdate ? "Updated" : "Created"} Succesfully!`,
+                    variant: "dark"
+                })
+                console.log(result)
+                yesDiscard()
+            } else {
+                toast({
+                    title: "Api Failure!",
+                    variant: "destructive"
+                })
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+
 
     }
 
@@ -148,6 +220,104 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
     // console.log("values", form.formState.defaultValues)
     const formDefaultState: any = form.formState.defaultValues
     // console.log(form)
+
+    async function fetchProfileDetails() {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/${parentData?.childData.row.original.id}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data: SpecificProfileGetResponse = structuredClone(result.data)
+            console.log(data.permissions)
+            const superRes = data.permissions.map((obj) => {
+                const name: string = obj.access_category.name
+                let k: any = Object.keys(FormSchema.shape).find(field => field.includes(name.split(" ").join("")))
+                if(name.toLowerCase()==="organisation"){
+                    k = "Accounts"
+                }
+                console.log(k)
+                if (k) {
+                    let dataToSet: {
+                        access: boolean,
+                        add: boolean | string,
+                        change: boolean | string,
+                        view: boolean | string,
+                        all: boolean | string
+                    }
+                    switch (k) {
+                        case "Prospects":
+                        case "Deals":
+                            dataToSet = {
+                                access: obj.access,
+                                add: "NA",
+                                change: obj.change,
+                                view: obj.view,
+                                all: obj.access && obj.change && obj.view
+                            }
+                            break;
+                        case "Insights":
+                        case "Dashboard":
+                            dataToSet = {
+                                access: obj.access,
+                                add: "NA",
+                                change: "NA",
+                                view: "NA",
+                                all: obj.access && obj.view
+                            }
+                            break;
+                        default:
+                            dataToSet = {
+                                access: obj.access,
+                                add: obj.add,
+                                change: obj.change,
+                                view: obj.view,
+                                all: obj.access && obj.add && obj.change && obj.view
+                            }
+
+                    }
+                    const keyName: FormField = k
+
+                    let dataToSetFinal: any = dataToSet
+                    form.setValue(keyName,dataToSetFinal)
+                    console.log("form value update", keyName,dataToSetFinal)
+                    return dataToSet.all
+                }
+            })
+            if(data.permissions.length>0){
+                form.setValue("allTheFields", superRes.every(val=>val===true))
+            }
+            form.setValue("profileName", data.name)
+            console.log("formvalue", form.getValues())
+
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+
+    }
+
+    useEffect(() => {
+        fetchCategoryAccessDetails()
+        if (parentData?.open) {
+            fetchProfileDetails()
+        }
+        console.log()
+    }, [])
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    const token_superuser = getToken()
+
+    async function fetchCategoryAccessDetails() {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/rbac/category-access/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data: AccessCategoryGetResponse[] = structuredClone(result.data)
+            console.log(data)
+            setAccessCategory(data)
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+
+    }
 
 
     useEffect(() => {
@@ -176,18 +346,21 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
 
     // }, [form.watch()])
 
-    useEffect(()=>{
-        if(checkFields){
+    useEffect(() => {
+        if (checkFields) {
             setCheckFields(false)
-            const superRes= Object.keys(FormSchema.shape).filter((val)=>val!=="profileName").map((fieldName:any)=>{
+            const superRes = Object.keys(FormSchema.shape)
+            // to be removed
+            .filter((keyName)=>keyName!=="Deals" && keyName!=="Insights" && keyName!=="Dashboard")
+            .filter((val) => val !== "profileName").map((fieldName: any) => {
                 const fieldData = form.getValues(fieldName)
-                const keys = ["access", "create", "read", "update"]
-                const keyMakeUp:any = `${fieldName}.all`
-                const keyAll:FormField = keyMakeUp
+                const keys = ["access", "add", "view", "change"]
+                const keyMakeUp: any = `${fieldName}.all`
+                const keyAll: FormField = keyMakeUp
                 const result = Object.keys(fieldData).filter((key) => key != "all").every((key) => {
-                    console.log(fieldName, key)
+                    // console.log(fieldName, key)
                     return fieldData[key]
-                })   
+                })
                 // const result2 = Object.keys(fieldData).filter((key) => key != "all").some((key) => {
                 //     console.log(fieldName, key)  
                 //     return fieldData[key]
@@ -198,55 +371,54 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                 form.setValue(keyAll, result, SET_VALUE_CONFIG)
                 // }
                 return result
-            }).every(val=>{
+            }).every(val => {
                 return val
             })
-            form.setValue("allTheFields",superRes, SET_VALUE_CONFIG)
+            form.setValue("allTheFields", superRes, SET_VALUE_CONFIG)
             // keys.man((key)=>{
             //     console.log(Leads[key])
             // })
- 
+
         }
-    },[checkFields])
+    }, [checkFields])
 
 
     function handleSuperAllCheckboxChange(val: boolean) {
         const defaultAllValue = {
             access: val,
-            create: val,
-            read: val,
-            update: val,
+            add: val,
+            view: val,
+            change: val,
             all: val,
         }
         const defaultModifiedValue = {
             access: val,
-            create: "NA",
-            read: "NA",
-            update: "NA",
+            add: "NA",
+            view: "NA",
+            change: "NA",
             all: val,
         }
         const defaultModifiedValue2 = {
             access: val,
-            create: "NA",
-            read: val,
-            update: val,
+            add: "NA",
+            view: val,
+            change: val,
             all: val,
         }
-        form.setValue("Accounts", defaultAllValue,SET_VALUE_CONFIG)
-        form.setValue("Contacts", defaultAllValue,SET_VALUE_CONFIG)
-        form.setValue("Dashboard", defaultModifiedValue,SET_VALUE_CONFIG)
-        form.setValue("Deals", defaultModifiedValue2,SET_VALUE_CONFIG)
-        form.setValue("Insights", defaultModifiedValue,SET_VALUE_CONFIG)
-        form.setValue("Leads", defaultAllValue,SET_VALUE_CONFIG)
-        form.setValue("Prospects", defaultModifiedValue2,SET_VALUE_CONFIG)
-        form.setValue("UserManagement", defaultAllValue,SET_VALUE_CONFIG)
+        form.setValue("Accounts", defaultAllValue, SET_VALUE_CONFIG)
+        form.setValue("Contacts", defaultAllValue, SET_VALUE_CONFIG)
+        form.setValue("Dashboard", defaultModifiedValue, SET_VALUE_CONFIG)
+        form.setValue("Deals", defaultModifiedValue2, SET_VALUE_CONFIG)
+        form.setValue("Insights", defaultModifiedValue, SET_VALUE_CONFIG)
+        form.setValue("Leads", defaultAllValue, SET_VALUE_CONFIG)
+        form.setValue("Prospects", defaultModifiedValue2, SET_VALUE_CONFIG)
+        form.setValue("UserManagement", defaultAllValue, SET_VALUE_CONFIG)
     }
 
 
     function handleAllCheckboxChange(k2: string, val: boolean) {
         const [key1, key2] = k2.split(".")
-        const keys = ["access", "read", "update", "create"]
-        console.log("handlre all check box")
+        // console.log("handlre all check box")
         if (key2 === "all") {
             const k1: any = key1
             const keyToUpdate1: FormField = k1
@@ -254,32 +426,32 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                 form.setValue(keyToUpdate1, {
                     all: !val,
                     access: !val,
-                    create: "NA",
-                    read: "NA",
-                    update: "NA"
+                    add: "NA",
+                    view: "NA",
+                    change: "NA"
                 }, SET_VALUE_CONFIG)
             }
             else if (key1.toLowerCase() === "prospects" || key1.toLowerCase() === "deals") {
                 form.setValue(keyToUpdate1, {
                     all: !val,
                     access: !val,
-                    create: "NA",
-                    read: !val,
-                    update: !val
+                    add: "NA",
+                    view: !val,
+                    change: !val
                 }, SET_VALUE_CONFIG)
             }
             else {
                 form.setValue(keyToUpdate1, {
                     all: !val,
                     access: !val,
-                    create: !val,
-                    read: !val,
-                    update: !val
+                    add: !val,
+                    view: !val,
+                    change: !val
                 }, SET_VALUE_CONFIG)
 
             }
         }
-        
+
         setCheckFields(true)
         // if(key2==="all"){
         //     keys.map(val=>{
@@ -318,8 +490,8 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                 {
                                     parentData?.open &&
                                     <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600'>
-                                        <IconUserDeactive size={20} color={"white"} />
-                                        Deactivate User
+                                        {/* <IconUserDeactive size={20} color={"white"} /> */}
+                                        Deactivate Profile
                                     </Button>
                                     // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
                                     //     <IconPower size={20} />
@@ -393,50 +565,54 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                                 </div>
                                                 {
 
-                                                    Object.keys(FormSchema.shape).map((key: any) => {
-                                                        // const dataOfKey = formDefaultState[obj]
-                                                        if (formDefaultState) {
-                                                            const nestedObj = formDefaultState[key]
-                                                            if (nestedObj) {
-                                                                return Object.keys(nestedObj).map((key2, index) => {
-                                                                    let k: any = `${key}.${key2}`
-                                                                    let k2: FormField = k
-                                                                    return <>
-                                                                        {
-                                                                            index === 1 && <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200 text-sm font-medium text-gray-900 col-span-3'>
-                                                                                <div>{camelCaseToTitleCase(key)}</div>
-                                                                            </div>
-                                                                        }
-                                                                        {<div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200'>
-                                                                            <FormField
-                                                                                control={form.control}
-                                                                                name={k2}
-                                                                                render={({ field }) => {
-                                                                                    const value: any = field.value
-                                                                                    const fieldValue: boolean = value === "NA" ? false : value
-                                                                                    // console.log(field)
-                                                                                    return <FormItem >
-                                                                                        <FormControl>
-                                                                                            <Checkbox
-                                                                                                onCheckedChange={(val) => {
-                                                                                                    handleAllCheckboxChange(k2, fieldValue)
-                                                                                                    field.onChange(val)
-                                                                                                }}
-                                                                                                checked={fieldValue}
-                                                                                                disabled={field.value === "NA"}
-                                                                                            />
-                                                                                        </FormControl>
-                                                                                    </FormItem>
-                                                                                }}
-                                                                            />
-                                                                        </div>}
+                                                    Object.keys(FormSchema.shape)
+                                                        // to be removed 
+                                                        .filter((keyName)=>keyName!=="Deals" && keyName!=="Insights" && keyName!=="Dashboard")
+                                                        .map((key: any) => {
+                                                            // const dataOfKey = formDefaultState[obj]
+                                                            if (formDefaultState) {
+                                                                const nestedObj = formDefaultState[key]
+                                                                if (nestedObj) {
+                                                                    return Object.keys(nestedObj)
+                                                                        .map((key2, index) => {
+                                                                            let k: any = `${key}.${key2}`
+                                                                            let k2: FormField = k
+                                                                            return <>
+                                                                                {
+                                                                                    index === 1 && <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200 text-sm font-medium text-gray-900 col-span-3'>
+                                                                                        <div>{camelCaseToTitleCase(key)}</div>
+                                                                                    </div>
+                                                                                }
+                                                                                {<div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200' key={index}>
+                                                                                    <FormField
+                                                                                        control={form.control}
+                                                                                        name={k2}
+                                                                                        render={({ field }) => {
+                                                                                            const value: any = field.value
+                                                                                            const fieldValue: boolean = value === "NA" ? false : value
+                                                                                            // console.log(field)
+                                                                                            return <FormItem >
+                                                                                                <FormControl>
+                                                                                                    <Checkbox
+                                                                                                        onCheckedChange={(val) => {
+                                                                                                            handleAllCheckboxChange(k2, fieldValue)
+                                                                                                            field.onChange(val)
+                                                                                                        }}
+                                                                                                        checked={fieldValue}
+                                                                                                        disabled={field.value === "NA"}
+                                                                                                    />
+                                                                                                </FormControl>
+                                                                                            </FormItem>
+                                                                                        }}
+                                                                                    />
+                                                                                </div>}
 
-                                                                    </>
+                                                                            </>
 
-                                                                })
+                                                                        })
+                                                                }
                                                             }
-                                                        }
-                                                    })
+                                                        })
                                                 }
                                                 <div></div>
                                             </div>
@@ -451,13 +627,13 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                             parentData?.open ?
                                                 <div className='flex flex-row gap-2 w-full justify-end'>
                                                     {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid} onClick={() => updateContact()}>
+                                                    <Button type='button' disabled={!form.formState.isValid} onClick={() => addProfile(true)}>
                                                         Update
                                                     </Button>
                                                 </div> :
                                                 <div className='flex flex-row flex-row gap-2 w-full justify-end'>
                                                     {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid} onClick={() => addContact()}>
+                                                    <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty } onClick={() => addProfile()}>
                                                         Save & Add
                                                     </Button>
                                                 </div>
@@ -472,5 +648,42 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
         </div>
     )
 }
+
+function removeKeyAndConvertNaToFalse(data: any): any {
+    if (typeof data === 'object') {
+        if (Array.isArray(data)) {
+            return data.map((item) => removeKeyAndConvertNaToFalse(item));
+        } else {
+            const newObj: any = {};
+            for (const key in data) {
+                if (data.hasOwnProperty(key)) {
+                    if (key !== 'all') {
+                        newObj[key] = removeKeyAndConvertNaToFalse(data[key]);
+                        if (newObj[key] === 'NA') {
+                            newObj[key] = false;
+                        }
+                    }
+                }
+            }
+            return newObj;
+        }
+    } else {
+        return data;
+    }
+}
+
+function convertObjectToArray(data: any): any[] {
+    const dataArray: any[] = [];
+
+    for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+            const obj = data[key];
+            dataArray.push(obj);
+        }
+    }
+
+    return dataArray;
+}
+
 
 export default AddProfileDialogBox

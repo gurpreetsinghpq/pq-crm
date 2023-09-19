@@ -284,8 +284,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             form2.setValue("designation", fDesignation, SET_VALUE_CONFIG)
         }
         form2.setValue("email", item.email, SET_VALUE_CONFIG)
-        form2.setValue("phone", item.phone,SET_VALUE_CONFIG)
-        form2.setValue("contactId", item.contactId,SET_VALUE_CONFIG)
+        form2.setValue("phone", item.phone, SET_VALUE_CONFIG)
+        form2.setValue("contactId", item.contactId, SET_VALUE_CONFIG)
         console.log(form2.getValues())
         setShowContactForm(true)
         setFormInUpdateState(true)
@@ -536,7 +536,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                     <form className='right flex flex-col w-1/2' onSubmit={form2.handleSubmit(onSubmit2)}>
                         <div className="flex flex-row gap-[10px] items-center">
                             <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                <IconContacts size="20" color="#667085"/>
+                                <IconContacts size="20" color="#667085" />
                             </div>
                             <span className="text-xs text-gray-700">CONTACT</span>
                             <div className="bg-gray-200 h-[1px] flex-1" ></div>

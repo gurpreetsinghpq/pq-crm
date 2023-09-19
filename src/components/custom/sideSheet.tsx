@@ -197,12 +197,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         if (form.getValues("industry") === "vc_pe") {
             setIsVcIndustrySelected(true)
         }
-        form.setValue("reasons", data.reason || undefined, )
-        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]), )
-        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS), )
-        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY), )
-        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE), )
-        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT), )
+        form.setValue("reasons", data.reason || undefined,)
+        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]),)
+        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS),)
+        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY),)
+        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE),)
+        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT),)
 
         // form.unregister(["fixedBudgetUl"])
 
@@ -650,7 +650,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         updateFormSchemaOnStatusChange(form.getValues("statuses"))
         safeprs()
         setShowErrors(true)
-        
+
         console.log("showErrors setter", true)
 
     }
@@ -1666,7 +1666,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                             </TooltipProvider>
                                                             <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={ isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
                                                                 </div>
                                                                 <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
@@ -2264,12 +2264,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
                                 {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && !isPromoteToProspectErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
                                     <IconRequiredError size={16} />
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-row text-xs text-error-700 gap-[3px] font-normal">
+                                        {(numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && <span className='font-bold'>Field(s)</span>}
                                         {numberOfErrors.requiredErrors > 0 && <span>
-                                            {numberOfErrors.requiredErrors} field(s) missing
+                                            Missing:
+                                            <span className='font-bold'> {numberOfErrors.requiredErrors} </span>
                                         </span>}
+                                        {numberOfErrors.requiredErrors > 0 && numberOfErrors.invalidErrors > 0 && ";"}
                                         {numberOfErrors.invalidErrors > 0 && <span>
-                                            {numberOfErrors.invalidErrors} field(s) with Invalid Input
+                                            Invalid: <span className='font-bold'>{numberOfErrors.invalidErrors}</span>
                                         </span>}
                                     </div>
                                 </div>}
@@ -2286,12 +2289,15 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                             <div className='flex flex-row justify-end gap-[20px]'>
                                 {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && isPromoteToProspectErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
                                     <IconRequiredError size={16} />
-                                    <div className="flex flex-col gap-2">
+                                    <div className="flex flex-row text-xs text-error-700 gap-[3px] font-normal">
+                                        {(numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && <span className='font-bold'>Field(s)</span>}
                                         {numberOfErrors.requiredErrors > 0 && <span>
-                                            {numberOfErrors.requiredErrors} field(s) missing
+                                            Missing:
+                                            <span className='font-bold'> {numberOfErrors.requiredErrors} </span>
                                         </span>}
+                                        {numberOfErrors.requiredErrors > 0 && numberOfErrors.invalidErrors > 0 && ";"}
                                         {numberOfErrors.invalidErrors > 0 && <span>
-                                            {numberOfErrors.invalidErrors} field(s) invalid
+                                            Invalid: <span className='font-bold'>{numberOfErrors.invalidErrors}</span>
                                         </span>}
                                     </div>
                                 </div>}

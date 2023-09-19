@@ -15,12 +15,12 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
-import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { fetchUserDataList, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { ClientGetResponse, IValueLabel, UsersGetResponse } from '@/app/interfaces/interface'
+import { ClientGetResponse, IValueLabel, TeamGetResponse, TeamsPostBody, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
 import { IconPower, IconTrash, IconUsers } from '../icons/svgIcons'
 import DataTable from './table/datatable'
@@ -28,6 +28,7 @@ import { columnsTeamsDialog } from './table/columns-team-dialog'
 import { getToken } from './leads'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import DataTableAddTeamDialog from './table/datatable-addteam'
+import { toast } from '../ui/use-toast'
 
 const FormSchema = z.object({
     search: z.string({}).optional(),
@@ -53,6 +54,7 @@ const TABS = {
 
 function AddTeamDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
+    const [userList, setUserList] = useState<IValueLabel[]>()
     const [userAssigned, setUserAssigned] = useState<boolean>(true)
     const [showAssignUser, setShowAssignUser] = useState<boolean>(false)
     const [showAssignUserTable, setShowAssignUserTable] = useState<boolean>(false)
@@ -65,9 +67,12 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
     const [childData, setChildData] = React.useState<IChildData>()
     const [tableLeadLength, setTableLength] = React.useState<any>()
     const [selectedRows, setSelectedRows] = React.useState<UsersGetResponse[]>()
+    const [selectedOnEditModeRows, setSelectedOnEditModeRows] = React.useState<any[]>()
     const [table, setTable] = React.useState<any>()
     const [valueToSearch, setValueToSearch] = useState<string>()
-
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    const token_superuser = getToken()
+    
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -122,13 +127,43 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
 
     }
 
-    function addContact() {
+    async function addTeam(isUpdate: boolean = false) {
+        const profileName = form.getValues("teamName")
+        const teamLeader = form.getValues("teamLeader")
+        const members = selectedRows?.map((val) => val.id)
+        if (members && members?.length > 0) {
+            const dataToSend: TeamsPostBody = {
+                name: profileName,
+                leader: Number(teamLeader),
+                members: members
+            }
+
+
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/team/${isUpdate ? `${parentData?.childData.row.original.id}/` : ""}`, { method: isUpdate ? "PATCH" : "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+
+                const result = await dataResp.json()
+                if (result.status == "1") {
+                    toast({
+                        title: `Team ${isUpdate ? "Updated" : "Created"} Succesfully!`,
+                        variant: "dark"
+                    })
+                    console.log(result)
+                    yesDiscard()
+                } else {
+                    toast({
+                        title: "Api Failure!",
+                        variant: "destructive"
+                    })
+                }
+
+            } catch (err) {
+                console.log(err)
+            }
+        }
 
     }
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    getToken()
-    const token_superuser = getToken()
-    async function fetchLeadData(noArchiveFilter: boolean = false) {
+    async function fetchUserData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -151,8 +186,19 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
         }
     }
 
+    async function getUserList() {
+        try {
+            const userList: any = await fetchUserDataList()
+            setUserList(userList)
+        } catch (err) {
+            console.error("user fetch error", err)
+        }
+    }
+
     useEffect(() => {
-        fetchLeadData()
+
+        fetchUserData()
+        getUserList()
     }, [])
 
 
@@ -161,7 +207,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
             return { ...prev, [key]: data }
         })
         if (!data) {
-            fetchLeadData()
+            fetchUserData()
         }
     }
 
@@ -171,21 +217,77 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
         if (parentData?.open) {
             setOpen(parentData?.open)
             const { childData: { row }, setChildDataHandler } = parentData
-            const data: UsersGetResponse = row.original
+            const data: TeamGetResponse = row.original
+            console.log("parentdata", data)
+            form.setValue("teamName", data?.name)
+            setSelectedOnEditModeRows(data.members)
+            form.setValue("teamLeader", data.leader.id.toString())
+            setShowAssignUserTable(true)
+
         } else {
             setOpen(false)
         }
     }, [parentData])
 
-    function updateContact(): void {
-        throw new Error('Function not implemented.')
-    }
+    useEffect(() => {
+        // set selected table data on edit mode
+        if (parentData?.open) {
+
+            if (selectedOnEditModeRows) {
+                let selectedObj: any = {}
+                selectedOnEditModeRows.map((val) => {
+                    selectedObj[val.id] = true
+                })
+                table.setRowSelection((val: any) => {
+                    console.log(val)
+                    return selectedObj
+                })
+            }
+        }
+    }, [table])
 
     function assignUsers(): void {
         setShowAssignUserTable(true)
         setShowAssignUser(false)
     }
 
+    async function deleteTeam() {
+        const profileName = form.getValues("teamName")
+        const teamLeader = form.getValues("teamLeader")
+        const dataToSend: TeamsPostBody = {
+            name: profileName,
+            leader: Number(teamLeader),
+            members: []
+        }
+        const id =parentData?.childData.row.original.id
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/team/${id}/`, { method:"PATCH", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+
+            const result = await dataResp.json()
+            if (result.status == "1") {
+                const dataResp = await fetch(`${baseUrl}/v1/api/team/${id}/`, { method:"DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                if(result.status===1){
+                    toast({
+                        title: `Team Deleted Succesfully!`,
+                        variant: "dark"
+                    })
+                    console.log(result)
+                    yesDiscard()
+                    
+                }
+            } else {
+                toast({
+                    title: "Api Failure!",
+                    variant: "destructive"
+                })
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+
+    }
 
 
     function resetSelectedFields(selectedRow: any) {
@@ -200,14 +302,6 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
             }
         })
         console.log(deselectObj)
-        // const filteredrows = selectedRows?.map(val => val.id)
-        // console.log(filteredrows)
-        // const deselectRows = filteredrows?.reduce((obj: any, val: any) => {
-        //     obj[val] = false;
-        //     return obj;
-        // }, {});
-
-        // console.log(deselectRows)
         table.setRowSelection((val: any) => {
             console.log(val)
             return deselectObj
@@ -227,6 +321,8 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
         }
 
     }, [watcher])
+
+
 
     useEffect(() => {
         console.log(form.getValues("searchSelected"))
@@ -260,10 +356,10 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Team" : "Add Team"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600'>
-                                        <IconTrash size={20} color={ "white"}/>
+                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' disabled={selectedRows?.length !== 0} onClick={()=>deleteTeam()}>
+                                        <IconTrash size={20} color={"white"} />
                                         Delete Team
-                                        </Button>
+                                    </Button>
                                     // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
                                     //     <IconPower size={20} />
                                     //     Deactivate User
@@ -299,7 +395,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {TEAM_LEADERS.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Team Leader</span>}
+                                                                        {userList && userList.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Team Leader</span>}
                                                                     </div>
                                                                     <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                 </Button>
@@ -310,8 +406,8 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                                                 <CommandInput className='w-full' placeholder="Search Team Leader" />
                                                                 <CommandEmpty>Team Leader not found.</CommandEmpty>
                                                                 <CommandGroup>
-                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {TEAM_LEADERS.map((teamLeader) => (
+                                                                    <div className='flex flex-col max-h-[200px]  overflow-y-auto'>
+                                                                        {userList && userList.map((teamLeader) => (
                                                                             <CommandItem
                                                                                 value={teamLeader.value}
                                                                                 key={teamLeader.value}
@@ -453,14 +549,14 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                         {parentData?.open ?
                                             <div className='flex flex-row gap-2 w-full justify-end'>
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button type='button' disabled={!form.formState.isValid} onClick={() => updateContact()}>
+                                                <Button type='button' disabled={!form.formState.isValid || !(selectedRows && selectedRows?.length > 0)} onClick={() => addTeam(true)}>
                                                     Update
                                                 </Button>
                                             </div>
                                             :
                                             <div className='flex flex-row flex-row gap-2 w-full justify-end'>
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button type='button' disabled={!form.formState.isValid} onClick={() => addContact()}>
+                                                <Button type='button' disabled={!(form.formState.isValid) || !(selectedRows && selectedRows?.length > 0)} onClick={() => addTeam()}>
                                                     Save & Add
                                                 </Button>
                                             </div>

@@ -1618,27 +1618,27 @@ const ALL_LAST_FUNDING_STAGE: IValueLabel[] = [
 const LAST_FUNDING_AMOUNT = [
     {
         value: "less_than_2mm",
-        label: "Less than 2MM USD"
+        label: "Less than USD 2MM"
     },
     {
         value: "2mm_to_4mm",
-        label: "2MM USD to 4MM USD"
+        label: "USD 2MM to USD 4MM"
     },
     {
         value: "5mm_to_10mm",
-        label: "5MM USD to 10 MM USD"
+        label: "USD 5MM to USD 10MM"
     },
     {
         value: "11mm_to_50mm",
-        label: "11 MM USD to 50 MM USD"
+        label: "USD 11MM to USD 50MM"
     },
     {
         value: "51mm_to_100mm",
-        label: "51 MM USD to 100 MM USD"
+        label: "USD 51MM to USD 100MM"
     },
     {
         value: "above_100mm",
-        label: "Above 100 MM USD"
+        label: "Above USD 100MM"
     },
     {
         value: "undisclosed",

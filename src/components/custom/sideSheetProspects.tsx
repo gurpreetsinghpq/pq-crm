@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
+import { handleOnChangeNumeric } from './commonFunctions'
 
 
 const FormSchema2 = z.object({
@@ -363,7 +364,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         const prospectData: Partial<PatchProspect> = {
             reason: reasonToSend,
             status: statusToSend,
-            lead: leadData
+            // lead: leadData
             // owner: valueToLabel(form.getValues("owners"), OWNERS)
         }
         const orgData: Partial<PatchOrganisation> = {
@@ -401,13 +402,15 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         const orgId = data.lead.organisation.id
         const roleId = data.lead.role.id
         const prospectId = data.id
+        const leadId = data.lead.id
 
 
         const apiPromises = [
             patchOrgData(orgId, orgData),
             patchRoleData(roleId, roleDetailsData),
             patchContactData(contacts),
-            patchProspectData(prospectId, prospectData)
+            patchProspectData(prospectId, prospectData),
+            patchLeadData(leadData, roleDetailsData)
         ]
 
         try {
@@ -2138,15 +2141,6 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
     )
 
-    function handleOnChangeNumeric(event: React.ChangeEvent<HTMLInputElement>, field: any, isSeparator: boolean = true) {
-        const cleanedValue = event.target.value.replace(/[,\.]/g, '')
-        console.log(cleanedValue)
-        if (isSeparator) {
-            return field.onChange((+cleanedValue).toLocaleString())
-        } else {
-            return field.onChange((+cleanedValue).toString())
-        }
-    }
 
     function handleOnChangeNumericDecimal(event: React.ChangeEvent<HTMLInputElement>, field: any, isSeparator: boolean = true) {
         // Remove all non-numeric characters except the first one and allow a single decimal point.
@@ -2154,7 +2148,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         console.log(cleanedValue);
 
         // Return the cleaned numeric value as a string without formatting.
-        return field.onChange(Number(cleanedValue));
+        return field.onChange(cleanedValue);
     }
 
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
@@ -2169,7 +2163,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         }
     }
 
-    async function patchLeadData(leadData: Partial<PatchLead>, roleData: Partial<RoleDetails>) {
+    async function patchLeadData( leadData: Partial<PatchLead>, roleData: Partial<RoleDetails>) {
 
         const titleExisting = data.lead.title?.split(" ").join("").split("-")
 
@@ -2186,9 +2180,16 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
 
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/`, { method: "PATCH", body: JSON.stringify(leadData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.lead.id}/`, { method: "PATCH", body: JSON.stringify(leadData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            if (result.message === "success") {
+            if (result.message.toLowerCase() === "success") {
+                const { data: { status } } = result
+                setRowState((prevState) => {
+                    return {
+                        ...prevState,
+                        status: status
+                    }
+                })
             }
         }
         catch (err) {
@@ -2254,6 +2255,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
         }
     }
+    
 }
 
 export default SideSheetProspects

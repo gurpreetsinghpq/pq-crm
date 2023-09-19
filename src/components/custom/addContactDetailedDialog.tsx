@@ -114,7 +114,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
     }, [watcher2])
 
     useEffect(() => {
-        console.log("details", details)
+        console.log("details", details, "inputAccount", inputAccount)
         if (details?.name) {
             form.setValue("organisationName", details?.name, SET_VALUE_CONFIG)
         } else {
@@ -122,6 +122,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         }
 
     }, [])
+
 
     function resetForm2() {
         form2.reset(form2Defaults)
@@ -151,19 +152,19 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         })
     }
 
-    async function addToLead() {
+    async function createContact() {
         const formData = form.getValues()
 
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
         const token_superuser = getToken()
         const orgId = details?.id
+
         if (orgId) {
             const dataToSend: ContactPostBody = {
                 name: form2.getValues("name"),
                 designation: form2.getValues("designation"),
                 email: form2.getValues("email"),
                 organisation: details?.id,
-                archived: false,
                 phone: form2.getValues("phone"),
                 std_code: form2.getValues("std_code"),
                 type: form2.getValues("type")
@@ -228,7 +229,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                 <Form {...form}>
                     <form className='left flex flex-col w-full' onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="flex flex-row gap-[10px] items-center">
-                            <div className="h-[24px] w-[24px] text-gray-500 rounded flex flex-row justify-center">
+                            <div className="h-[26px] w-[26px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconAccounts2 />
                             </div>
                             <span className="text-xs text-gray-700">ACCOUNT</span>
@@ -477,7 +478,9 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                     </DialogContent>
                 </Dialog>
                 {/* </DialogClose> */}
-                <Button disabled={!(form.formState.isValid && form2.formState.isValid)} onClick={() => addToLead()}>Save & Add</Button>
+                <Button
+                    // disabled={!(form.formState.isValid && form2.formState.isValid)}
+                    onClick={() => createContact()}>Save & Add</Button>
             </div>
 
         </div >

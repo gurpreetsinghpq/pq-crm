@@ -159,7 +159,7 @@ export default function DataTable<TData, TValue>({
         setContactFilter()
         break;
       case "users":
-        setUsersFilter()
+        // setUsersFilter()
         break;
       case "teams":
         setTeamsFilter()
@@ -429,6 +429,7 @@ export default function DataTable<TData, TValue>({
     return filterObj[key]?.map((val) => arr.find((item) => item.value === val)?.label)
   }
 
+  console.log("table", table.getCoreRowModel().rows)
 
   return (
     <div className="flex flex-col flex-1">

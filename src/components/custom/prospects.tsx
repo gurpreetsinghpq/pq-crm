@@ -31,7 +31,7 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
-import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
+import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 import { IValueLabel, ProspectsGetResponse, User } from "@/app/interfaces/interface"
@@ -118,7 +118,7 @@ const Prospects = ({ form }: {
             form.setValue("search", queryParamIds)
             form.setValue("queryParamString", queryParamIds)
 
-            const { from, to } = getLastWeek(queryParamIds)
+            const { from, to } = getThisMonth(queryParamIds)
             form.setValue("dateRange", {
                 "range": {
                     "from": from,
@@ -195,14 +195,14 @@ const Prospects = ({ form }: {
     }
 
 
-    async function patchArchiveLeadData(ids: number[]) {
+    async function patchArchiveProspectData(ids: number[]) {
 
-        const url = `${baseUrl}/v1/api/lead/bulk_archive/`;
+        const url = `${baseUrl}/v1/api/prospect/bulk_archive/`;
 
         try {
             const dataResp = await fetch(url, {
                 method: "PATCH",
-                body: JSON.stringify({ leads: ids, archive: isInbox }),
+                body: JSON.stringify({ prospects: ids, archive: isInbox }),
                 headers: {
                     "Authorization": `Token ${token_superuser}`,
                     "Accept": "application/json",
@@ -213,13 +213,18 @@ const Prospects = ({ form }: {
             const result = await dataResp.json();
 
             if (result.message === "success") {
-                return result; // Return the result or any data you need
+                fetchLeadData()
+                toast({
+                    title: `${ids.length} ${ids.length > 1 ? "Prospects" : "Prospect"} moved to ${isInbox ? "Archive" : "Inbox"} Succesfully!`,
+                    variant: "dark"
+                })
+                return result;
             } else {
-                throw new Error("Failed to patch lead data"); // Throw an error for non-success responses
+                throw new Error("Failed to patch prospect data");
             }
         } catch (err) {
             console.error("Error during patching:", err);
-            throw err; // Re-throw the error to be caught by Promise.all
+            throw err;
         }
     }
 
@@ -231,7 +236,7 @@ const Prospects = ({ form }: {
             return;
         }
 
-        const promisePatch = patchArchiveLeadData(selectedRowIds)
+        const promisePatch = patchArchiveProspectData(selectedRowIds)
 
         promisePatch
             .then((resp) => {
@@ -687,7 +692,7 @@ const Prospects = ({ form }: {
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTable columns={columnsProspects(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
+                    <DataTable columns={columnsProspects(setChildDataHandler,patchArchiveProspectData, isInbox)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">

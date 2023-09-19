@@ -31,10 +31,10 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, DESIGNATION, ALL_DESIGNATIONS, ALL_TYPES, ALL_FUNCTIONS, ALL_PROFILES, OWNERS, ALL_TEAM_LEADERS } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCross, IconInbox, IconUserCheck, IconUserCross, IconUsers, Unverified } from "../icons/svgIcons"
-import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
+import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User, UsersGetResponse } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, ProfileGetResponse, User, UsersGetResponse } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -78,7 +78,7 @@ function Profiles({ form }: {
 
     const router = useRouter();
 
-    const [data, setUserData] = React.useState<UsersGetResponse[]>([])
+    const [data, setUserData] = React.useState<ProfileGetResponse[]>([])
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
     const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
@@ -92,11 +92,13 @@ function Profiles({ form }: {
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
+        console.log( "setChildDataHandler",key,data)
         setChildData((prev) => {
             return { ...prev, [key]: data }
         })
         if (!data) {
-            fetchLeadData()
+            console.log("if ran")
+            fetchProfileData()
         }
     }
 
@@ -120,7 +122,7 @@ function Profiles({ form }: {
             form.setValue("search", queryParamIds)
             form.setValue("queryParamString", queryParamIds)
 
-            const { from, to } = getLastWeek(queryParamIds)
+            const { from, to } = getThisMonth(queryParamIds)
             form.setValue("dateRange", {
                 "range": {
                     "from": from,
@@ -128,9 +130,9 @@ function Profiles({ form }: {
                 },
                 rangeCompare: undefined
             })
-            await fetchLeadData(true)
+            await fetchProfileData(true)
         } else {
-            fetchLeadData()
+            fetchProfileData()
         }
     }
 
@@ -138,12 +140,12 @@ function Profiles({ form }: {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     getToken()
     const token_superuser = getToken()
-    async function fetchLeadData(noArchiveFilter: boolean = false) {
+    async function fetchProfileData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            let data: UsersGetResponse[] = structuredClone(result.data)
+            let data: ProfileGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
             setUserData(dataFromApi)
             setIsLoading(false)
@@ -235,7 +237,7 @@ function Profiles({ form }: {
                 // All patching operations are complete
                 // You can run your code here
                 console.log("All patching operations are done");
-                fetchLeadData()
+                fetchProfileData()
 
             })
             .catch((error) => {
@@ -290,7 +292,7 @@ function Profiles({ form }: {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
+                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchProfileData()}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>

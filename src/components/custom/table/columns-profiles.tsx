@@ -1,13 +1,14 @@
 "use client"
 
 import { LAST_FUNDING_STAGE, STATUSES, TYPE } from "@/app/constants/constants"
-import { ClientGetResponse, ContactsGetResponse, LeadInterface, UsersGetResponse } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, LeadInterface, ProfileGetResponse, UsersGetResponse } from "@/app/interfaces/interface"
 import { IconArchive, IconArrowDown, IconEdit } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+import { getLength } from "../commonFunctions"
 
 
 
@@ -53,7 +54,7 @@ function getIcon(segmentName: string) {
 }
 
 
-export const columnsProfiles: ColumnDef<UsersGetResponse>[] = [
+export const columnsProfiles: ColumnDef<ProfileGetResponse>[] = [
     {
         id: "select",
         header: ({ table }) => (
@@ -75,7 +76,7 @@ export const columnsProfiles: ColumnDef<UsersGetResponse>[] = [
     },
     {
         accessorKey: "name",
-        accessorFn: (row) => `${row.first_name} ${row.last_name} {} ${row.email}`,
+        accessorFn: (row) => `${row.name}`,
         header: ({ column }) => {
             return (
                 <div
@@ -87,11 +88,11 @@ export const columnsProfiles: ColumnDef<UsersGetResponse>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div><span className="text-gray-900 text-sm">{getTextMultiLine(row.getValue("name"))}</span></div>
+        cell: ({ row }) => <div><span className="text-gray-900 text-sm">{row.getValue("name")}</span></div>
     },
     {
         accessorKey: "assignedUsers",
-        accessorFn: (originalRow, index) => originalRow.mobile,
+        accessorFn: (originalRow, index) => originalRow.users,
         header: ({ column }) => {
             return (
                 <div
@@ -103,14 +104,14 @@ export const columnsProfiles: ColumnDef<UsersGetResponse>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("mobile") ||  "—" }</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{getLength(row.getValue("assignedUsers")) ||  "—" }</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
         accessorKey: "created_by",
-        accessorFn: (originalRow, index) => originalRow.profile,
+        accessorFn: (originalRow, index) => originalRow.created_by,
         header: ({ column }) => {
             return (
                 <div

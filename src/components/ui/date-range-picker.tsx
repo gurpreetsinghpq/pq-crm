@@ -106,15 +106,15 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
 
         const [rangeCompare, setRangeCompare] = useState<DateRange | undefined>(
             initialCompareFrom
-              ? {
-                  from: new Date((new Date(initialCompareFrom)).setHours(0, 0, 0, 0)),
-                  to: initialCompareTo
-                    ? new Date((new Date(initialCompareTo)).setHours(0, 0, 0, 0))
-                    : new Date((new Date(initialCompareFrom)).setHours(0, 0, 0, 0))
+                ? {
+                    from: new Date((new Date(initialCompareFrom)).setHours(0, 0, 0, 0)),
+                    to: initialCompareTo
+                        ? new Date((new Date(initialCompareTo)).setHours(0, 0, 0, 0))
+                        : new Date((new Date(initialCompareFrom)).setHours(0, 0, 0, 0))
                 }
-              : undefined
-          )
-        
+                : undefined
+        )
+
 
         // Refs to store the values of range and rangeCompare when the date picker is opened
         const openedRangeRef = useRef<DateRange | undefined>();
@@ -281,7 +281,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         }
 
         const resetValues = (): void => {
-            const { from, to } = getLastWeek(queryParamString)
+            const { from, to } = getThisMonth(queryParamString)
 
             setRange({
                 from: from,
@@ -541,7 +541,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                             </div>
 
                         </div>
-                        
+
                         <div className="h-[1px] w-full bg-gray-200 mb-2"></div>
                         <div className="flex justify-end gap-2 py-2 pr-4">
                             <Button
@@ -578,28 +578,39 @@ DateRangePicker.displayName = 'DateRangePicker'
 DateRangePicker.filePath =
     'libs/shared/ui-kit/src/lib/date-range-picker/date-range-picker.tsx'
 
-export function getLastWeek(queryParamString: string | undefined = undefined) {
+export function getThisMonth(queryParamString: string | undefined = undefined) {
 
     if (queryParamString) {
         let from = new Date()
         let to = new Date()
         from.setTime(0);
         to.setHours(23, 59, 59, 999);
-        console.log("if",queryParamString, from,to)
+        console.log("if", queryParamString, from, to)
         return { from, to }
     } else {
         let today = new Date()
         let lastWeek = new Date(today)
         lastWeek.setDate(today.getDate() - 7)
-        
+
         let from = new Date()
         let to = new Date()
-        let first = from.getDate() - from.getDay()
-        from.setDate(first)
+        // let first = from.getDate() - from.getDay()
+        // from.setDate(first)
+        // from.setHours(0, 0, 0, 0)
+        // to.setHours(23, 59, 59, 999)
+        from.setDate(1)
         from.setHours(0, 0, 0, 0)
         to.setHours(23, 59, 59, 999)
-        console.log("else",queryParamString, from,to)
+        console.log("else", queryParamString, from, to)
         return { from, to }
 
     }
+}
+export function getAllTime() {
+    let from = new Date()
+    let to = new Date()
+    from.setTime(0);
+    to.setHours(23, 59, 59, 999);    
+    return { fromAllTime:from, toAllTime:to }
+
 }

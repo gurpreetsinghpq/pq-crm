@@ -1,13 +1,14 @@
 "use client"
 
 import { LAST_FUNDING_STAGE, STATUSES, TYPE } from "@/app/constants/constants"
-import { ClientGetResponse, ContactsGetResponse, LeadInterface, UsersGetResponse } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, LeadInterface, TeamGetResponse, UsersGetResponse } from "@/app/interfaces/interface"
 import { IconArchive, IconArrowDown, IconEdit } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+import { getLength } from "../commonFunctions"
 
 
 
@@ -53,7 +54,7 @@ function getIcon(segmentName: string) {
 }
 
 
-export const columnsTeams: ColumnDef<UsersGetResponse>[] = [
+export function columnsTeams(setChildDataHandler:CallableFunction): ColumnDef<TeamGetResponse>[] { return [
     {
         id: "select",
         header: ({ table }) => (
@@ -75,7 +76,7 @@ export const columnsTeams: ColumnDef<UsersGetResponse>[] = [
     },
     {
         accessorKey: "name",
-        accessorFn: (row) => `${row.first_name} ${row.last_name} {} ${row.email}`,
+        accessorFn: (row) => `${row.name}`,
         header: ({ column }) => {
             return (
                 <div
@@ -91,7 +92,7 @@ export const columnsTeams: ColumnDef<UsersGetResponse>[] = [
     },
     {
         accessorKey: "teamLeader",
-        accessorFn: (originalRow, index) => originalRow.mobile,
+        accessorFn: (originalRow, index) => `${originalRow.leader.first_name} ${originalRow.leader.last_name}`,
         header: ({ column }) => {
             return (
                 <div
@@ -103,14 +104,14 @@ export const columnsTeams: ColumnDef<UsersGetResponse>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("mobile") ||  "—" }</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("teamLeader") ||  "—" }</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
         accessorKey: "users",
-        accessorFn: (originalRow, index) => originalRow.reporting_to,
+        accessorFn: (originalRow, index) => originalRow.members,
         header: ({ column }) => {
             return (
                 <div
@@ -122,14 +123,14 @@ export const columnsTeams: ColumnDef<UsersGetResponse>[] = [
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("reportingTo") || "—"}</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getLength(row.getValue("users")) || "—"}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
         accessorKey: "created_by",
-        accessorFn: (originalRow, index) => originalRow.profile,
+        accessorFn: (originalRow, index) => originalRow.created_by,
         header: ({ column }) => {
             return (
                 <div
@@ -204,7 +205,7 @@ export const columnsTeams: ColumnDef<UsersGetResponse>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => { console.log(cell) }}>
+                        <DropdownMenuItem onClick={() => { setChildDataHandler('row', row) }}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
@@ -217,7 +218,7 @@ export const columnsTeams: ColumnDef<UsersGetResponse>[] = [
         },
     },
 
-]
+]}
 const multiLine = (dateStr: any) => {
     const formattedDate = formatUtcDateToLocal(dateStr);
     const [date, time] = formattedDate.split("@");
@@ -233,6 +234,8 @@ const getTextMultiLine = (text: any) => {
         <div className="text-gray-600 text-xs font-normal">{email}</div>
     </>
 }
+
+
 
 
 

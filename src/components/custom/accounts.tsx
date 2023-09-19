@@ -31,7 +31,7 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconAccounts2, IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
-import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
+import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 import { ClientGetResponse, IValueLabel, LeadInterface, PatchLead, User } from "@/app/interfaces/interface"
@@ -119,7 +119,7 @@ const Accounts = ({form}:{form:UseFormReturn<{
             form.setValue("search", queryParamIds)
             form.setValue("queryParamString", queryParamIds)
 
-            const { from, to } = getLastWeek(queryParamIds)
+            const { from, to } = getThisMonth(queryParamIds)
             form.setValue("dateRange", {
                 "range": {
                     "from": from,

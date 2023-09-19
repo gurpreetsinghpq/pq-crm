@@ -31,7 +31,7 @@ import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, DESIGNATION, ALL_DESIGNATIONS, ALL_TYPES, ALL_FUNCTIONS, ALL_PROFILES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCross, IconInbox, IconUserActive, IconUserCheck, IconUserCross, IconUserDeactive, IconUsers, Unverified } from "../icons/svgIcons"
-import { DateRangePicker, getLastWeek } from "../ui/date-range-picker"
+import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
 import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User, UsersGetResponse } from "@/app/interfaces/interface"
@@ -97,7 +97,7 @@ function Users({ form }: {
             return { ...prev, [key]: data }
         })
         if (!data) {
-            fetchLeadData()
+            fetchUserData()
         }
     }
 
@@ -114,7 +114,7 @@ function Users({ form }: {
     }
     const searchParams = useSearchParams()
 
-    const { from, to } = getLastWeek()
+    const { from, to } = getThisMonth()
 
 
     async function checkQueryParam() {
@@ -123,7 +123,7 @@ function Users({ form }: {
             form.setValue("search", queryParamIds)
             form.setValue("queryParamString", queryParamIds)
 
-            const { from, to } = getLastWeek(queryParamIds)
+            const { from, to } = getThisMonth(queryParamIds)
             form.setValue("dateRange", {
                 "range": {
                     "from": from,
@@ -131,16 +131,16 @@ function Users({ form }: {
                 },
                 rangeCompare: undefined
             })
-            await fetchLeadData(true)
+            await fetchUserData(true)
         } else {
-            fetchLeadData()
+            fetchUserData()
         }
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     getToken()
     const token_superuser = getToken()
-    async function fetchLeadData(noArchiveFilter: boolean = false) {
+    async function fetchUserData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -237,7 +237,7 @@ function Users({ form }: {
                 // All patching operations are complete
                 // You can run your code here
                 console.log("All patching operations are done");
-                fetchLeadData()
+                fetchUserData()
 
             })
             .catch((error) => {
@@ -319,7 +319,7 @@ function Users({ form }: {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
+                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchUserData()}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>

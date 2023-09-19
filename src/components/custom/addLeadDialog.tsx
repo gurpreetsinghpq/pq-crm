@@ -181,7 +181,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                     <div className={`flex flex-col  ${getClassAccToPage()}`}>
                         {!isExpanded ? <div className="flex flex-col mx-6 gap-2">
                             <div className="flex flex-row gap-[10px] items-center">
-                                <div className="h-[24px] w-[24px] text-gray-500 rounded flex flex-row justify-center items-center">
+                                <div className="h-[26px] w-[26px] text-gray-500 rounded flex flex-row justify-center">
                                     <IconAccounts2 />
                                 </div>
                                 <span className="text-xs text-gray-700">ACCOUNT</span>
@@ -193,7 +193,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                                     <CommandEmpty>No results found.</CommandEmpty>
                                     {dataFromApi.map((item: ClientCompleteInterface, index) => (
                                         <CommandItem key={index} className="flex flex-row  justify-between px-0 py-0" >
-                                            <div className={`flex flex-row justify-between w-full items-center pointer px-4 py-4 ${page==='leads'&& 'cursor-pointer'}`}  onClick={() => checkPageAndLink(item)}>
+                                            <div className={`flex flex-row justify-between w-full items-center pointer px-4 py-4 ${page === 'leads' && 'cursor-pointer'}`} onClick={() => checkPageAndLink(item)}>
                                                 <div className="flex flex-row gap-2">
                                                     <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
                                                         <IconBuildings size="20" />

@@ -13,7 +13,7 @@ import Contacts from "../custom/contacts"
 import UserManagement from "../custom/userManagement"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
-import { getLastWeek } from "../ui/date-range-picker"
+import { getAllTime, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Toaster } from "../ui/toaster"
 import { toast } from "../ui/use-toast"
@@ -158,11 +158,11 @@ const TITLES = {
 }
 
 export default function DashboardComponent() {
-    const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
+    // const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
     // const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.ACCOUNTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
-    // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
+    const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
     const [user, setUser] = useState<User>()
     const [isScrollDown, setScrollDown] = useState<boolean>(true)
     const sidebarRef = useRef<HTMLDivElement>(null);
@@ -187,7 +187,8 @@ export default function DashboardComponent() {
 
 
     const router = useRouter();
-    const { from, to } = getLastWeek()
+    const { from, to } = getThisMonth()
+    const { fromAllTime, toAllTime } = getAllTime()
     const LeadForm = useForm<z.infer<typeof LeadFormSchema>>({
         resolver: zodResolver(LeadFormSchema),
         defaultValues: {
@@ -281,8 +282,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }
@@ -297,8 +298,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }
@@ -312,8 +313,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }
@@ -366,7 +367,7 @@ export default function DashboardComponent() {
 
     const handleHover = (isHovering: boolean) => {
         if (sidebarRef.current) {
-          // Show/hide the scrollbars on hover/unhover
+        //   Show/hide the scrollbars on hover/unhover
           sidebarRef.current.style.overflow = isHovering ? 'auto' : 'hidden';
         }
       };
@@ -389,7 +390,7 @@ export default function DashboardComponent() {
                 {/* <Image alt="pq search" src={"/pq-search.png"} sizes="100vw" width={0} height={0} style={{ width: '100%', height: 'auto', objectFit: "contain" }} /> */}
                 <IconPq size={32} />
             </div>
-            <div className="flex flex-col overflow-y-auto pq-sidebar  items-center  xl:px-1 2xl:px-[0px]" ref={sidebarRef} onMouseEnter={() => handleHover(true)}
+            <div className="flex flex-col overflow-y-auto  pq-sidebar  items-center  xl:px-1 2xl:px-[0px]" ref={sidebarRef} onMouseEnter={() => handleHover(true)}
       onMouseLeave={() => handleHover(false)}>
                 <TooltipProvider>
                     <Tooltip>

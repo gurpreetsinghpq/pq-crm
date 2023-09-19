@@ -395,7 +395,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             form.setValue("lastFundingStage", undefined, SET_VALUE_CONFIG)
             form.setValue("lastFundingAmount", undefined, SET_VALUE_CONFIG)
             form.setValue("domain", undefined, SET_VALUE_CONFIG)
-            form.setValue("size", undefined,SET_VALUE_CONFIG)
+            form.setValue("size", undefined, SET_VALUE_CONFIG)
         } else {
             setIsVcIndustrySelected(false)
         }
@@ -422,7 +422,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                 <Form {...form}>
                     <form className='left w-1/2 flex flex-col' onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="flex flex-row gap-[10px] items-center">
-                            <div className="h-[24px] w-[24px] text-gray-500 rounded flex flex-row justify-center">
+                            <div className="h-[24px] w-[30px] text-gray-500 rounded flex flex-row justify-center">
                                 <IconAccounts2 />
                             </div>
                             <span className="text-xs text-gray-700">ACCOUNT</span>
@@ -555,7 +555,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                         <Popover>
                                             <PopoverTrigger asChild disabled={isVcIndustrySelected}>
                                                 <FormControl>
-                                                    <Button  variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] disabled:opacity-1">
+                                                    <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] disabled:opacity-1">
                                                         <div className='w-full flex-1 text-align-left text-md flex  '>
                                                             {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
                                                         </div>

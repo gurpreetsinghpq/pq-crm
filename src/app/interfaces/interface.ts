@@ -259,23 +259,11 @@ export interface ContactsGetResponse {
     organisation: {
         id: number;
         name: string;
-        registered_name: string | null;
-        govt_id: string | null;
-        billing_address: string | null;
-        shipping_address: string | null;
-        industry: string;
-        domain: string;
-        size: string;
-        last_funding_stage: string;
-        last_funding_amount: string;
-        funding_currency: string | null;
-        segment: string;
-        archived: boolean;
-        created_at: string;
-        updated_at: string;
-        created_by: number;
-        updated_by: number;
     };
+    created_at: string;
+    updated_at: string;
+    created_by: number;
+    updated_by: number;
 }
 
 export interface ClientPostBody {
@@ -394,36 +382,44 @@ export interface ContactPostBody {
     phone: string;
     designation: string;
     type: string;
-    archived: boolean;
     organisation: number;
 }
 
 export interface UsersGetResponse {
     id: number;
-    last_login: string | null;
-    is_superuser: boolean;
+    // last_login: string | null;
+    // is_superuser: boolean;
     first_name: string;
     last_name: string;
-    is_staff: boolean;
+    // is_staff: boolean;
     is_active: boolean;
-    date_joined: string;
+    // date_joined: string;
     mobile: string;
     email: string;
     region: string | null;
     function: string;
-    time_zone: string | null;
-    gauth: Record<string, any>;
+    // time_zone: string | null;
+    // gauth: Record<string, any>;
     is_email_verified: boolean;
-    gender: string;
-    archived: boolean;
+    // gender: string;
+    // archived: boolean;
     created_at: string;
     updated_at: string;
-    profile: number;
-    reporting_to: number | null;
-    created_by: number;
-    updated_by: number;
-    groups: number[];
-    user_permissions: number[];
+    profile: {
+        id: number,
+        name: string
+    };
+    reporting_to: {
+        id: number,
+        name: string
+    };
+    created_by: {
+        id: number,
+        name: string
+    };
+    // updated_by: number;
+    // groups: number[];
+    // user_permissions: number[];
 }
 export type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>;
@@ -432,4 +428,175 @@ export type DeepPartial<T> = T extends object ? {
 export interface IErrors {
     requiredErrors: number,
     invalidErrors: number
+}
+
+export interface TeamsPostBody {
+    name: string;
+    leader: number;
+    members: number[];
+}
+export interface TeamGetResponse {
+    id: number;
+    created_by: string;
+    updated_by: string;
+    leader: {
+        id: number;
+        email: string;
+        mobile: string;
+        first_name: string;
+        last_name: string;
+        profile: number | null;
+    };
+    members: {
+        id: number;
+        email: string;
+        mobile: string;
+        first_name: string;
+        last_name: string;
+        profile: number | null;
+    }[];
+    name: string;
+    archived: boolean;
+    created_at: string;
+    updated_at: string;
+}
+export interface AccessCategoryGetResponse {
+    id: number;
+    name: string;
+    code: string;
+    url_frontend: string;
+    type: string;
+    default_access: {
+        add: boolean;
+        view: boolean;
+        access: boolean;
+        change: boolean;
+    };
+    // parent: null | AccessCategoryGetResponse; // It can be either null or a MenuItem itself
+    parent: any;
+}
+export interface ProfilePostBody {
+    group_details: {
+        name: string;
+    };
+    permissions: {
+        access_category: number;
+        access: boolean;
+        view: boolean;
+        change: boolean;
+        add: boolean;
+    }[];
+}
+
+
+export interface ProfileGetResponse {
+    id: number;
+    permissions: {
+        id: number;
+        access_category: {
+            id: number;
+            name: string;
+            code: string;
+            url_frontend: null | string;
+            type: string;
+            default_access: {
+                add: boolean;
+                view: boolean;
+                access: boolean;
+                change: boolean;
+            };
+            content_type: any[]; // You may want to define a more specific type for this property
+            parent: null | number; // It can be either null or a number (parent's id)
+        };
+        access: boolean;
+        view: boolean;
+        add: boolean;
+        change: boolean;
+        group: number;
+    }[];
+    users: {
+        id: number;
+        email: string;
+        mobile: string;
+        first_name: string;
+        last_name: string;
+        profile: {
+            id: number;
+            name: string;
+        };
+        reporting_to: {
+            name: string;
+            id: number;
+        };
+        created_by: {
+            name: string;
+            id: number;
+        };
+        function: string;
+        region: null | string;
+        is_email_verified: boolean;
+        is_active: boolean;
+        created_at: string;
+    }[]
+    created_by: string;
+    updated_by: string;
+    name: string;
+    created_at: string;
+    updated_at: string;
+}
+
+
+export interface SpecificProfileGetResponse {
+    id: number;
+    name: string;
+    created_by: string;
+    updated_by: string;
+    permissions: {
+        id: number;
+        access_category: {
+            id: number;
+            name: string;
+            code: string;
+            url_frontend: null | string;
+            type: string;
+            default_access: {
+                add: boolean;
+                view: boolean;
+                access: boolean;
+                change: boolean;
+            };
+            content_type: any[]; // You may want to define a more specific type for this property
+            parent: null | number; // It can be either null or a number (parent's id)
+        };
+        access: boolean;
+        view: boolean;
+        add: boolean;
+        change: boolean;
+        group: number;
+    }[];
+    created_at: string;
+    updated_at: string;
+    users: any[]; // You may want to define a more specific type for this property
+}
+export interface UserPostBody {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    mobile: string;
+    function: string;
+    profile: number;
+    reporting_to: number;
+    region: string
+}
+export interface UserPatchBody {
+    first_name: string;
+    last_name: string;
+    email: string;
+    mobile: string;
+    function: string;
+    profile: number;
+    reporting_to: number
+    active: boolean;
+    region: string
 }

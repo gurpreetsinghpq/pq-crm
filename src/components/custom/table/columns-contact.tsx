@@ -188,7 +188,7 @@ export function columnsContacts(setChildDataHandler:CallableFunction): ColumnDef
     },
     {
         accessorKey: "created_by",
-        accessorFn: (originalRow, index) => originalRow.organisation.created_by,
+        accessorFn: (originalRow, index) => originalRow.created_by,
         header: ({ column }) => {
             return (
                 <div
@@ -199,14 +199,14 @@ export function columnsContacts(setChildDataHandler:CallableFunction): ColumnDef
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by")}</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by") || "—"}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
     },
     {
         accessorKey: "created_at",
-        accessorFn: (originalRow, index) => originalRow.organisation.created_at,
+        accessorFn: (originalRow, index) => originalRow.created_at,
         header: ({ column }) => {
             return (
                 <div

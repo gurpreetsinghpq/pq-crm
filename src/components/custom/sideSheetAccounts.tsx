@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientGetResponse, Contact, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientGetResponse, Contact, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
+import { toast } from '../ui/use-toast'
 
 
 const FormSchema2 = z.object({
@@ -100,6 +101,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         invalidErrors: 0,
         requiredErrors: 0
     })
+    const [rowState, setRowState] = useState<DeepPartial<ClientGetResponse[]>>()
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
     const [editAccountNameClicked, setEditAccountNameClicked] = useState<boolean>(false);
     const [showContactForm, setShowContactForm] = useState(true)
@@ -113,15 +115,37 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
 
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ClientGetResponse = row.original
+
+    
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            organisationName: data.name,
+            industry: labelToValue(data.industry || "", INDUSTRY),
+            domain: undefined,
+            size: undefined,
+            lastFundingStage: undefined,
+            lastFundingAmount: undefined,
+            segment: labelToValue(data.segment || "", SEGMENT)
+        },
+        mode: "all"
+    })
+
+
     useEffect(() => {
         console.log(data)
         setDummyContactData(data.contacts)
-        form.setValue("domain", labelToValue(data.domain || "", DOMAINS), { shouldDirty: true, shouldValidate: true })
-        form.setValue("size", labelToValue(data.size || "", SIZE_OF_COMPANY), { shouldDirty: true, shouldValidate: true })
-        form.setValue("lastFundingStage", labelToValue(data.last_funding_stage || "", LAST_FUNDING_STAGE), { shouldDirty: true, shouldValidate: true })
-        form.setValue("lastFundingAmount", labelToValue(data.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT), { shouldDirty: true, shouldValidate: true })
+        form.setValue("domain", labelToValue(data.domain || "", DOMAINS))
+        form.setValue("size", labelToValue(data.size || "", SIZE_OF_COMPANY))
+        form.setValue("lastFundingStage", labelToValue(data.last_funding_stage || "", LAST_FUNDING_STAGE))
+        form.setValue("lastFundingAmount", labelToValue(data.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
+        form.setValue("billingAddress", data.billing_address || "")
+        form.setValue("shippingAddress", data.shipping_address || "")
+        form.setValue("registeredName", data.registered_name || "")
+        form.setValue("gstinVatGstNo", data.govt_id || "")
+        checkVcIndutsry()
     }, [])
-
+    
     useEffect(() => {
         let updatedSchema
         if (addDialogOpen) {
@@ -209,19 +233,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     }
 
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            organisationName: data.name,
-            industry: labelToValue(data.industry || "", INDUSTRY),
-            domain: undefined,
-            size: undefined,
-            lastFundingStage: undefined,
-            lastFundingAmount: undefined,
-            segment: labelToValue(data.segment || "", SEGMENT)
-        },
-        mode: "all"
-    })
+    
     const watcher = form.watch()
 
     useEffect(() => {
@@ -241,6 +253,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         { label: "Replacement", value: "replacement" }
     ];
 
+    
 
 
     function safeparse2() {
@@ -364,7 +377,12 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
             size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY),
             last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE),
             last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT),
-            segment: valueToLabel(form.getValues("segment") || "", SEGMENT) || LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym
+            segment: valueToLabel(form.getValues("segment") || "", SEGMENT) || LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym,
+            billing_address: form.getValues("billingAddress") || "",
+            shipping_address: form.getValues("shippingAddress") || "",
+            govt_id: form.getValues("gstinVatGstNo") || "",
+            registered_name: form.getValues("registeredName") || ""
+
         }
 
 
@@ -377,11 +395,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
 
         const orgId = data.id
 
-
-        const apiPromises = [
-            // patchOrgData(orgId, orgData),
-            // patchContactData(contacts)
-        ]
+        patchOrgData(orgId, orgData)
 
         // try {
         //     const results = await Promise.all(apiPromises);
@@ -514,6 +528,10 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         setEditAccountNameClicked(false)
     }
 
+    function updateAccountName(){
+        setEditAccountNameClicked(false)
+    }
+
     return (
         <div className={`fixed flex flex-row z-[50] right-0 top-0 h-[100vh] w-[100vw] `} >
             <div className='w-full bg-gray-900 opacity-70 backdrop-blur-[8px] fade-in' onClick={closeSideSheet}>
@@ -554,9 +572,9 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                     <span className='text-gray-600 text-xs font-semibold' >Cancel</span>
                                                 </div>
 
-                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("organisationName").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form.formState.isValid && addContact()}>
+                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("organisationName").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form.formState.isValid && updateAccountName()}>
                                                     <IconTick size={20} />
-                                                    <span className='text-gray-600 text-xs font-semibold' >Save</span>
+                                                    <span className='text-gray-600 text-xs font-semibold'>Save</span>
                                                 </div>
                                             </div>
                                         </>
@@ -1247,7 +1265,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
 
                                 <div className='flex flex-row flex-1 justify-end '>
-                                    <Button variant="default" type="submit" >Save</Button>
+                                    <Button variant="default" type="submit" disabled={!form.formState.isDirty}>Save</Button>
 
                                 </div>
                             </div>
@@ -1278,8 +1296,31 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            if (result.message === "success") {
+            console.log(result)
+            if (result.status == "1") {
+                toast({
+                    title: "Account Details Updated Successfully!",
+                    variant: "dark"
+                })
+            }else{
+                toast({
+                    title: "Api failure!",
+                    variant: "destructive"
+                })
             }
+            // if (result.status == "1") {
+            //     const { data: { segment } } = result
+            //     console.log(data)
+            //     setRowState((prevState) => {
+            //         return {
+            //             ...prevState,
+            //             organisation: {
+            //                 ...prevState?.organisation,
+            //                 segment: segment
+            //             }
+            //         }
+            //     })
+            // }
         }
         catch (err) {
             console.log("error", err)

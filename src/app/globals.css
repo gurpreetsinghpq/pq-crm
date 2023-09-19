@@ -177,9 +177,9 @@ body{
   width: clamp(21.875rem, 16.8576rem + 7.3583vw, 25.6875rem);
 }
 
-/* .pq-sidebar::-webkit-scrollbar{
+.pq-sidebar::-webkit-scrollbar{
   display: none;
-} */
+}
 
 /* Custom scrollbar for the sidebar */
 .pq-sidebar::-webkit-scrollbar {

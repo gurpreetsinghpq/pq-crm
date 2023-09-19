@@ -53,7 +53,10 @@ function getIcon(segmentName: string) {
 }
 
 
-export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<UsersGetResponse>[]  {return[
+export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<UsersGetResponse>[]  {
+
+    
+    return[
     {
         id: "select",
         header: ({ table }) => (
@@ -145,7 +148,7 @@ export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<Us
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("reportingTo") || "—"}</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{getName(row.getValue("reportingTo")) || "—"}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
@@ -201,7 +204,7 @@ export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<Us
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("profile") || "—" }</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("profile")) || "—" }</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
@@ -219,7 +222,7 @@ export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<Us
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by") || "—"}</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{getName(row.getValue("created_by")) || "—"}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
@@ -342,4 +345,10 @@ function formatUtcDateToLocal(backendUtcDate: any) {
 }
 function capitalizeFirstLetters(inputString: string) {
     return inputString.replace(/\b\w/g, char => char.toUpperCase());
+}
+function getName(data:any) {
+    if(data){
+        return data.name
+    }
+    return "—"
 }
