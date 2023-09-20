@@ -42,7 +42,10 @@ export interface LeadInterface {
     id: number;
     created_by: string;
     updated_by: string;
-    owner: string;
+    owner: {
+        id: number;
+        name: string
+    };
     role: {
         id: number;
         role_type: string;
@@ -139,7 +142,7 @@ export interface PatchLead {
     readOnly: true;
     created_by: string;
     updated_by: string;
-    owner: string;
+    owner: number;
     role: string;
     organisation: string;
     title?: string | null;
@@ -295,7 +298,10 @@ export interface ProspectsGetResponse {
     id: number;
     created_by: string;
     updated_by: string;
-    owner: string;
+    owner: {
+        id: number;
+        name: string
+    };
     lead: {
         id: number;
         created_by: string;
@@ -382,7 +388,9 @@ export interface ContactPostBody {
     phone: string;
     designation: string;
     type: string;
-    organisation: number;
+    organisation?: number;
+    organisation_name?: string;
+    
 }
 
 export interface UsersGetResponse {
@@ -599,4 +607,13 @@ export interface UserPatchBody {
     reporting_to: number
     active: boolean;
     region: string
+}
+export interface ContactPatchBody {
+    name: string;
+    designation: string;
+    type: string;
+    std_code: string;
+    phone: string;
+    email: string;
+    organisation: number;
 }

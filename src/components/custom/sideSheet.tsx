@@ -5,13 +5,13 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Contact, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { Contact, ContactPostBody, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -26,7 +26,7 @@ import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from '
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
-import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { fetchUserDataList, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useToast } from '../ui/use-toast'
 
@@ -44,6 +44,20 @@ const FormSchema2 = z.object({
     }).email(),
     phone: z.string({
     }).min(10).max(10),
+    std_code: z.string({
+
+    }),
+    contactId: z.string().optional(),
+})
+const FormSchema2Mod = z.object({
+    name: z.string({
+    }).min(2).max(30),
+    designation: z.string({
+    }).transform((val) => val === undefined ? undefined : val.trim()),
+    type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
+    email: z.string({
+    }).email(),
+    phone: z.string().min(4).max(13),
     std_code: z.string({
 
     }),
@@ -125,12 +139,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         invalidErrors: 0,
         requiredErrors: 0
     })
+    const [userList, setUserList] = useState<IValueLabel[]>()
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
     const [isPromoteToProspectClicked, setPromoteToProspectClicked] = useState<boolean>(false)
     const [isPromoteToProspectErrors, setPromoteToProspectErrors] = useState<boolean>(false)
     const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
 
-    const [showContactForm, setShowContactForm] = useState(true)
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
     const [addDialogOpen, setAddDialogOpen] = useState(false)
     const [showErrors, setShowErrors] = useState<boolean>(false)
@@ -152,7 +166,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             regions: labelToValue(data.role?.region, REGIONS),
             sources: data.source || "",
             statuses: labelToValue(data.status, STATUSES),
-            owners: labelToValue(data.owner, OWNERS),
+            owners: undefined,
             role: labelToValue(data.role?.role_type, ROLETYPE),
             // set initially undefined due to bug with react hook form will be updated in useeffect
             budget: undefined,
@@ -197,13 +211,14 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         if (form.getValues("industry") === "vc_pe") {
             setIsVcIndustrySelected(true)
         }
-        form.setValue("reasons", data.reason || undefined,)
-        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]),)
-        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS),)
-        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY),)
-        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE),)
-        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT),)
-
+        form.setValue("reasons", data.reason || undefined)
+        form.setValue("budget", labelToValue(data.role?.budget_range, BUDGET_RANGE[labelToValue(data.role?.region, REGIONS) || ""]))
+        form.setValue("domain", labelToValue(data.organisation.domain || "", DOMAINS))
+        form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY))
+        form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE))
+        form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
+        form.setValue("owners", data.owner.id.toString())
+        getUserList()
         // form.unregister(["fixedBudgetUl"])
 
         // form.register("fixedBudgetUl", {
@@ -246,12 +261,11 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         const subscription = form.watch(() => {
             safeparse2()
             setShowErrors(false)
-            console.log("showErrors setter", false)
+            // console.log("showErrors setter", false)
         }
         )
         return () => subscription.unsubscribe()
     }, [form.watch])
-    console.log("showErrors", showErrors)
 
 
     // useEffect(()=>{
@@ -280,7 +294,12 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     function safeparse2() {
         const contacts = form.getValues("contacts")
-        const result = FormSchema2.safeParse(contacts)
+        let result
+        if (contacts?.std_code !== "+91") {
+            result = FormSchema2Mod.safeParse(contacts)
+        } else {
+            result = FormSchema2.safeParse(contacts)
+        }
         console.log("safe prase 2 ", result)
         if (result.success) {
             setContactFieldValid(true)
@@ -289,7 +308,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         }
     }
 
-    function addContact() {
+    async function addContact() {
         const finalData = form.getValues().contacts
         const ftype = TYPE.find((role) => role.value === finalData.type)?.label
         const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
@@ -297,9 +316,39 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             const list = [{ ...form.getValues().contacts, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
             return list
         })
-        // setShowContactForm(false)
-        setAddDialogOpen(false)
-        resetForm2()
+
+        delete finalData["contactId"]
+        const orgId = data.organisation.id
+        const dataToSend: ContactPostBody = {
+            ...finalData, type: ftype, designation: fDesignation, organisation:orgId
+        }
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+
+            if(result.status=="1"){
+                setAddDialogOpen(false)
+                resetForm2()
+                toast({
+                    title: "Contact Added Successfully!",
+                    variant: "dark"
+                })
+            }else{
+                toast({
+                    title: "Api Error!",
+                    variant: "destructive"
+                })
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+
+
+        console.log("finalData", dataToSend)
+        // setAddDialogOpen(false)
+        // resetForm2()
     }
 
     function yesDiscard(): void {
@@ -383,16 +432,16 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             service_fee_range: valueToLabel(form.getValues("serviceFeeRange") || "", SERVICE_FEE_RANGE),
             status: statusToSend,
             reason: reasonToSend,
-            // owner: valueToLabel(form.getValues("owners"), OWNERS)
+            owner: Number(form.getValues("owners"))
         }
         const orgData: Partial<PatchOrganisation> = {
             name: form.getValues("orgnaisationName"),
             industry: valueToLabel(form.getValues("industry") || "", INDUSTRY),
-            domain: valueToLabel(form.getValues("domain") || "", DOMAINS),
-            size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY),
-            last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE),
-            last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT),
-            segment: LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym
+            domain: valueToLabel(form.getValues("domain") || "", DOMAINS) || "",
+            size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY) || "",
+            last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE) || "",
+            last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT) || "",
+            segment: LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || ""
         }
         const region = valueToLabel(form.getValues("regions"), REGIONS)
         const roleDetailsData: Partial<PatchRoleDetails> = {
@@ -434,6 +483,16 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             // closeSideSheet()
         } catch (error) {
             console.error("Error fetching data:", error);
+        }
+
+    }
+
+    async function getUserList() {
+        try {
+            const userList: any = await fetchUserDataList()
+            setUserList(userList)
+        } catch (err) {
+            console.error("user fetch error", err)
         }
 
     }
@@ -544,12 +603,23 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             })
         }
         if (addDialogOpen) {
-            updatedSchema = updatedSchema.extend({
-                contacts: FormSchema2
-            })
+            const std_code = form.getValues("contacts.std_code")
+            if (std_code !== "+91") {
+                updatedSchema = updatedSchema.extend({
+                    contacts: FormSchema2Mod
+                })
+            } else {
+                updatedSchema = updatedSchema.extend({
+                    contacts: FormSchema2
+                })
+            }
+            console.log("status code watcher", updatedSchema)
         } else {
             updatedSchema = updatedSchema.omit({ contacts: true })
         }
+
+
+
         updatedSchema = updatedSchema.superRefine((data, ctx) => {
             const fixedBudgetUl = data.fixedBudgetUl;
             const fixedCtcBudget = data.fixedCtcBudget;
@@ -676,22 +746,31 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
 
     useEffect(() => {
-        let updatedSchema = formSchema
-        if (form.getValues("contacts.std_code") === "+91") {
-            formSchema.extend({
-                contacts: FormSchema2.extend({
-                    phone: z.string().min(10).max(10)
-                })
-            })
+        // let updatedSchema = formSchema
 
-        } else {
-            formSchema.extend({
-                contacts: FormSchema2.extend({
-                    phone: z.string().min(4).max(13)
-                })
-            })
+        // if (form.getValues("contacts.std_code") === "+91") {
+        //     formSchema.extend({
+        //         contacts: FormSchema2.extend({
+        //             phone: z.string().min(10).max(10)
+        //         })
+        //     })
+
+        // } else {
+        //     formSchema.extend({
+        //         contacts: FormSchema2.extend({
+        //             phone: z.string().min(4).max(13)
+        //         })
+        //     })
+        // }
+
+        // setFormSchema(updatedSchema)
+        if (watcher.contacts?.std_code?.length > 0) {
+            console.log("status code watcher")
+            const status = form.getValues("statuses")
+            updateFormSchemaOnStatusChange(status)
+            // safeparse2()
+            console.log("status code watcher", form.getFieldState("contacts"))
         }
-        setFormSchema(updatedSchema)
     }, [watcher.contacts?.std_code])
 
     // console.log("isPromoteToProspectClicked",isPromoteToProspectClicked)
@@ -704,6 +783,10 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
             form.trigger()
         } else {
             safeprs()
+        }
+
+        if (addDialogOpen) {
+            safeparse2()
         }
     }, [formSchema])
 
@@ -888,50 +971,75 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     />
 
                                 </div>
-                                <div className="px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ">
+                                <div className="pl-[6px] pr-[4px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="owners"
                                         render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div className='text-[#98A2B3]'>
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger>
-                                                                                <IconProfile size={24} />
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Owned By
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
+                                            <FormItem className='w-full cursor-pointer'>
+                                                <Popover>
+                                                    <PopoverTrigger asChild >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
+                                                            <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div>
+                                                                        <IconProfile size={24} />
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        Owned By
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                    {userList && userList.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
                                                                 </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select Owner" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            OWNERS.filter((owner) => owner.value !== 'allOwners').map((owner, index) => {
-                                                                return <SelectItem key={index} value={owner.value}>
-                                                                    {owner.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                        </div>
+
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Industry" />
+                                                            <CommandEmpty>Owner not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {userList && userList.map((owner) => (
+                                                                        <CommandItem
+                                                                            value={owner.value}
+                                                                            key={owner.value}
+                                                                            onSelect={() => {
+                                                                                form.setValue("owners", owner.value, SET_VALUE_CONFIG)
+                                                                            }}
+                                                                        >
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {owner.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === owner.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                                {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
+
                                             </FormItem>
                                         )}
                                     />
-
                                 </div>
                                 <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
                                     <TooltipProvider>
@@ -1424,7 +1532,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                 </div>
                                 <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                     <span>Account Details</span>
-                                    <div> <LabelIcon /> </div>
+                                    <div> {data.organisation.segment && <LabelIcon />} </div>
                                 </span>
                                 <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
                                     <TooltipProvider>
@@ -1519,7 +1627,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                             value={industry.value}
                                                                             key={industry.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("industry", industry.value, { shouldDirty: true, shouldValidate: true })
+                                                                                form.setValue("industry", industry.value, SET_VALUE_CONFIG)
                                                                                 checkVcIndutsry()
                                                                             }}
                                                                         >
@@ -1684,7 +1792,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                             value={lastFundingStage.value}
                                                                             key={lastFundingStage.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("lastFundingStage", lastFundingStage.value, { shouldDirty: true, shouldValidate: true })
+                                                                                form.setValue("lastFundingStage", lastFundingStage.value, SET_VALUE_CONFIG)
                                                                             }}
                                                                         >
                                                                             <PopoverClose asChild>
@@ -2022,7 +2130,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                     <span>Contact Details</span>
                                     <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
                                         <DialogTrigger>
-                                            <span className={`text-sm text-purple-700  ${showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} >
+                                            <span className={`text-sm text-purple-700   opacity-[1] cursor-pointer`} >
                                                 + Add
                                             </span>
                                         </DialogTrigger>
@@ -2075,7 +2183,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                         value={designation.value}
                                                                                                         key={designation.value}
                                                                                                         onSelect={() => {
-                                                                                                            form.setValue("contacts.designation", designation.value, { shouldDirty: true, shouldValidate: true })
+                                                                                                            form.setValue("contacts.designation", designation.value, SET_VALUE_CONFIG)
                                                                                                         }}
                                                                                                     >
                                                                                                         <PopoverClose asChild>
@@ -2166,7 +2274,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                         key={cc.label}
                                                                                                         onSelect={() => {
                                                                                                             changeStdCode(cc.value)
-                                                                                                            form.setValue("contacts.std_code", cc.value, { shouldDirty: true, shouldValidate: true })
+                                                                                                            form.setValue("contacts.std_code", cc.value, SET_VALUE_CONFIG)
                                                                                                         }}
                                                                                                     >
                                                                                                         <PopoverClose asChild>
@@ -2301,7 +2409,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                         </span>}
                                     </div>
                                 </div>}
-                                <Button disabled={rowState?.status ? (rowState?.status.toLowerCase() !== "verified" || form.getValues("statuses").toLowerCase() !== "verified") : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                <Button disabled={rowState?.status ? (rowState?.status?.toLowerCase() !== "verified" || form.getValues("statuses")?.toLowerCase() !== "verified") : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
                                     <span >Promote to Prospect</span> <IconArrowSquareRight size={20} />
                                 </Button>
                             </div>

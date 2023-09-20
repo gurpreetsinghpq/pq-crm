@@ -113,3 +113,9 @@ export async function fetchProfileDataList() {
 export function getLength(data:any){
   return data.length
 }
+export function getName(data:any) {
+  if(data){
+      return data.name
+  }
+  return "—"
+}

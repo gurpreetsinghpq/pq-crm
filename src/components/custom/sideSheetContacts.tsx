@@ -5,13 +5,13 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientCompleteInterface, ClientGetResponse, Contact, ContactsGetResponse, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientCompleteInterface, ClientGetResponse, Contact, ContactPatchBody, ContactsGetResponse, DeepPartial, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -22,12 +22,13 @@ import { DialogClose } from '@radix-ui/react-dialog'
 import { acronymFinder, guidGenerator } from './addLeadDetailedDialog'
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon, Phone } from 'lucide-react'
+import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon, Phone, Type } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
+import { toast } from '../ui/use-toast'
 
 
 const FormSchema = z.object({
@@ -70,12 +71,17 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
     const [organisationList, setOrganisationList] = useState<ClientCompleteInterface[]>()
     const { childData: { row }, setChildDataHandler } = parentData
+    const [rowState, setRowState] = useState<DeepPartial<ClientGetResponse>>()
 
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ContactsGetResponse = row.original
     useEffect(() => {
         console.log(data)
         fetchClientData()
+        setRowState((prevState)=>({
+            ...prevState,
+            name: data.name
+        }))
     }, [])
 
     function closeSideSheet() {
@@ -106,7 +112,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            organisationName: data.organisation.name,
+            organisationName: data.organisation.id.toString(),
             name: data.name,
             email: data.email,
             designation: labelToValue(data.designation, DESIGNATION),
@@ -123,6 +129,9 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
 
     useEffect(() => {
         safeparse2()
+        form.formState.isValid
+        form.formState.isDirty
+        // console.log("formstate isvalid", form.formState.isValid, "formstate isdirty", form.formState.isDirty)
 
     }, [watcher])
 
@@ -171,16 +180,40 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
 
     async function patchData() {
 
+        const contactId = data.id
 
-        const orgData: Partial<PatchOrganisation> = {
-            name: form.getValues("organisationName"),
-
+        const contactDetails: Partial<ContactPatchBody> = {
+            name: form.getValues("name"),
+            email: form.getValues("email"),
+            designation: valueToLabel(form.getValues("designation") || "", DESIGNATION) || "",
+            type: valueToLabel(form.getValues("type") || "", TYPE) || "",
+            phone: form.getValues("phone"),
+            std_code: form.getValues("std_code"),
+            organisation: Number(form.getValues("organisationName"))
         }
 
-        const apiPromises = [
-            // patchOrgData(orgId, orgData),
-            // patchContactData(contacts)
-        ]
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${contactId}/`, { method: "PATCH", body: JSON.stringify(contactDetails), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+            if (result.status == "1") {
+                toast({
+                    title: "Contact Details Updated Successfully!",
+                    variant: "dark"
+                })
+            } else {
+                toast({
+                    title: "Api failure!",
+                    variant: "destructive"
+                })
+            }
+
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+        // /v1/api/client/contact/
+
 
         // try {
         //     const results = await Promise.all(apiPromises);
@@ -298,12 +331,18 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
         // setFormSchema(updatedSchema)
     }
 
-    function addContact(): void {
-        throw new Error('Function not implemented.')
+    function updateContactName(): void {
+        setEditContactNameClicked(false)
+        setRowState((prevState)=>({
+            ...prevState,
+            name: form.getValues("name")
+        }))
+        // throw new Error('Function not implemented.')
+
     }
 
     function updateContact(): void {
-        throw new Error('Function not implemented.')
+        // throw new Error('Function not implemented.')
     }
 
     return (
@@ -322,7 +361,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                 <div className='sticky top-0 bg-white-900 z-50'>
                                     {!editContactNameClicked ? <div className='px-[24px] flex flex-row items-center justify-between'>
                                         <div className=' text-gray-900 text-xl font-semibold '>
-                                            {data.name}
+                                            {rowState?.name}
                                         </div>
                                         <div className='cursor-pointer' onClick={() => setEditContactNameClicked(true)}>
                                             <IconEdit2 size={24} />
@@ -346,7 +385,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                     <span className='text-gray-600 text-xs font-semibold' >Cancel</span>
                                                 </div>
 
-                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("name").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form.formState.isValid && addContact()}>
+                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("name").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => !form.getFieldState("name").error && updateContactName()}>
                                                     <IconTick size={20} />
                                                     <span className='text-gray-600 text-xs font-semibold' >Save</span>
                                                 </div>
@@ -431,7 +470,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                         <div className='max-h-[200px] overflow-y-auto'>
                                                             {
                                                                 organisationList && organisationList?.map((organisation, index) => {
-                                                                    return <SelectItem value={organisation.name} key={index}>
+                                                                    return <SelectItem value={organisation.id.toString()} key={index}>
                                                                         {organisation.name}
                                                                     </SelectItem>
                                                                 })
@@ -494,7 +533,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                                                     value={designation.value}
                                                                                     key={designation.value}
                                                                                     onSelect={() => {
-                                                                                        form.setValue("designation", designation.value)
+                                                                                        form.setValue("designation", designation.value, SET_VALUE_CONFIG)
                                                                                     }}
                                                                                 >
                                                                                     <PopoverClose asChild>
@@ -643,7 +682,11 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                     </span>
                                 </div>} */}
                                 <div className='flex flex-row flex-1 justify-end '>
-                                    <Button variant="default" type="submit" >Save</Button>
+                                    <Button variant="default" type="submit"
+                                        disabled={!form.formState.isDirty || !form.formState.isValid}
+                                    >
+                                        Save
+                                    </Button>
 
                                 </div>
                             </div>

@@ -125,6 +125,7 @@ export default function DataTable<TData, TValue>({
     return row.id
   }, [])
 
+  
   const table = useReactTable({
     data,
     columns,
@@ -140,6 +141,14 @@ export default function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
     },
+    // initialState:{
+    //   sorting: [
+    //     {
+    //       id: 'created_at',
+    //       desc:true
+    //     }
+    //   ]
+    // },
     getRowId,
   })
 

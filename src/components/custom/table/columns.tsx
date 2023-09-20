@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+import { getName } from "../commonFunctions"
 
 
 
@@ -154,7 +155,7 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ row.getValue("owner")}</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("owner")) || "—"}</div>,
         filterFn: (row, id, value) => {
             return value.includes(row.getValue(id))
         },
@@ -187,6 +188,7 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
                 </div>
             )
         },
+        // sortDescFirst:true,
         cell: ({ row }) => <div className=" font-normal">
             {multiLine(row.getValue("created_at"))}
 
@@ -214,6 +216,8 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
         sortingFn: (a,b)=>{
             return +new Date(b. getValue("created_at")) - +new Date(a.getValue("created_at"));
         },
+        
+        
     },
     {
         id: "actions",

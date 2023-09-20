@@ -22,7 +22,7 @@ import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon, Search } from "lucide-react"
+import { Check, ChevronDownIcon, Loader2, Search } from "lucide-react"
 import { FieldValues, UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -44,6 +44,7 @@ import { columns } from "./table/columns"
 import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { Toaster } from "../ui/toaster"
+import { fetchUserDataList } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -73,12 +74,13 @@ const Leads = ({ form }: {
     const [data, setLeadData] = React.useState<LeadInterface[]>([])
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
+    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
     const [isInbox, setIsInbox] = React.useState<boolean>(true)
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
     const [tableLeadLength, setTableLength] = React.useState<any>()
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
-
+    const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [childData, setChildData] = React.useState<IChildData>()
 
 
@@ -161,6 +163,20 @@ const Leads = ({ form }: {
             setIsNetworkError(true)
             console.log("error", err)
         }
+        getUserList()
+    }
+
+    async function getUserList() {
+        setIsUserDataLoading(true)
+        try {
+            const userList: any = await fetchUserDataList()
+            setIsUserDataLoading(false)
+            setUserList(userList)
+        } catch (err) {
+            setIsUserDataLoading(false)
+            console.error("user fetch error", err)
+        }
+
     }
 
     React.useEffect(() => {
@@ -550,48 +566,50 @@ const Leads = ({ form }: {
                                                                     {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                                    {formatData(field.value, 'Owners', owners)}
+                                                                    {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Owners', [{ value: "allOwners", label: "All Owners" }, ...userList])}
                                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[200px] p-0">
+                                                        <PopoverContent className="w-[230px] p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Owner" />
                                                                 <CommandEmpty>No Owner found.</CommandEmpty>
                                                                 <CommandGroup>
-                                                                    {owners.map((owner) => (
-                                                                        <CommandItem
-                                                                            value={owner.label}
-                                                                            key={owner.value}
-                                                                            onSelect={() => {
-                                                                                if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
-                                                                                    form.setValue("owners", [...field.value.filter((value: string) => value !== 'allOwners'), owner.value])
-                                                                                }
-                                                                                else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value == 'allOwners')) {
-                                                                                    form.setValue("owners", ["allOwners"])
+                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                        {userList && [{ value: "allOwners", label: "All Owners" }, ...userList].map((owner) => (
+                                                                            <CommandItem
+                                                                                value={owner.label}
+                                                                                key={owner.value}
+                                                                                onSelect={() => {
+                                                                                    if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
+                                                                                        form.setValue("owners", [...field.value.filter((value: string) => value !== 'allOwners'), owner.value])
+                                                                                    }
+                                                                                    else if ((field.value?.length === 1 && field.value?.includes(owner.value) || owner.value == 'allOwners')) {
+                                                                                        form.setValue("owners", ["allOwners"])
 
-                                                                                }
-                                                                                else if (field.value?.includes(owner.value)) {
-                                                                                    form.setValue("owners", field.value?.filter((val: string) => val !== owner.value))
-                                                                                } else {
-                                                                                    form.setValue("owners", [...field.value, owner.value])
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {owner.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value?.includes(owner.value)
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
-                                                                        </CommandItem>
-                                                                    ))}
+                                                                                    }
+                                                                                    else if (field.value?.includes(owner.value)) {
+                                                                                        form.setValue("owners", field.value?.filter((val: string) => val !== owner.value))
+                                                                                    } else {
+                                                                                        form.setValue("owners", [...field.value, owner.value])
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {owner.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value?.includes(owner.value)
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                    </div>
                                                                 </CommandGroup>
                                                             </Command>
                                                         </PopoverContent>
@@ -698,9 +716,12 @@ const Leads = ({ form }: {
 }
 
 export function getToken() {
-    const userFromLocalstorage: User | undefined = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "") : ""
-    const token = userFromLocalstorage?.token
-    return token
+    if (typeof window !== 'undefined') {
+        const userFromLocalstorage: User | undefined = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "") : ""
+        const token = userFromLocalstorage?.token
+        return token
+    }
+    
 }
 
 function filterInboxOrArchive(data: LeadInterface[], isInbox: boolean) {

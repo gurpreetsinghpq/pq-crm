@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+import { getName } from "../commonFunctions"
 
 
 
@@ -345,10 +346,4 @@ function formatUtcDateToLocal(backendUtcDate: any) {
 }
 function capitalizeFirstLetters(inputString: string) {
     return inputString.replace(/\b\w/g, char => char.toUpperCase());
-}
-function getName(data:any) {
-    if(data){
-        return data.name
-    }
-    return "—"
 }

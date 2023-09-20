@@ -27,6 +27,7 @@ import { formatData, getToken } from './leads'
 import Link from 'next/link'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { preFilledClasses } from '@/app/constants/classes'
+import { valueToLabel } from './sideSheet'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -84,7 +85,9 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
     const [formSchema2, setFormSchema2] = useState(FormSchema2)
     const { toast } = useToast()
-
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    const token_superuser = getToken()
+    
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -153,26 +156,25 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
     }
 
     async function createContact() {
-        const formData = form.getValues()
-
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-        const token_superuser = getToken()
-        const orgId = details?.id
-
-        if (orgId) {
-            const dataToSend: ContactPostBody = {
-                name: form2.getValues("name"),
-                designation: form2.getValues("designation"),
-                email: form2.getValues("email"),
-                organisation: details?.id,
-                phone: form2.getValues("phone"),
-                std_code: form2.getValues("std_code"),
-                type: form2.getValues("type")
-            }
-            try {
-                const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-                const result = await dataResp.json()
-                console.log(result)
+        
+        const dataToSend: ContactPostBody = {
+            name: form2.getValues("name"),
+            designation: valueToLabel(form2.getValues("designation"), DESIGNATION) || "",
+            email: form2.getValues("email"),
+            phone: form2.getValues("phone"),
+            std_code: form2.getValues("std_code"),
+            type: valueToLabel(form2.getValues("type"), TYPE) || ""
+        }
+        if (details?.id) {
+            dataToSend["organisation"] = details?.id
+        } else {
+            dataToSend["organisation_name"] = form.getValues("organisationName")
+        }
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+            if(result.status=="1"){
                 dataFromChild()
                 form.reset()
                 resetForm2()
@@ -180,11 +182,17 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                     title: "Contact Created Successfully!",
                     variant: "dark"
                 })
-
-            } catch (err) {
-                console.log(err)
+            }else{
+                toast({
+                    title: "Api Error!",
+                    variant: "destructive"
+                })
             }
+
+        } catch (err) {
+            console.log(err)
         }
+
     }
 
     function specificValueFinder(lookupValue: string, array: any[]): IValueLabel {
@@ -479,7 +487,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                 </Dialog>
                 {/* </DialogClose> */}
                 <Button
-                    // disabled={!(form.formState.isValid && form2.formState.isValid)}
+                    disabled={!(form.formState.isValid && form2.formState.isValid)}
                     onClick={() => createContact()}>Save & Add</Button>
             </div>
 

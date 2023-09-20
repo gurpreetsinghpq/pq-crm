@@ -167,7 +167,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
             regions: labelToValue(data.lead.role?.region, REGIONS),
             sources: data.lead.source || "",
             statuses: labelToValue(data.status, PROSPECT_STATUSES),
-            owners: labelToValue(data.owner, OWNERS),
+            owners: labelToValue(data.owner.id.toString(), OWNERS),
             role: labelToValue(data.lead.role?.role_type, ROLETYPE),
             budget: labelToValue(data.lead.role?.budget_range, BUDGET_RANGE[labelToValue(data.lead.role?.region, REGIONS) || ""]),
             locations: data.lead.role.location ? data.lead.role.location : undefined,

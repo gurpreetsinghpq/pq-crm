@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { Check, ChevronDown } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
-import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, TYPE } from '@/app/constants/constants'
+import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, SET_VALUE_CONFIG, TYPE } from '@/app/constants/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { commonClasses, commonClasses2, commonFontClassesAddDialog } from '@/app/constants/classes'
 import { Separator } from '../ui/separator'
@@ -22,7 +22,7 @@ import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
 import { IValueLabel, UserPatchBody, UserPostBody, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue, valueToLabel } from './sideSheet'
-import { IconPower, IconUserDeactive } from '../icons/svgIcons'
+import { IconPower, IconUserActive, IconUserDeactive } from '../icons/svgIcons'
 import { getToken } from './leads'
 import { toast } from '../ui/use-toast'
 
@@ -44,10 +44,10 @@ const FormSchema = z.object({
     }).min(1),
     region: z.string({
 
-    }).min(1),
+    }).min(1).transform((val) => val === undefined ? undefined : val.trim()),
     function: z.string({
 
-    }).min(1),
+    }).min(1).transform((val) => val === undefined ? undefined : val.trim()),
     reportingTo: z.string({
 
     }).min(1),
@@ -63,7 +63,6 @@ const FormSchema = z.object({
 
 function AddUserDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
-    const [data, setData] = useState()
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [teamList, setTeamList] = useState<IValueLabel[]>()
     const [profileList, setProfileList] = useState<IValueLabel[]>()
@@ -84,7 +83,8 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
     })
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
-    
+    const data: UsersGetResponse = parentData?.childData.row.original
+
 
 
 
@@ -107,36 +107,36 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
     function yesDiscard() {
         setOpen(false)
         form.reset()
-        
+
         parentData?.setChildDataHandler('row', undefined)
     }
 
-    async function addUser(isUpdate:boolean=false) {
-        const dataToSend:UserPostBody = {
+    async function addUser(isUpdate: boolean = false) {
+        const dataToSend: UserPostBody = {
             first_name: form.getValues("firstName") || "",
             last_name: form.getValues("lastName") || "",
             email: form.getValues("email") || "",
-            function: valueToLabel(form.getValues("function"), FUNCTION) || "",
+            function: valueToLabel(form.getValues("function") || "", FUNCTION) || "",
             // mobile: `${form.getValues("std_code")} ${form.getValues("phone")}` ,
-            mobile: `${form.getValues("phone")}` ,
+            mobile: `${form.getValues("phone")}`,
             password: "12345678",
             profile: Number(form.getValues("profile")),
             reporting_to: Number(form.getValues("reportingTo")),
-            region: valueToLabel(form.getValues("region"), REGION) || ""
+            region: valueToLabel(form.getValues("region") || "", REGION) || ""
         }
-        const dataToSendOnUpdate:Partial<UserPatchBody> = {
+        const dataToSendOnUpdate: Partial<UserPatchBody> = {
             first_name: form.getValues("firstName") || "",
             last_name: form.getValues("lastName") || "",
             email: form.getValues("email") || "",
-            function: valueToLabel(form.getValues("function"), FUNCTION) || "",
+            function: valueToLabel(form.getValues("function") || "", FUNCTION) || "",
             // mobile: `${form.getValues("std_code")} ${form.getValues("phone")}` ,
-            mobile: `${form.getValues("phone")}` ,
+            mobile: `${form.getValues("phone")}`,
             profile: Number(form.getValues("profile")),
             reporting_to: Number(form.getValues("reportingTo")),
-            region: valueToLabel(form.getValues("region"), REGION) || ""
+            region: valueToLabel(form.getValues("region") || "", REGION) || ""
         }
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/users/${isUpdate ? `${parentData?.childData.row.original.id}/` : ""}`, { method: isUpdate ? "PATCH" : "POST", body: JSON.stringify(isUpdate? dataToSendOnUpdate : dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/users/${isUpdate ? `${parentData?.childData.row.original.id}/` : ""}`, { method: isUpdate ? "PATCH" : "POST", body: JSON.stringify(isUpdate ? dataToSendOnUpdate : dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
 
             const result = await dataResp.json()
             if (result.status == "1") {
@@ -166,7 +166,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
         } catch (err) {
             console.error("user fetch error", err)
         }
-        
+
     }
 
     async function getTeamList() {
@@ -191,7 +191,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
         getUserList()
         getTeamList()
         getProfileList()
-        
+
     }, [])
 
     useEffect(() => {
@@ -204,11 +204,10 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
             form.setValue("email", data.email)
             form.setValue("phone", data.mobile)
             // form.setValue("std_code", data.)
-            form.setValue("reportingTo", data.reporting_to.id.toString())
-            form.setValue("region", data.region || "")
+            form.setValue("reportingTo", data?.reporting_to?.id?.toString())
             form.setValue("profile", data.profile.id.toString())
-            form.setValue("function", labelToValue(data.function, ALL_FUNCTIONS) || "")
-            form.setValue("region", labelToValue(data.region || "", REGION) || "")
+            form.setValue("function", labelToValue(data.function, ALL_FUNCTIONS) || undefined)
+            form.setValue("region", labelToValue(data.region || "", REGION) || undefined)
             console.log("function", labelToValue(data.function, ALL_FUNCTIONS))
         } else {
             setOpen(false)
@@ -219,12 +218,52 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
         throw new Error('Function not implemented.')
     }
 
-    const watcher = form.watch()
+
     useEffect(() => {
         // console.log(form.getValues())
         // console.log(allTimezones.find((val) => console.log(val.value, form.getValues("timeZone")))?.label)
+        const subscription = form.watch(() => {
+            form.getValues()
+            console.log(form.formState.isValid, form.formState.isDirty)
+        })
+        return () => subscription.unsubscribe()
+    }, [form.watch])
 
-    }, [watcher])
+
+    async function patchDeactivateUserData() {
+        const ids = [parentData?.childData.row.original.id]
+        const isActive = !parentData?.childData.row.original.is_active
+        const url = `${baseUrl}/v1/api/users/bulk_active/`;
+
+        try {
+            const dataResp = await fetch(url, {
+                method: "PATCH",
+                body: JSON.stringify({ users: ids, active: isActive }),
+                headers: {
+                    "Authorization": `Token ${token_superuser}`,
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                }
+            });
+
+            const result = await dataResp.json();
+
+            if (result.message === "success") {
+                yesDiscard()
+                toast({
+                    title: `${ids.length} ${ids.length > 1 ? "Users" : "User"} ${isActive ? "Activated" : "Deactivated"} Succesfully!`,
+                    variant: "dark"
+                })
+                return result;
+            } else {
+                throw new Error("Failed to patch lead data");
+            }
+        } catch (err) {
+            console.error("Error during patching:", err);
+            throw err;
+        }
+    }
+
 
     return (
         <div>
@@ -246,10 +285,19 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit User" : "Add User"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600'>
-                                        <IconUserDeactive size={20} color={ "white"}/>
-                                        Deactivate User
-                                        </Button>
+                                    <Button onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
+                                        {
+                                            data.is_active ? <>
+                                                <IconUserDeactive size={20} color={"white"} />
+                                                Deactivate User
+                                            </> :
+                                                <>
+                                                    <IconUserActive size={20} color={"white"} />
+                                                    Activate User
+                                                </>
+                                        }
+
+                                    </Button>
                                     // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
                                     //     <IconPower size={20} />
                                     //     Deactivate User
@@ -326,7 +374,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                                                         onSelect={() => {
                                                                                             console.log("std_code", cc.value)
                                                                                             changeStdCode(cc.value)
-                                                                                            form.setValue("std_code", cc.value)
+                                                                                            form.setValue("std_code", cc.value, SET_VALUE_CONFIG)
                                                                                         }}
                                                                                     >
                                                                                         <PopoverClose asChild>
@@ -394,7 +442,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                                                 value={reportingManager.value}
                                                                                 key={reportingManager.value}
                                                                                 onSelect={() => {
-                                                                                    form.setValue("reportingTo", reportingManager.value)
+                                                                                    form.setValue("reportingTo", reportingManager.value, SET_VALUE_CONFIG)
                                                                                 }}
                                                                             >
                                                                                 <PopoverClose asChild>
@@ -578,7 +626,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                             parentData?.open ?
                                                 <div className='flex flex-row gap-2 w-full justify-end'>
                                                     {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid} onClick={() => addUser(true)}>
+                                                    <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty} onClick={() => addUser(true)}>
                                                         Update
                                                     </Button>
                                                 </div> :

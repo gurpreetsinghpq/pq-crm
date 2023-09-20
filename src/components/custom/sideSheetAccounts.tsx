@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientGetResponse, Contact, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientGetResponse, Contact, ContactPostBody, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -77,7 +77,7 @@ const FormSchema = z.object({
     billingAddress: z.string().optional(),
     gstinVatGstNo: z.string().optional(),
     contacts: z.string().optional(),
-    segment: z.string()
+    segment: z.string().optional()
 })
 
 
@@ -101,10 +101,9 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         invalidErrors: 0,
         requiredErrors: 0
     })
-    const [rowState, setRowState] = useState<DeepPartial<ClientGetResponse[]>>()
+    const [rowState, setRowState] = useState<DeepPartial<ClientGetResponse>>()
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
     const [editAccountNameClicked, setEditAccountNameClicked] = useState<boolean>(false);
-    const [showContactForm, setShowContactForm] = useState(true)
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
     const [addDialogOpen, setAddDialogOpen] = useState(false)
     const [budgetKey, setBudgetKey] = React.useState<number>(+new Date())
@@ -116,7 +115,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ClientGetResponse = row.original
 
-    
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -133,7 +132,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
 
 
     useEffect(() => {
-        console.log(data)
+        console.log("sidesheetaccounts", data)
         setDummyContactData(data.contacts)
         form.setValue("domain", labelToValue(data.domain || "", DOMAINS))
         form.setValue("size", labelToValue(data.size || "", SIZE_OF_COMPANY))
@@ -144,8 +143,11 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         form.setValue("registeredName", data.registered_name || "")
         form.setValue("gstinVatGstNo", data.govt_id || "")
         checkVcIndutsry()
+        setRowState({
+            name: data.name
+        })
     }, [])
-    
+
     useEffect(() => {
         let updatedSchema
         if (addDialogOpen) {
@@ -171,6 +173,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
             form.setValue("lastFundingAmount", undefined)
             form.setValue("domain", undefined)
             form.setValue("size", undefined)
+            form.setValue("segment", undefined)
         } else {
             setIsVcIndustrySelected(false)
         }
@@ -233,7 +236,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     }
 
 
-    
+
     const watcher = form.watch()
 
     useEffect(() => {
@@ -253,7 +256,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         { label: "Replacement", value: "replacement" }
     ];
 
-    
+
 
 
     function safeparse2() {
@@ -266,19 +269,6 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
             console.log("safe prase 2 ", result.error.errors)
             setContactFieldValid(false)
         }
-    }
-
-    function addContact() {
-        const finalData = form.getValues().contacts
-        const ftype = TYPE.find((role) => role.value === finalData.type)?.label
-        const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
-        setDummyContactData((prevValues: any) => {
-            const list = [{ ...form.getValues().contacts, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
-            return list
-        })
-        // setShowContactForm(false)
-        setAddDialogOpen(false)
-        resetForm2()
     }
 
     function yesDiscard(): void {
@@ -373,17 +363,19 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         const orgData: Partial<PatchOrganisation> = {
             name: form.getValues("organisationName"),
             industry: valueToLabel(form.getValues("industry") || "", INDUSTRY),
-            domain: valueToLabel(form.getValues("domain") || "", DOMAINS),
-            size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY),
-            last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE),
-            last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT),
-            segment: valueToLabel(form.getValues("segment") || "", SEGMENT) || LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym,
+            domain: valueToLabel(form.getValues("domain") || "", DOMAINS) || "",
+            size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY) || "",
+            last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE) || "",
+            last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT) || "",
+            segment: valueToLabel(form.getValues("segment") || "", SEGMENT) || LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || "",
             billing_address: form.getValues("billingAddress") || "",
             shipping_address: form.getValues("shippingAddress") || "",
             govt_id: form.getValues("gstinVatGstNo") || "",
             registered_name: form.getValues("registeredName") || ""
 
         }
+
+        console.log("datatosend", orgData)
 
 
         const contactToSend: Contact[] = finalContactData.map((val) => {
@@ -528,8 +520,104 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         setEditAccountNameClicked(false)
     }
 
-    function updateAccountName(){
-        setEditAccountNameClicked(false)
+    async function updateAccountName() {
+        // /v1/api/client/2/org_name/
+        const orgName = form.getValues("organisationName")
+        const orgId = data.id
+        const dataToSend = {
+            name: orgName
+        }
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/org_name/`, { method: "PATCH", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+            if (result.status == "1") {
+                toast({
+                    title: "Account Name Updated Successfully!",
+                    variant: "dark"
+                })
+                setRowState((prevState) => {
+                    return {
+                        ...prevState,
+                        name: orgName
+                    }
+                })
+                setEditAccountNameClicked(false)
+            } else {
+                if (result?.error?.message.includes("No change in Name detected")) {
+                    toast({
+                        title: "No Change in Name Detected!",
+                        variant: "destructive"
+                    })
+
+                } else {
+                    toast({
+                        title: "Api failure!",
+                        variant: "destructive"
+                    })
+                }
+            }
+            // if (result.status == "1") {
+            //     const { data: { segment } } = result
+            //     console.log(data)
+            //     setRowState((prevState) => {
+            //         return {
+            //             ...prevState,
+            //             organisation: {
+            //                 ...prevState?.organisation,
+            //                 segment: segment
+            //             }
+            //         }
+            //     })
+            // }
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+
+    }
+
+    async function addContact() {
+        const finalData = form.getValues().contacts
+        const ftype = TYPE.find((role) => role.value === finalData.type)?.label
+        const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
+        setDummyContactData((prevValues: any) => {
+            const list = [{ ...form.getValues().contacts, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
+            return list
+        })
+
+        delete finalData["contactId"]
+        const orgId = data.id
+        const dataToSend: ContactPostBody = {
+            ...finalData, type: ftype, designation: fDesignation, organisation:orgId
+        }
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+
+            if(result.status=="1"){
+                setAddDialogOpen(false)
+                resetForm2()
+                toast({
+                    title: "Contact Added Successfully!",
+                    variant: "dark"
+                })
+            }else{
+                toast({
+                    title: "Api Error!",
+                    variant: "destructive"
+                })
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+
+
+        console.log("finalData", dataToSend)
+        // setAddDialogOpen(false)
+        // resetForm2()
     }
 
     return (
@@ -548,7 +636,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                 <div className='sticky top-0 bg-white-900 z-50'>
                                     {!editAccountNameClicked ? <div className='px-[24px] flex flex-row items-center justify-between'>
                                         <div className=' text-gray-900 text-xl font-semibold '>
-                                            {data.name}
+                                            {rowState?.name}
                                         </div>
                                         <div className='cursor-pointer' onClick={() => setEditAccountNameClicked(true)}>
                                             <IconEdit2 size={24} />
@@ -572,14 +660,14 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                     <span className='text-gray-600 text-xs font-semibold' >Cancel</span>
                                                 </div>
 
-                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("organisationName").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => form.formState.isValid && updateAccountName()}>
+                                                <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] ${!form.getFieldState("organisationName").error ? 'cursor-pointer opacity-[1]' : 'cursor-not-allowed opacity-[0.3]'}`} onClick={() => !form.getFieldState("organisationName").error && updateAccountName()}>
                                                     <IconTick size={20} />
                                                     <span className='text-gray-600 text-xs font-semibold'>Save</span>
                                                 </div>
                                             </div>
                                         </>
                                     }
-                                    <div className="px-[16px] mt-[24px] text-md font-medium w-full flex flex-row ">
+                                    {!isVcIndustrySelected && <div className="px-[16px] mt-[24px] text-md font-medium w-full flex flex-row ">
                                         <FormField
                                             control={form.control}
                                             name="segment"
@@ -614,7 +702,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                             )}
                                         />
 
-                                    </div>
+                                    </div>}
                                 </div>
 
                                 <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
@@ -719,7 +807,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                     />
                                 </div>
                                 <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                <FormField
+                                    <FormField
                                         control={form.control}
                                         name="domain"
                                         render={({ field }) => (
@@ -766,7 +854,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                     />
                                 </div>
                                 <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                <FormField
+                                    <FormField
                                         control={form.control}
                                         name="size"
                                         render={({ field }) => (
@@ -813,7 +901,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                     />
                                 </div>
                                 <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                <FormField
+                                    <FormField
                                         control={form.control}
                                         name="lastFundingStage"
                                         render={({ field }) => (
@@ -835,7 +923,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                             </TooltipProvider>
                                                             <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={ isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
                                                                 </div>
                                                                 <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
@@ -882,7 +970,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                     />
                                 </div>
                                 <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                <FormField
+                                    <FormField
                                         control={form.control}
                                         name="lastFundingAmount"
                                         render={({ field }) => (
@@ -1021,7 +1109,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                     <span>Contact Details</span>
                                     <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
                                         <DialogTrigger>
-                                            <span className={`text-sm text-purple-700  ${showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} >
+                                            <span className={`text-sm text-purple-700 opacity-[1] cursor-pointer`} >
                                                 + Add
                                             </span>
                                         </DialogTrigger>
@@ -1302,7 +1390,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                     title: "Account Details Updated Successfully!",
                     variant: "dark"
                 })
-            }else{
+            } else {
                 toast({
                     title: "Api failure!",
                     variant: "destructive"

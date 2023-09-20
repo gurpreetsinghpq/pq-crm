@@ -62,6 +62,7 @@ export interface IChildData {
     row: any
 }
 
+let dataFromApi: UsersGetResponse[] = []
 
 function Users({ form }: {
     form: UseFormReturn<{
@@ -146,8 +147,9 @@ function Users({ form }: {
             const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: UsersGetResponse[] = structuredClone(result.data)
-            let dataFromApi = data
-            setUserData(dataFromApi)
+            dataFromApi = data
+            const filteredData = noArchiveFilter ? dataFromApi : filterActivateOrDeactivate(dataFromApi, isActivated)
+            setUserData(filteredData)
             setIsLoading(false)
             // if (filteredData.length == 0) {
             //     setTableLength(0)
@@ -194,14 +196,16 @@ function Users({ form }: {
     }
 
 
-    async function patchArchiveLeadData(ids: number[]) {
+    async function patchDeactivateUserData(ids: number[]) {
 
-        const url = `${baseUrl}/v1/api/lead/bulk_archive/`;
+        const url = `${baseUrl}/v1/api/users/bulk_active/`;
+
+        const isActive = !isActivated
 
         try {
             const dataResp = await fetch(url, {
                 method: "PATCH",
-                body: JSON.stringify({ leads: ids, archive: isActivated }),
+                body: JSON.stringify({ users: ids, active: isActive }),
                 headers: {
                     "Authorization": `Token ${token_superuser}`,
                     "Accept": "application/json",
@@ -212,16 +216,20 @@ function Users({ form }: {
             const result = await dataResp.json();
 
             if (result.message === "success") {
-                return result; // Return the result or any data you need
+                fetchUserData()
+                toast({
+                    title: `${ids.length} ${ids.length > 1 ? "Users" : "User"} ${!isActivated ? "Activated" : "Deactivated"} Succesfully!`,
+                    variant: "dark"
+                })
+                return result;
             } else {
-                throw new Error("Failed to patch lead data"); // Throw an error for non-success responses
+                throw new Error("Failed to patch user data");
             }
         } catch (err) {
             console.error("Error during patching:", err);
-            throw err; // Re-throw the error to be caught by Promise.all
+            throw err;
         }
     }
-
     function archiveApi() {
         console.log(selectedRowIds)
         if (!selectedRowIds) {
@@ -230,7 +238,7 @@ function Users({ form }: {
             return;
         }
 
-        const promisePatch = patchArchiveLeadData(selectedRowIds)
+        const promisePatch = patchDeactivateUserData(selectedRowIds)
 
         promisePatch
             .then((resp) => {
@@ -245,6 +253,10 @@ function Users({ form }: {
 
             });
     }
+
+    React.useEffect(() => {
+        setUserData(filterActivateOrDeactivate(dataFromApi, isActivated))
+    }, [isActivated])
 
     const addUserDialogButton = () => <AddUserDialogBox>
         <Button className="flex flex-row gap-2" type="button">
@@ -333,9 +345,15 @@ function Users({ form }: {
                             {isMultiSelectOn && !form.getValues("queryParamString") ? <div className="multi-selected flex flex-row gap-2">
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant={"google"} className="flex flex-row gap-2" type="button" >
-                                            <IconArchive size={20} color="#344054" />
-                                            {isActivated ? "Deactivate" : "Activate"}
+                                        <Button variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${isActivated ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `} type="button">
+                                            {isActivated ? <>
+                                                <IconUserDeactive size={20} color={"white"} />
+                                                Deactivate
+                                            </> :
+                                            <>
+                                                <IconUserActive size={20} color={"white"} />
+                                                Activate
+                                            </>}
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
@@ -610,6 +628,10 @@ function Users({ form }: {
             {childData?.row && <AddUserDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}
         </>
     )
+}
+
+function filterActivateOrDeactivate(data: UsersGetResponse[], isActivated: boolean) {
+    return data.filter((val) => val.is_active === isActivated)
 }
 
 export default Users

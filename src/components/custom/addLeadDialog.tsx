@@ -86,8 +86,10 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
     }
 
     useEffect(() => {
-        fetchClientData()
-    }, [])
+        if(open){
+            fetchClientData()
+        }
+    }, [open])
 
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
