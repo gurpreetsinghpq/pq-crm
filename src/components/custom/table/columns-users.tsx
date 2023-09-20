@@ -170,6 +170,7 @@ export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<Us
         },
         cell: ({ row }) =>  {return <div className="text-gray-600 text-sm font-normal">{` ${row.getValue("region") ? row.getValue("region") : "—" }` || "—"}</div>},
         filterFn: (row, id, value) => {
+            console.log("region filter users", row.getValue(id), value)
             return value.includes(row.getValue(id))
         },
     },
@@ -207,12 +208,13 @@ export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<Us
             )
         }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("profile")) || "—" }</div>,
         filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+            const rowData:any = row.getValue(id)
+            return value.includes(rowData?.id?.toString())
         },
     },
     {
         accessorKey: "created_by",
-        accessorFn: (originalRow, index) => originalRow.profile,
+        accessorFn: (originalRow, index) => originalRow.created_by,
         header: ({ column }) => {
             return (
                 <div

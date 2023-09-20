@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+import { getName } from "../commonFunctions"
 
 
 
@@ -188,20 +189,18 @@ export function columnsContacts(setChildDataHandler:CallableFunction): ColumnDef
     },
     {
         accessorKey: "created_by",
-        accessorFn: (originalRow, index) => originalRow.created_by,
         header: ({ column }) => {
             return (
                 <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
                     Created By
-                    {/* <IconArrowDown size={20} /> */}
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by") || "—"}</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("created_by")) || "—"}</div>,
         filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+            const rowData:any = row.getValue(id)
+            return value.includes(rowData?.id?.toString())
         },
     },
     {

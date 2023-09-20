@@ -119,3 +119,10 @@ export function getName(data:any) {
   }
   return "—"
 }
+
+export function getFullName(data:any) {
+  if(data){
+      return `${data.first_name} ${data.last_name}`
+  }
+  return "—"
+}

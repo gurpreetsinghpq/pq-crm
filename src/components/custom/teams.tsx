@@ -22,7 +22,7 @@ import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon, Search } from "lucide-react"
+import { Check, ChevronDownIcon, Loader2, Search } from "lucide-react"
 import { UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -51,6 +51,7 @@ import { columnsUsers } from "./table/columns-users"
 import { formatData, getToken } from "./leads"
 import { columnsTeams } from "./table/columns-teams"
 import AddTeamDialogBox from "./addTeamDialogBox"
+import { fetchUserDataList } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -87,6 +88,8 @@ function Teams({ form }: {
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
 
     const [childData, setChildData] = React.useState<IChildData>()
+    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
+    const [userList, setUserList] = React.useState<IValueLabel[]>()
 
 
 
@@ -157,6 +160,19 @@ function Teams({ form }: {
             setIsNetworkError(true)
             console.log("error", err)
         }
+        getUserList()
+    }
+    async function getUserList() {
+        setIsUserDataLoading(true)
+        try {
+            const userList: any = await fetchUserDataList()
+            setIsUserDataLoading(false)
+            setUserList(userList)
+        } catch (err) {
+            setIsUserDataLoading(false)
+            console.error("user fetch error", err)
+        }
+
     }
 
     React.useEffect(() => {
@@ -354,7 +370,10 @@ function Teams({ form }: {
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex flex-row gap-2">
-                                                                    {formatData(field.value, 'Team Leaders', ALL_TEAM_LEADERS)}
+                                                                    {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                                    {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Team Leaders', [{ value: "allTeamLeaders", label: "All Team Leaders" }, ...userList])}
                                                                     <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
@@ -363,39 +382,41 @@ function Teams({ form }: {
                                                             <Command>
                                                                 <CommandInput placeholder="Search Team Leader" />
                                                                 <CommandEmpty>No Team Leader found.</CommandEmpty>
-                                                                <CommandGroup className="flex flex-col h-[250px] overflow-y-scroll">
-                                                                    {ALL_TEAM_LEADERS.map((func) => (
-                                                                        <CommandItem
-                                                                            value={func.label}
-                                                                            key={func.value}
-                                                                            onSelect={() => {
-                                                                                if (field.value.length > 0 && field.value.includes("allTeamLeaders") && func.value !== 'allTeamLeaders') {
-                                                                                    form.setValue("teamLeaders", [...field.value.filter((value) => value !== 'allTeamLeaders'), func.value])
-                                                                                }
-                                                                                else if ((field.value?.length === 1 && field.value?.includes(func.value) || func.value == 'allTeamLeaders')) {
-                                                                                    form.setValue("teamLeaders", ["allTeamLeaders"])
+                                                                <CommandGroup>
+                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                        {userList && [{ value: "allTeamLeaders", label: "All Team Leaders" }, ...userList].map((teamLeader) => (
+                                                                            <CommandItem
+                                                                                value={teamLeader.value}
+                                                                                key={teamLeader.value}
+                                                                                onSelect={() => {
+                                                                                    if (field.value.length > 0 && field.value.includes("allTeamLeaders") && teamLeader.value !== 'allTeamLeaders') {
+                                                                                        form.setValue("teamLeaders", [...field.value.filter((value: string) => value !== 'allTeamLeaders'), teamLeader.value])
+                                                                                    }
+                                                                                    else if ((field.value?.length === 1 && field.value?.includes(teamLeader.value) || teamLeader.value == 'allTeamLeaders')) {
+                                                                                        form.setValue("teamLeaders", ["allTeamLeaders"])
 
-                                                                                }
-                                                                                else if (field.value?.includes(func.value)) {
-                                                                                    form.setValue("teamLeaders", field.value?.filter((val) => val !== func.value))
-                                                                                } else {
-                                                                                    form.setValue("teamLeaders", [...field.value, func.value])
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {func.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value?.includes(func.value)
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
-                                                                        </CommandItem>
-                                                                    ))}
+                                                                                    }
+                                                                                    else if (field.value?.includes(teamLeader.value)) {
+                                                                                        form.setValue("teamLeaders", field.value?.filter((val: string) => val !== teamLeader.value))
+                                                                                    } else {
+                                                                                        form.setValue("teamLeaders", [...field.value, teamLeader.value])
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {teamLeader.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value?.includes(teamLeader.value)
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                    </div>
                                                                 </CommandGroup>
                                                             </Command>
                                                         </PopoverContent>
@@ -403,6 +424,7 @@ function Teams({ form }: {
                                                 </FormItem>
                                             )}
                                         />
+
                                     </div>
                                 </>}
                         </div>

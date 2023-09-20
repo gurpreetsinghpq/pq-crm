@@ -22,7 +22,7 @@ import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon, Search } from "lucide-react"
+import { Check, ChevronDownIcon, Loader2, Search } from "lucide-react"
 import { UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -49,6 +49,7 @@ import SideSheetContacts from "./sideSheetContacts"
 import AddUserDialogBox from "./addUserDialogBox"
 import { columnsUsers } from "./table/columns-users"
 import { formatData, getToken } from "./leads"
+import { fetchProfileDataList } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -88,8 +89,9 @@ function Users({ form }: {
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
     const [tableLeadLength, setTableLength] = React.useState<any>()
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
-
     const [childData, setChildData] = React.useState<IChildData>()
+    const [isProfileDataLoading, setIsProfileDataLoading] = React.useState<boolean>(true)
+    const [profileList, setProfileList] = React.useState<IValueLabel[]>()
 
 
 
@@ -161,6 +163,18 @@ function Users({ form }: {
             setIsLoading(false)
             setIsNetworkError(true)
             console.log("error", err)
+        }
+        getProfileList()
+    }
+    async function getProfileList() {
+        setIsProfileDataLoading(true)
+        try {
+            const profileList: any = await fetchProfileDataList()
+            setProfileList(profileList)
+            setIsProfileDataLoading(false)
+        } catch (err) {
+            console.error("user fetch error", err)
+            setIsProfileDataLoading(false)
         }
     }
 
@@ -350,10 +364,10 @@ function Users({ form }: {
                                                 <IconUserDeactive size={20} color={"white"} />
                                                 Deactivate
                                             </> :
-                                            <>
-                                                <IconUserActive size={20} color={"white"} />
-                                                Activate
-                                            </>}
+                                                <>
+                                                    <IconUserActive size={20} color={"white"} />
+                                                    Activate
+                                                </>}
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
@@ -492,37 +506,67 @@ function Users({ form }: {
                                         <FormField
                                             control={form.control}
                                             name="profiles"
-                                            render={({ field }) => {
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant={"google"} className="flex flex-row gap-2">
+                                                                    {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                                    {isProfileDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : profileList && formatData(field.value, 'Profiles', [{ value: "allProfiles", label: "All Profiles" }, ...profileList])}
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[230px] p-0">
+                                                            <Command>
+                                                                <CommandInput placeholder="Search Profile" />
+                                                                <CommandEmpty>No Profile found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                        {profileList && [{ value: "allProfiles", label: "All Profiles" }, ...profileList].map((profile) => (
+                                                                            <CommandItem
+                                                                                value={profile.value}
+                                                                                key={profile.value}
+                                                                                onSelect={() => {
+                                                                                    if (field.value.length > 0 && field.value.includes("allProfiles") && profile.value !== 'allProfiles') {
+                                                                                        form.setValue("profiles", [...field.value.filter((value: string) => value !== 'allProfiles'), profile.value])
+                                                                                    }
+                                                                                    else if ((field.value?.length === 1 && field.value?.includes(profile.value) || profile.value == 'allProfiles')) {
+                                                                                        form.setValue("profiles", ["allProfiles"])
 
-                                                return <DropdownMenu >
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Porfiles', ALL_PROFILES)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-[160px]">
-                                                        {
-                                                            ALL_PROFILES.map((profile) => {
-                                                                return <DropdownMenuCheckboxItem
-                                                                    key={profile.value}
-                                                                    checked={profile.isDefault && field.value.length === 0 ? true : field.value?.includes(profile.value)}
-                                                                    onCheckedChange={(checked) => {
-                                                                        if ((!checked && field.value.length === 1) || profile.value === 'allprofiles') {
-                                                                            return field.onChange(['allprofiles'])
-                                                                        } else if (checked && field.value.includes('allprofiles') && profile.value !== 'allprofiles') {
-                                                                            return field.onChange([...field.value?.filter((value) => value != 'allprofiles'), profile.value])
-                                                                        }
-                                                                        return checked ? field.onChange([...field.value, profile.value]) : field.onChange(field.value?.filter((value) => value != profile.value))
-                                                                    }}
-                                                                >
-                                                                    {profile.label}
-                                                                </DropdownMenuCheckboxItem>
-                                                            })
-                                                        }
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            }}
+                                                                                    }
+                                                                                    else if (field.value?.includes(profile.value)) {
+                                                                                        form.setValue("profiles", field.value?.filter((val: string) => val !== profile.value))
+                                                                                    } else {
+                                                                                        form.setValue("profiles", [...field.value, profile.value])
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {profile.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value?.includes(profile.value)
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                    </div>
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormItem>
+                                            )}
                                         />
+
                                     </div>
 
 

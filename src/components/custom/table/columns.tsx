@@ -95,6 +95,7 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
         },
         cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>,
         filterFn: (row, id, value) => {
+            console.log("region filter users", row.getValue(id), value)
             return value.includes(row.getValue(id))
         },
     },
@@ -157,7 +158,8 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
         },
         cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("owner")) || "—"}</div>,
         filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+            const rowData:any = row.getValue(id)
+            return value.includes(rowData?.id?.toString())
         },
     },
     {
@@ -170,9 +172,10 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
                     Created By
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by")}</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("created_by")) || "—"}</div>,
         filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+            const rowData:any = row.getValue(id)
+            return value.includes(rowData?.id?.toString())
         },
     },
     {

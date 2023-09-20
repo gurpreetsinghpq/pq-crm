@@ -22,7 +22,7 @@ import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon, Search } from "lucide-react"
+import { Check, ChevronDownIcon, Loader2, Search } from "lucide-react"
 import { UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -46,6 +46,7 @@ import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import SideSheetAccounts from "./sideSheetAccounts"
 import { getToken } from "./leads"
+import { fetchUserDataList } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -60,18 +61,20 @@ export interface IChildData {
 }
 let dataFromApi: LeadInterface[] = []
 
-const Accounts = ({form}:{form:UseFormReturn<{
-    search: string;
-    creators: string[];
-    queryParamString: string;
-    industries: string[];
-    accounts: string[];
-    domains: string[];
-    segments: string[];
-    sizes: string[];
-    fundingStages: string[];
-    dateRange?: any;
-}, any, undefined>}) => {
+const Accounts = ({ form }: {
+    form: UseFormReturn<{
+        search: string;
+        creators: string[];
+        queryParamString: string;
+        industries: string[];
+        accounts: string[];
+        domains: string[];
+        segments: string[];
+        sizes: string[];
+        fundingStages: string[];
+        dateRange?: any;
+    }, any, undefined>
+}) => {
     const { toast } = useToast()
 
     const router = useRouter();
@@ -86,7 +89,8 @@ const Accounts = ({form}:{form:UseFormReturn<{
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
 
     const [childData, setChildData] = React.useState<IChildData>()
-
+    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
+    const [userList, setUserList] = React.useState<IValueLabel[]>()
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
@@ -111,7 +115,7 @@ const Accounts = ({form}:{form:UseFormReturn<{
     }
     const searchParams = useSearchParams()
 
-   
+
 
     async function checkQueryParam() {
         const queryParamIds = searchParams.get("ids")
@@ -160,6 +164,20 @@ const Accounts = ({form}:{form:UseFormReturn<{
             setIsNetworkError(true)
             console.log("error", err)
         }
+        getUserList()
+    }
+
+    async function getUserList() {
+        setIsUserDataLoading(true)
+        try {
+            const userList: any = await fetchUserDataList()
+            setIsUserDataLoading(false)
+            setUserList(userList)
+        } catch (err) {
+            setIsUserDataLoading(false)
+            console.error("user fetch error", err)
+        }
+
     }
 
     React.useEffect(() => {
@@ -330,219 +348,224 @@ const Accounts = ({form}:{form:UseFormReturn<{
                             </TooltipProvider>
                         </div>
                         <div className="flex-1 flex flex-row gap-3 justify-end">
-                                <>
-                                    <div>
-                                        <DateRangePicker
-                                            onUpdate={(values) => form.setValue("dateRange", values)}
-                                            initialDateFrom={form.getValues("dateRange").range.from}
-                                            initialDateTo={form.getValues("dateRange").range.to}
-                                            queryParamString={form.getValues("queryParamString")}
-                                            align="start"
-                                            locale="en-GB"
-                                            showCompare={false}
-                                        />
-                                    </div>
-                                    <div>
-                                        <FormField
-                                            control={form.control}
-                                            name="industries"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex flex-row gap-2">
-                                                                    {/* {
+                            <>
+                                <div>
+                                    <DateRangePicker
+                                        onUpdate={(values) => form.setValue("dateRange", values)}
+                                        initialDateFrom={form.getValues("dateRange").range.from}
+                                        initialDateTo={form.getValues("dateRange").range.to}
+                                        queryParamString={form.getValues("queryParamString")}
+                                        align="start"
+                                        locale="en-GB"
+                                        showCompare={false}
+                                    />
+                                </div>
+                                <div>
+                                    <FormField
+                                        control={form.control}
+                                        name="industries"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button variant={"google"} className="flex flex-row gap-2">
+                                                                {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                                    {formatData(field.value, 'Industries', INDUSTRIES)}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
-                                                            <Command>
-                                                                <CommandInput placeholder="Search Industry" />
-                                                                <CommandEmpty>No Industry found.</CommandEmpty>
-                                                                <CommandGroup className="flex flex-col h-[250px] overflow-y-scroll">
-                                                                    {INDUSTRIES.map((industry) => (
-                                                                        <CommandItem
-                                                                            value={industry.label}
-                                                                            key={industry.value}
-                                                                            onSelect={() => {
-                                                                                if (field.value.length > 0 && field.value.includes("allIndustries") && industry.value !== 'allIndustries') {
-                                                                                    form.setValue("industries", [...field.value.filter((value) => value !== 'allIndustries'), industry.value])
-                                                                                }
-                                                                                else if ((field.value?.length === 1 && field.value?.includes(industry.value) || industry.value == 'allIndustries')) {
-                                                                                    form.setValue("industries", ["allIndustries"])
+                                                                {formatData(field.value, 'Industries', INDUSTRIES)}
+                                                                <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[230px] p-0">
+                                                        <Command>
+                                                            <CommandInput placeholder="Search Industry" />
+                                                            <CommandEmpty>No Industry found.</CommandEmpty>
+                                                            <CommandGroup className="flex flex-col h-[250px] overflow-y-scroll">
+                                                                {INDUSTRIES.map((industry) => (
+                                                                    <CommandItem
+                                                                        value={industry.label}
+                                                                        key={industry.value}
+                                                                        onSelect={() => {
+                                                                            if (field.value.length > 0 && field.value.includes("allIndustries") && industry.value !== 'allIndustries') {
+                                                                                form.setValue("industries", [...field.value.filter((value) => value !== 'allIndustries'), industry.value])
+                                                                            }
+                                                                            else if ((field.value?.length === 1 && field.value?.includes(industry.value) || industry.value == 'allIndustries')) {
+                                                                                form.setValue("industries", ["allIndustries"])
 
-                                                                                }
-                                                                                else if (field.value?.includes(industry.value)) {
-                                                                                    form.setValue("industries", field.value?.filter((val) => val !== industry.value))
-                                                                                } else {
-                                                                                    form.setValue("industries", [...field.value, industry.value])
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {industry.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value?.includes(industry.value)
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                  
-
-                                    <div className="text-md font-medium">
-                                        <FormField
-                                            control={form.control}
-                                            name="segments"
-                                            render={({ field }) => {
-                                                return <DropdownMenu >
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Segments', ALL_SEGMENTS)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent className="w-[160px]">
-                                                        {
-                                                            ALL_SEGMENTS.map((segment) => {
-                                                                return <DropdownMenuCheckboxItem
-                                                                    key={segment.value}
-                                                                    checked={segment.isDefault && field.value.length === 0 ? true : field.value?.includes(segment.value)}
-                                                                    onCheckedChange={(checked) => {
-                                                                        if ((!checked && field.value.length === 1) || segment.value === 'allSegments') {
-                                                                            return field.onChange(['allSegments'])
-                                                                        } else if (checked && field.value.includes('allSegments') && segment.value !== 'allSegments') {
-                                                                            return field.onChange([...field.value?.filter((value) => value != 'allSegments'), segment.value])
-                                                                        }
-                                                                        return checked ? field.onChange([...field.value, segment.value]) : field.onChange(field.value?.filter((value) => value != segment.value))
-                                                                    }}
-                                                                >
-                                                                    <div className="">
-                                                                        <div className={`flex flex-row gap-2 items-center ${!segment.isDefault && 'border border-[1.5px] rounded-[16px]'} ${segment.class}`}>
-                                                                            {segment.label}
+                                                                            }
+                                                                            else if (field.value?.includes(industry.value)) {
+                                                                                form.setValue("industries", field.value?.filter((val) => val !== industry.value))
+                                                                            } else {
+                                                                                form.setValue("industries", [...field.value, industry.value])
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                            {industry.label}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                    field.value?.includes(industry.value)
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
                                                                         </div>
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+
+                                <div className="text-md font-medium">
+                                    <FormField
+                                        control={form.control}
+                                        name="segments"
+                                        render={({ field }) => {
+                                            return <DropdownMenu >
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Segments', ALL_SEGMENTS)}
+                                                        <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent className="w-[160px]">
+                                                    {
+                                                        ALL_SEGMENTS.map((segment) => {
+                                                            return <DropdownMenuCheckboxItem
+                                                                key={segment.value}
+                                                                checked={segment.isDefault && field.value.length === 0 ? true : field.value?.includes(segment.value)}
+                                                                onCheckedChange={(checked) => {
+                                                                    if ((!checked && field.value.length === 1) || segment.value === 'allSegments') {
+                                                                        return field.onChange(['allSegments'])
+                                                                    } else if (checked && field.value.includes('allSegments') && segment.value !== 'allSegments') {
+                                                                        return field.onChange([...field.value?.filter((value) => value != 'allSegments'), segment.value])
+                                                                    }
+                                                                    return checked ? field.onChange([...field.value, segment.value]) : field.onChange(field.value?.filter((value) => value != segment.value))
+                                                                }}
+                                                            >
+                                                                <div className="">
+                                                                    <div className={`flex flex-row gap-2 items-center ${!segment.isDefault && 'border border-[1.5px] rounded-[16px]'} ${segment.class}`}>
+                                                                        {segment.label}
                                                                     </div>
-                                                                </DropdownMenuCheckboxItem>
-                                                            })
-                                                        }
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            }}
-                                        />
+                                                                </div>
+                                                            </DropdownMenuCheckboxItem>
+                                                        })
+                                                    }
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        }}
+                                    />
 
-                                    </div>
+                                </div>
 
 
-                                    <div className='flex flex-col  '>
-                                        <FormField
-                                            control={form.control}
-                                            name="fundingStages"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex flex-row gap-2">
-                                                                    {formatData(field.value, 'Funding Stages', ALL_LAST_FUNDING_STAGE)}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[215px] p-0 mr-[24px]" >
-                                                            <Command>
-                                                                <CommandInput placeholder="Search Funding Stage" />
-                                                                <CommandEmpty>No Funding Stage found.</CommandEmpty>
-                                                                <CommandGroup className=" h-[250px] overflow-y-scroll">
-                                                                    {ALL_LAST_FUNDING_STAGE.map((fundingStage) => (
+                                <div className='flex flex-col  '>
+                                    <FormField
+                                        control={form.control}
+                                        name="fundingStages"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button variant={"google"} className="flex flex-row gap-2">
+                                                                {formatData(field.value, 'Funding Stages', ALL_LAST_FUNDING_STAGE)}
+                                                                <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[215px] p-0 mr-[24px]" >
+                                                        <Command>
+                                                            <CommandInput placeholder="Search Funding Stage" />
+                                                            <CommandEmpty>No Funding Stage found.</CommandEmpty>
+                                                            <CommandGroup className=" h-[250px] overflow-y-scroll">
+                                                                {ALL_LAST_FUNDING_STAGE.map((fundingStage) => (
+                                                                    <CommandItem
+                                                                        value={fundingStage.label}
+                                                                        key={fundingStage.value}
+                                                                        onSelect={() => {
+                                                                            if (field.value.length > 0 && field.value.includes("allFundingStages") && fundingStage.value !== 'allFundingStages') {
+                                                                                form.setValue("fundingStages", [...field.value.filter((value) => value !== 'allFundingStages'), fundingStage.value])
+                                                                            }
+                                                                            else if ((field.value?.length === 1 && field.value?.includes(fundingStage.value)) || fundingStage.value == 'allFundingStages') {
+                                                                                form.setValue("fundingStages", ["allFundingStages"])
+                                                                            }
+                                                                            else if (field.value?.includes(fundingStage.value)) {
+                                                                                form.setValue("fundingStages", field.value?.filter((val) => val !== fundingStage.value))
+                                                                            } else {
+                                                                                form.setValue("fundingStages", [...field.value, fundingStage.value])
+                                                                            }
+                                                                        }}
+                                                                    >
+                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                            {fundingStage.label}
+                                                                            <Check
+                                                                                className={cn(
+                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                    field.value?.includes(fundingStage.value)
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                        </div>
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                </div>
+
+                                <div className='flex flex-col  '>
+                                    <FormField
+                                        control={form.control}
+                                        name="creators"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <Popover>
+                                                    <PopoverTrigger asChild>
+                                                        <FormControl>
+                                                            <Button variant={"google"} className="flex flex-row gap-2">
+                                                                {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                                {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Creators', [{ value: "allCreators", label: "All Creators" }, ...userList])}
+                                                                <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            </Button>
+                                                        </FormControl>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[230px] p-0">
+                                                        <Command>
+                                                            <CommandInput placeholder="Search Creator" />
+                                                            <CommandEmpty>No Creator found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {userList && [{ value: "allCreators", label: "All Creators" }, ...userList].map((creator) => (
                                                                         <CommandItem
-                                                                            value={fundingStage.label}
-                                                                            key={fundingStage.value}
-                                                                            onSelect={() => {
-                                                                                if (field.value.length > 0 && field.value.includes("allFundingStages") && fundingStage.value !== 'allFundingStages') {
-                                                                                    form.setValue("fundingStages", [...field.value.filter((value) => value !== 'allFundingStages'), fundingStage.value])
-                                                                                }
-                                                                                else if ((field.value?.length === 1 && field.value?.includes(fundingStage.value)) || fundingStage.value == 'allFundingStages') {
-                                                                                    form.setValue("fundingStages", ["allFundingStages"])
-                                                                                }
-                                                                                else if (field.value?.includes(fundingStage.value)) {
-                                                                                    form.setValue("fundingStages", field.value?.filter((val) => val !== fundingStage.value))
-                                                                                } else {
-                                                                                    form.setValue("fundingStages", [...field.value, fundingStage.value])
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                {fundingStage.label}
-                                                                                <Check
-                                                                                    className={cn(
-                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                        field.value?.includes(fundingStage.value)
-                                                                                            ? "opacity-100"
-                                                                                            : "opacity-0"
-                                                                                    )}
-                                                                                />
-                                                                            </div>
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                    </div>
-
-                                    <div className='flex flex-col  '>
-                                        <FormField
-                                            control={form.control}
-                                            name="creators"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex flex-row gap-2">
-                                                                    {formatData(field.value, 'Creators', creators)}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[200px] p-0 mr-[24px]" >
-                                                            <Command>
-                                                                <CommandInput placeholder="Search Creator" />
-                                                                <CommandEmpty>No creators found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    {creators.map((creator) => (
-                                                                        <CommandItem
-                                                                            value={creator.label}
+                                                                            value={creator.value}
                                                                             key={creator.value}
                                                                             onSelect={() => {
                                                                                 if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
-                                                                                    form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
+                                                                                    form.setValue("creators", [...field.value.filter((value: string) => value !== 'allCreators'), creator.value])
                                                                                 }
-                                                                                else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
+                                                                                else if ((field.value?.length === 1 && field.value?.includes(creator.value) || creator.value == 'allCreators')) {
                                                                                     form.setValue("creators", ["allCreators"])
+
                                                                                 }
                                                                                 else if (field.value?.includes(creator.value)) {
-                                                                                    form.setValue("creators", field.value?.filter((val) => val !== creator.value))
+                                                                                    form.setValue("creators", field.value?.filter((val: string) => val !== creator.value))
                                                                                 } else {
                                                                                     form.setValue("creators", [...field.value, creator.value])
                                                                                 }
@@ -561,16 +584,17 @@ const Accounts = ({form}:{form:UseFormReturn<{
                                                                             </div>
                                                                         </CommandItem>
                                                                     ))}
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </FormItem>
+                                        )}
+                                    />
 
-                                    </div>
-                                </>
+                                </div>
+                            </>
                         </div>
                     </div>
                 </form>

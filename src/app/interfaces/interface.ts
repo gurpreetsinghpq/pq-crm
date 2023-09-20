@@ -40,7 +40,10 @@ export interface RoleDetails {
 
 export interface LeadInterface {
     id: number;
-    created_by: string;
+    created_by:  {
+        id: number;
+        name: string
+    };
     updated_by: string;
     owner: {
         id: number;
@@ -296,7 +299,10 @@ interface ClientContactDetailPostBody {
 
 export interface ProspectsGetResponse {
     id: number;
-    created_by: string;
+    created_by:  {
+        id: number;
+        name: string
+    };
     updated_by: string;
     owner: {
         id: number;

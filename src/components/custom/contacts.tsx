@@ -22,7 +22,7 @@ import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon, Search } from "lucide-react"
+import { Check, ChevronDownIcon, Loader2, Search } from "lucide-react"
 import { UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -47,6 +47,7 @@ import { columnsClient } from "./table/columns-client"
 import { columnsContacts } from "./table/columns-contact"
 import SideSheetContacts from "./sideSheetContacts"
 import { getToken } from "./leads"
+import { fetchUserDataList } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -83,8 +84,9 @@ const Contacts = ({ form }: {
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
     const [tableLeadLength, setTableLength] = React.useState<any>()
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
-
     const [childData, setChildData] = React.useState<IChildData>()
+    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
+    const [userList, setUserList] = React.useState<IValueLabel[]>()
 
 
 
@@ -158,6 +160,19 @@ const Contacts = ({ form }: {
             setIsNetworkError(true)
             console.log("error", err)
         }
+        getUserList() 
+    }
+    async function getUserList() {
+        setIsUserDataLoading(true)
+        try {
+            const userList: any = await fetchUserDataList()
+            setIsUserDataLoading(false)
+            setUserList(userList)
+        } catch (err) {
+            setIsUserDataLoading(false)
+            console.error("user fetch error", err)
+        }
+
     }
 
     React.useEffect(() => {
@@ -552,47 +567,53 @@ const Contacts = ({ form }: {
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex flex-row gap-2">
-                                                                {formatData(field.value, 'Creators', creators)}
+                                                                {/* {
+                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
+                                                            } */}
+                                                                {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Creators', [{ value: "allCreators", label: "All Creators" }, ...userList])}
                                                                 <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[200px] p-0 mr-[24px]" >
+                                                    <PopoverContent className="w-[230px] p-0">
                                                         <Command>
                                                             <CommandInput placeholder="Search Creator" />
-                                                            <CommandEmpty>No creators found.</CommandEmpty>
+                                                            <CommandEmpty>No Creator found.</CommandEmpty>
                                                             <CommandGroup>
-                                                                {creators.map((creator) => (
-                                                                    <CommandItem
-                                                                        value={creator.label}
-                                                                        key={creator.value}
-                                                                        onSelect={() => {
-                                                                            if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
-                                                                                form.setValue("creators", [...field.value.filter((value) => value !== 'allCreators'), creator.value])
-                                                                            }
-                                                                            else if ((field.value?.length === 1 && field.value?.includes(creator.value)) || creator.value == 'allCreators') {
-                                                                                form.setValue("creators", ["allCreators"])
-                                                                            }
-                                                                            else if (field.value?.includes(creator.value)) {
-                                                                                form.setValue("creators", field.value?.filter((val) => val !== creator.value))
-                                                                            } else {
-                                                                                form.setValue("creators", [...field.value, creator.value])
-                                                                            }
-                                                                        }}
-                                                                    >
-                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                            {creator.label}
-                                                                            <Check
-                                                                                className={cn(
-                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                    field.value?.includes(creator.value)
-                                                                                        ? "opacity-100"
-                                                                                        : "opacity-0"
-                                                                                )}
-                                                                            />
-                                                                        </div>
-                                                                    </CommandItem>
-                                                                ))}
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {userList && [{ value: "allCreators", label: "All Creators" }, ...userList].map((creator) => (
+                                                                        <CommandItem
+                                                                            value={creator.value}
+                                                                            key={creator.value}
+                                                                            onSelect={() => {
+                                                                                if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
+                                                                                    form.setValue("creators", [...field.value.filter((value: string) => value !== 'allCreators'), creator.value])
+                                                                                }
+                                                                                else if ((field.value?.length === 1 && field.value?.includes(creator.value) || creator.value == 'allCreators')) {
+                                                                                    form.setValue("creators", ["allCreators"])
+
+                                                                                }
+                                                                                else if (field.value?.includes(creator.value)) {
+                                                                                    form.setValue("creators", field.value?.filter((val: string) => val !== creator.value))
+                                                                                } else {
+                                                                                    form.setValue("creators", [...field.value, creator.value])
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {creator.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value?.includes(creator.value)
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
                                                             </CommandGroup>
                                                         </Command>
                                                     </PopoverContent>

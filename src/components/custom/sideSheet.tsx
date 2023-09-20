@@ -966,7 +966,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                     </PopoverTrigger>
                                                     <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
                                                         <Command>
-                                                            <CommandInput className='w-full' placeholder="Search Industry" />
+                                                            <CommandInput className='w-full' placeholder="Search Owner" />
                                                             <CommandEmpty>Owner not found.</CommandEmpty>
                                                             <CommandGroup>
                                                                 <div className='flex flex-col max-h-[200px] overflow-y-auto'>

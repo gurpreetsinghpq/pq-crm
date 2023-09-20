@@ -168,7 +168,7 @@ export default function DataTable<TData, TValue>({
         setContactFilter()
         break;
       case "users":
-        // setUsersFilter()
+        setUsersFilter()
         break;
       case "teams":
         setTeamsFilter()
@@ -217,7 +217,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("owner")?.setFilterValue("")
     }
     else {
-      const ownerFilter = valueToLabel("owners", OWNERS)
+      const ownerFilter = filterObj.owners
       table.getColumn("owner")?.setFilterValue(ownerFilter)
     }
 
@@ -225,7 +225,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("created_by")?.setFilterValue("")
     }
     else {
-      const creatorFilter = valueToLabel("creators", CREATORS)
+      const creatorFilter = filterObj.creators
       table.getColumn("created_by")?.setFilterValue(creatorFilter)
     }
 
@@ -263,7 +263,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("owner")?.setFilterValue("")
     }
     else {
-      const ownerFilter = valueToLabel("owners", OWNERS)
+      const ownerFilter = filterObj.owners
       table.getColumn("owner")?.setFilterValue(ownerFilter)
     }
 
@@ -271,7 +271,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("created_by")?.setFilterValue("")
     }
     else {
-      const creatorFilter = valueToLabel("creators", CREATORS)
+      const creatorFilter = filterObj.creators
       table.getColumn("created_by")?.setFilterValue(creatorFilter)
     }
 
@@ -326,7 +326,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("created_by")?.setFilterValue("")
     }
     else {
-      const creatorFilter = valueToLabel("creators", CREATORS)
+      const creatorFilter = filterObj.creators
       table.getColumn("created_by")?.setFilterValue(creatorFilter)
     }
 
@@ -359,14 +359,14 @@ export default function DataTable<TData, TValue>({
       const accountFilter = filterObj.accounts
       table.getColumn("organisation")?.setFilterValue(accountFilter)
     }
-
-    // if (filterObj?.creators && filterObj.creators.includes("allCreators")) {
-    //   table.getColumn("creator")?.setFilterValue("")
-    // }
-    // else {
-    //   const creatorFilter = valueToLabel("creators", CREATORS)
-    //   table.getColumn("creator")?.setFilterValue(creatorFilter)
-    // }
+    
+    if (filterObj.creators && filterObj.creators.includes("allCreators")) {
+      table.getColumn("created_by")?.setFilterValue("")
+    }
+    else {
+      const creatorFilter = filterObj.creators
+      table.getColumn("created_by")?.setFilterValue(creatorFilter)
+    }
 
 
     // table.getColumn("id")?.setFilterValue(filterObj.ids)
@@ -386,7 +386,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("profile")?.setFilterValue("")
     }
     else {
-      const profileFilter = valueToLabel("profiles", ALL_PROFILES)
+      const profileFilter = filterObj.profiles
       table.getColumn("profile")?.setFilterValue(profileFilter)
     }
 
@@ -394,7 +394,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("region")?.setFilterValue("")
     }
     else {
-      const regionFilter = filterObj.regions
+      const regionFilter = valueToLabel("regions", REGIONS)
       table.getColumn("region")?.setFilterValue(regionFilter)
     }
 
@@ -417,7 +417,7 @@ export default function DataTable<TData, TValue>({
       table.getColumn("teamLeader")?.setFilterValue("")
     }
     else {
-      const teamLeader = valueToLabel("functions", ALL_FUNCTIONS)
+      const teamLeader = filterObj?.teamLeaders
       table.getColumn("teamLeader")?.setFilterValue(teamLeader)
     }
 

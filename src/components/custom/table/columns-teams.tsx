@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
-import { getLength } from "../commonFunctions"
+import { getFullName, getLength, getName } from "../commonFunctions"
 
 
 
@@ -92,7 +92,7 @@ export function columnsTeams(setChildDataHandler:CallableFunction): ColumnDef<Te
     },
     {
         accessorKey: "teamLeader",
-        accessorFn: (originalRow, index) => `${originalRow.leader.first_name} ${originalRow.leader.last_name}`,
+        accessorFn: (originalRow, index) => originalRow.leader,
         header: ({ column }) => {
             return (
                 <div
@@ -104,9 +104,11 @@ export function columnsTeams(setChildDataHandler:CallableFunction): ColumnDef<Te
                 </div>
             )
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("teamLeader") ||  "—" }</div>,
+        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{ getFullName(row.getValue("teamLeader")) ||  "—" }</div>,
         filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+            const rowData:any = row.getValue(id)
+            console.log("teamleader filter", rowData?.id, value)
+            return value.includes(rowData?.id?.toString())
         },
     },
     {
@@ -130,20 +132,18 @@ export function columnsTeams(setChildDataHandler:CallableFunction): ColumnDef<Te
     },
     {
         accessorKey: "created_by",
-        accessorFn: (originalRow, index) => originalRow.created_by,
         header: ({ column }) => {
             return (
                 <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
                     Created By
-                    {/* <IconArrowDown size={20} /> */}
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("created_by") || "—"}</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("created_by")) || "—"}</div>,
         filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+            const rowData:any = row.getValue(id)
+            return value.includes(rowData?.id?.toString())
         },
     },
     {
