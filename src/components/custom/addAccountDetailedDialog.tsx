@@ -154,6 +154,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         }
     }
 
+    useEffect(()=>{
+        form2.trigger()
+    },[formSchema])
 
     const watcher = form.watch()
 
@@ -163,9 +166,8 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     }, [watcher])
 
     useEffect(() => {
-        form.trigger()
-        // safeprs()
-    }, [formSchema])
+        form2.trigger()
+    }, [formSchema2])
 
     useEffect(() => {
         console.log("details", details)
@@ -178,7 +180,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         //     setDummyContactData(details?.contacts)
         //     setShowContactForm(false)
         // }
-
+        changeStdCode()
     }, [])
 
     // console.log(dummyContactData)
@@ -373,7 +375,8 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         dataFromChild()
     }
 
-    function changeStdCode(value: string) {
+    function changeStdCode() {
+        const value = form2.getValues("std_code")
         let updatedSchema
         console.log(value, value != "+91")
         if (value != "+91") {
@@ -899,8 +902,8 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                                         key={cc.label}
                                                                         onSelect={() => {
                                                                             console.log("std_code", cc.value)
-                                                                            changeStdCode(cc.value)
                                                                             form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
+                                                                            changeStdCode()
                                                                         }}
                                                                     >
                                                                         <PopoverClose asChild>

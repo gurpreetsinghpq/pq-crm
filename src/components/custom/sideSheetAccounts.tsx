@@ -29,7 +29,7 @@ import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, d
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
-
+import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 
 const FormSchema2 = z.object({
     name: z.string({
@@ -46,6 +46,22 @@ const FormSchema2 = z.object({
     }),
     contactId: z.string().optional(),
 })
+
+const FormSchema2Mod = z.object({
+    name: z.string({
+    }).min(2).max(30),
+    designation: z.string({
+    }).transform((val) => val === undefined ? undefined : val.trim()),
+    type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
+    email: z.string({
+    }).email(),
+    phone: z.string().min(4).max(13),
+    std_code: z.string({
+
+    }),
+    contactId: z.string().optional(),
+})
+
 const optionalFormschema2 = z.object({
     name: z.string({
     }).optional(),
@@ -129,7 +145,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         },
         mode: "all"
     })
-
+    
 
     useEffect(() => {
         console.log("sidesheetaccounts", data)
@@ -146,23 +162,16 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         setRowState({
             name: data.name
         })
+        updateFormSchema()
     }, [])
 
-    useEffect(() => {
-        let updatedSchema
-        if (addDialogOpen) {
-            updatedSchema = FormSchema.extend({
-                contacts: FormSchema2
-            })
 
-        } else {
-            updatedSchema = FormSchema.omit({ contacts: true })
-        }
-        setFormSchema(updatedSchema)
+    useEffect(() => {
         if (addDialogOpen) {
+            updateFormSchema()
             resetForm2()
         }
-        safeparse2()
+        safeparse2()    
     }, [addDialogOpen])
 
     function checkVcIndutsry() {
@@ -192,6 +201,23 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         } else {
             updatedSchema = FormSchema
         }
+        console.log("updatedSchema",updatedSchema, FormSchema)
+        if(addDialogOpen){
+            const std_code = form.getValues("contacts.std_code")
+            console.log("std_code", std_code)
+            if (std_code !== "+91") {
+                updatedSchema = updatedSchema.extend({
+                    contacts: FormSchema2Mod
+                })
+            } else {
+                updatedSchema = updatedSchema.extend({
+                    contacts: FormSchema2
+                })
+            }
+        }else {
+            updatedSchema = updatedSchema.omit({ contacts: true })
+        }
+        console.log("updatedSchema",updatedSchema)
         setFormSchema(updatedSchema)
     }
 
@@ -236,6 +262,13 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     }
 
 
+    useEffect(() => {
+        if(addDialogOpen){
+            safeparse2()
+            console.log("formSchema safeparse", formSchema)
+        }
+    }, [formSchema])
+
 
     const watcher = form.watch()
 
@@ -261,8 +294,14 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
 
     function safeparse2() {
         const contacts = form.getValues("contacts")
-        const result = FormSchema2.safeParse(contacts)
+        let result
+        if (contacts?.std_code !== "+91") {
+            result = FormSchema2Mod.safeParse(contacts)
+        } else {
+            result = FormSchema2.safeParse(contacts)
+        }
         console.log("safe prase 2 ", result)
+
         if (result.success) {
             setContactFieldValid(true)
         } else {
@@ -407,40 +446,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
     }
 
 
-    function onStatusChange(value: string) {
-        updateFormSchemaOnStatusChange(value)
-
-
-    }
-    function updateFormSchemaOnStatusChange(value: string) {
-        let updatedSchema
-        if (value.toLowerCase() !== "unverified") {
-            updatedSchema = FormSchema.extend({
-                locations: z.string(required_error).optional(),
-                fixedCtcBudget: z.string(required_error).optional(),
-                industry: z.string(required_error).optional(),
-                domain: z.string(required_error).optional(),
-                size: z.string(required_error).optional(),
-                lastFundingStage: z.string(required_error).optional(),
-                lastFundingAmount: z.string(required_error).optional(), // [x]
-            })
-        } else {
-            console.log("neh")
-            updatedSchema = FormSchema
-        }
-        setFormSchema(updatedSchema)
-    }
-
-    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        const keyValue = event.key;
-        const validCharacters = /^[0-9.,\b]+$/; // Allow numbers, comma, period, and backspace (\b)
-
-
-        if (!validCharacters.test(keyValue)) {
-            event.preventDefault();
-        }
-    };
-
+    
     function preprocess() {
         console.log("preprocess")
         safeprs()
@@ -464,56 +470,15 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         }
     }
 
-    // Example usage:
-    const inputString = "INR 2,320,434.35";
-    const parsed = parseCurrencyValue(inputString);
-
-    if (parsed) {
-        console.log("Currency Code:", parsed.getCurrencyCode());
-        console.log("Numeric Value:", parsed.getNumericValue());
-    } else {
-        console.log("Invalid input string.");
-    }
-
     useEffect(() => {
-        console.log(form.getValues("contacts.std_code"))
-        let updatedSchema = formSchema
-        if (form.getValues("contacts.std_code") === "+91") {
-            formSchema.extend({
-                contacts: FormSchema2.extend({
-                    phone: z.string().min(10).max(10)
-                })
-            })
+        if (watcher.contacts?.std_code?.length > 0) {
+            updateFormSchema()
+            console.log("status code watcher", form.getFieldState("contacts"))
 
-        } else {
-            formSchema.extend({
-                contacts: FormSchema2.extend({
-                    phone: z.string().min(4).max(13)
-                })
-            })
         }
-        setFormSchema(updatedSchema)
     }, [watcher.contacts?.std_code])
 
-    console.log(formSchema)
 
-    function changeStdCode(value: string) {
-        // let updatedSchema
-        // console.log(value, value != "+91" )
-        // if (value != "+91") {
-        //     updatedSchema = formSchema.extend({
-        //         contacts: FormSchema2.extend({
-        //             phone: z.string().min(4).max(13) 
-        //         })
-        //     })
-        // } else {
-        //     console.log("neh")
-        //     updatedSchema = formSchema.extend({
-        //         contacts: FormSchema2
-        //     })
-        // }
-        // setFormSchema(updatedSchema)
-    }
 
 
     function discardAccountName() {
@@ -589,21 +554,21 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
         delete finalData["contactId"]
         const orgId = data.id
         const dataToSend: ContactPostBody = {
-            ...finalData, type: ftype, designation: fDesignation, organisation:orgId
+            ...finalData, type: ftype, designation: fDesignation, organisation: orgId
         }
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             console.log(result)
 
-            if(result.status=="1"){
+            if (result.status == "1") {
                 setAddDialogOpen(false)
                 resetForm2()
                 toast({
                     title: "Contact Added Successfully!",
                     variant: "dark"
                 })
-            }else{
+            } else {
                 toast({
                     title: "Api Error!",
                     variant: "destructive"
@@ -1254,7 +1219,6 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                                                                         key={cc.label}
                                                                                                         onSelect={() => {
                                                                                                             console.log("contacts.std_code", cc.value)
-                                                                                                            changeStdCode(cc.value)
                                                                                                             form.setValue("contacts.std_code", cc.value)
                                                                                                         }}
                                                                                                     >
@@ -1370,16 +1334,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
 
     )
 
-    function handleOnChangeNumeric(event: React.ChangeEvent<HTMLInputElement>, field: any, isSeparator: boolean = true) {
-        const cleanedValue = event.target.value.replace(/[,\.]/g, '')
-        console.log(cleanedValue)
-        if (isSeparator) {
-            return field.onChange((+cleanedValue).toLocaleString())
-        } else {
-            return field.onChange((+cleanedValue).toString())
-        }
-    }
-
+    
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })

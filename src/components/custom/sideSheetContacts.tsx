@@ -82,6 +82,8 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
             ...prevState,
             name: data.name
         }))
+        changeStdCode()
+
     }, [])
 
     function closeSideSheet() {
@@ -109,7 +111,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
 
 
 
-    const form = useForm<z.infer<typeof FormSchema>>({
+    const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             organisationName: data.organisation.id.toString(),
@@ -131,10 +133,13 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
         safeparse2()
         form.formState.isValid
         form.formState.isDirty
-        // console.log("formstate isvalid", form.formState.isValid, "formstate isdirty", form.formState.isDirty)
+        console.log("formstate isvalid", form.formState.isValid, "formstate isdirty", form.formState.isDirty)
 
     }, [watcher])
 
+    useEffect(()=>{
+        form.trigger()
+    },[formSchema])
 
     const tabs: IValueLabel[] = [
         { label: "Proposal", value: "proposal" },
@@ -242,31 +247,6 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
         patchData()
     }
 
-
-    function onStatusChange(value: string) {
-        updateFormSchemaOnStatusChange(value)
-
-
-    }
-    function updateFormSchemaOnStatusChange(value: string) {
-        let updatedSchema
-        if (value.toLowerCase() !== "unverified") {
-            updatedSchema = FormSchema.extend({
-                locations: z.string(required_error).min(1, { message: required_error.required_error }),
-                fixedCtcBudget: z.string(required_error).optional(),
-                industry: z.string(required_error).optional(),
-                domain: z.string(required_error).optional(),
-                size: z.string(required_error).optional(),
-                lastFundingStage: z.string(required_error).optional(),
-                lastFundingAmount: z.string(required_error).optional(), // [x]
-            })
-        } else {
-            console.log("neh")
-            updatedSchema = FormSchema
-        }
-        setFormSchema(updatedSchema)
-    }
-
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         const keyValue = event.key;
         const validCharacters = /^[0-9.,\b]+$/; // Allow numbers, comma, period, and backspace (\b)
@@ -313,22 +293,20 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
 
     console.log(formSchema)
 
-    function changeStdCode(value: string) {
-        // let updatedSchema
-        // console.log(value, value != "+91" )
-        // if (value != "+91") {
-        //     updatedSchema = formSchema.extend({
-        //         contacts: FormSchema2.extend({
-        //             phone: z.string().min(4).max(13) 
-        //         })
-        //     })
-        // } else {
-        //     console.log("neh")
-        //     updatedSchema = formSchema.extend({
-        //         contacts: FormSchema2
-        //     })
-        // }
-        // setFormSchema(updatedSchema)
+    function changeStdCode() {
+        const value = form.getValues("std_code")
+        let updatedSchema
+        console.log(value, value != "+91")
+        if (value != "+91") {
+            updatedSchema = FormSchema.extend({
+                phone: z.string().min(4).max(13)
+            })
+        } else {
+            console.log("neh")
+            updatedSchema = FormSchema
+        }
+        setFormSchema(updatedSchema)
+        console.log("updatedschema",updatedSchema)
     }
 
     function updateContactName(): void {
@@ -629,8 +607,9 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                                                         key={cc.label}
                                                                                         onSelect={() => {
                                                                                             console.log("std_code", cc.value)
-                                                                                            changeStdCode(cc.value)
-                                                                                            form.setValue("std_code", cc.value)
+                                                                                            form.setValue("std_code", cc.value, SET_VALUE_CONFIG)
+                                                                                            changeStdCode()
+
                                                                                         }}
                                                                                     >
                                                                                         <PopoverClose asChild>

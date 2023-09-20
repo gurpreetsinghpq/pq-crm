@@ -193,7 +193,7 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
         mode: "all"
     })
 
-
+    console.log("formSchema initial", formSchema)
 
     useEffect(() => {
         console.log("touched fields", form.formState.touchedFields)
@@ -746,29 +746,10 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
 
     useEffect(() => {
-        // let updatedSchema = formSchema
-
-        // if (form.getValues("contacts.std_code") === "+91") {
-        //     formSchema.extend({
-        //         contacts: FormSchema2.extend({
-        //             phone: z.string().min(10).max(10)
-        //         })
-        //     })
-
-        // } else {
-        //     formSchema.extend({
-        //         contacts: FormSchema2.extend({
-        //             phone: z.string().min(4).max(13)
-        //         })
-        //     })
-        // }
-
-        // setFormSchema(updatedSchema)
         if (watcher.contacts?.std_code?.length > 0) {
             console.log("status code watcher")
             const status = form.getValues("statuses")
             updateFormSchemaOnStatusChange(status)
-            // safeparse2()
             console.log("status code watcher", form.getFieldState("contacts"))
         }
     }, [watcher.contacts?.std_code])
@@ -832,24 +813,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
 
     }
 
-
-    function changeStdCode(value: string) {
-        // let updatedSchema
-        // console.log(value, value != "+91" )
-        // if (value != "+91") {
-        //     updatedSchema = formSchema.extend({
-        //         contacts: FormSchema2.extend({
-        //             phone: z.string().min(4).max(13) 
-        //         })
-        //     })
-        // } else {
-        //     console.log("neh")
-        //     updatedSchema = formSchema.extend({
-        //         contacts: FormSchema2
-        //     })
-        // }
-        // setFormSchema(updatedSchema)
-    }
 
     return (
         <div className={`fixed flex flex-row z-[50] right-0 top-0 h-[100vh] w-[100vw] `} >
@@ -2273,7 +2236,6 @@ function SideSheet({ parentData }: { parentData: { childData: IChildData, setChi
                                                                                                         value={cc.label}
                                                                                                         key={cc.label}
                                                                                                         onSelect={() => {
-                                                                                                            changeStdCode(cc.value)
                                                                                                             form.setValue("contacts.std_code", cc.value, SET_VALUE_CONFIG)
                                                                                                         }}
                                                                                                     >

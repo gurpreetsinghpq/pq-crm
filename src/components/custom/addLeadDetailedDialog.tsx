@@ -136,6 +136,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             setDummyContactData(details?.contacts)
             setShowContactForm(false)
         }
+        changeStdCode()
 
     }, [])
 
@@ -326,7 +327,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         dataFromChild()
     }
 
-    function changeStdCode(value: string) {
+    function changeStdCode() {
+        const value = form2.getValues("std_code")
         let updatedSchema
         console.log(value, value != "+91")
         if (value != "+91") {
@@ -339,6 +341,10 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         }
         setFormSchema2(updatedSchema)
     }
+
+    useEffect(()=>{
+        form2.trigger()
+    },[formSchema2])
 
     return (
         <div>
@@ -726,8 +732,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                                         key={cc.label}
                                                                         onSelect={() => {
                                                                             console.log("std_code", cc.value)
-                                                                            changeStdCode(cc.value)
                                                                             form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
+                                                                            changeStdCode()
                                                                         }}
                                                                     >
                                                                         <PopoverClose asChild>

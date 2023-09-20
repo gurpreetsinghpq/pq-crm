@@ -123,6 +123,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         } else {
             form.setValue("organisationName", inputAccount, SET_VALUE_CONFIG)
         }
+        changeStdCode()
 
     }, [])
 
@@ -206,7 +207,8 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         dataFromChild()
     }
 
-    function changeStdCode(value: string) {
+    function changeStdCode() {
+        const value = form2.getValues("std_code")
         let updatedSchema
         console.log(value, value != "+91")
         if (value != "+91") {
@@ -219,6 +221,10 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         }
         setFormSchema2(updatedSchema)
     }
+
+    useEffect(()=>{
+        form2.trigger()
+    },[formSchema2])
 
     return (
         <div>
@@ -410,8 +416,8 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                                         key={cc.label}
                                                                         onSelect={() => {
                                                                             console.log("std_code", cc.value)
-                                                                            changeStdCode(cc.value)
                                                                             form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
+                                                                            changeStdCode()
                                                                         }}
                                                                     >
                                                                         <PopoverClose asChild>

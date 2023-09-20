@@ -41,7 +41,7 @@ const FormSchema = z.object({
     }).min(1),
     phone: z.string({
         // required_error: "Please select a lead source"
-    }).min(1),
+    }).min(10).max(10),
     region: z.string({
 
     }).min(1).transform((val) => val === undefined ? undefined : val.trim()),
@@ -65,9 +65,11 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
     const [open, setOpen] = useState<boolean>(false)
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [teamList, setTeamList] = useState<IValueLabel[]>()
-    const [profileList, setProfileList] = useState<IValueLabel[]>()
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const [profileList, setProfileList] = useState<IValueLabel[]>()    
+    const [formSchema, setFormSchema] = useState(FormSchema)
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
             firstName: "",
             lastName: "",
@@ -88,11 +90,10 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
 
 
 
-    const [formSchema, setFormSchema] = useState(FormSchema)
-
-    function changeStdCode(value: string) {
+    function changeStdCode() {
+        const value = form.getValues("std_code")
         let updatedSchema
-        console.log(value, value != "+91")
+        console.log("std_code", value, value != "+91")
         if (value != "+91") {
             updatedSchema = FormSchema.extend({
                 phone: z.string().min(4).max(13)
@@ -102,7 +103,14 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
             updatedSchema = FormSchema
         }
         setFormSchema(updatedSchema)
+        console.log("updatedSchema", updatedSchema)
     }
+
+    useEffect(()=>{
+        console.log("formschema", formSchema)
+        console.log("formschema errors", form.formState.errors)
+        form.trigger()
+    },[formSchema])
 
     function yesDiscard() {
         setOpen(false)
@@ -191,7 +199,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
         getUserList()
         getTeamList()
         getProfileList()
-
+        changeStdCode()
     }, [])
 
     useEffect(() => {
@@ -372,9 +380,8 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                                                                         value={cc.label}
                                                                                         key={cc.label}
                                                                                         onSelect={() => {
-                                                                                            console.log("std_code", cc.value)
-                                                                                            changeStdCode(cc.value)
                                                                                             form.setValue("std_code", cc.value, SET_VALUE_CONFIG)
+                                                                                            changeStdCode()
                                                                                         }}
                                                                                     >
                                                                                         <PopoverClose asChild>
