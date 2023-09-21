@@ -34,7 +34,7 @@ import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCros
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User, UsersGetResponse } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, User, UsersGetResponse } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -100,7 +100,7 @@ const tabs: IValueLabel[] = [
 ];
 
 
-const UserManagement = ({ usersForm, teamsForm, profilesForm }: {
+const UserManagement = ({ usersForm, teamsForm, profilesForm, permissions }: {
     usersForm: UseFormReturn<{
         regions: string[];
         functions: string[];
@@ -119,7 +119,8 @@ const UserManagement = ({ usersForm, teamsForm, profilesForm }: {
         search: string;
         queryParamString: string;
         dateRange?: any;
-    }, any, undefined>
+    }, any, undefined>,
+    permissions:Permission
 }) => {
     const { toast } = useToast()
 
@@ -139,13 +140,13 @@ const UserManagement = ({ usersForm, teamsForm, profilesForm }: {
             </div>
             <div className="bottom flex-1 flex flex-col  ">
                 <TabsContent value={TABS.USERS} className="flex flex-col flex-1">
-                    <Users form={usersForm} />
+                    <Users form={usersForm} permissions={permissions}/>
                 </TabsContent>
                 <TabsContent value={TABS.TEAMS} className="flex flex-col flex-1">
-                    <Teams form={teamsForm} />
+                    <Teams form={teamsForm} permissions={permissions}/>
                 </TabsContent>
                 <TabsContent value={TABS.PROFILES} className="flex flex-col flex-1">
-                    <Profiles form={profilesForm} />
+                    <Profiles form={profilesForm} permissions={permissions}/>
                 </TabsContent>
             </div>
         </Tabs>

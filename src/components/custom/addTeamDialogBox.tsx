@@ -20,7 +20,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { ClientGetResponse, IValueLabel, TeamGetResponse, TeamsPostBody, UsersGetResponse } from '@/app/interfaces/interface'
+import { ClientGetResponse, IValueLabel, Permission, TeamGetResponse, TeamsPostBody, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
 import { IconPower, IconTrash, IconUsers } from '../icons/svgIcons'
 import DataTable from './table/datatable'
@@ -52,7 +52,7 @@ const TABS = {
     SELECTED_USERS: "Selected Users",
 }
 
-function AddTeamDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
+function AddTeamDialogBox({ children, permissions, parentData = undefined }: { children?: any | undefined, permissions:Permission, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [userAssigned, setUserAssigned] = useState<boolean>(true)
@@ -356,7 +356,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Team" : "Add Team"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' disabled={selectedRows?.length !== 0} onClick={()=>deleteTeam()}>
+                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' disabled={selectedRows?.length !== 0 || !permissions?.change} onClick={()=>deleteTeam()}>
                                         <IconTrash size={20} color={"white"} />
                                         Delete Team
                                     </Button>
@@ -549,7 +549,7 @@ function AddTeamDialogBox({ children, parentData = undefined }: { children?: any
                                         {parentData?.open ?
                                             <div className='flex flex-row gap-2 w-full justify-end'>
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button type='button' disabled={!form.formState.isValid || !(selectedRows && selectedRows?.length > 0)} onClick={() => addTeam(true)}>
+                                                <Button type='button' disabled={!form.formState.isValid || !(selectedRows && selectedRows?.length > 0) || !permissions?.change} onClick={() => addTeam(true)}>
                                                     Update
                                                 </Button>
                                             </div>

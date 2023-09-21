@@ -34,7 +34,7 @@ import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCros
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User, UsersGetResponse } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, User, UsersGetResponse } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -65,7 +65,7 @@ export interface IChildData {
 
 let dataFromApi: UsersGetResponse[] = []
 
-function Users({ form }: {
+function Users({ form, permissions }: {
     form: UseFormReturn<{
         regions: string[];
         functions: string[];
@@ -74,7 +74,8 @@ function Users({ form }: {
         search: string;
         queryParamString: string;
         dateRange?: any;
-    }, any, undefined>
+    }, any, undefined>,
+    permissions: Permission
 }) {
 
     const { toast } = useToast()
@@ -272,8 +273,8 @@ function Users({ form }: {
         setUserData(filterActivateOrDeactivate(dataFromApi, isActivated))
     }, [isActivated])
 
-    const addUserDialogButton = () => <AddUserDialogBox>
-        <Button className="flex flex-row gap-2" type="button">
+    const addUserDialogButton = () => <AddUserDialogBox permissions={permissions}>
+        <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add User
         </Button>
@@ -359,7 +360,7 @@ function Users({ form }: {
                             {isMultiSelectOn && !form.getValues("queryParamString") ? <div className="multi-selected flex flex-row gap-2">
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${isActivated ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `} type="button">
+                                        <Button disabled={!permissions?.change} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${isActivated ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `} type="button">
                                             {isActivated ? <>
                                                 <IconUserDeactive size={20} color={"white"} />
                                                 Deactivate
@@ -669,7 +670,7 @@ function Users({ form }: {
                     }
                 </div>)
             }
-            {childData?.row && <AddUserDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}
+            {childData?.row && <AddUserDialogBox permissions={permissions} parentData={{ childData, setChildDataHandler, open: true }} />}
         </>
     )
 }

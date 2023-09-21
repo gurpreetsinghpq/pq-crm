@@ -20,7 +20,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { IValueLabel, UserPatchBody, UserPostBody, UsersGetResponse } from '@/app/interfaces/interface'
+import { IValueLabel, Permission, UserPatchBody, UserPostBody, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue, valueToLabel } from './sideSheet'
 import { IconPower, IconUserActive, IconUserDeactive } from '../icons/svgIcons'
 import { getToken } from './leads'
@@ -61,7 +61,7 @@ const FormSchema = z.object({
 
 // const allTimezones = getAllTimezones()
 
-function AddUserDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
+function AddUserDialogBox({ children, permissions, parentData = undefined }: { children?: any | undefined, permissions:Permission,  parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [teamList, setTeamList] = useState<IValueLabel[]>()
@@ -155,10 +155,17 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                 console.log(result)
                 yesDiscard()
             } else {
-                toast({
-                    title: "Api Failure!",
-                    variant: "destructive"
-                })
+                if(result?.error?.email?.includes("user with this email already exists")){
+                    toast({
+                        title: "user with this email already exists",
+                        variant: "destructive"
+                    })
+                }else{
+                    toast({
+                        title: "Api Failure!",
+                        variant: "destructive"
+                    })
+                }
             }
 
         } catch (err) {
@@ -293,7 +300,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit User" : "Add User"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
+                                    <Button disabled={!permissions?.change} onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
                                         {
                                             data.is_active ? <>
                                                 <IconUserDeactive size={20} color={"white"} />
@@ -633,7 +640,7 @@ function AddUserDialogBox({ children, parentData = undefined }: { children?: any
                                             parentData?.open ?
                                                 <div className='flex flex-row gap-2 w-full justify-end'>
                                                     {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty} onClick={() => addUser(true)}>
+                                                    <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty || !permissions?.change} onClick={() => addUser(true)}>
                                                         Update
                                                     </Button>
                                                 </div> :

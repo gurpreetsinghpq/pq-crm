@@ -12,3 +12,4 @@ export const SELECTED_TAB_CLASSES = "bg-purple-100 rounded-[6px] text-purple-700
 export const inputFormMessageClassesWithSelect = "ml-[-82px]"
 export const tableHeaderClass = 'text-gray-600 text-xs font-medium px-[24px] py-[12px] bg-gray-50 border-b-[1px] border-gray-200 sticky top-0'
 export const popoverSidesheetWidthClasses = 'xl:w-[29vw] 2xl:w-[calc(21vw+10px)]'
+export const disabledSidebarItem = 'opacity-[0.3] cursor-not-allowed hover:cursor-not-allowed pointer-events-none'

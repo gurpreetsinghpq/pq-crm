@@ -1,7 +1,7 @@
 "use client"
 
 import { STATUSES } from "@/app/constants/constants"
-import { LeadInterface } from "@/app/interfaces/interface"
+import { LeadInterface, Permission } from "@/app/interfaces/interface"
 import { IconArchive, IconArrowDown, IconEdit, IconInbox } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -47,7 +47,7 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadData: CallableFunction, isInbox:boolean): ColumnDef<LeadInterface>[] { return [
+export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadData: CallableFunction, isInbox:boolean, permissions: Permission): ColumnDef<LeadInterface>[] { return [
     {
         id: "select",
         header: ({ table }) => (
@@ -243,7 +243,7 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
                                 Edit
                             </div>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={()=>{patchArchiveLeadData([row.original.id])}}>
+                        <DropdownMenuItem disabled={!permissions?.change} onClick={()=>{patchArchiveLeadData([row.original.id])}}>
                             <div className="flex flex-row gap-2 items-center">
                                 {isInbox?  <IconArchive size={16} color={"#344054"} />: <IconInbox size={16} color={"#344054"} />}
                                 {isInbox? "Archive": "Inbox"}

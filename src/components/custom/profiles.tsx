@@ -34,7 +34,7 @@ import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCros
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, ProfileGetResponse, User, UsersGetResponse } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, ProfileGetResponse, User, UsersGetResponse } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -66,12 +66,13 @@ export interface IChildData {
 }
 
 
-function Profiles({ form }: {
+function Profiles({ form, permissions }: {
     form:  UseFormReturn<{
         search: string;
         queryParamString: string;
         dateRange?: any;
-    }, any, undefined>
+    }, any, undefined>,
+    permissions:Permission
 }) {
 
     const { toast } = useToast()
@@ -246,8 +247,8 @@ function Profiles({ form }: {
             });
     }
 
-    const addProfileDialogButton = () => <AddProfileDialogBox>
-        <Button className="flex flex-row gap-2" type="button">
+    const addProfileDialogButton = () => <AddProfileDialogBox permissions={permissions}>
+        <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add Profile
         </Button>
@@ -368,7 +369,7 @@ function Profiles({ form }: {
                         {isInbox && addProfileDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <AddProfileDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}
+            {childData?.row && <AddProfileDialogBox permissions={permissions} parentData={{ childData, setChildDataHandler, open: true }} />}
         </>
     )
 }

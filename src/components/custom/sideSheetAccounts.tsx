@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientGetResponse, Contact, ContactPostBody, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientGetResponse, Contact, ContactPostBody, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -110,7 +110,7 @@ const form2Defaults: z.infer<typeof FormSchema2> = {
 
 
 
-function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
+function SideSheetAccounts({ parentData, permissions }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction }, permissions: Permission }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
     const [numberOfErrors, setNumberOfErrors] = useState<IErrors>({
@@ -603,9 +603,9 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                         <div className=' text-gray-900 text-xl font-semibold '>
                                             {rowState?.name}
                                         </div>
-                                        <div className='cursor-pointer' onClick={() => setEditAccountNameClicked(true)}>
+                                        {permissions?.change && <div className='cursor-pointer' onClick={() => setEditAccountNameClicked(true)}>
                                             <IconEdit2 size={24} />
-                                        </div>
+                                        </div>}
                                     </div> :
                                         <>
                                             <FormField
@@ -1270,7 +1270,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                                                 <Separator className="bg-gray-200 h-[1px]  mt-8" />
                                                 <div className="flex flex-row gap-2 justify-end mx-6 my-6">
                                                     <Button variant={"google"} onClick={() => yesDiscard()}>Cancel</Button>
-                                                    <Button type='button' disabled={!areContactFieldValid} onClick={() => addContact()}>
+                                                    <Button type='button' disabled={!permissions?.change || !areContactFieldValid} onClick={() => addContact()}>
                                                         Save & Add
                                                     </Button>
                                                 </div>
@@ -1317,7 +1317,7 @@ function SideSheetAccounts({ parentData }: { parentData: { childData: IChildData
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
 
                                 <div className='flex flex-row flex-1 justify-end '>
-                                    <Button variant="default" type="submit" disabled={!form.formState.isDirty}>Save</Button>
+                                    <Button variant="default" type="submit" disabled={!form.formState.isDirty || !permissions?.change}>Save</Button>
 
                                 </div>
                             </div>

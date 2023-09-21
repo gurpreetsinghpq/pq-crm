@@ -34,7 +34,7 @@ import { IconAccounts2, IconArchive, IconArchive2, IconArrowSquareRight, IconCro
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, IValueLabel, LeadInterface, PatchLead, User } from "@/app/interfaces/interface"
+import { ClientGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -61,7 +61,7 @@ export interface IChildData {
 }
 let dataFromApi: LeadInterface[] = []
 
-const Accounts = ({ form }: {
+const Accounts = ({ form, permissions }: {
     form: UseFormReturn<{
         search: string;
         creators: string[];
@@ -73,7 +73,8 @@ const Accounts = ({ form }: {
         sizes: string[];
         fundingStages: string[];
         dateRange?: any;
-    }, any, undefined>
+    }, any, undefined>,
+    permissions: Permission
 }) => {
     const { toast } = useToast()
 
@@ -265,7 +266,7 @@ const Accounts = ({ form }: {
     }
 
     const addAccountDialogButton = () => <AddLeadDialog page={"accounts"} fetchLeadData={fetchLeadData} >
-        <Button className="flex flex-row gap-2">
+        <Button disabled={!permissions?.add} className="flex flex-row gap-2">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add Account
         </Button>
@@ -615,7 +616,7 @@ const Accounts = ({ form }: {
                         {isInbox && addAccountDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <SideSheetAccounts parentData={{ childData, setChildDataHandler }} />}
+            {childData?.row && <SideSheetAccounts parentData={{ childData, setChildDataHandler }} permissions={permissions}/>}
         </div>
 
 

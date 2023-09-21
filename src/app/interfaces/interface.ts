@@ -623,3 +623,53 @@ export interface ContactPatchBody {
     email: string;
     organisation: number;
 }
+
+export interface GoogleUserInfo {
+    iss: string;
+    azp: string;
+    aud: string;
+    sub: string;
+    hd: string;
+    email: string;
+    email_verified: boolean;
+    nbf: number;
+    name: string;
+    picture: string;
+    given_name: string;
+    family_name: string;
+    locale: string;
+    iat: number;
+    exp: number;
+    jti: string;
+}
+
+export interface PermissionResponse {
+    id: number;
+    access_category: {
+        id: number;
+        name: string;
+        code: string;
+        url_frontend: null | string;
+        type: string;
+        default_access: {
+            add: boolean;
+            view: boolean;
+            access: boolean;
+            change: boolean;
+        };
+        content_type: number[]; // You may want to define a more specific type for this property
+        parent: null | number; // It can be either null or a number (parent's id)
+    };
+    access: boolean;
+    view: boolean;
+    add: boolean;
+    change: boolean;
+    group: number;
+}
+
+export interface Permission {
+    access: boolean;
+    view: boolean;
+    add: boolean;
+    change: boolean;
+  }

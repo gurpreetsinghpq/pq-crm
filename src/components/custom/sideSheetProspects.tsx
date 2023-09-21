@@ -5,13 +5,13 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Contact, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, PatchProspect, ProspectsGetResponse, RoleDetails, User } from '@/app/interfaces/interface'
+import { Contact, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, PatchProspect, ProspectsGetResponse, RoleDetails, User, Permission, IErrors, DeepPartial, ContactPostBody } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -25,10 +25,11 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
-import { handleOnChangeNumeric } from './commonFunctions'
+import { fetchUserDataList, handleOnChangeNumeric } from './commonFunctions'
+import { toast, useToast } from '../ui/use-toast'
 
 
 const FormSchema2 = z.object({
@@ -41,6 +42,20 @@ const FormSchema2 = z.object({
     }).email(),
     phone: z.string({
     }).min(10).max(10),
+    std_code: z.string({
+
+    }),
+    contactId: z.string().optional(),
+})
+const FormSchema2Mod = z.object({
+    name: z.string({
+    }).min(2).max(30),
+    designation: z.string({
+    }).transform((val) => val === undefined ? undefined : val.trim()),
+    type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
+    email: z.string({
+    }).email(),
+    phone: z.string().min(4).max(13),
     std_code: z.string({
 
     }),
@@ -115,38 +130,96 @@ const form2Defaults: z.infer<typeof FormSchema2> = {
 
 
 
-function SideSheetProspects({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
+function SideSheetProspects({ parentData, permissions }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction }, permissions: Permission }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
-    const [numberOfErrors, setNumberOfErrors] = useState<number>()
+    const [numberOfErrors, setNumberOfErrors] = useState<IErrors>({
+        invalidErrors: 0,
+        requiredErrors: 0
+    })
+    const [userList, setUserList] = useState<IValueLabel[]>()
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
-
+    const [isPromoteToProspectClicked, setPromoteToProspectClicked] = useState<boolean>(false)
+    const [isPromoteToProspectErrors, setPromoteToProspectErrors] = useState<boolean>(false)
+    const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const [showContactForm, setShowContactForm] = useState(true)
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
+    const [showErrors, setShowErrors] = useState<boolean>(false)
     const [addDialogOpen, setAddDialogOpen] = useState(false)
     const [budgetKey, setBudgetKey] = React.useState<number>(+new Date())
     const [places, setPlaces] = React.useState([])
     const [beforePromoteToProspectDivsArray, setBeforePromoteToProspectDivsArray] = useState<any[]>([]);
     // used for handling on side sheet open and result from api as side sheet is not been closed when clicked on save (usage: promote to prospect)
-    const [rowState, setRowState] = useState<Partial<ProspectsGetResponse>>()
+    const [rowState, setRowState] = useState<DeepPartial<ProspectsGetResponse>>()
     const { childData: { row }, setChildDataHandler } = parentData
-
 
 
     const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ProspectsGetResponse = row.original
+
+    const { toast } = useToast()
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            regions: labelToValue(data.lead.role?.region, REGIONS),
+            sources: data.lead.source || "",
+            statuses: labelToValue(data.status, PROSPECT_STATUSES),
+            owners: undefined,
+            role: labelToValue(data.lead.role?.role_type, ROLETYPE),
+            budget: labelToValue(data.lead.role?.budget_range, BUDGET_RANGE[labelToValue(data.lead.role?.region, REGIONS) || ""]),
+            locations: data.lead.role.location ? data.lead.role.location : undefined,
+            fixedCtcBudget: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getNumericValue() || undefined,
+            fixedBudgetUl: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getNumericValue() || undefined,
+            esopRsusUl: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getNumericValue() || undefined,
+            orgnaisationName: data.lead.organisation.name,
+            industry: labelToValue(data.lead.organisation.industry || "", INDUSTRY),
+            domain: undefined,
+            size: undefined,
+            lastFundingStage: undefined,
+            lastFundingAmount: undefined,
+            retainerAdvance: data.lead.retainer_advance === true ? "yes" : data.lead.retainer_advance === false ? "no" : undefined,
+            exclusivity: data.lead.exclusivity === true ? "yes" : data.lead.exclusivity === false ? "no" : undefined,
+            serviceFeeRange: labelToValue(data.lead.service_fee_range || "", SERVICE_FEE_RANGE),
+            timeToFill: labelToValue(data.lead.role.time_To_fill || "", TIME_TO_FILL),
+            reasons: data.reason || undefined,
+            fixedCtcBudgetCurrency: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getCurrencyCode() || "INR",
+            fixedBudgetUlCurrency: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getCurrencyCode() || "INR",
+            esopRsusUlCurrency: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getCurrencyCode() || "INR",
+            registeredName: data.lead.organisation.registered_name || "",
+            billingAddress: data.lead.organisation.billing_address || "",
+            shippingAddress: data.lead.organisation.shipping_address || "",
+            gstinVatGstNo: data.lead.organisation.govt_id || "",
+            serviceFee: data.lead.service_fee || ""
+        },
+        mode: "all"
+    })
+
     useEffect(() => {
         setRowState({
-            status: data.status
+            status: data.status,
+            lead: {
+                organisation: {
+                    segment: data.lead.organisation.segment
+                }
+            }
         })
         setDummyContactData(data.lead.organisation.contacts)
         const status = labelToValue(data.status, PROSPECT_STATUSES)
         if (status) {
-            updateFormSchemaOnStatusChange(status)
+            updateFormSchemaOnStatusChange(status, false)
         }
-
-
-
+        if (form.getValues("industry") === "vc_pe") {
+            setIsVcIndustrySelected(true)
+        }
+        form.setValue("reasons", data.reason || undefined)
+        form.setValue("budget", labelToValue(data.lead.role?.budget_range, BUDGET_RANGE[labelToValue(data.lead.role?.region, REGIONS) || ""]))
+        form.setValue("domain", labelToValue(data.lead.organisation.domain || "", DOMAINS))
+        form.setValue("size", labelToValue(data.lead.organisation.size || "", SIZE_OF_COMPANY))
+        form.setValue("lastFundingStage", labelToValue(data.lead.organisation.last_funding_stage || "", LAST_FUNDING_STAGE))
+        form.setValue("lastFundingAmount", labelToValue(data.lead.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
+        form.setValue("owners", data.owner.id.toString())
+        getUserList()
     }, [])
 
 
@@ -161,41 +234,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
     }
 
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            regions: labelToValue(data.lead.role?.region, REGIONS),
-            sources: data.lead.source || "",
-            statuses: labelToValue(data.status, PROSPECT_STATUSES),
-            owners: labelToValue(data.owner.id.toString(), OWNERS),
-            role: labelToValue(data.lead.role?.role_type, ROLETYPE),
-            budget: labelToValue(data.lead.role?.budget_range, BUDGET_RANGE[labelToValue(data.lead.role?.region, REGIONS) || ""]),
-            locations: data.lead.role.location ? data.lead.role.location : undefined,
-            fixedCtcBudget: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getNumericValue() || undefined,
-            fixedBudgetUl: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getNumericValue() || undefined,
-            esopRsusUl: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getNumericValue() || undefined,
-            orgnaisationName: data.lead.organisation.name,
-            industry: labelToValue(data.lead.organisation.industry || "", INDUSTRY),
-            domain: labelToValue(data.lead.organisation.domain || "", DOMAINS),
-            size: labelToValue(data.lead.organisation.size || "", SIZE_OF_COMPANY),
-            lastFundingStage: labelToValue(data.lead.organisation.last_funding_stage || "", LAST_FUNDING_STAGE),
-            retainerAdvance: data.lead.retainer_advance === true ? "yes" : data.lead.retainer_advance === false ? "no" : undefined,
-            exclusivity: data.lead.exclusivity === true ? "yes" : data.lead.exclusivity === false ? "no" : undefined,
-            serviceFeeRange: labelToValue(data.lead.service_fee_range || "", SERVICE_FEE_RANGE),
-            timeToFill: labelToValue(data.lead.role.time_To_fill || "", TIME_TO_FILL),
-            lastFundingAmount: labelToValue(data.lead.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT),
-            reasons: data.reason || undefined,
-            fixedCtcBudgetCurrency: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getCurrencyCode() || "INR",
-            fixedBudgetUlCurrency: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getCurrencyCode() || "INR",
-            esopRsusUlCurrency: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getCurrencyCode() || "INR",
-            registeredName: data.lead.organisation.registered_name || "",
-            billingAddress: data.lead.organisation.billing_address || "",
-            shippingAddress: data.lead.organisation.shipping_address || "",
-            gstinVatGstNo: data.lead.organisation.govt_id || "",
-            serviceFee: data.lead.service_fee || ""
-        },
-        mode: "all"
-    })
+
     const watcher = form.watch()
 
 
@@ -237,17 +276,21 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
     function safeparse2() {
         const contacts = form.getValues("contacts")
-        const result = FormSchema2.safeParse(contacts)
+        let result
+        if (contacts?.std_code !== "+91") {
+            result = FormSchema2Mod.safeParse(contacts)
+        } else {
+            result = FormSchema2.safeParse(contacts)
+        }
         console.log("safe prase 2 ", result)
         if (result.success) {
             setContactFieldValid(true)
         } else {
-            console.log("safe prase 2 ", result.error.errors)
             setContactFieldValid(false)
         }
     }
 
-    function addContact() {
+    async function addContact() {
         const finalData = form.getValues().contacts
         const ftype = TYPE.find((role) => role.value === finalData.type)?.label
         const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
@@ -255,9 +298,39 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
             const list = [{ ...form.getValues().contacts, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
             return list
         })
-        // setShowContactForm(false)
-        setAddDialogOpen(false)
-        resetForm2()
+
+        delete finalData["contactId"]
+        const orgId = data.lead.organisation.id
+        const dataToSend: ContactPostBody = {
+            ...finalData, type: ftype, designation: fDesignation, organisation: orgId
+        }
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+
+            if (result.status == "1") {
+                setAddDialogOpen(false)
+                resetForm2()
+                toast({
+                    title: "Contact Added Successfully!",
+                    variant: "dark"
+                })
+            } else {
+                toast({
+                    title: "Api Error!",
+                    variant: "destructive"
+                })
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+
+
+        console.log("finalData", dataToSend)
+        // setAddDialogOpen(false)
+        // resetForm2()
     }
 
     function yesDiscard(): void {
@@ -270,9 +343,16 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         form.reset({ "contacts": form2Defaults })
     }
     console.log(form.formState.errors)
+
     useEffect(() => {
-        // console.log(reasonMap[form.getValues("reasons")])
-    }, [form.watch()])
+        const subscription = form.watch(() => {
+            safeparse2()
+            setShowErrors(false)
+            // console.log("showErrors setter", false)
+        }
+        )
+        return () => subscription.unsubscribe()
+    }, [form.watch])
 
     function labelToValue(lookup: string, arr: IValueLabel[]) {
         return arr.find((item) => item.label === lookup)?.value
@@ -285,60 +365,49 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
     const token_superuser = getToken()
 
     async function promoteToProspect() {
-        const fieldsNeccessary = [
-            { name: "esopRsusUl", label: "ESOP RSUS UL" },
-            { name: "esopRsusUlCurrency", label: "ESOP RSUS UL Currency" },
-            { name: "fixedBudgetUl", label: "Fixed Budget UL" },
-            { name: "fixedBudgetUlCurrency", label: "Fixed Budget UL Currency" },
-            { name: "timeToFill", label: "Time to Fill" },
-            { name: "industry", label: "Industry" },
-            { name: "domain", label: "Domain" },
-            { name: "size", label: "Size" },
-            { name: "lastFundingStage", label: "Last Funding Stage" },
-            { name: "lastFundingAmount", label: "Last Funding Amount" },
-            { name: "retainerAdvance", label: "Retainer Advance" },
-            { name: "exclusivity", label: "Exclusivity" },
-            { name: "serviceFeeRange", label: "Service Fee Range" },
-        ];
-
-        const missingFields = fieldsNeccessary.filter((field) => {
-            const value = form.getValues(field.name);
-            return !value; // Check if value is falsy (empty or undefined)
-        });
-
-        const beforePromoteToProspectDivsArray: any[] = fieldsNeccessary.map((field) => {
-            const isMissing = missingFields.some((missingField) => missingField.name === field.name);
-            const icon = isMissing ? <MinusCircleIcon size={20} color="red" /> : <CheckCircle2 size={20} color="#17B26A" />
-
-            return (
-                <div className={`flex text-md flex-row gap-[8px] items-center {${isMissing ? "" : "font-normal opacity-[0.7]"}`} key={field.name}>
-                    {icon}
-                    <span className={`${isMissing ? "font-semibold text-gray-900 " : "font-normal opacity-[0.7]"}`}>{field.label}</span>
-                </div>
-            );
-        });
-        if (missingFields.length > 0 && beforePromoteToProspectDivsArray.length > 0) {
-            setBeforePromoteToProspectDivsArray(beforePromoteToProspectDivsArray);
-        } else {
-            setBeforePromoteToProspectDivsArray([]);
-            try {
-                const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-                const result = await dataResp.json()
-                if (result.message === "success") {
-                    // closeSideSheet()
-                }
-            }
-            catch (err) {
-                console.log("error", err)
-            }
+        setPromoteToProspectClicked(true)
+        setShowErrors(true)
+        console.log("showErrors setter", true)
+        const status = rowState?.status
+        if (status) {
+            updateFormSchemaOnStatusChange(status, true)
         }
+
+
+        // const beforePromoteToProspectDivsArray: any[] = fieldsNeccessary.map((field) => {
+        //     const isMissing = missingFields.some((missingField) => missingField.name === field.name);
+        //     const icon = isMissing ? <MinusCircleIcon size={20} color="red" /> : <CheckCircle2 size={20} color="#17B26A" />
+
+        //     return (
+        //         <div className={`flex text-md flex-row gap-[8px] items-center {${isMissing ? "" : "font-normal opacity-[0.7]"}`} key={field.name}>
+        //             {icon}
+        //             <span className={`${isMissing ? "font-semibold text-gray-900 " : "font-normal opacity-[0.7]"}`}>{field.label}</span>
+        //         </div>
+        //     );
+        // });
+        // if (missingFields.length > 0 && beforePromoteToProspectDivsArray.length > 0) {
+        //     setBeforePromoteToProspectDivsArray(beforePromoteToProspectDivsArray);
+        // } else {
+        //     setBeforePromoteToProspectDivsArray([]);
+        //     try {
+        //         const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+        //         const result = await dataResp.json()
+        //         if (result.message === "success") {
+        //             // closeSideSheet()
+        //         }
+        //     }
+        //     catch (err) {
+        //         console.log("error", err)
+        //     }
+        // }
+
 
 
     }
 
     async function patchData() {
 
-        setNumberOfErrors(undefined)
+        setNumberOfErrors({ invalidErrors: 0, requiredErrors: 0 })
         const finalContactData = dummyContactData.filter((contact) => !contact.id)
         let keysToRemove: any = ["contactId", "isLocallyAdded",]
         finalContactData.forEach((item) => {
@@ -416,6 +485,10 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         try {
             const results = await Promise.all(apiPromises);
             console.log("All API requests completed:", results);
+            toast({
+                title: "Prospect Updated Successfully!",
+                variant: "dark"
+            })
             // closeSideSheet()
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -423,13 +496,58 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
     }
 
-    function safeprs() {
+    async function getUserList() {
+        try {
+            const userList: any = await fetchUserDataList()
+            setUserList(userList)
+        } catch (err) {
+            console.error("user fetch error", err)
+        }
+
+    }
+
+    function safeprs(isPromoteToProspect: boolean = false) {
         const result = formSchema.safeParse(form.getValues())
-        console.log(result)
+        if (isPromoteToProspect) {
+            setPromoteToProspectClicked(false)
+        }
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
-            console.log(errorMap)
-            setNumberOfErrors(Object.keys(errorMap).length)
+            console.log("errormap", errorMap)
+            // Initialize error counters
+            let requiredErrorsCount = 0;
+            let invalidErrorsCount = 0;
+
+            // Iterate through the error map
+            for (const field in errorMap) {
+                const errors = errorMap[field];
+                for (const error of errors) {
+                    if (error.includes("Required")) {
+                        requiredErrorsCount++;
+                    } else {
+                        invalidErrorsCount++;
+                    }
+                }
+            }
+
+            const errorState = {
+                requiredErrors: requiredErrorsCount,
+                invalidErrors: invalidErrorsCount
+            };
+
+            setNumberOfErrors(errorState)
+            if (isPromoteToProspect) {
+                console.log("isPromoteToProspect if", isPromoteToProspect)
+                setPromoteToProspectErrors(true)
+            } else {
+                console.log("isPromoteToProspect else", isPromoteToProspect)
+                setPromoteToProspectErrors(false)
+            }
+        } else {
+            if (isPromoteToProspect) {
+                postPromoteToProspectSafeParse()
+
+            }
         }
     }
 
@@ -446,7 +564,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
 
     }
-    function updateFormSchemaOnStatusChange(value: string) {
+    function updateFormSchemaOnStatusChange(value: string, isPromoteToProspect: boolean = false, changeReason: boolean = false) {
         let updatedSchema
         if (value.toLowerCase() !== "qualified") {
             console.log("else")
@@ -459,16 +577,88 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                 reasons: z.string().optional()
             })
         }
-        if (addDialogOpen) {
-            updatedSchema = updatedSchema.extend({
-                contacts: FormSchema2
-            })
 
+        if (form.getValues("industry") === "vc_pe") {
+            updatedSchema = updatedSchema.extend({
+                domain: z.string().optional(),
+                size: z.string().optional(),
+                lastFundingStage: z.string().optional(),
+                lastFundingAmount: z.string().optional(),
+            })
+        }
+
+        if (addDialogOpen) {
+            const std_code = form.getValues("contacts.std_code")
+            if (std_code !== "+91") {
+                updatedSchema = updatedSchema.extend({
+                    contacts: FormSchema2Mod
+                })
+            } else {
+                updatedSchema = updatedSchema.extend({
+                    contacts: FormSchema2
+                })
+            }
+            console.log("status code watcher", updatedSchema)
         } else {
             updatedSchema = updatedSchema.omit({ contacts: true })
         }
+
+        updatedSchema = updatedSchema.superRefine((data, ctx) => {
+            const fixedBudgetUl = data.fixedBudgetUl;
+            const fixedCtcBudget = data.fixedCtcBudget;
+            const esopRsusUl = data.esopRsusUl;
+
+            // Check if fixedBudgetUl is a valid number greater than or equal to fixedCtcBudget
+            if (fixedBudgetUl !== null && fixedBudgetUl !== '' && fixedBudgetUl != undefined && fixedCtcBudget !== null && fixedCtcBudget !== '' && fixedCtcBudget != undefined) {
+                const fixedBudgetUlNumeric = Number(fixedBudgetUl?.toLocaleString().replace(/\D/g, ''));
+                const fixedCtcBudgetNumeric = Number(fixedCtcBudget?.toLocaleString().replace(/\D/g, ''));
+                const isFixedBudgetGreaterOrEqual = fixedBudgetUlNumeric >= fixedCtcBudgetNumeric;
+
+                if (!isFixedBudgetGreaterOrEqual) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        // message: "Fixed Budget should be greater than or equal to Fixed CTC Budget.",
+                        message: "Invalid Input",
+                        path: ["fixedBudgetUl"],
+                    });
+                }
+            }
+
+            // Check if fixedCtcBudget is a valid number greater than or equal to 49999
+            if (fixedCtcBudget !== null && fixedCtcBudget !== '' && fixedCtcBudget !== undefined) {
+                const fixedCtcBudgetNumeric = Number(fixedCtcBudget?.toLocaleString().replace(/\D/g, ''));
+                const isFixedCtcBudgetValid = fixedCtcBudgetNumeric >= 49999;
+
+                if (!isFixedCtcBudgetValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        // message: "Fixed CTC Budget should be greater than or equal to 49999.",
+                        message: "Invalid Input",
+                        path: ["fixedCtcBudget"],
+                    });
+                }
+            }
+
+            // Check if esopRsusUl is a valid number greater than or equal to 9999
+            if (esopRsusUl !== null && esopRsusUl !== '' && esopRsusUl !== undefined) {
+                const esopRsusUlNumeric = Number(esopRsusUl?.toLocaleString().replace(/\D/g, ''));
+                const isEsopRsusUlValid = esopRsusUlNumeric >= 9999;
+
+                if (!isEsopRsusUlValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        message: "Invalid Input",
+                        path: ["esopRsusUl"],
+                    });
+                }
+            }
+
+            return data; // Return the data
+        });
+
         setFormSchema(updatedSchema)
-        setNumberOfErrors(undefined)
+        setNumberOfErrors({ invalidErrors: 0, requiredErrors: 0 })
         form.clearErrors()
         console.log("first ", FormSchema)
     }
@@ -483,9 +673,26 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         }
     };
 
+    function checkVcIndutsry() {
+        const industry = form.getValues("industry")
+        if (industry === "vc_pe") {
+            setIsVcIndustrySelected(true)
+            form.setValue("lastFundingStage", undefined)
+            form.setValue("lastFundingAmount", undefined)
+            form.setValue("domain", undefined)
+            form.setValue("size", undefined)
+        } else {
+            setIsVcIndustrySelected(false)
+        }
+    }
+
     function preprocess() {
-        console.log("preprocess")
+        updateFormSchemaOnStatusChange(form.getValues("statuses"))
         safeprs()
+        setShowErrors(true)
+
+        console.log("showErrors setter", true)
+
     }
 
     function parseCurrencyValue(inputString: string) {
@@ -518,26 +725,30 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
     }
 
     useEffect(() => {
-        console.log(form.getValues("contacts.std_code"))
-        let updatedSchema = formSchema
-        if (form.getValues("contacts.std_code") === "+91") {
-            formSchema.extend({
-                contacts: FormSchema2.extend({
-                    phone: z.string().min(10).max(10)
-                })
-            })
-
-        } else {
-            formSchema.extend({
-                contacts: FormSchema2.extend({
-                    phone: z.string().min(4).max(13)
-                })
-            })
+        if (watcher.contacts?.std_code?.length > 0) {
+            console.log("status code watcher")
+            const status = form.getValues("statuses")
+            updateFormSchemaOnStatusChange(status)
+            console.log("status code watcher", form.getFieldState("contacts"))
         }
-        setFormSchema(updatedSchema)
     }, [watcher.contacts?.std_code])
 
-    console.log(formSchema)
+    // console.log("isPromoteToProspectClicked",isPromoteToProspectClicked)
+    console.log("isPromoteToProspectErrors", isPromoteToProspectErrors)
+    useEffect(() => {
+        // console.log(formSchema, isPromoteToProspectClicked)
+        if (isPromoteToProspectClicked) {
+            console.log("promote to prospect clickeed")
+            safeprs(true)
+            form.trigger()
+        } else {
+            safeprs()
+        }
+
+        if (addDialogOpen) {
+            safeparse2()
+        }
+    }, [formSchema])
 
     function changeStdCode(value: string) {
         // let updatedSchema
@@ -556,6 +767,28 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         // }
         // setFormSchema(updatedSchema)
     }
+
+    async function postPromoteToProspectSafeParse() {
+        setPromoteToProspectClicked(false)
+
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            if (result.message === "success") {
+                closeSideSheet()
+                toast({
+                    title: "Promoted to Prospect!",
+                    variant: "dark"
+                })
+            }
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+        //     }
+
+    }
+
 
     return (
         <div className={`fixed flex flex-row z-[50] right-0 top-0 h-[100vh] w-[100vw] `} >
@@ -679,41 +912,67 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         control={form.control}
                                         name="owners"
                                         render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div className='text-[#98A2B3]'>
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger>
-                                                                                <IconProfile size={24} />
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Owned By
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
+                                            <FormItem className='w-full cursor-pointer'>
+                                                <Popover>
+                                                    <PopoverTrigger asChild >
+                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
+                                                            <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div>
+                                                                            <IconProfile size={24} />
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        Owned By
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                    {userList && userList.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
                                                                 </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select Owner" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            OWNERS.filter((owner) => owner.value !== 'allOwners').map((owner, index) => {
-                                                                return <SelectItem key={index} value={owner.value}>
-                                                                    {owner.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
+                                                        </div>
+
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                        <Command>
+                                                            <CommandInput className='w-full' placeholder="Search Owner" />
+                                                            <CommandEmpty>Owner not found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                    {userList && userList.map((owner) => (
+                                                                        <CommandItem
+                                                                            value={owner.value}
+                                                                            key={owner.value}
+                                                                            onSelect={() => {
+                                                                                form.setValue("owners", owner.value, SET_VALUE_CONFIG)
+                                                                            }}
+                                                                        >
+                                                                            <PopoverClose asChild>
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {owner.label}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value === owner.value
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </PopoverClose>
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </div>
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                                {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
+
                                             </FormItem>
                                         )}
                                     />
@@ -1269,7 +1528,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="pl-[6px] pr-[4px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="industry"
@@ -1292,14 +1551,14 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                             </TooltipProvider>
                                                             <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Industry</span>}
+                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Industry</span>}
                                                                 </div>
                                                                 <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
+                                                    <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Industry" />
                                                             <CommandEmpty>Industry not found.</CommandEmpty>
@@ -1310,8 +1569,8 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                             value={industry.value}
                                                                             key={industry.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("industry", industry.value)
-
+                                                                                form.setValue("industry", industry.value, SET_VALUE_CONFIG)
+                                                                                checkVcIndutsry()
                                                                             }}
                                                                         >
                                                                             <PopoverClose asChild>
@@ -1340,16 +1599,16 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
                                     <FormField
                                         control={form.control}
                                         name="domain"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
+                                                        <SelectTrigger className={`border-none mb-2   ${commonFontClasses} ${isVcIndustrySelected && disabledClasses} `}>
+                                                            <div className='flex flex-row gap-[22px] items-center ' >
                                                                 <div >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -1387,15 +1646,15 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
                                     <FormField
                                         control={form.control}
                                         name="size"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && disabledClasses}`}>
                                                             <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
@@ -1434,15 +1693,15 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                         )}
                                     />
                                 </div>
-                                <div className="pl-[6px] pr-[4px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className={`pl-[6px] pr-[4px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
                                     <FormField
                                         control={form.control}
                                         name="lastFundingStage"
                                         render={({ field }) => (
                                             <FormItem className='w-full cursor-pointer'>
-                                                <Popover>
-                                                    <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
+                                                <Popover >
+                                                    <PopoverTrigger asChild disabled={isVcIndustrySelected}>
+                                                        <div className={`flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ${isVcIndustrySelected ? `${disabledClasses} cursor-not-allowed ` : ""}`}  >
                                                             <TooltipProvider>
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
@@ -1455,16 +1714,16 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </TooltipProvider>
-                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Last Funding Stage</span>}
+                                                            <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
                                                                 </div>
                                                                 <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[2px] p-0 xl:w-[29vw] 2xl:w-[calc(21vw+10px)]" >
+                                                    {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}  >
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                             <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -1475,7 +1734,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                             value={lastFundingStage.value}
                                                                             key={lastFundingStage.value}
                                                                             onSelect={() => {
-                                                                                form.setValue("lastFundingStage", lastFundingStage.value)
+                                                                                form.setValue("lastFundingStage", lastFundingStage.value, SET_VALUE_CONFIG)
                                                                             }}
                                                                         >
                                                                             <PopoverClose asChild>
@@ -1496,22 +1755,22 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                                 </div>
                                                             </CommandGroup>
                                                         </Command>
-                                                    </PopoverContent>
+                                                    </PopoverContent>}
                                                 </Popover>
                                                 {!form.getValues("lastFundingStage") && <FormMessage className={selectFormMessageClasses} />}
                                             </FormItem>
                                         )}
                                     />
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
                                     <FormField
                                         control={form.control}
                                         name="lastFundingAmount"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && `${disabledClasses}  `}`}>
                                                             <div className='flex flex-row gap-[22px] items-center  ' >
                                                                 <div >
                                                                     <TooltipProvider>
@@ -2013,7 +2272,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                                 <Separator className="bg-gray-200 h-[1px]  mt-8" />
                                                 <div className="flex flex-row gap-2 justify-end mx-6 my-6">
                                                     <Button variant={"google"} onClick={() => yesDiscard()}>Cancel</Button>
-                                                    <Button type='button' disabled={!areContactFieldValid} onClick={() => addContact()}>
+                                                    <Button type='button' disabled={!areContactFieldValid || !permissions?.change} onClick={() => addContact()}>
                                                         Save & Add
                                                     </Button>
                                                 </div>
@@ -2058,14 +2317,22 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                                 </div>
                             </div>
                             <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                {numberOfErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
+                                {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && !isPromoteToProspectErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
                                     <IconRequiredError size={16} />
-                                    <span>
-                                        {numberOfErrors} field(s) missing
-                                    </span>
+                                    <div className="flex flex-row text-xs text-error-700 gap-[3px] font-normal">
+                                        {(numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && <span className='font-bold'>Field(s)</span>}
+                                        {numberOfErrors.requiredErrors > 0 && <span>
+                                            Missing:
+                                            <span className='font-bold'> {numberOfErrors.requiredErrors} </span>
+                                        </span>}
+                                        {numberOfErrors.requiredErrors > 0 && numberOfErrors.invalidErrors > 0 && ";"}
+                                        {numberOfErrors.invalidErrors > 0 && <span>
+                                            Invalid: <span className='font-bold'>{numberOfErrors.invalidErrors}</span>
+                                        </span>}
+                                    </div>
                                 </div>}
                                 <div className='flex flex-row flex-1 justify-end '>
-                                    <Button variant="default" type="submit" >Save</Button>
+                                    <Button variant="default" type="submit" disabled={!form.formState.isDirty || !permissions?.change} >Save</Button>
 
                                 </div>
                             </div>
@@ -2077,7 +2344,10 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
                             <div className='flex flex-row justify-end'>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button disabled={rowState?.status ? rowState?.status.toLowerCase() !== "qualified" : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                        {/* <Button disabled={rowState?.status ? rowState?.status.toLowerCase() !== "qualified" : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
+                                            <span >Promote to Deal</span> <IconArrowSquareRight size={20} />
+                                        </Button> */}
+                                        <Button disabled={true || permissions?.change}>
                                             <span >Promote to Deal</span> <IconArrowSquareRight size={20} />
                                         </Button>
                                     </DialogTrigger>
@@ -2163,7 +2433,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
         }
     }
 
-    async function patchLeadData( leadData: Partial<PatchLead>, roleData: Partial<RoleDetails>) {
+    async function patchLeadData(leadData: Partial<PatchLead>, roleData: Partial<RoleDetails>) {
 
         const titleExisting = data.lead.title?.split(" ").join("").split("-")
 
@@ -2255,7 +2525,7 @@ function SideSheetProspects({ parentData }: { parentData: { childData: IChildDat
 
         }
     }
-    
+
 }
 
 export default SideSheetProspects

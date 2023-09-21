@@ -34,7 +34,7 @@ import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCros
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, User } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -61,7 +61,7 @@ export interface IChildData {
 }
 let dataFromApi: LeadInterface[] = []
 
-const Contacts = ({ form }: {
+const Contacts = ({ form, permissions }: {
     form: UseFormReturn<{
         designations: string[];
         accounts: string[];
@@ -70,7 +70,8 @@ const Contacts = ({ form }: {
         search: string;
         queryParamString: string;
         dateRange?: any;
-    }, any, undefined>
+    }, any, undefined>,
+    permissions: Permission
 }) => {
     const { toast } = useToast()
 
@@ -87,6 +88,7 @@ const Contacts = ({ form }: {
     const [childData, setChildData] = React.useState<IChildData>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [userList, setUserList] = React.useState<IValueLabel[]>()
+    const [accountList, setAccountList] = React.useState<IValueLabel[]>()
 
 
 
@@ -154,6 +156,25 @@ const Contacts = ({ form }: {
             //     setIsMultiSelectOn(false)
             //     setSelectedRowIds([])
             // }
+            const accountData: IValueLabel[] = data.map((val) => ({
+                value: val.organisation.id.toString(),
+                label: val.organisation.name,
+              }));
+              
+              // Create a Set to keep track of unique IDs
+              const uniqueIds = new Set();
+              
+              // Use filter to get unique entries based on the 'value' property
+              const uniqueAccountData = accountData.filter((entry) => {
+                if (!uniqueIds.has(entry.value)) {
+                  uniqueIds.add(entry.value);
+                  return true;
+                }
+                return false;
+              });
+              
+              setAccountList(uniqueAccountData);
+              
         }
         catch (err) {
             setIsLoading(false)
@@ -260,7 +281,7 @@ const Contacts = ({ form }: {
     }
 
     const addAccountDialogButton = () => <AddLeadDialog page={"contacts"} fetchLeadData={fetchLeadData} >
-        <Button className="flex flex-row gap-2">
+        <Button disabled={!permissions.add} className="flex flex-row gap-2">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add Contact
         </Button>
@@ -644,7 +665,7 @@ const Contacts = ({ form }: {
                         {isInbox && addAccountDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <SideSheetContacts parentData={{ childData, setChildDataHandler }} />}
+            {childData?.row && <SideSheetContacts parentData={{ childData, setChildDataHandler }} permissions={permissions} accountList={accountList}/>}
         </div>
 
 

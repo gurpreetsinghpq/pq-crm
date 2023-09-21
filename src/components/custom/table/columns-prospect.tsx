@@ -1,7 +1,7 @@
 "use client"
 
 import { PROSPECT_STATUSES, STATUSES } from "@/app/constants/constants"
-import { LeadInterface, ProspectsGetResponse } from "@/app/interfaces/interface"
+import { LeadInterface, Permission, ProspectsGetResponse } from "@/app/interfaces/interface"
 import { IconArchive, IconArrowDown, IconEdit, IconInbox } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -47,7 +47,7 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export function columnsProspects(setChildDataHandler:CallableFunction,patchArchiveProspectData: CallableFunction, isInbox:boolean): ColumnDef<ProspectsGetResponse>[] {return [
+export function columnsProspects(setChildDataHandler:CallableFunction,patchArchiveProspectData: CallableFunction, isInbox:boolean, permissions:Permission): ColumnDef<ProspectsGetResponse>[] {return [
     {
         id: "select",
         header: ({ table }) => (
@@ -278,7 +278,7 @@ export function columnsProspects(setChildDataHandler:CallableFunction,patchArchi
                                 Edit
                             </div>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={()=>{patchArchiveProspectData([row.original.id])}}>
+                        <DropdownMenuItem disabled={!permissions?.change} onClick={()=>{patchArchiveProspectData([row.original.id])}}>
                             <div className="flex flex-row gap-2 items-center">
                                 {isInbox?  <IconArchive size={16} color={"#344054"} />: <IconInbox size={16} color={"#344054"} />}
                                 {isInbox? "Archive": "Inbox"}

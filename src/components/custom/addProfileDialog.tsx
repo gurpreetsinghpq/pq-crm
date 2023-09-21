@@ -20,7 +20,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
-import { AccessCategoryGetResponse, IValueLabel, ProfilePostBody, SpecificProfileGetResponse, UsersGetResponse } from '@/app/interfaces/interface'
+import { AccessCategoryGetResponse, IValueLabel, Permission, ProfilePostBody, SpecificProfileGetResponse, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue } from './sideSheet'
 import { IconCheckDone, IconPower, IconUserDeactive } from '../icons/svgIcons'
 import { Checkbox } from '../ui/checkbox'
@@ -89,11 +89,19 @@ const defaultModifiedFormSchema2 = {
     change: false
 }
 
+const defaultModifiedFormSchema3 = {
+    all: false,
+    access: false,
+    add: false,
+    view: true,
+    change: false
+}
+
 export type FormField = keyof typeof FormSchema['shape'];
 
 // const allTimezones = getAllTimezones()
 
-function AddProfileDialogBox({ children, parentData = undefined }: { children?: any | undefined, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
+function AddProfileDialogBox({ children, permissions, parentData = undefined }: { children?: any | undefined, permissions:Permission , parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
     const [open, setOpen] = useState<boolean>(false)
     const [data, setData] = useState()
     const [checkFields, setCheckFields] = useState<boolean>(false)
@@ -108,7 +116,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
             Deals: defaultModifiedFormSchema2,
             Leads: defaultFormSchema,
             Prospects: defaultModifiedFormSchema2,
-            UserManagement: defaultFormSchema,
+            UserManagement: defaultModifiedFormSchema3,
             profileName: "",
             allTheFields: false
         }
@@ -263,6 +271,14 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                 all: obj.access && obj.view
                             }
                             break;
+                        case "UserManagement":
+                            dataToSet = {
+                                access: obj.access,
+                                add: obj.add,
+                                change: obj.change,
+                                view: true,
+                                all: obj.access && obj.add && obj.change
+                            }
                         default:
                             dataToSet = {
                                 access: obj.access,
@@ -405,6 +421,13 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
             change: val,
             all: val,
         }
+        const defaultModifiedValue3 = {
+            access: val,
+            add: val,
+            view: true,
+            change: val,
+            all: val,
+        }
         form.setValue("Accounts", defaultAllValue, SET_VALUE_CONFIG)
         form.setValue("Contacts", defaultAllValue, SET_VALUE_CONFIG)
         form.setValue("Dashboard", defaultModifiedValue, SET_VALUE_CONFIG)
@@ -412,7 +435,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
         form.setValue("Insights", defaultModifiedValue, SET_VALUE_CONFIG)
         form.setValue("Leads", defaultAllValue, SET_VALUE_CONFIG)
         form.setValue("Prospects", defaultModifiedValue2, SET_VALUE_CONFIG)
-        form.setValue("UserManagement", defaultAllValue, SET_VALUE_CONFIG)
+        form.setValue("UserManagement", defaultModifiedValue3, SET_VALUE_CONFIG)
     }
 
 
@@ -437,6 +460,15 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                     access: !val,
                     add: "NA",
                     view: !val,
+                    change: !val
+                }, SET_VALUE_CONFIG)
+            }
+            else if (key1.toLowerCase() === "usermanagement" ) {
+                form.setValue(keyToUpdate1, {
+                    all: !val,
+                    access: !val,
+                    add: !val,
+                    view: true,
                     change: !val
                 }, SET_VALUE_CONFIG)
             }
@@ -489,7 +521,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Profile" : "Add Profile"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600'>
+                                    <Button disabled={!permissions?.change} variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600'>
                                         {/* <IconUserDeactive size={20} color={"white"} /> */}
                                         Deactivate Profile
                                     </Button>
@@ -549,7 +581,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                                     />
                                                 </div>
                                                 <div className={`${tableHeaderClass} col-span-3`}>
-                                                    Permission Type
+                                                    Module
                                                 </div>
                                                 <div className={tableHeaderClass}>
                                                     Access
@@ -599,7 +631,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                                                                                             field.onChange(val)
                                                                                                         }}
                                                                                                         checked={fieldValue}
-                                                                                                        disabled={field.value === "NA"}
+                                                                                                        disabled={field.value === "NA" || k === "UserManagement.view"}
                                                                                                     />
                                                                                                 </FormControl>
                                                                                             </FormItem>
@@ -627,7 +659,7 @@ function AddProfileDialogBox({ children, parentData = undefined }: { children?: 
                                             parentData?.open ?
                                                 <div className='flex flex-row gap-2 w-full justify-end'>
                                                     {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid} onClick={() => addProfile(true)}>
+                                                    <Button type='button' disabled={!form.formState.isValid || !permissions?.change} onClick={() => addProfile(true)}>
                                                         Update
                                                     </Button>
                                                 </div> :

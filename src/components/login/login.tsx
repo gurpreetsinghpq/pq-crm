@@ -2,17 +2,20 @@
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "../ui/use-toast"
 import ToastMe from "../custom/toastMe"
 import { Toaster } from "../ui/toaster"
+import { parseJwt } from "../custom/commonFunctions";
+import { GoogleUserInfo } from "@/app/interfaces/interface";
 
 
 const FormSchema = z.object({
@@ -41,21 +44,24 @@ export default function Signin() {
     const [timerId, setTimerId] = useState<number | null>(null);
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [googleWidth, setGoogleWidth] = useState<string>("")
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            email:"",
-            password:""
+            email: "",
+            password: ""
         },
         mode: "all"
     })
+
+    const buttonRef: any = useRef(null)
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 
     async function login() {
         setIsLoading(true)
-       
+
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/login/`, { method: "POST", body: JSON.stringify(form.getValues()), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
@@ -86,9 +92,9 @@ export default function Signin() {
                     })
                 }
             }
-            setTimeout(()=>{
+            setTimeout(() => {
                 setPostLogin(undefined)
-            },3000)
+            }, 3000)
 
         }
         catch (err) {
@@ -116,6 +122,55 @@ export default function Signin() {
         }
     }, [])
 
+    useEffect(() => {
+        const googleWidth = buttonRef.current?.offsetWidth
+        console.dir(buttonRef.current)
+        setGoogleWidth(`${googleWidth}px`)
+
+    }, [])
+
+    async function signinWithGoogle(jwt: GoogleUserInfo) {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/users/gauth/`, { method: "POST", body: JSON.stringify(jwt), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            setIsLoading(false)
+            const { data } = result
+            console.log(result)
+            if (result.status == 1) {
+                localStorage.setItem("user", JSON.stringify(data))
+                router.replace('/dashboard')
+                setPostLogin({ message: "Succesfully logged in", status: 1, show: true })
+                toast({
+                    title: "Logged in!",
+                    variant: "dark"
+                })
+            } else {
+                const errormsg = "User Not Active | Unable to login with given credentials!"
+                if (result?.error?.non_field_errors?.includes(errormsg)) {
+                    toast({
+                        title: errormsg,
+                        variant: "destructive"
+                    })
+                } else {
+                    toast({
+                        title: "Sorry some error have occured",
+                        variant: "destructive"
+                    })
+                }
+            }
+            setTimeout(() => {
+                setPostLogin(undefined)
+            }, 3000)
+
+        }
+        catch (err) {
+            setIsLoading(false)
+            console.log("error", err)
+
+        }
+
+    }
+
     return <div className="signin-container flex min-h-screen relative">
         <div className="left flex flex-col w-7/12 bg-purple-600 justify-center py-[6rem] 2xl:py-[10rem]">
             <div className="flex flex-row mb-8 absolute top-[44px] left-[44px]">
@@ -135,51 +190,76 @@ export default function Signin() {
                 </div>
             </div>
         </div>
-        <Form {...form}>
+        <div className="right px-12 py-6 w-5/12 justify-center flex flex-col ">
 
-            <form className="right px-12 py-6 w-5/12 justify-center flex flex-col " onSubmit={form.handleSubmit(onSubmit)} >
-                <Image alt="pq search" src={"/pq-search.png"} width={40} height={40} className="mb-5" />
-                <div className="text-2xl my-2 text-gray-900 font-bold">Sign in</div>
-                <div className="text-gray-600 mb-6 text-sm">Welcome back! Please enter your details.</div>
-                <span className="text-gray-700 text-sm mb-1">Email</span>
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem className="mb-5">
-                            <FormControl>
-                                <Input disabled={isLoading} className={`${commonClasses}`} placeholder="Enter email" {...field} />
-                            </FormControl>
-                            <FormMessage />
+            <Form {...form} >
+                <form className="flex flex-col" onSubmit={form.handleSubmit(onSubmit)} >
+                    <Image alt="pq search" src={"/pq-search.png"} width={40} height={40} className="mb-5" />
+                    <div className="text-2xl my-2 text-gray-900 font-bold">Sign in</div>
+                    <div className="text-gray-600 mb-6 text-sm">Welcome back! Please enter your details.</div>
+                    <span className="text-gray-700 text-sm mb-1">Email</span>
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem className="mb-5">
+                                <FormControl>
+                                    <Input disabled={isLoading} className={`${commonClasses}`} placeholder="Enter email" {...field} />
+                                </FormControl>
+                                <FormMessage />
 
-                        </FormItem>
-                    )}
-                />
-                <span className="text-gray-700 text-sm mb-1">Password</span>
+                            </FormItem>
+                        )}
+                    />
+                    <span className="text-gray-700 text-sm mb-1">Password</span>
 
-                <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Input type="password" autoComplete="on" disabled={isLoading} placeholder="Enter password" className={`${commonClasses}`} {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <Link href={"/forgotpassword"} className="text-purple-700 font-bold my-6 text-sm">Forgot password</Link>
-                <Button variant={"default"} disabled={isLoading} type="submit" className="flex flex-row gap-2">
-                    {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-                    Sign in
-                </Button>
-                <div className="text-gray-400 font-medium flex my-4 flex-row justify-center">OR</div>
-                <Button variant={"google"} disabled={isLoading} >
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <Input type="password" autoComplete="on" disabled={isLoading} placeholder="Enter password" className={`${commonClasses}`} {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Link href={"/forgotpassword"} className="text-purple-700 font-bold my-6 text-sm">Forgot password</Link>
+                    <Button ref={buttonRef} variant={"default"} disabled={isLoading} type="submit" className="flex flex-row gap-2">
+                        {isLoading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+                        Sign in
+                    </Button>
+                    <div className="text-gray-400 font-medium flex my-4 flex-row justify-center">OR</div>
+                    {/* <Button variant={"google"} disabled={isLoading} >
                     <Image src="/google.png" className="mr-3" height={24} width={24} alt="google search icon" /> Sign in with Google
-                </Button>
-            </form>
-        </Form>
+                </Button> */}
+
+                </form>
+            </Form>
+            <div className="flex flex-row justify-center w-full">
+                <GoogleOAuthProvider clientId="272679518967-j4530tj210q5k9mud5kmrtsg6e40kd06.apps.googleusercontent.com">
+                    {<GoogleLogin
+                        // size="large"
+                        width={googleWidth}
+                        // width={"1000px"}
+                        size="large"
+
+                        onSuccess={credentialResponse => {
+                            if (credentialResponse.credential) {
+                                console.log(credentialResponse)
+                                const jwt = parseJwt(credentialResponse.credential)
+                                console.log(jwt)
+                                signinWithGoogle(jwt)
+                            }
+                        }}
+                        onError={() => {
+                            console.log('Login Failed');
+                        }}
+                    />}
+                </GoogleOAuthProvider>
+            </div>
+        </div>
     </div>
 }
 

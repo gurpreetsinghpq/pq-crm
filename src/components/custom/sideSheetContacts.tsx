@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientCompleteInterface, ClientGetResponse, Contact, ContactPatchBody, ContactsGetResponse, DeepPartial, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientCompleteInterface, ClientGetResponse, Contact, ContactPatchBody, ContactsGetResponse, DeepPartial, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -62,7 +62,7 @@ const formDefaults: z.infer<typeof FormSchema> = {
 
 
 
-function SideSheetContacts({ parentData }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction } }) {
+function SideSheetContacts({ parentData, permissions, accountList }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction }, permissions:Permission, accountList:IValueLabel[] | undefined }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
     const [editContactNameClicked, setEditContactNameClicked] = useState<boolean>(false);
@@ -341,9 +341,9 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                         <div className=' text-gray-900 text-xl font-semibold '>
                                             {rowState?.name}
                                         </div>
-                                        <div className='cursor-pointer' onClick={() => setEditContactNameClicked(true)}>
+                                        {permissions?.change && <div className='cursor-pointer' onClick={() => setEditContactNameClicked(true)}>
                                             <IconEdit2 size={24} />
-                                        </div>
+                                        </div>}
                                     </div> :
                                         <>
                                             <FormField
@@ -447,9 +447,9 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                                     <SelectContent>
                                                         <div className='max-h-[200px] overflow-y-auto'>
                                                             {
-                                                                organisationList && organisationList?.map((organisation, index) => {
-                                                                    return <SelectItem value={organisation.id.toString()} key={index}>
-                                                                        {organisation.name}
+                                                                accountList && accountList?.map((organisation, index) => {
+                                                                    return <SelectItem value={organisation.value} key={index}>
+                                                                        {organisation.label}
                                                                     </SelectItem>
                                                                 })
                                                             }
@@ -662,7 +662,7 @@ function SideSheetContacts({ parentData }: { parentData: { childData: IChildData
                                 </div>} */}
                                 <div className='flex flex-row flex-1 justify-end '>
                                     <Button variant="default" type="submit"
-                                        disabled={!form.formState.isDirty || !form.formState.isValid}
+                                        disabled={!form.formState.isDirty || !form.formState.isValid || !permissions?.change}
                                     >
                                         Save
                                     </Button>

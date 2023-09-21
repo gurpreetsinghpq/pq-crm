@@ -34,7 +34,7 @@ import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCros
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, TeamGetResponse, User, UsersGetResponse } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, TeamGetResponse, User, UsersGetResponse } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -65,13 +65,14 @@ export interface IChildData {
 }
 
 
-function Teams({ form }: {
+function Teams({ form, permissions }: {
     form: UseFormReturn<{
         teamLeaders: string[];
         search: string;
         queryParamString: string;
         dateRange?: any;
-    }, any, undefined>
+    }, any, undefined>,
+    permissions:Permission
 }) {
 
     const { toast } = useToast()
@@ -259,8 +260,8 @@ function Teams({ form }: {
             });
     }
 
-    const addTeamDialogButton = () => <AddTeamDialogBox>
-        <Button className="flex flex-row gap-2" type="button">
+    const addTeamDialogButton = () => <AddTeamDialogBox permissions={permissions}>
+        <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add Team
         </Button>
@@ -447,7 +448,7 @@ function Teams({ form }: {
                         {isInbox && addTeamDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <AddTeamDialogBox parentData={{ childData, setChildDataHandler, open: true }} />}
+            {childData?.row && <AddTeamDialogBox permissions={permissions} parentData={{ childData, setChildDataHandler, open: true }} />}
         </>
     )
 }

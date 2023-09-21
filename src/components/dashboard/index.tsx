@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useRef, useState } from "react"
 import Leads from "../../components/custom/leads"
-import { User } from "@/app/interfaces/interface"
+import { Permission, PermissionResponse, User } from "@/app/interfaces/interface"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 import Accounts from "../custom/accounts"
@@ -19,6 +19,8 @@ import { Toaster } from "../ui/toaster"
 import { toast } from "../ui/use-toast"
 import { Button } from "../ui/button"
 import { ArrowDown, ArrowUp } from "lucide-react"
+import { fetchProfileDetailsById } from "../custom/commonFunctions"
+import { disabledSidebarItem } from "@/app/constants/classes"
 
 
 const LeadFormSchema = z.object({
@@ -158,8 +160,8 @@ const TITLES = {
 }
 
 export default function DashboardComponent() {
-    const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
-    // const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
+    // const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
+    const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.ACCOUNTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
@@ -167,6 +169,7 @@ export default function DashboardComponent() {
     const [isScrollDown, setScrollDown] = useState<boolean>(true)
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [showScrollButton, setShowScrollButton] = useState(true);
+    const [permissions, setPermissions] = useState<{ [key: string]: { access: boolean, view: boolean, add: boolean, change: boolean } }>({});
 
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth <= 1300 : false
@@ -321,9 +324,33 @@ export default function DashboardComponent() {
         }
     })
 
+    async function getUserPermissions(id: string) {
+        const userPermissions: PermissionResponse[] = await fetchProfileDetailsById(id)
+
+        const permissions = userPermissions && userPermissions?.map((val) => ({
+            access_category: val.access_category.name,
+            access: val.access,
+            view: val.view,
+            add: val.add,
+            change: val.change
+        }))
+
+        const permissionsObject: { [key: string]: { access: boolean, view: boolean, add: boolean, change: boolean } } = {};
+
+        if (userPermissions) {
+            permissions.forEach((val) => {
+                const { access_category, access, view, add, change } = val;
+                permissionsObject[access_category] = { access, view, add, change };
+            });
+        }
+        setPermissions(permissionsObject)
+
+        console.log("userPermissions fac", permissionsObject["User Management"])
+    }
     useEffect(() => {
         const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
-
+        const profileId: string = userFromLocalstorage.profile.id
+        getUserPermissions(profileId)
         setUser(userFromLocalstorage)
     }, [])
 
@@ -367,10 +394,10 @@ export default function DashboardComponent() {
 
     const handleHover = (isHovering: boolean) => {
         if (sidebarRef.current) {
-        //   Show/hide the scrollbars on hover/unhover
-          sidebarRef.current.style.overflow = isHovering ? 'auto' : 'hidden';
+            //   Show/hide the scrollbars on hover/unhover
+            sidebarRef.current.style.overflow = isHovering ? 'auto' : 'hidden';
         }
-      };
+    };
 
     useEffect(() => {
         if (sidebarRef.current) {
@@ -391,7 +418,7 @@ export default function DashboardComponent() {
                 <IconPq size={32} />
             </div>
             <div className="flex flex-col overflow-y-auto  pq-sidebar  items-center  xl:px-1 2xl:px-[0px]" ref={sidebarRef} onMouseEnter={() => handleHover(true)}
-      onMouseLeave={() => handleHover(false)}>
+                onMouseLeave={() => handleHover(false)}>
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
@@ -418,10 +445,10 @@ export default function DashboardComponent() {
                 </TooltipProvider>
                 <div className="h-1 w-2/3 my-[24px] border-t-2 border-purple-800"></div>
 
-                <TooltipProvider>
+                {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'}`}>
+                            <div onClick={() => setCurrentTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem }`}>
                                 <IconLeads size={24} />
                             </div>
                         </TooltipTrigger>
@@ -429,12 +456,12 @@ export default function DashboardComponent() {
                             Leads
                         </TooltipContent>
                     </Tooltip>
-                </TooltipProvider>
+                </TooltipProvider>}
 
-                <TooltipProvider>
+                {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'}`}>
+                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${!(permissions["Prospect"]?.access && permissions["Prospect"]?.view) && disabledSidebarItem }`}>
                                 <IconProspects size={24} />
                             </div>
                         </TooltipTrigger>
@@ -446,7 +473,7 @@ export default function DashboardComponent() {
                             </TooltipContent>
                         </div>
                     </Tooltip>
-                </TooltipProvider>
+                </TooltipProvider>}
                 <div className="h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
                         <g id="wallet-06">
@@ -456,10 +483,10 @@ export default function DashboardComponent() {
                     </svg>
                 </div>
                 <div className="h-1 w-2/3 my-[24px] border-t-2 border-purple-800"></div>
-                <TooltipProvider>
+                {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'}`}>
+                            <div onClick={() => setCurrentTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'} ${!(permissions["Organisation"]?.access && permissions["Organisation"]?.view) && disabledSidebarItem }`}>
                                 <IconAccounts2 size={24} />
                             </div>
                         </TooltipTrigger>
@@ -467,11 +494,11 @@ export default function DashboardComponent() {
                             Accounts
                         </TooltipContent>
                     </Tooltip>
-                </TooltipProvider>
-                <TooltipProvider>
+                </TooltipProvider>}
+                {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'}`}>
+                            <div onClick={() => setCurrentTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'} ${!(permissions["Contact"]?.access && permissions["Contact"]?.view) && disabledSidebarItem }`}>
                                 <IconContacts />
                             </div>
                         </TooltipTrigger>
@@ -479,13 +506,13 @@ export default function DashboardComponent() {
                             Contacts
                         </TooltipContent>
                     </Tooltip>
-                </TooltipProvider>
+                </TooltipProvider>}
                 <div className="h-1 w-2/3 my-[24px] border-t-2 border-purple-800"></div>
 
-                <TooltipProvider>
+                {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'}`}>
+                            <div onClick={() => setCurrentTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem }`}>
                                 {/* <IconUserManagement /> */}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
                                     <g id="users-02">
@@ -499,10 +526,10 @@ export default function DashboardComponent() {
                             User Management
                         </TooltipContent>
                     </Tooltip>
-                </TooltipProvider>
+                </TooltipProvider>}
                 {isSmallScreen && <div className="sticky bottom-0 rounded-full h-[40px] w-[40px] bg-purple-700 flex-row justify-center w-full">
-                    { showScrollButton &&  <div onClick={() => scrollDown()} className="cursor-pointer flex flex-row justify-center"><ArrowDown size={20} color="white" /></div>}
-                    { !showScrollButton && <div onClick={() => scrollUp()} className="cursor-pointer flex flex-row justify-center"><ArrowUp size={20} color="white" /></div>}
+                    {showScrollButton && <div onClick={() => scrollDown()} className="cursor-pointer flex flex-row justify-center"><ArrowDown size={20} color="white" /></div>}
+                    {!showScrollButton && <div onClick={() => scrollUp()} className="cursor-pointer flex flex-row justify-center"><ArrowUp size={20} color="white" /></div>}
                 </div>}
             </div>
 
@@ -540,11 +567,11 @@ export default function DashboardComponent() {
                 </div>
             </div>
             <div className="bottom flex flex-col flex-1">
-                {currentTab === TITLES.LEADS && <Leads form={LeadForm} />}
-                {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm} />}
-                {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} />}
-                {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} />}
-                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} />}
+                {currentTab === TITLES.LEADS && <Leads form={LeadForm} permissions={permissions["Lead"]}/>}
+                {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm} permissions={permissions["Prospect"]}/>}
+                {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} permissions={permissions["Organisation"]}/>}
+                {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} permissions={permissions["Contact"]}/>}
+                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]}/>}
 
 
             </div>

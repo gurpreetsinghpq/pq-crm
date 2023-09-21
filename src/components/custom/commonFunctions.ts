@@ -1,4 +1,4 @@
-import { IValueLabel, ProfileGetResponse, TeamGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
+import { IValueLabel, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getToken } from "./leads";
 
 export function handleOnChangeNumeric(
@@ -110,6 +110,24 @@ export async function fetchProfileDataList() {
     return err
   }
 }
+
+export async function fetchProfileDetailsById(id:string): Promise<PermissionResponse[] >{
+  try{
+    const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/${id}/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if(result.data.permissions){
+      const data:PermissionResponse[] = structuredClone(result?.data?.permissions)
+      console.log("userPermissions", data)
+
+      return data
+    }
+    return []
+  }
+  catch(err: any){
+    return err
+  }
+}
+
 export function getLength(data:any){
   return data.length
 }
@@ -125,4 +143,13 @@ export function getFullName(data:any) {
       return `${data.first_name} ${data.last_name}`
   }
   return "—"
+}
+export function parseJwt (token:string) {
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+
+  return JSON.parse(jsonPayload);
 }

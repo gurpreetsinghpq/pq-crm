@@ -34,7 +34,7 @@ import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, 
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { IValueLabel, ProspectsGetResponse, User } from "@/app/interfaces/interface"
+import { IValueLabel, Permission, ProspectsGetResponse, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
@@ -59,7 +59,7 @@ export interface IChildData {
 }
 let dataFromApi: ProspectsGetResponse[] = []
 
-const Prospects = ({ form }: {
+const Prospects = ({ form, permissions }: {
     form: UseFormReturn<{
         owners: string[];
         creators: string[];
@@ -69,7 +69,8 @@ const Prospects = ({ form }: {
         search: string;
         queryParamString: string;
         dateRange?: any;
-    }, any, undefined>
+    }, any, undefined>,
+    permissions: Permission
 }) => {
     const { toast } = useToast()
 
@@ -348,7 +349,7 @@ const Prospects = ({ form }: {
                             {isMultiSelectOn && !form.getValues("queryParamString") ? <div className="multi-selected flex flex-row gap-2">
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant={"google"} className="flex flex-row gap-2" type="button" >
+                                        <Button disabled={!permissions?.change} variant={"google"} className="flex flex-row gap-2" type="button" >
                                             <IconArchive size={20} color="#344054" />
                                             {isInbox ? "Archive" : "Inbox"}
                                         </Button>
@@ -712,7 +713,7 @@ const Prospects = ({ form }: {
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTable columns={columnsProspects(setChildDataHandler, patchArchiveProspectData, isInbox)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
+                    <DataTable columns={columnsProspects(setChildDataHandler, patchArchiveProspectData, isInbox, permissions)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
@@ -725,7 +726,7 @@ const Prospects = ({ form }: {
                     </>}
                 </div>)
             }
-            {childData?.row && <SideSheetProspects parentData={{ childData, setChildDataHandler }} />}
+            {childData?.row && <SideSheetProspects parentData={{ childData, setChildDataHandler }} permissions={permissions}/>}
         </div>
 
 
