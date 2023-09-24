@@ -162,11 +162,11 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            regions: labelToValue(data.lead.role?.region, REGIONS),
+            regions: data.lead.role?.region,
             sources: data.lead.source || "",
             statuses: labelToValue(data.status, PROSPECT_STATUSES),
             owners: undefined,
-            role: labelToValue(data.lead.role?.role_type, ROLETYPE),
+            role: data.lead.role?.role_type,
             budget: labelToValue(data.lead.role?.budget_range, BUDGET_RANGE[labelToValue(data.lead.role?.region, REGIONS) || ""]),
             locations: data.lead.role.location ? data.lead.role.location : undefined,
             fixedCtcBudget: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getNumericValue() || undefined,
@@ -451,10 +451,10 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         }
         const region = valueToLabel(form.getValues("regions"), REGIONS)
         const roleDetailsData: Partial<PatchRoleDetails> = {
-            role_type: valueToLabel(form.getValues("role"), ROLETYPE),
-            region: region,
+            // role_type: valueToLabel(form.getValues("role"), ROLETYPE),
+            // region: region,
             location: form.getValues("locations"),
-            budget_range: valueToLabel(form.getValues("budget"), BUDGET_RANGE[form.getValues("regions")]),
+            budget_range: valueToLabel(form.getValues("budget"), BUDGET_RANGE[labelToValue(form.getValues("regions"),REGIONS) || ""]),
             fixed_budget: `${form.getValues("fixedCtcBudgetCurrency")} ${form.getValues("fixedCtcBudget")}`,
             fixed_budget_ul: `${form.getValues("fixedBudgetUlCurrency")} ${form.getValues("fixedBudgetUl")}`,
             esop_rsu: `${form.getValues("esopRsusUlCurrency")} ${form.getValues("esopRsusUl")}`,
@@ -607,6 +607,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             const fixedBudgetUl = data.fixedBudgetUl;
             const fixedCtcBudget = data.fixedCtcBudget;
             const esopRsusUl = data.esopRsusUl;
+            const serviceFee = data.serviceFee;
 
             // Check if fixedBudgetUl is a valid number greater than or equal to fixedCtcBudget
             if (fixedBudgetUl !== null && fixedBudgetUl !== '' && fixedBudgetUl != undefined && fixedCtcBudget !== null && fixedCtcBudget !== '' && fixedCtcBudget != undefined) {
@@ -650,6 +651,19 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                         // message: "Esop Rsus Ul should be greater than or equal to 9999.",
                         message: "Invalid Input",
                         path: ["esopRsusUl"],
+                    });
+                }
+            }
+
+            if(serviceFee !== null && serviceFee !=='' && serviceFee !== undefined){
+                const serviceFeeNumeric = Number(serviceFee);
+                const isServiceFeeValid = serviceFeeNumeric >= 10 && serviceFeeNumeric <=50;
+
+                if (!isServiceFeeValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "Invalid Input",
+                        path: ["serviceFee"],
                     });
                 }
             }
@@ -1064,106 +1078,61 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                 <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium'>
                                     Role Details
                                 </span>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div>
+                                                    <IconRoles size={24} color="#98A2B3" />
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top">
+                                                Role
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                     <FormField
                                         control={form.control}
                                         name="role"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconRoles size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Role
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
 
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select Role" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <div className='h-[200px] overflow-y-scroll '>
-                                                            {
-                                                                ROLETYPE.map((role, index) => {
-                                                                    return <SelectItem key={index} value={role.value}>
-                                                                        {role.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
+                                                <FormControl>
+                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Role" {...field} />
+                                                </FormControl>
                                                 <FormMessage className={selectFormMessageClasses} />
                                             </FormItem>
                                         )}
                                     />
+
                                 </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <div>
+                                                    <IconGlobe size={24} color="#98A2B3" />
+                                                </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top">
+                                                Region
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
                                     <FormField
                                         control={form.control}
                                         name="regions"
                                         render={({ field }) => (
                                             <FormItem className='w-full'>
-                                                <Select onValueChange={async (value) => {
-                                                    form.setValue("budget", undefined)
-                                                    form.resetField("budget", { defaultValue: undefined })
-                                                    await form.trigger("budget")
-                                                    return field.onChange(value)
-                                                }} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconGlobe size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Region
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
 
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select Region" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            REGIONS.filter((region) => region.value !== 'allRegions').map((region, index) => {
-                                                                return <SelectItem key={index} value={region.value}>
-                                                                    {region.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
+                                                <FormControl>
+                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Region" {...field} />
+                                                </FormControl>
                                                 <FormMessage className={selectFormMessageClasses} />
                                             </FormItem>
                                         )}
                                     />
+
                                 </div>
                                 <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 border-b-2 " >
                                     <TooltipProvider>
@@ -1223,7 +1192,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     </FormControl>
                                                     <SelectContent>
                                                         {
-                                                            BUDGET_RANGE[form.getValues("regions")]?.map((budget, index) => {
+                                                            BUDGET_RANGE[labelToValue(form.getValues("regions"), REGIONS) || ""]?.map((budget, index) => {
                                                                 return <SelectItem key={index} value={budget.value}>
                                                                     {budget.label}
                                                                 </SelectItem>
@@ -2064,7 +2033,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Service Fee" {...field}
                                                         onKeyPress={handleKeyPress}
                                                         onChange={event => {
-                                                            return handleOnChangeNumericDecimal(event, field)
+                                                            return handleOnChangeNumeric(event, field, false)
                                                         }} />
                                                 </FormControl>
                                                 <FormMessage />

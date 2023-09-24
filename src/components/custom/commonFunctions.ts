@@ -1,4 +1,4 @@
-import { IValueLabel, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
+import { IValueLabel, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getToken } from "./leads";
 
 export function handleOnChangeNumeric(
@@ -127,6 +127,21 @@ export async function fetchProfileDetailsById(id:string): Promise<PermissionResp
     return err
   }
 }
+
+export async function fetchMyDetails(): Promise<UserProfile | undefined>{
+  try{
+    const dataResp = await fetch(`${baseUrl}/v1/api/users/my_account/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if(result.data){
+      return result.data
+    }
+  }
+  catch(err: any){
+    return err
+  }
+}
+
+
 
 export function getLength(data:any){
   return data.length

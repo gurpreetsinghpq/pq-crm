@@ -89,7 +89,7 @@ function Profiles({ form, permissions }: {
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
 
     const [childData, setChildData] = React.useState<IChildData>()
-
+    const [isAddDialogClosed, setIsAddDialogClosed] = React.useState<boolean>(false)
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
@@ -150,6 +150,10 @@ function Profiles({ form, permissions }: {
             let dataFromApi = data
             setUserData(dataFromApi)
             setIsLoading(false)
+            if(dataFromApi.length===0){
+                setTableLength(0)
+
+            }
             // if (filteredData.length == 0) {
             //     setTableLength(0)
             //     setIsMultiSelectOn(false)
@@ -175,6 +179,13 @@ function Profiles({ form, permissions }: {
     React.useEffect(() => {
         console.log(watcher)
     }, [watcher])
+
+    React.useEffect(() => {
+        if(isAddDialogClosed){
+            fetchProfileData()
+            setIsAddDialogClosed(false)
+        }
+    }, [isAddDialogClosed])
 
     // React.useEffect(() => {
     //     setUserData(filterInboxOrArchive(dataFromApi, isInbox))
@@ -247,7 +258,7 @@ function Profiles({ form, permissions }: {
             });
     }
 
-    const addProfileDialogButton = () => <AddProfileDialogBox permissions={permissions}>
+    const addProfileDialogButton = () => <AddProfileDialogBox permissions={permissions} setIsAddDialogClosed={setIsAddDialogClosed}>
         <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add Profile
@@ -357,7 +368,7 @@ function Profiles({ form, permissions }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsProfiles} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teams"} />
+                    <DataTable columns={columnsProfiles} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"profiles"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconUsers size="20" />

@@ -38,10 +38,10 @@ const FormSchema = z.object({
     }).email().min(1),
     std_code: z.string({
         // required_error: "Please select budget range"
-    }).min(1),
+    }).min(1).optional(),
     phone: z.string({
         // required_error: "Please select a lead source"
-    }).min(10).max(10),
+    }).min(10).max(10).optional(),
     region: z.string({
 
     }).min(1).transform((val) => val === undefined ? undefined : val.trim()),
@@ -61,7 +61,7 @@ const FormSchema = z.object({
 
 // const allTimezones = getAllTimezones()
 
-function AddUserDialogBox({ children, permissions, parentData = undefined }: { children?: any | undefined, permissions:Permission,  parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
+function AddUserDialogBox({ children, permissions, parentData = undefined, setIsAddDialogClosed }: { children?: any | undefined, permissions:Permission,  parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined , setIsAddDialogClosed?:CallableFunction}) {
     const [open, setOpen] = useState<boolean>(false)
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [teamList, setTeamList] = useState<IValueLabel[]>()
@@ -75,7 +75,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
             lastName: "",
             email: "",
             std_code: "+91",
-            phone: "",
+            phone: undefined,
             region: undefined,
             function: undefined,
             reportingTo: undefined,
@@ -96,7 +96,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
         console.log("std_code", value, value != "+91")
         if (value != "+91") {
             updatedSchema = FormSchema.extend({
-                phone: z.string().min(4).max(13)
+                phone: z.string().min(4).max(13).optional()
             })
         } else {
             console.log("neh")
@@ -112,26 +112,29 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
         form.trigger()
     },[formSchema])
 
-    function yesDiscard() {
+    function yesDiscard(isAdd:boolean=false) {
         setOpen(false)
         form.reset()
-
-        parentData?.setChildDataHandler('row', undefined)
+        if(isAdd && setIsAddDialogClosed){
+            setIsAddDialogClosed(true)
+        }else{
+            parentData?.setChildDataHandler('row', undefined)
+        }
     }
 
     async function addUser(isUpdate: boolean = false) {
+        
         const dataToSend: UserPostBody = {
             first_name: form.getValues("firstName") || "",
             last_name: form.getValues("lastName") || "",
             email: form.getValues("email") || "",
             function: valueToLabel(form.getValues("function") || "", FUNCTION) || "",
-            // mobile: `${form.getValues("std_code")} ${form.getValues("phone")}` ,
-            mobile: `${form.getValues("phone")}`,
             password: "12345678",
             profile: Number(form.getValues("profile")),
             reporting_to: Number(form.getValues("reportingTo")),
             region: valueToLabel(form.getValues("region") || "", REGION) || ""
         }
+        
         const dataToSendOnUpdate: Partial<UserPatchBody> = {
             first_name: form.getValues("firstName") || "",
             last_name: form.getValues("lastName") || "",
@@ -143,6 +146,16 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
             reporting_to: Number(form.getValues("reportingTo")),
             region: valueToLabel(form.getValues("region") || "", REGION) || ""
         }
+       
+        if(form.getValues("phone")){
+            const mobileNumber = `${form.getValues("std_code")} ${form.getValues("phone")}` 
+            dataToSend["mobile"] = mobileNumber
+            dataToSendOnUpdate["mobile"] = mobileNumber
+        }else{
+            dataToSend["mobile"] = ""
+            dataToSendOnUpdate["mobile"] =""
+        }
+        
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/users/${isUpdate ? `${parentData?.childData.row.original.id}/` : ""}`, { method: isUpdate ? "PATCH" : "POST", body: JSON.stringify(isUpdate ? dataToSendOnUpdate : dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
 
@@ -153,7 +166,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
                     variant: "dark"
                 })
                 console.log(result)
-                yesDiscard()
+                yesDiscard(true)
             } else {
                 if(result?.error?.email?.includes("user with this email already exists")){
                     toast({
@@ -217,8 +230,11 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
             form.setValue("firstName", data.first_name)
             form.setValue("lastName", data.last_name)
             form.setValue("email", data.email)
-            form.setValue("phone", data.mobile)
-            // form.setValue("std_code", data.)
+            const [stdCode, mobile] =  data.mobile.split(" ")
+            if(stdCode?.length>0 && mobile?.length>0){
+                form.setValue("phone", mobile)
+                form.setValue("std_code",stdCode)
+            }
             form.setValue("reportingTo", data?.reporting_to?.id?.toString())
             form.setValue("profile", data.profile.id.toString())
             form.setValue("function", labelToValue(data.function, ALL_FUNCTIONS) || undefined)
@@ -239,7 +255,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
         // console.log(allTimezones.find((val) => console.log(val.value, form.getValues("timeZone")))?.label)
         const subscription = form.watch(() => {
             form.getValues()
-            console.log(form.formState.isValid, form.formState.isDirty)
+            console.log(form.formState.isValid, form.formState.isDirty, form.formState.errors)
         })
         return () => subscription.unsubscribe()
     }, [form.watch])
@@ -300,7 +316,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined }: { c
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit User" : "Add User"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button disabled={!permissions?.change} onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
+                                    <Button disabled={!permissions?.change || !data.is_email_verified} onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
                                         {
                                             data.is_active ? <>
                                                 <IconUserDeactive size={20} color={"white"} />

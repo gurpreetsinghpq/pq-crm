@@ -52,7 +52,7 @@ const TABS = {
     SELECTED_USERS: "Selected Users",
 }
 
-function AddTeamDialogBox({ children, permissions, parentData = undefined }: { children?: any | undefined, permissions:Permission, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
+function AddTeamDialogBox({ children, permissions, parentData = undefined, setIsAddDialogClosed = undefined }: { children?: any | undefined, permissions: Permission, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined, setIsAddDialogClosed?: CallableFunction }) {
     const [open, setOpen] = useState<boolean>(false)
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [userAssigned, setUserAssigned] = useState<boolean>(true)
@@ -72,7 +72,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined }: { c
     const [valueToSearch, setValueToSearch] = useState<string>()
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
-    
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -117,13 +117,17 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined }: { c
         setFormSchema(updatedSchema)
     }
 
-    function yesDiscard() {
-        setOpen(false)
+    function yesDiscard(isAdd: boolean = false) {
+        if (isAdd && setIsAddDialogClosed) {
+            setIsAddDialogClosed(true)
+        } else {
+            parentData?.setChildDataHandler('row', undefined)
+        }
         form.reset()
         setShowAssignUser(false)
         setShowAssignUserTable(false)
         setCurrentTab(TABS.ALL_USERS)
-        parentData?.setChildDataHandler('row', undefined)
+        setOpen(false)
 
     }
 
@@ -149,7 +153,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined }: { c
                         variant: "dark"
                     })
                     console.log(result)
-                    yesDiscard()
+                    yesDiscard(true)
                 } else {
                     toast({
                         title: "Api Failure!",
@@ -259,22 +263,35 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined }: { c
             leader: Number(teamLeader),
             members: []
         }
-        const id =parentData?.childData.row.original.id
+        const id = parentData?.childData.row.original.id
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/team/${id}/`, { method:"PATCH", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-
+            const dataResp = await fetch(`${baseUrl}/v1/api/team/${id}/`, { method: "PATCH", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             if (result.status == "1") {
-                const dataResp = await fetch(`${baseUrl}/v1/api/team/${id}/`, { method:"DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-                const result = await dataResp.json()
-                if(result.status===1){
+                const dataResp = await fetch(`${baseUrl}/v1/api/team/${id}/`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                if (dataResp.status === 204) {
                     toast({
                         title: `Team Deleted Succesfully!`,
                         variant: "dark"
                     })
                     console.log(result)
                     yesDiscard()
-                    
+                } else {
+                    const result = await dataResp.json()
+                    if (result.status == "1") {
+                        yesDiscard()
+                        toast({
+                            title: `Team Deleted Succesfully!`,
+                            variant: "dark"
+                        })
+                        console.log(result)
+
+                    } else {
+                        toast({
+                            title: "Api Failure!",
+                            variant: "destructive"
+                        })
+                    }
                 }
             } else {
                 toast({
@@ -356,7 +373,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined }: { c
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Team" : "Add Team"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' disabled={selectedRows?.length !== 0 || !permissions?.change} onClick={()=>deleteTeam()}>
+                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' disabled={selectedRows?.length !== 0 || !permissions?.change} onClick={() => deleteTeam()}>
                                         <IconTrash size={20} color={"white"} />
                                         Delete Team
                                     </Button>

@@ -125,7 +125,7 @@ export default function DataTable<TData, TValue>({
     return row.id
   }, [])
 
-  
+
   const table = useReactTable({
     data,
     columns,
@@ -175,6 +175,9 @@ export default function DataTable<TData, TValue>({
         break;
       case "teamsDialog":
         setTeamsDialogFilter()
+        break;
+      case "profiles":
+        setProfilesFilter()
         break;
 
     }
@@ -359,7 +362,7 @@ export default function DataTable<TData, TValue>({
       const accountFilter = filterObj.accounts
       table.getColumn("organisation")?.setFilterValue(accountFilter)
     }
-    
+
     if (filterObj.creators && filterObj.creators.includes("allCreators")) {
       table.getColumn("created_by")?.setFilterValue("")
     }
@@ -430,6 +433,11 @@ export default function DataTable<TData, TValue>({
     table.getColumn("name")?.setFilterValue(filterObj.search)
   }
 
+  function setProfilesFilter() {
+    
+    table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+  }
+
   function handleTableChange() {
     console.log("hey")
   }
@@ -443,7 +451,7 @@ export default function DataTable<TData, TValue>({
   return (
     <div className="flex flex-col flex-1">
       <div className="border-[1px] border-gray-200 flex-1 " ref={tbl}>
-        {tbl.current?.offsetHeight && (<div style={{  height: page==='teamsDialog' ? "200px": `${tbl.current?.offsetHeight - 3}px` }} className={` overflow-y-scroll`}>
+        {tbl.current?.offsetHeight && (<div style={{ height: page === 'teamsDialog' ? "200px" : `${tbl.current?.offsetHeight - 3}px` }} className={` overflow-y-scroll`}>
           <Table className="flex-1 " onChange={handleTableChange} >
             <TableHeader className="bg-gray-50 sticky top-0 left-0">
               {table.getHeaderGroups().map((headerGroup) => (
@@ -518,7 +526,7 @@ export default function DataTable<TData, TValue>({
           </Button>
         </div>
       </div> */}
-      {page!=="teamsDialog" && <div className="pl-[16px] pr-[16px] py-4">
+      {page !== "teamsDialog" && <div className="pl-[16px] pr-[16px] py-4">
         <DataTablePagination table={table} />
       </div>}
     </div>

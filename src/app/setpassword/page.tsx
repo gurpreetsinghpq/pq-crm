@@ -14,10 +14,12 @@ import { z } from 'zod'
 const FormSchema = z.object({
     password: z.string({
         required_error: "Please enter password.",
-    }).min(8, { message: "" }).regex(
-        new RegExp(".*[`~<>?,./!@#$%^&*()\\-_+=\"'|{}\\[\\];:\\\\].*"),
-        "One special character"
-    ),
+    })
+    // .min(8, { message: "" }).regex(
+    //     new RegExp(".*[`~<>?,./!@#$%^&*()\\-_+=\"'|{}\\[\\];:\\\\].*"),
+    //     "One special character"
+    // )
+    ,
     confirm_password: z.string({
         required_error: "Please re-enter your password.",
     })
@@ -76,8 +78,8 @@ function setPassword() {
 
         const queryParamUid = searchParams.get("uid")
 
-
-        if (queryParamUid && errorChecks?.minChars && errorChecks.oneSpecialChar) {
+        console.log("queryParamUid",queryParamUid)
+        if (queryParamUid ) {
             const formData = form.getValues()
             const { password } = formData
 

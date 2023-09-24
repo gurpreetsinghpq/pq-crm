@@ -51,13 +51,13 @@ const ROLETYPE: IValueLabel[] = [
         acronym: "HOE"
     },
     {
-        value: "svp_vp_avpOfEngineering",
-        label: "SVP / VP / AVP of Engineering",
+        value: "vpOfEngineering",
+        label: "VP of Engineering",
         acronym: "VPOE"
     },
     {
-        value: "srDirector_directorOfEngineering",
-        label: "Sr. Director / Director of Engineering",
+        value: "directorOfEngineering",
+        label: "Director of Engineering",
         acronym: "DOE"
     },
     {
@@ -66,8 +66,8 @@ const ROLETYPE: IValueLabel[] = [
         acronym: "SL"
     },
     {
-        value: "headOfAi_DataScience",
-        label: "Head of AI / Data Science",
+        value: "headOfDataScience",
+        label: "Head of Data Science",
         acronym: "HODS"
     },
     {
@@ -76,8 +76,8 @@ const ROLETYPE: IValueLabel[] = [
         acronym: "ciso"
     },
     {
-        value: "chief_PrincipalArchitect",
-        label: "Chief / Principal Architect",
+        value: "PrincipalArchitect",
+        label: "Principal Architect",
         acronym: "PA"
     },
     {

@@ -79,7 +79,7 @@ function Teams({ form, permissions }: {
 
     const router = useRouter();
 
-    const [data, setUserData] = React.useState<TeamGetResponse[]>([])
+    const [data, setTeamData] = React.useState<TeamGetResponse[]>([])
 
     const [isLoading, setIsLoading] = React.useState<boolean>(true)
     const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
@@ -91,15 +91,19 @@ function Teams({ form, permissions }: {
     const [childData, setChildData] = React.useState<IChildData>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [userList, setUserList] = React.useState<IValueLabel[]>()
+    const [isAddDialogClosed, setIsAddDialogClosed] = React.useState<boolean>(false)
 
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
+        console.log("setChildDataHandler", key, data)
         setChildData((prev) => {
             return { ...prev, [key]: data }
         })
+        console.log("setChildData prev", data)
         if (!data) {
-            fetchLeadData()
+            console.log("setChildData", data)
+            fetchTeamData()
         }
     }
 
@@ -131,9 +135,9 @@ function Teams({ form, permissions }: {
                 },
                 rangeCompare: undefined
             })
-            await fetchLeadData(true)
+            await fetchTeamData(true)
         } else {
-            fetchLeadData()
+            fetchTeamData()
         }
     }
 
@@ -141,17 +145,21 @@ function Teams({ form, permissions }: {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     getToken()
     const token_superuser = getToken()
-    async function fetchLeadData(noArchiveFilter: boolean = false) {
+    async function fetchTeamData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/team/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: TeamGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
-            setUserData(dataFromApi)
+            setTeamData(dataFromApi)
+            
             setIsLoading(false)
+            if(dataFromApi.length===0){
+                setTableLength(0)
+
+            }
             // if (filteredData.length == 0) {
-            //     setTableLength(0)
             //     setIsMultiSelectOn(false)
             //     setSelectedRowIds([])
             // }
@@ -189,8 +197,15 @@ function Teams({ form, permissions }: {
         console.log(watcher)
     }, [watcher])
 
+    React.useEffect(() => {
+        if(isAddDialogClosed){
+            fetchTeamData()
+            setIsAddDialogClosed(false)
+        }
+    }, [isAddDialogClosed])
+
     // React.useEffect(() => {
-    //     setUserData(filterInboxOrArchive(dataFromApi, isInbox))
+    //     setTeamData(filterInboxOrArchive(dataFromApi, isInbox))
     // }, [isInbox])
     // console.log(tableLeadLength)
 
@@ -251,7 +266,7 @@ function Teams({ form, permissions }: {
                 // All patching operations are complete
                 // You can run your code here
                 console.log("All patching operations are done");
-                fetchLeadData()
+                fetchTeamData()
 
             })
             .catch((error) => {
@@ -260,7 +275,7 @@ function Teams({ form, permissions }: {
             });
     }
 
-    const addTeamDialogButton = () => <AddTeamDialogBox permissions={permissions}>
+    const addTeamDialogButton = () => <AddTeamDialogBox permissions={permissions} setIsAddDialogClosed={setIsAddDialogClosed}>
         <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add Team
@@ -306,7 +321,7 @@ function Teams({ form, permissions }: {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
+                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchTeamData()}>
                                             <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
@@ -438,7 +453,7 @@ function Teams({ form, permissions }: {
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     <DataTable columns={columnsTeams(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teams"} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
-                    {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                    {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconUsers size="20" />
                     </div>
                         <div>

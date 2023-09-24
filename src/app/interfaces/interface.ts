@@ -597,7 +597,7 @@ export interface UserPostBody {
     last_name: string;
     email: string;
     password: string;
-    mobile: string;
+    mobile?: string;
     function: string;
     profile: number;
     reporting_to: number;
@@ -607,7 +607,7 @@ export interface UserPatchBody {
     first_name: string;
     last_name: string;
     email: string;
-    mobile: string;
+    mobile?: string;
     function: string;
     profile: number;
     reporting_to: number
@@ -673,3 +673,28 @@ export interface Permission {
     add: boolean;
     change: boolean;
   }
+
+  export interface UserProfile {
+    id: number;
+    email: string;
+    mobile: string;
+    first_name: string;
+    last_name: string;
+    profile: {
+        id: number;
+        name: string;
+    };
+    reporting_to: {
+        name: string;
+        id: number;
+    } | null;
+    created_by: {
+        name: string;
+        id: number;
+    };
+    function: string;
+    region: string | null;
+    is_email_verified: boolean;
+    is_active: boolean;
+    created_at: string;
+}

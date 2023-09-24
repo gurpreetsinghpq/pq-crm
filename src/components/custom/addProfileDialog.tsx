@@ -101,7 +101,7 @@ export type FormField = keyof typeof FormSchema['shape'];
 
 // const allTimezones = getAllTimezones()
 
-function AddProfileDialogBox({ children, permissions, parentData = undefined }: { children?: any | undefined, permissions:Permission , parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined }) {
+function AddProfileDialogBox({ children, permissions, parentData = undefined, setIsAddDialogClosed = undefined }: { children?: any | undefined, permissions: Permission, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined, setIsAddDialogClosed?: CallableFunction }) {
     const [open, setOpen] = useState<boolean>(false)
     const [data, setData] = useState()
     const [checkFields, setCheckFields] = useState<boolean>(false)
@@ -141,7 +141,12 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
         setFormSchema(updatedSchema)
     }
 
-    function yesDiscard() {
+    function yesDiscard(isAdd: boolean = false) {
+        if (isAdd && setIsAddDialogClosed) {
+            setIsAddDialogClosed(true)
+        } else {
+            parentData?.setChildDataHandler('row', undefined)
+        }
         setOpen(false)
         parentData?.setChildDataHandler('row', undefined)
         form.reset()
@@ -205,7 +210,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
                     variant: "dark"
                 })
                 console.log(result)
-                yesDiscard()
+                yesDiscard(true)
             } else {
                 toast({
                     title: "Api Failure!",
@@ -238,9 +243,10 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
             const superRes = data.permissions.map((obj) => {
                 const name: string = obj.access_category.name
                 let k: any = Object.keys(FormSchema.shape).find(field => field.includes(name.split(" ").join("")))
-                if(name.toLowerCase()==="organisation"){
+                if (name.toLowerCase() === "organisation") {
                     k = "Accounts"
                 }
+                console.log(k,)
                 console.log(k)
                 if (k) {
                     let dataToSet: {
@@ -279,6 +285,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
                                 view: true,
                                 all: obj.access && obj.add && obj.change
                             }
+                            break;
                         default:
                             dataToSet = {
                                 access: obj.access,
@@ -292,13 +299,13 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
                     const keyName: FormField = k
 
                     let dataToSetFinal: any = dataToSet
-                    form.setValue(keyName,dataToSetFinal)
-                    console.log("form value update", keyName,dataToSetFinal)
+                    form.setValue(keyName, dataToSetFinal)
+                    console.log("form value update", keyName, dataToSetFinal)
                     return dataToSet.all
                 }
             })
-            if(data.permissions.length>0){
-                form.setValue("allTheFields", superRes.every(val=>val===true))
+            if (data.permissions.length > 0) {
+                form.setValue("allTheFields", superRes.every(val => val === true))
             }
             form.setValue("profileName", data.name)
             console.log("formvalue", form.getValues())
@@ -366,30 +373,30 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
         if (checkFields) {
             setCheckFields(false)
             const superRes = Object.keys(FormSchema.shape)
-            // to be removed
-            .filter((keyName)=>keyName!=="Deals" && keyName!=="Insights" && keyName!=="Dashboard")
-            .filter((val) => val !== "profileName").map((fieldName: any) => {
-                const fieldData = form.getValues(fieldName)
-                const keys = ["access", "add", "view", "change"]
-                const keyMakeUp: any = `${fieldName}.all`
-                const keyAll: FormField = keyMakeUp
-                const result = Object.keys(fieldData).filter((key) => key != "all").every((key) => {
-                    // console.log(fieldName, key)
-                    return fieldData[key]
+                // to be removed
+                .filter((keyName) => keyName !== "Deals" && keyName !== "Insights" && keyName !== "Dashboard")
+                .filter((val) => val !== "profileName").map((fieldName: any) => {
+                    const fieldData = form.getValues(fieldName)
+                    const keys = ["access", "add", "view", "change"]
+                    const keyMakeUp: any = `${fieldName}.all`
+                    const keyAll: FormField = keyMakeUp
+                    const result = Object.keys(fieldData).filter((key) => key != "all").every((key) => {
+                        // console.log(fieldName, key)
+                        return fieldData[key]
+                    })
+                    // const result2 = Object.keys(fieldData).filter((key) => key != "all").some((key) => {
+                    //     console.log(fieldName, key)  
+                    //     return fieldData[key]
+                    // })   
+                    // if(result2){
+                    //     form.setValue(keyAll, unde)
+                    // }else{
+                    form.setValue(keyAll, result, SET_VALUE_CONFIG)
+                    // }
+                    return result
+                }).every(val => {
+                    return val
                 })
-                // const result2 = Object.keys(fieldData).filter((key) => key != "all").some((key) => {
-                //     console.log(fieldName, key)  
-                //     return fieldData[key]
-                // })   
-                // if(result2){
-                //     form.setValue(keyAll, unde)
-                // }else{
-                form.setValue(keyAll, result, SET_VALUE_CONFIG)
-                // }
-                return result
-            }).every(val => {
-                return val
-            })
             form.setValue("allTheFields", superRes, SET_VALUE_CONFIG)
             // keys.man((key)=>{
             //     console.log(Leads[key])
@@ -463,7 +470,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
                     change: !val
                 }, SET_VALUE_CONFIG)
             }
-            else if (key1.toLowerCase() === "usermanagement" ) {
+            else if (key1.toLowerCase() === "usermanagement") {
                 form.setValue(keyToUpdate1, {
                     all: !val,
                     access: !val,
@@ -501,184 +508,213 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined }: 
         // }
     }
 
+    async function deactivateProfile() {
+        const id = parentData?.childData.row.id
+        console.log("profile id", id)
+        const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/${id}/`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+        if (dataResp.status === 204) {
+            toast({
+                title: `Team Deleted Succesfully!`,
+                variant: "dark"
+            })
+            yesDiscard()
+        } else {
+            const result = await dataResp.json()
+            if (result.status == "1") {
+                yesDiscard()
+                toast({
+                    title: `Team Deleted Succesfully!`,
+                    variant: "dark"
+                })
+                console.log(result)
 
-    return (
-        <div>
-            <Dialog open={open} onOpenChange={setOpen} >
-                <DialogTrigger asChild>
-                    <div>
-                        {children}
-                    </div>
-                </DialogTrigger>
-                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                        yesDiscard()
-                    }
-                }}>
-                    <DialogHeader>
-                        <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
-                            <div className='flex flex-row justify-between w-full items-center'>
-                                <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Profile" : "Add Profile"}</div>
-                                {
-                                    parentData?.open &&
-                                    <Button disabled={!permissions?.change} variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600'>
-                                        {/* <IconUserDeactive size={20} color={"white"} /> */}
-                                        Deactivate Profile
-                                    </Button>
-                                    // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
-                                    //     <IconPower size={20} />
-                                    //     Deactivate User
-                                    // </div>
+            } else {
+                toast({
+                    title: "Api Failure!",
+                    variant: "destructive"
+                })
+            }
+        }
+    }
 
-                                }
-                            </div>
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div>
-                        <Form {...form}>
-                            <form>
-                                <div className='w-fit min-w-[650px]  '>
-                                    <Separator className="bg-gray-200 h-[1px]  mb-4" />
-                                    <div className='px-[24px] flex flex-col '>
-                                        <FormField
-                                            control={form.control}
-                                            name="profileName"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input type="text" className={` ${commonClasses2}`} placeholder="Profile Name" {...field} />
-                                                    </FormControl>
-                                                </FormItem>
-                                            )} />
-                                        <div className="flex flex-row gap-[10px] items-center mt-[24px]">
-                                            <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                                <IconCheckDone size="20" />
-                                            </div>
-                                            <span className="text-xs text-gray-700">PERMISSIONS</span>
-                                            <div className="bg-gray-200 h-[1px] flex-1" ></div>
+
+return (
+    <div>
+        <Dialog open={open} onOpenChange={setOpen} >
+            <DialogTrigger asChild>
+                <div>
+                    {children}
+                </div>
+            </DialogTrigger>
+            <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                    yesDiscard()
+                }
+            }}>
+                <DialogHeader>
+                    <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
+                        <div className='flex flex-row justify-between w-full items-center'>
+                            <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Profile" : "Add Profile"}</div>
+                            {
+                                parentData?.open &&
+                                <Button disabled={!permissions?.change} variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' onClick={() => deactivateProfile()}>
+                                    {/* <IconUserDeactive size={20} color={"white"} /> */}
+                                    Delete Profile
+                                </Button>
+                                // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
+                                //     <IconPower size={20} />
+                                //     Deactivate User
+                                // </div>
+
+                            }
+                        </div>
+                    </DialogTitle>
+                </DialogHeader>
+                <div>
+                    <Form {...form}>
+                        <form>
+                            <div className='w-fit min-w-[650px]  '>
+                                <Separator className="bg-gray-200 h-[1px]  mb-4" />
+                                <div className='px-[24px] flex flex-col '>
+                                    <FormField
+                                        control={form.control}
+                                        name="profileName"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormControl>
+                                                    <Input type="text" className={` ${commonClasses2}`} placeholder="Profile Name" {...field} />
+                                                </FormControl>
+                                            </FormItem>
+                                        )} />
+                                    <div className="flex flex-row gap-[10px] items-center mt-[24px]">
+                                        <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
+                                            <IconCheckDone size="20" />
                                         </div>
-                                        <div className='checkboxes mt-[24px]'>
-                                            <div className='grid grid-cols-8 border border-[1px] border-gray-200 w-full xl:max-h-[200px] 2xl:max-h-fit overflow-y-auto'>
-                                                <div className={tableHeaderClass}>
-                                                    <FormField
-                                                        control={form.control}
-                                                        name={"allTheFields"}
-                                                        render={({ field }) => {
-                                                            const value: any = field.value
-                                                            const fieldValue: boolean = value === "NA" ? false : value
-                                                            return <FormItem >
-                                                                <FormControl>
-                                                                    <Checkbox
-                                                                        onCheckedChange={(val) => {
-                                                                            handleSuperAllCheckboxChange(!fieldValue)
-                                                                            field.onChange(val)
-                                                                        }}
-                                                                        checked={fieldValue}
-                                                                    />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                        }}
-                                                    />
-                                                </div>
-                                                <div className={`${tableHeaderClass} col-span-3`}>
-                                                    Module
-                                                </div>
-                                                <div className={tableHeaderClass}>
-                                                    Access
-                                                </div>
-                                                <div className={tableHeaderClass}>
-                                                    Create
-                                                </div>
-                                                <div className={tableHeaderClass}>
-                                                    Read
-                                                </div>
-                                                <div className={tableHeaderClass}>
-                                                    Update
-                                                </div>
-                                                {
+                                        <span className="text-xs text-gray-700">PERMISSIONS</span>
+                                        <div className="bg-gray-200 h-[1px] flex-1" ></div>
+                                    </div>
+                                    <div className='checkboxes mt-[24px]'>
+                                        <div className='grid grid-cols-8 border border-[1px] border-gray-200 w-full xl:max-h-[200px] 2xl:max-h-fit overflow-y-auto'>
+                                            <div className={tableHeaderClass}>
+                                                <FormField
+                                                    control={form.control}
+                                                    name={"allTheFields"}
+                                                    render={({ field }) => {
+                                                        const value: any = field.value
+                                                        const fieldValue: boolean = value === "NA" ? false : value
+                                                        return <FormItem >
+                                                            <FormControl>
+                                                                <Checkbox
+                                                                    onCheckedChange={(val) => {
+                                                                        handleSuperAllCheckboxChange(!fieldValue)
+                                                                        field.onChange(val)
+                                                                    }}
+                                                                    checked={fieldValue}
+                                                                />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className={`${tableHeaderClass} col-span-3`}>
+                                                Module
+                                            </div>
+                                            <div className={tableHeaderClass}>
+                                                Access
+                                            </div>
+                                            <div className={tableHeaderClass}>
+                                                Create
+                                            </div>
+                                            <div className={tableHeaderClass}>
+                                                Read
+                                            </div>
+                                            <div className={tableHeaderClass}>
+                                                Update
+                                            </div>
+                                            {
 
-                                                    Object.keys(FormSchema.shape)
-                                                        // to be removed 
-                                                        .filter((keyName)=>keyName!=="Deals" && keyName!=="Insights" && keyName!=="Dashboard")
-                                                        .map((key: any) => {
-                                                            // const dataOfKey = formDefaultState[obj]
-                                                            if (formDefaultState) {
-                                                                const nestedObj = formDefaultState[key]
-                                                                if (nestedObj) {
-                                                                    return Object.keys(nestedObj)
-                                                                        .map((key2, index) => {
-                                                                            let k: any = `${key}.${key2}`
-                                                                            let k2: FormField = k
-                                                                            return <>
-                                                                                {
-                                                                                    index === 1 && <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200 text-sm font-medium text-gray-900 col-span-3'>
-                                                                                        <div>{camelCaseToTitleCase(key)}</div>
-                                                                                    </div>
-                                                                                }
-                                                                                {<div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200' key={index}>
-                                                                                    <FormField
-                                                                                        control={form.control}
-                                                                                        name={k2}
-                                                                                        render={({ field }) => {
-                                                                                            const value: any = field.value
-                                                                                            const fieldValue: boolean = value === "NA" ? false : value
-                                                                                            // console.log(field)
-                                                                                            return <FormItem >
-                                                                                                <FormControl>
-                                                                                                    <Checkbox
-                                                                                                        onCheckedChange={(val) => {
-                                                                                                            handleAllCheckboxChange(k2, fieldValue)
-                                                                                                            field.onChange(val)
-                                                                                                        }}
-                                                                                                        checked={fieldValue}
-                                                                                                        disabled={field.value === "NA" || k === "UserManagement.view"}
-                                                                                                    />
-                                                                                                </FormControl>
-                                                                                            </FormItem>
-                                                                                        }}
-                                                                                    />
-                                                                                </div>}
+                                                Object.keys(FormSchema.shape)
+                                                    // to be removed 
+                                                    .filter((keyName) => keyName !== "Deals" && keyName !== "Insights" && keyName !== "Dashboard")
+                                                    .map((key: any) => {
+                                                        // const dataOfKey = formDefaultState[obj]
+                                                        if (formDefaultState) {
+                                                            const nestedObj = formDefaultState[key]
+                                                            if (nestedObj) {
+                                                                return Object.keys(nestedObj)
+                                                                    .map((key2, index) => {
+                                                                        let k: any = `${key}.${key2}`
+                                                                        let k2: FormField = k
+                                                                        return <>
+                                                                            {
+                                                                                index === 1 && <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200 text-sm font-medium text-gray-900 col-span-3'>
+                                                                                    <div>{camelCaseToTitleCase(key)}</div>
+                                                                                </div>
+                                                                            }
+                                                                            {<div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200' key={index}>
+                                                                                <FormField
+                                                                                    control={form.control}
+                                                                                    name={k2}
+                                                                                    render={({ field }) => {
+                                                                                        const value: any = field.value
+                                                                                        const fieldValue: boolean = value === "NA" ? false : value
+                                                                                        // console.log(field)
+                                                                                        return <FormItem >
+                                                                                            <FormControl>
+                                                                                                <Checkbox
+                                                                                                    onCheckedChange={(val) => {
+                                                                                                        handleAllCheckboxChange(k2, fieldValue)
+                                                                                                        field.onChange(val)
+                                                                                                    }}
+                                                                                                    checked={fieldValue}
+                                                                                                    disabled={field.value === "NA" || k === "UserManagement.view"}
+                                                                                                />
+                                                                                            </FormControl>
+                                                                                        </FormItem>
+                                                                                    }}
+                                                                                />
+                                                                            </div>}
 
-                                                                            </>
+                                                                        </>
 
-                                                                        })
-                                                                }
+                                                                    })
                                                             }
-                                                        })
-                                                }
-                                                <div></div>
-                                            </div>
+                                                        }
+                                                    })
+                                            }
+                                            <div></div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <Separator className="bg-gray-200 h-[1px]  mt-8" />
-                                    <div className={`flex flex-row gap-2 mx-6 my-6`}>
-                                        {
-                                            parentData?.open ?
-                                                <div className='flex flex-row gap-2 w-full justify-end'>
-                                                    {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid || !permissions?.change} onClick={() => addProfile(true)}>
-                                                        Update
-                                                    </Button>
-                                                </div> :
-                                                <div className='flex flex-row flex-row gap-2 w-full justify-end'>
-                                                    {beforeCancelDialog(yesDiscard)}
-                                                    <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty } onClick={() => addProfile()}>
-                                                        Save & Add
-                                                    </Button>
-                                                </div>
-                                        }
-                                    </div>
+                            <div>
+                                <Separator className="bg-gray-200 h-[1px]  mt-8" />
+                                <div className={`flex flex-row gap-2 mx-6 my-6`}>
+                                    {
+                                        parentData?.open ?
+                                            <div className='flex flex-row gap-2 w-full justify-end'>
+                                                {beforeCancelDialog(yesDiscard)}
+                                                <Button type='button' disabled={!form.formState.isValid || !permissions?.change} onClick={() => addProfile(true)}>
+                                                    Update
+                                                </Button>
+                                            </div> :
+                                            <div className='flex flex-row flex-row gap-2 w-full justify-end'>
+                                                {beforeCancelDialog(yesDiscard)}
+                                                <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty} onClick={() => addProfile()}>
+                                                    Save & Add
+                                                </Button>
+                                            </div>
+                                    }
                                 </div>
-                            </form>
-                        </Form>
-                    </div>
-                </DialogContent>
-            </Dialog>
-        </div>
-    )
+                            </div>
+                        </form>
+                    </Form>
+                </div>
+            </DialogContent>
+        </Dialog>
+    </div>
+)
 }
 
 function removeKeyAndConvertNaToFalse(data: any): any {

@@ -93,7 +93,7 @@ function Users({ form, permissions }: {
     const [childData, setChildData] = React.useState<IChildData>()
     const [isProfileDataLoading, setIsProfileDataLoading] = React.useState<boolean>(true)
     const [profileList, setProfileList] = React.useState<IValueLabel[]>()
-
+    const [isAddDialogClosed, setIsAddDialogClosed] = React.useState<boolean>(false)
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
@@ -154,6 +154,9 @@ function Users({ form, permissions }: {
             const filteredData = noArchiveFilter ? dataFromApi : filterActivateOrDeactivate(dataFromApi, isActivated)
             setUserData(filteredData)
             setIsLoading(false)
+            if(dataFromApi.length===0){
+                setTableLength(0)
+            }
             // if (filteredData.length == 0) {
             //     setTableLength(0)
             //     setIsMultiSelectOn(false)
@@ -191,6 +194,13 @@ function Users({ form, permissions }: {
     React.useEffect(() => {
         console.log(watcher)
     }, [watcher])
+
+    React.useEffect(() => {
+        if(isAddDialogClosed){
+            fetchUserData()
+            setIsAddDialogClosed(false)
+        }
+    }, [isAddDialogClosed])
 
     // React.useEffect(() => {
     //     setUserData(filterInboxOrArchive(dataFromApi, isActivated))
@@ -273,7 +283,7 @@ function Users({ form, permissions }: {
         setUserData(filterActivateOrDeactivate(dataFromApi, isActivated))
     }, [isActivated])
 
-    const addUserDialogButton = () => <AddUserDialogBox permissions={permissions}>
+    const addUserDialogButton = () => <AddUserDialogBox permissions={permissions} setIsAddDialogClosed={setIsAddDialogClosed}>
         <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
             <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
             Add User

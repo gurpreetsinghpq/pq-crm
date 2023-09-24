@@ -19,7 +19,7 @@ import { Toaster } from "../ui/toaster"
 import { toast } from "../ui/use-toast"
 import { Button } from "../ui/button"
 import { ArrowDown, ArrowUp } from "lucide-react"
-import { fetchProfileDetailsById } from "../custom/commonFunctions"
+import { fetchMyDetails, fetchProfileDetailsById } from "../custom/commonFunctions"
 import { disabledSidebarItem } from "@/app/constants/classes"
 
 
@@ -160,8 +160,8 @@ const TITLES = {
 }
 
 export default function DashboardComponent() {
-    // const [currentTab, setCurrentTab] = useState(TITLES.LEADS)
-    const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
+    const [currentTab, setCurrentTab] = useState("")
+    // const [currentTab, setCurrentTab] = useState(TITLES.PROSPECTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.ACCOUNTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
@@ -170,6 +170,7 @@ export default function DashboardComponent() {
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [showScrollButton, setShowScrollButton] = useState(true);
     const [permissions, setPermissions] = useState<{ [key: string]: { access: boolean, view: boolean, add: boolean, change: boolean } }>({});
+    const [noPermissionAllowed, setNoPermissionAllowed] = useState<boolean>(false)
 
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth <= 1300 : false
@@ -344,13 +345,33 @@ export default function DashboardComponent() {
             });
         }
         setPermissions(permissionsObject)
+        if(permissionsObject["Lead"].access && permissionsObject["Lead"].view){
+            setCurrentTab(TITLES.LEADS)
+        }else if(permissionsObject["Prospect"].access && permissionsObject["Prospect"].view){
+            setCurrentTab(TITLES.PROSPECTS)
+        }else if(permissionsObject["Organisation"].access && permissionsObject["Organisation"].view){
+            setCurrentTab(TITLES.ACCOUNTS)
+        }else if(permissionsObject["Contact"].access && permissionsObject["Contact"].view){
+            setCurrentTab(TITLES.CONTACTS)
+        }else if(permissionsObject["User Management"].access && permissionsObject["User Management"].view){
+            setCurrentTab(TITLES.USER_MANAGEMENT)
+        }else{
+            setNoPermissionAllowed(true)
+        }
 
         console.log("userPermissions fac", permissionsObject["User Management"])
     }
+    async function getMyDetails(){
+        const data = await fetchMyDetails()
+        if(data){
+            const profileId: string = data.profile.id.toString()
+            getUserPermissions(profileId)
+        }
+    }
     useEffect(() => {
         const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
-        const profileId: string = userFromLocalstorage.profile.id
-        getUserPermissions(profileId)
+
+        getMyDetails()
         setUser(userFromLocalstorage)
     }, [])
 
