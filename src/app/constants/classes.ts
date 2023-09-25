@@ -13,3 +13,7 @@ export const inputFormMessageClassesWithSelect = "ml-[-82px]"
 export const tableHeaderClass = 'text-gray-600 text-xs font-medium px-[24px] py-[12px] bg-gray-50 border-b-[1px] border-gray-200 sticky top-0'
 export const popoverSidesheetWidthClasses = 'xl:w-[29vw] 2xl:w-[calc(21vw+10px)]'
 export const disabledSidebarItem = 'opacity-[0.3] cursor-not-allowed hover:cursor-not-allowed pointer-events-none'
+export const activeTabSideSheetClasses = 'border-b-[2px] border-purple-700 bg-purple-50 text-purple-700'
+export const commonTabListClasses = 'justify-start px-[4px] py-[2px] gap-[12px] border border-[1px] border-gray-200 rounded-[8px] bg-white-900'
+export const commonTabTriggerClasses = 'rounded-[6px]'
+export const commonNumericIconClasses = 'text-gray-400 border-[2px] rounded-[5px] border-gray-400 w-[24px] h-[24px] flex flex-row justify-center items-center'

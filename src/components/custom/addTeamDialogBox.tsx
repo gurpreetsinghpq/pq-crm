@@ -41,12 +41,6 @@ const FormSchema = z.object({
 
 })
 
-const tabs: IValueLabel[] = [
-    { label: "All Users", value: "allUsers" },
-    { label: "Selected Users", value: "selectedUsers" },
-];
-
-
 const TABS = {
     ALL_USERS: "All Users",
     SELECTED_USERS: "Selected Users",

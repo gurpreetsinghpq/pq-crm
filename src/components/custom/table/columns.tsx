@@ -256,12 +256,19 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
     },
 
 ]}
-const multiLine = (dateStr: any) => {
+export const multiLine = (dateStr: any) => {
     const formattedDate = formatUtcDateToLocal(dateStr);
     const [date, time] = formattedDate.split("@");
     return <>
         <div className="text-gray-900 text-sm font-normal">{date}</div>
         <div className="text-gray-600 text-xs font-normal">{time}</div>
+    </>
+}
+export const multiLineStyle2 = (dateStr: any) => {
+    const formattedDate = formatUtcDateToLocal(dateStr);
+    const [date, time] = formattedDate.split("@");
+    return <>
+        <div className="text-gray-700 text-sm font-medium">{date}, {time}</div>
     </>
 }
 

@@ -1,4 +1,4 @@
-import { Deferred, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
+import { Deferred, InProgress, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
 import { IValueLabel } from "../interfaces/interface"
 import { GODFATHER_CLASS, GodfatherIcon, HUSTLER_CLASS, HustlerIcon, ROCKSTAR_CLASS, RockstarIcon, SEGEMENT_COMMON_CLASS } from "../../components/icons/labels"
 const REGION = [
@@ -1751,7 +1751,480 @@ const ALL_FUNCTIONS: IValueLabel[] = [
     ...FUNCTION
 ]
 
+// const SIDE_SHEET_TABS:IValueLabel[] = [
+//     {
+//         value: "dealFlow",
+//         label: "Deal Flow",
+//         isDefault: true 
+//     },
+//     {
+//         value: "dealActivity",
+//         label: "Deal Activity"
+//     },
+//     {
+//         value: "history",
+//         label: "History"
+//     }
+// ]
+
+const SIDE_SHEET_TABS:{
+    [key:string]:string
+} = {
+    DEAL_FLOW: "Deal Flow",
+    DEAL_ACTIVITY: "Deal Activity",
+    HISTORY: "History",
+}
 
 const SET_VALUE_CONFIG = {shouldDirty:true,shouldValidate:true}
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, TEAM_LEADERS, ALL_TEAM_LEADERS, REPORTING_MANAGERS, SET_VALUE_CONFIG }
+const ACTIVITY_TYPE: IValueLabel[] = [
+    {
+        value: "coldOutreach",
+        label: "Cold Outreach"
+    },
+    {
+        value: "inboundLeadVerification",
+        label: "Inbound Lead Verification"
+    },
+    {
+        value: "exploratoryDiscussion",
+        label: "Exploratory Discussion"
+    },
+    {
+        value: "followUp",
+        label: "Follow-Up"
+    },
+    {
+        value: "negotiation",
+        label: "Negotiation"
+    },
+];
+
+const MODE: IValueLabel[] = [
+    {
+        value: "call",
+        label: "Call"
+    },
+    {
+        value: "email",
+        label: "Email"
+    },
+    {
+        value: "linkedin",
+        label: "LinkedIn"
+    },
+    {
+        value: "vc",
+        label: "Video Call"
+    },
+    {
+        value: "inPerson",
+        label: "In-Person"
+    },
+];
+
+const ROLE_STATUS: IValueLabel[] = [
+    {
+        value: "open",
+        label: "Open"
+    },
+    {
+        value: "internalHiring",
+        label: "Internal Hiring"
+    },
+    {
+        value: "deferred",
+        label: "Deferred"
+    },
+    {
+        value: "outsourced",
+        label: "Outsourced"
+    },
+    {
+        value: "eliminated",
+        label: "Eliminated"
+    },
+    {
+        value: "closed",
+        label: "Closed"
+    },
+];
+
+const NEXT_STEP: IValueLabel[] = [
+    {
+        value: "noAction",
+        label: "No Further Action Planned"
+    },
+    {
+        value: "coldOutreach",
+        label: "Continue Cold Outreach"
+    },
+    {
+        value: "exploratoryDiscussion",
+        label: "Exploratory Discussion"
+    },
+    {
+        value: "followUpDiscussion",
+        label: "Follow-Up Discussion"
+    },
+    {
+        value: "negotiationDiscussion",
+        label: "Negotiation Discussion"
+    },
+    {
+        value: "contractSignOff",
+        label: "Contract Sign Off"
+    },
+];
+
+const ROLE_URGENCY: IValueLabel[] = [
+    {
+        value: "high",
+        label: "High"
+    },
+    {
+        value: "medium",
+        label: "Medium"
+    },
+    {
+        value: "low",
+        label: "Low"
+    },
+];
+
+const YES_OR_NO: IValueLabel[] = [
+    {
+        value: "yes",
+        label: "Yes"
+    },
+    {
+        value: "no",
+        label: "No"
+    },
+]
+const YES_NO_YET_TO_CONFIRM: IValueLabel[] = [
+    {
+        value: "yes",
+        label: "Yes"
+    },
+    {
+        value: "no",
+        label: "No"
+    },
+    {
+        value: "yetToConfirm",
+        label: "Yet to Confirm"
+    },
+]
+
+const OPEN_TO_RETAINER_MODEL: IValueLabel[] = [
+    {
+        value: "yes",
+        label: "Yes"
+    },
+    {
+        value: "no",
+        label: "No"
+    },
+    {
+        value: "yetToConfirm",
+        label: "Yet to Confirm"
+    },
+    {
+        value: "notApplicable",
+        label: "Not Applicable"
+    },
+];
+
+const OPEN_TO_MIN_SERVICE_OR_FLAT_FEE: IValueLabel[] = [
+    ...OPEN_TO_RETAINER_MODEL
+]
+
+const COLLATERAL_SHARED: IValueLabel[] = [
+    ...YES_OR_NO
+]
+
+const RESPONSE_RECEIVED: IValueLabel[] = [
+    ...YES_OR_NO
+]
+
+const OPEN_TO_ENGAGE: IValueLabel[] = [
+    ...YES_NO_YET_TO_CONFIRM
+]
+const WILLING_TO_PAY: IValueLabel[] = [
+    ...YES_NO_YET_TO_CONFIRM
+]
+const ROLE_CLARITY: IValueLabel[] = [
+    ...YES_OR_NO
+]
+const PROPOSAL_SHARED: IValueLabel[] = [
+    ...YES_OR_NO
+]
+const SERVICE_CONTRACT_DRAFT_SHARED: IValueLabel[] = [
+    ...YES_OR_NO
+]
+
+const EXPECTED_SERVICE_FEE_RANGE: IValueLabel[] = [
+    {
+        value: "lessThan20",
+        label: "Less than 20%"
+    },
+    {
+        value: "20To30",
+        label: "20% to 30%"
+    },
+    {
+        value: "above30",
+        label: "Above 30%"
+    },
+    {
+        value: "notApplicable",
+        label: "Not Applicable"
+    },
+];
+
+const RELATED_TO: IValueLabel[] = [
+    {
+        value: "openRole",
+        label: "Open Role"
+    },
+    {
+        value: "proposal",
+        label: "Proposal"
+    },
+];
+
+const PROSPECT_STATUS_NOTES: IValueLabel[] = [
+    {
+        value: "notMovingForward",
+        label: "Not Moving Forward"
+    },
+    {
+        value: "movingForward",
+        label: "Moving Forward"
+    },
+    {
+        value: "noClarityYet",
+        label: "No Clarity Yet"
+    },
+    {
+        value: "willingToNegotiate",
+        label: "Willing to Negotiate"
+    },
+    {
+        value: "notARightFit",
+        label: "Not a Right Fit"
+    },
+];
+
+const DEAL_STATUS: IValueLabel[] = [
+    {
+        value: "notMovingForward",
+        label: "Not Moving Forward"
+    },
+    {
+        value: "movingForward",
+        label: "Moving Forward"
+    }
+];
+
+const NEGOTIATION_BLOCKER: IValueLabel[] = [
+    {
+        value: "retainerAdvance",
+        label: "Retainer Advance"
+    },
+    {
+        value: "serviceFee",
+        label: "Service Fee"
+    },
+    {
+        value: "exclusivity",
+        label: "Exclusivity"
+    },
+    {
+        value: "notApplicable",
+        label: "Not Applicable"
+    }
+];
+
+const ACTIVITY_STATUS: IValueLabel[] = [
+    {
+        value: "scheduled",
+        label: "Scheduled"
+    },
+    {
+        value: "cancelled",
+        label: "Cancelled"
+    }
+];
+
+const REMINDER: IValueLabel[] = [
+    {
+        value: "15MinsBefore",
+        label: "15 mins before the due date and time"
+    },
+    {
+        value: "30MinsBefore",
+        label: "30 mins before the due date and time"
+    },
+    {
+        value: "1HrBefore",
+        label: "1hr before the due date and time"
+    },
+    {
+        value: "3HrsBefore",
+        label: "3hr before the due date and time"
+    }
+];
+
+const TIME_OPTIONS: IValueLabel[] = [
+    { value: "12:00am", label: "12:00am" },
+    { value: "12:15am", label: "12:15am" },
+    { value: "12:30am", label: "12:30am" },
+    { value: "12:45am", label: "12:45am" },
+    { value: "1:00am", label: "1:00am" },
+    { value: "1:15am", label: "1:15am" },
+    { value: "1:30am", label: "1:30am" },
+    { value: "1:45am", label: "1:45am" },
+    { value: "2:00am", label: "2:00am" },
+    { value: "2:15am", label: "2:15am" },
+    { value: "2:30am", label: "2:30am" },
+    { value: "2:45am", label: "2:45am" },
+    { value: "3:00am", label: "3:00am" },
+    { value: "3:15am", label: "3:15am" },
+    { value: "3:30am", label: "3:30am" },
+    { value: "3:45am", label: "3:45am" },
+    { value: "4:00am", label: "4:00am" },
+    { value: "4:15am", label: "4:15am" },
+    { value: "4:30am", label: "4:30am" },
+    { value: "4:45am", label: "4:45am" },
+    { value: "5:00am", label: "5:00am" },
+    { value: "5:15am", label: "5:15am" },
+    { value: "5:30am", label: "5:30am" },
+    { value: "5:45am", label: "5:45am" },
+    { value: "6:00am", label: "6:00am" },
+    { value: "6:15am", label: "6:15am" },
+    { value: "6:30am", label: "6:30am" },
+    { value: "6:45am", label: "6:45am" },
+    { value: "7:00am", label: "7:00am" },
+    { value: "7:15am", label: "7:15am" },
+    { value: "7:30am", label: "7:30am" },
+    { value: "7:45am", label: "7:45am" },
+    { value: "8:00am", label: "8:00am" },
+    { value: "8:15am", label: "8:15am" },
+    { value: "8:30am", label: "8:30am" },
+    { value: "8:45am", label: "8:45am" },
+    { value: "9:00am", label: "9:00am" },
+    { value: "9:15am", label: "9:15am" },
+    { value: "9:30am", label: "9:30am" },
+    { value: "9:45am", label: "9:45am" },
+    { value: "10:00am", label: "10:00am" },
+    { value: "10:15am", label: "10:15am" },
+    { value: "10:30am", label: "10:30am" },
+    { value: "10:45am", label: "10:45am" },
+    { value: "11:00am", label: "11:00am" },
+    { value: "11:15am", label: "11:15am" },
+    { value: "11:30am", label: "11:30am" },
+    { value: "11:45am", label: "11:45am" },
+    { value: "12:00pm", label: "12:00pm" },
+    { value: "12:15pm", label: "12:15pm" },
+    { value: "12:30pm", label: "12:30pm" },
+    { value: "12:45pm", label: "12:45pm" },
+    { value: "1:00pm", label: "1:00pm" },
+    { value: "1:15pm", label: "1:15pm" },
+    { value: "1:30pm", label: "1:30pm" },
+    { value: "1:45pm", label: "1:45pm" },
+    { value: "2:00pm", label: "2:00pm" },
+    { value: "2:15pm", label: "2:15pm" },
+    { value: "2:30pm", label: "2:30pm" },
+    { value: "2:45pm", label: "2:45pm" },
+    { value: "3:00pm", label: "3:00pm" },
+    { value: "3:15pm", label: "3:15pm" },
+    { value: "3:30pm", label: "3:30pm" },
+    { value: "3:45pm", label: "3:45pm" },
+    { value: "4:00pm", label: "4:00pm" },
+    { value: "4:15pm", label: "4:15pm" },
+    { value: "4:30pm", label: "4:30pm" },
+    { value: "4:45pm", label: "4:45pm" },
+    { value: "5:00pm", label: "5:00pm" },
+    { value: "5:15pm", label: "5:15pm" },
+    { value: "5:30pm", label: "5:30pm" },
+    { value: "5:45pm", label: "5:45pm" },
+    { value: "6:00pm", label: "6:00pm" },
+    { value: "6:15pm", label: "6:15pm" },
+    { value: "6:30pm", label: "6:30pm" },
+    { value: "6:45pm", label: "6:45pm" },
+    { value: "7:00pm", label: "7:00pm" },
+    { value: "7:15pm", label: "7:15pm" },
+    { value: "7:30pm", label: "7:30pm" },
+    { value: "7:45pm", label: "7:45pm" },
+    { value: "8:00pm", label: "8:00pm" },
+    { value: "8:15pm", label: "8:15pm" },
+    { value: "8:30pm", label: "8:30pm" },
+    { value: "8:45pm", label: "8:45pm" },
+    { value: "9:00pm", label: "9:00pm" },
+    { value: "9:15pm", label: "9:15pm" },
+    { value: "9:30pm", label: "9:30pm" },
+    { value: "9:45pm", label: "9:45pm" },
+    { value: "10:00pm", label: "10:00pm" },
+    { value: "10:15pm", label: "10:15pm" },
+    { value: "10:30pm", label: "10:30pm" },
+    { value: "10:45pm", label: "10:45pm" },
+    { value: "11:00pm", label: "11:00pm" },
+    { value: "11:15pm", label: "11:15pm" },
+    { value: "11:30pm", label: "11:30pm" },
+    { value: "11:45pm", label: "11:45pm" }
+];
+
+
+const ENTITY_TYPE:IValueLabel[] = [
+    {value: "lead", label: "Lead"},
+    {value: "prospect", label: "Prospect"}
+]
+
+const SIDESHEET_TAB_TYPE = {
+    CHANGE_LOG: "Change Log",
+    ACTIVITY: "Activity",
+    NOTES: "Notes"
+}
+
+const STEPPER_STATUS:IValueLabel[] = [
+    {
+        value: "unverified",
+        label: "Unverified",
+        icon: Unverified,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-gray-600 bg-gray-50 text-gray-700 "
+    },
+    {
+        value: "completed",
+        label: "Completed",
+        icon: Verified,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-success-600 bg-success-50 text-success-600"
+    },
+    {
+        value: "inProgress",
+        label: "In Progress",
+        icon: InProgress,
+        class: "pl-[10px] pr-[12px] rounded-[16px] border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-purple-600 bg-purple-50 text-purple-700"
+    },
+    {
+        value: "cancelled",
+        label: "Cancelled",
+        icon: Lost,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
+    },
+    {
+        value: "overdue",
+        label: "Over Due",
+        icon: Lost,
+        class: "pl-[10px] pr-[12px] rounded-[16px] border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
+    },
+    {
+        value: "junk",
+        label: "Junk",
+        icon: Junk,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-yellow-700 bg-yellow-25 text-yelow-800"
+    },
+]
+
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, TEAM_LEADERS, ALL_TEAM_LEADERS, REPORTING_MANAGERS, SET_VALUE_CONFIG, SIDE_SHEET_TABS, ACTIVITY_TYPE, MODE, ROLE_STATUS, NEXT_STEP, ROLE_URGENCY, OPEN_TO_RETAINER_MODEL, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, COLLATERAL_SHARED, RESPONSE_RECEIVED, OPEN_TO_ENGAGE, ROLE_CLARITY, WILLING_TO_PAY, EXPECTED_SERVICE_FEE_RANGE, PROPOSAL_SHARED, RELATED_TO, PROSPECT_STATUS_NOTES, DEAL_STATUS, NEGOTIATION_BLOCKER, SERVICE_CONTRACT_DRAFT_SHARED, ACTIVITY_STATUS, REMINDER, TIME_OPTIONS, ENTITY_TYPE, SIDESHEET_TAB_TYPE, STEPPER_STATUS}

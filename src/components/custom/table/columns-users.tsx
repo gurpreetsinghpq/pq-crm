@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
 import { getName } from "../commonFunctions"
+import { multiLine } from "./columns"
 
 
 
@@ -303,14 +304,7 @@ export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<Us
     },
 
 ]}
-const multiLine = (dateStr: any) => {
-    const formattedDate = formatUtcDateToLocal(dateStr);
-    const [date, time] = formattedDate.split("@");
-    return <>
-        <div className="text-gray-900 text-sm font-normal">{date}</div>
-        <div className="text-gray-600 text-xs font-normal">{time}</div>
-    </>
-}
+
 const getTextMultiLine = (text: any) => {
     const [name, email] = text.split("{}");
     return <>

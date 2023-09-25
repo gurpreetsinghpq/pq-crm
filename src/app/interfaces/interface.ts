@@ -698,3 +698,22 @@ export interface Permission {
     is_active: boolean;
     created_at: string;
 }
+export interface Stepper {
+    title?: string;
+    contacts?: string[];
+    email?: string;
+    date?: string;
+    roleStatus?: string;
+    roleUrgency?: string;
+    openToRetainerModel?: string;
+    openToMinServiceFeeOrFlatFee?: string;
+    collateralShared?: string;
+    createdBy?: string;
+    status?: string;
+    assignedTo?: string;
+    createdAt?: string;
+    type: string;
+    isLastChild?:boolean
+    
+  }
+  

@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
 import { getName } from "../commonFunctions"
+import { multiLine } from "./columns"
 
 
 
@@ -292,15 +293,6 @@ export function columnsProspects(setChildDataHandler:CallableFunction,patchArchi
     },
 
 ]}
-const multiLine = (dateStr: any) => {
-    const formattedDate = formatUtcDateToLocal(dateStr);
-    const [date, time] = formattedDate.split("@");
-    return <>
-        <div className="text-gray-900 text-sm font-normal">{date}</div>
-        <div className="text-gray-600 text-xs font-normal">{time}</div>
-    </>
-}
-
 
 function formatUtcDateToLocal(backendUtcDate: any) {
 
