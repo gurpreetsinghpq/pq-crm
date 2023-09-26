@@ -65,13 +65,13 @@ export default function Signin() {
             const dataResp = await fetch(`${baseUrl}/v1/api/login/`, { method: "POST", body: JSON.stringify(form.getValues()), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             setIsLoading(false)
-            const { data } = result
-            console.log(result)
-            const {
-                token,
-                ...objWithoutToken
-            } = data
             if (result.status == 1) {
+                const { data } = result
+                console.log(result)
+                const {
+                    token,
+                    ...objWithoutToken
+                } = data
                 localStorage.setItem("user", JSON.stringify(objWithoutToken))
                 setCookie("token", data.token)
                 setToken(data.token)
