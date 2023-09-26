@@ -198,7 +198,6 @@ export interface PatchRoleDetails {
 }
 
 export interface User {
-    token: string;
     email: string;
     first_name: string;
     last_name: string;

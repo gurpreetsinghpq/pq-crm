@@ -2,49 +2,39 @@
 import { Button } from "@/components/ui/button"
 import {
     Command,
-    CommandDialog,
     CommandEmpty,
     CommandGroup,
     CommandInput,
-    CommandItem,
-    CommandList,
-    CommandSeparator,
-    CommandShortcut,
+    CommandItem
 } from "@/components/ui/command"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 
-import * as React from "react"
-import { DropdownMenuCheckboxItemProps, RadioGroup } from "@radix-ui/react-dropdown-menu"
-import DataTable from "./table/datatable"
-import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "../ui/dialog"
-import { Input } from "../ui/input"
-import { DialogClose } from "@radix-ui/react-dialog"
-import AddLeadDialog from "./addLeadDialog"
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon, Loader2, Search } from "lucide-react"
-import { FieldValues, UseFormReturn, useForm } from "react-hook-form"
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useToast } from "../ui/use-toast"
-import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses } from "@/app/constants/constants"
+import { REGIONS as regions, SOURCES as sources, STATUSES as statuses } from "@/app/constants/constants"
+import { IValueLabel, LeadInterface, Permission } from "@/app/interfaces/interface"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
+import { DialogClose } from "@radix-ui/react-dialog"
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
+import { Check, Loader2 } from "lucide-react"
+import * as React from "react"
+import { UseFormReturn } from "react-hook-form"
+import { IconArchive, IconArchive2, IconInbox, IconLeads } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog"
+import { Form, FormControl, FormField, FormItem } from "../ui/form"
+import { Input } from "../ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
-import { Separator } from "../ui/separator"
-import { IValueLabel, LeadInterface, PatchLead, Permission, User } from "@/app/interfaces/interface"
+import { useToast } from "../ui/use-toast"
+import AddLeadDialog from "./addLeadDialog"
+import DataTable from "./table/datatable"
 // import { getData } from "@/app/dummy/dummydata"
-import Loader from "./loader"
-import { TableContext } from "@/app/helper/context"
-import SideSheet from "./sideSheet"
+import { getCookie } from "cookies-next"
 import { useRouter, useSearchParams } from "next/navigation"
-import { columns } from "./table/columns"
-import { Router } from "next/router"
-import { RowModel } from "@tanstack/react-table"
-import { Toaster } from "../ui/toaster"
 import { fetchUserDataList } from "./commonFunctions"
+import Loader from "./loader"
+import SideSheet from "./sideSheet"
+import { columns } from "./table/columns"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -137,8 +127,7 @@ const Leads = ({ form, permissions }: {
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    getToken()
-    const token_superuser = getToken()
+    const token_superuser = getCookie("token")
     async function fetchLeadData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
@@ -248,7 +237,7 @@ const Leads = ({ form, permissions }: {
 
     const addLeadDialogButton = () => <AddLeadDialog fetchLeadData={fetchLeadData} page={"leads"}>
         <Button disabled={!permissions?.add} className="flex flex-row gap-2">
-            <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+            <Image src="/images/plus.svg" alt="plus lead" height={20} width={20} />
             Add Lead
         </Button>
     </AddLeadDialog>
@@ -321,7 +310,7 @@ const Leads = ({ form, permissions }: {
                                         <Button variant={"google"} className="p-[8px]" type="button" onClick={() => {
                                             fetchLeadData()
                                         }}>
-                                            <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
+                                            <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" sideOffset={5}>
@@ -374,7 +363,7 @@ const Leads = ({ form, permissions }: {
                                                 </g>
                                             </svg>
                                             Last 7 Days
-                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                         </Button>
                                     </DropdownMenuTrigger> */}
                                         {/* <DropdownMenuContent className="w-56"> */}
@@ -400,7 +389,7 @@ const Leads = ({ form, permissions }: {
                                                 return <DropdownMenu >
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Regions', regions)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="w-[160px]">
@@ -435,7 +424,7 @@ const Leads = ({ form, permissions }: {
                                                 return <DropdownMenu >
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Sources', sources)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="w-[200px]">
@@ -471,7 +460,7 @@ const Leads = ({ form, permissions }: {
                                                 return <DropdownMenu >
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Statuses', statuses)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="w-[160px]">
@@ -517,7 +506,7 @@ const Leads = ({ form, permissions }: {
                                                             {
                                                                 field.value ? owners.find((owner) => owner.value === field.value)?.label : "Select Owner"
                                                             }
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
@@ -568,7 +557,7 @@ const Leads = ({ form, permissions }: {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                     {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Owners', [{ value: "allOwners", label: "All Owners" }, ...userList])}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
@@ -636,7 +625,7 @@ const Leads = ({ form, permissions }: {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                     {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Creators', [{ value: "allCreators", label: "All Creators" }, ...userList])}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
@@ -712,19 +701,10 @@ const Leads = ({ form, permissions }: {
                         {isInbox && addLeadDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} permissions={permissions}/>}
+            {childData?.row && <SideSheet parentData={{ childData, setChildDataHandler }} permissions={permissions} />}
         </div>
 
     </div>
-}
-
-export function getToken() {
-    if (typeof window !== 'undefined') {
-        const userFromLocalstorage: User | undefined = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "") : ""
-        const token = userFromLocalstorage?.token
-        return token
-    }
-
 }
 
 function filterInboxOrArchive(data: LeadInterface[], isInbox: boolean) {

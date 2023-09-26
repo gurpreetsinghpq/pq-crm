@@ -40,18 +40,10 @@ import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
 import SideSheet from "./sideSheet"
 import { useRouter, useSearchParams } from "next/navigation"
-
-import { Router } from "next/router"
-import { RowModel } from "@tanstack/react-table"
-import { columnsClient } from "./table/columns-client"
-import { columnsContacts } from "./table/columns-contact"
-import SideSheetContacts from "./sideSheetContacts"
-import AddUserDialogBox from "./addUserDialogBox"
-import { columnsUsers } from "./table/columns-users"
-import { formatData, getToken } from "./leads"
+import { formatData } from "./leads"
 import { columnsTeams } from "./table/columns-teams"
 import AddTeamDialogBox from "./addTeamDialogBox"
-import { fetchUserDataList } from "./commonFunctions"
+import { fetchUserDataList, getToken } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -143,7 +135,6 @@ function Teams({ form, permissions }: {
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    getToken()
     const token_superuser = getToken()
     async function fetchTeamData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
@@ -277,7 +268,7 @@ function Teams({ form, permissions }: {
 
     const addTeamDialogButton = () => <AddTeamDialogBox permissions={permissions} setIsAddDialogClosed={setIsAddDialogClosed}>
         <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
-            <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+            <Image src="/images/plus.svg" alt="plus lead" height={20} width={20} />
             Add Team
         </Button>
     </AddTeamDialogBox>
@@ -322,7 +313,7 @@ function Teams({ form, permissions }: {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchTeamData()}>
-                                            <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
+                                            <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" sideOffset={5}>
@@ -390,7 +381,7 @@ function Teams({ form, permissions }: {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                     {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Team Leaders', [{ value: "allTeamLeaders", label: "All Team Leaders" }, ...userList])}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>

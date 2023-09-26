@@ -45,8 +45,7 @@ import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import SideSheetAccounts from "./sideSheetAccounts"
-import { getToken } from "./leads"
-import { fetchUserDataList } from "./commonFunctions"
+import { fetchUserDataList, getToken } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -143,12 +142,10 @@ const Accounts = ({ form, permissions }: {
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    getToken()
-    const token_superuser = getToken()
     async function fetchLeadData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "GET", headers: { "Authorization": `Token ${getToken()}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: ClientGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
@@ -222,7 +219,7 @@ const Accounts = ({ form, permissions }: {
                 method: "PATCH",
                 body: JSON.stringify({ leads: ids, archive: isInbox }),
                 headers: {
-                    "Authorization": `Token ${token_superuser}`,
+                    "Authorization": `Token ${getToken()}`,
                     "Accept": "application/json",
                     "Content-Type": "application/json"
                 }
@@ -267,7 +264,7 @@ const Accounts = ({ form, permissions }: {
 
     const addAccountDialogButton = () => <AddLeadDialog page={"accounts"} fetchLeadData={fetchLeadData} >
         <Button disabled={!permissions?.add} className="flex flex-row gap-2">
-            <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+            <Image src="/images/plus.svg" alt="plus lead" height={20} width={20} />
             Add Account
         </Button>
     </AddLeadDialog>
@@ -339,7 +336,7 @@ const Accounts = ({ form, permissions }: {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
-                                            <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
+                                            <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" sideOffset={5}>
@@ -375,7 +372,7 @@ const Accounts = ({ form, permissions }: {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                 {formatData(field.value, 'Industries', INDUSTRIES)}
-                                                                <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
@@ -434,7 +431,7 @@ const Accounts = ({ form, permissions }: {
                                             return <DropdownMenu >
                                                 <DropdownMenuTrigger asChild>
                                                     <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Segments', ALL_SEGMENTS)}
-                                                        <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                        <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent className="w-[160px]">
@@ -479,7 +476,7 @@ const Accounts = ({ form, permissions }: {
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex flex-row gap-2">
                                                                 {formatData(field.value, 'Funding Stages', ALL_LAST_FUNDING_STAGE)}
-                                                                <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
@@ -543,7 +540,7 @@ const Accounts = ({ form, permissions }: {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                 {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Creators', [{ value: "allCreators", label: "All Creators" }, ...userList])}
-                                                                <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEdit2, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
-import { IChildData, formatData, getToken } from './leads'
+import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEdit2, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
+import { IChildData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
@@ -30,6 +30,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
 import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { getCookie } from 'cookies-next'
 
 const FormSchema2 = z.object({
     name: z.string({
@@ -128,7 +129,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const { childData: { row }, setChildDataHandler } = parentData
 
-    const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ClientGetResponse = row.original
 
 
@@ -332,7 +332,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const token_superuser = getToken()
+    const token_superuser = getCookie("token")
 
     async function promoteToProspect() {
         const fieldsNeccessary = [

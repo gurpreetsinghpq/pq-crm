@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
-import { IChildData, formatData, getToken } from './leads'
+import { IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
+import { IChildData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
 import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIDE_SHEET_TABS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
@@ -18,7 +17,6 @@ import { Separator } from '../ui/separator'
 import { CommandGroup } from 'cmdk'
 import { Command, CommandEmpty, CommandInput, CommandItem } from '../ui/command'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
-import { DialogClose } from '@radix-ui/react-dialog'
 import { acronymFinder, guidGenerator } from './addLeadDetailedDialog'
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
@@ -29,8 +27,8 @@ import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontCla
 import { fetchUserDataList, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useToast } from '../ui/use-toast'
-import sideSheetTabs from './sideSheetTabs/sideSheetTabs'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
+import { getCookie } from 'cookies-next'
 
 export const required_error = {
     required_error: "Required field"
@@ -158,7 +156,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     const [rowState, setRowState] = useState<DeepPartial<LeadInterface>>()
     const { childData: { row }, setChildDataHandler } = parentData
 
-    const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: LeadInterface = row.original
 
     const { toast } = useToast()
@@ -357,7 +354,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const token_superuser = getToken()
+    const token_superuser = getCookie("token")
 
     async function promoteToProspect() {
         setPromoteToProspectClicked(true)

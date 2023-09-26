@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEdit2, IconEmail, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
-import { IChildData, formatData, getToken } from './leads'
+import { IChildData, formatData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
@@ -29,6 +29,7 @@ import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, d
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
+import { getCookie } from 'cookies-next'
 
 
 const FormSchema = z.object({
@@ -73,7 +74,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     const { childData: { row }, setChildDataHandler } = parentData
     const [rowState, setRowState] = useState<DeepPartial<ClientGetResponse>>()
 
-    const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ContactsGetResponse = row.original
     useEffect(() => {
         console.log(data)
@@ -180,7 +180,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const token_superuser = getToken()
+    const token_superuser = getCookie("token")
 
 
     async function patchData() {
@@ -591,7 +591,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                             {COUNTRY_CODE.find((val) => val.value === field.value)?.value}
-                                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>

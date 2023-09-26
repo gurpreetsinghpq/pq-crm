@@ -1,5 +1,5 @@
 import { IValueLabel, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
-import { getToken } from "./leads";
+import { getCookie } from "cookies-next";
 
 export function handleOnChangeNumeric(
   event: React.ChangeEvent<HTMLInputElement>,
@@ -52,7 +52,7 @@ export function camelCaseToTitleCase(input: string) {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-const token_superuser = getToken()
+let  token_superuser = "";
 export async function fetchUserDataList() {
   try {
     const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -128,6 +128,9 @@ export async function fetchProfileDetailsById(id:string): Promise<PermissionResp
   }
 }
 
+export const setToken = (token: string) =>{
+  token_superuser = token
+}
 export async function fetchMyDetails(): Promise<UserProfile | undefined>{
   try{
     const dataResp = await fetch(`${baseUrl}/v1/api/users/my_account/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -167,4 +170,8 @@ export function parseJwt (token:string) {
   }).join(''));
 
   return JSON.parse(jsonPayload);
+}
+
+export const getToken = () => {
+  return token_superuser
 }

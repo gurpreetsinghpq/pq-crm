@@ -37,22 +37,11 @@ import { Separator } from "../ui/separator"
 import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, ProfileGetResponse, User, UsersGetResponse } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
-import { TableContext } from "@/app/helper/context"
-import SideSheet from "./sideSheet"
 import { useRouter, useSearchParams } from "next/navigation"
 
-import { Router } from "next/router"
-import { RowModel } from "@tanstack/react-table"
-import { columnsClient } from "./table/columns-client"
-import { columnsContacts } from "./table/columns-contact"
-import SideSheetContacts from "./sideSheetContacts"
-import AddUserDialogBox from "./addUserDialogBox"
-import { columnsUsers } from "./table/columns-users"
-import { formatData, getToken } from "./leads"
-import { columnsTeams } from "./table/columns-teams"
-import AddTeamDialogBox from "./addTeamDialogBox"
 import { columnsProfiles } from "./table/columns-profiles"
 import AddProfileDialogBox from "./addProfileDialog"
+import { getToken } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -139,7 +128,6 @@ function Profiles({ form, permissions }: {
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    getToken()
     const token_superuser = getToken()
     async function fetchProfileData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
@@ -260,7 +248,7 @@ function Profiles({ form, permissions }: {
 
     const addProfileDialogButton = () => <AddProfileDialogBox permissions={permissions} setIsAddDialogClosed={setIsAddDialogClosed}>
         <Button disabled={!permissions?.add} className="flex flex-row gap-2" type="button">
-            <Image src="/plus.svg" alt="plus lead" height={20} width={20} />
+            <Image src="/images/plus.svg" alt="plus lead" height={20} width={20} />
             Add Profile
         </Button>
     </AddProfileDialogBox>
@@ -305,7 +293,7 @@ function Profiles({ form, permissions }: {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchProfileData()}>
-                                            <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
+                                            <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" sideOffset={5}>

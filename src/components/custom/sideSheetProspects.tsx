@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
-import { IChildData, formatData, getToken } from './leads'
+import { IChildData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
@@ -30,6 +30,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { fetchUserDataList, handleOnChangeNumeric } from './commonFunctions'
 import { toast, useToast } from '../ui/use-toast'
+import { getCookie } from 'cookies-next'
 
 
 const FormSchema2 = z.object({
@@ -153,8 +154,6 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     const [rowState, setRowState] = useState<DeepPartial<ProspectsGetResponse>>()
     const { childData: { row }, setChildDataHandler } = parentData
 
-
-    const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
     const data: ProspectsGetResponse = row.original
 
     const { toast } = useToast()
@@ -362,7 +361,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const token_superuser = getToken()
+    const token_superuser = getCookie("token")
 
     async function promoteToProspect() {
         setPromoteToProspectClicked(true)

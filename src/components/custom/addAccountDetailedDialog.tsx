@@ -22,12 +22,10 @@ import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, IErrors
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
-import Image from 'next/image'
-import { formatData, getToken } from './leads'
-import Link from 'next/link'
 import { contactListClasses, disabledClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
+import { getToken } from './commonFunctions'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"

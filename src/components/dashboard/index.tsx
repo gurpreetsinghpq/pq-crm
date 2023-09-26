@@ -15,12 +15,11 @@ import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { getAllTime, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Toaster } from "../ui/toaster"
 import { toast } from "../ui/use-toast"
-import { Button } from "../ui/button"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import { fetchMyDetails, fetchProfileDetailsById } from "../custom/commonFunctions"
 import { disabledSidebarItem } from "@/app/constants/classes"
+import { deleteCookie } from "cookies-next"
 
 
 const LeadFormSchema = z.object({
@@ -362,6 +361,7 @@ export default function DashboardComponent() {
         console.log("userPermissions fac", permissionsObject["User Management"])
     }
     async function getMyDetails(){
+        console.log("inside mydetails")
         const data = await fetchMyDetails()
         if(data){
             const profileId: string = data.profile.id.toString()
@@ -384,6 +384,7 @@ export default function DashboardComponent() {
 
     function logOut() {
         localStorage.removeItem("user")
+        deleteCookie("token")
         router.replace("/signin")
         toast({
             title: "Logged out!",

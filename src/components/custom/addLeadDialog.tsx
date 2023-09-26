@@ -8,9 +8,9 @@ import { Separator } from '../ui/separator'
 import AddLeadDetailedDialog from './addLeadDetailedDialog'
 import { IconAccounts, IconAccounts2, IconBuildings } from '../icons/svgIcons'
 import { ClientCompleteInterface, LeadInterface } from '@/app/interfaces/interface'
-import { getToken } from './leads'
 import AddAcountDetailedDialog from './addAccountDetailedDialog'
 import AddContactDetailedDialog from './addContactDetailedDialog'
+import { getToken } from './commonFunctions'
 
 // const dummySearchedItems = ["Swiggy", "Swish Bank"]
 

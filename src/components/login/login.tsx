@@ -12,10 +12,9 @@ import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { toast } from "../ui/use-toast"
-import ToastMe from "../custom/toastMe"
-import { Toaster } from "../ui/toaster"
-import { parseJwt } from "../custom/commonFunctions";
+import { parseJwt, setToken } from "../custom/commonFunctions";
 import { GoogleUserInfo } from "@/app/interfaces/interface";
+import { setCookie} from "cookies-next"
 
 
 const FormSchema = z.object({
@@ -68,8 +67,14 @@ export default function Signin() {
             setIsLoading(false)
             const { data } = result
             console.log(result)
+            const {
+                token,
+                ...objWithoutToken
+            } = data
             if (result.status == 1) {
-                localStorage.setItem("user", JSON.stringify(data))
+                localStorage.setItem("user", JSON.stringify(objWithoutToken))
+                setCookie("token", data.token)
+                setToken(data.token)
                 router.replace('/dashboard')
                 setPostLogin({ message: "Succesfully logged in", status: 1, show: true })
                 toast({
@@ -135,9 +140,15 @@ export default function Signin() {
             const result = await dataResp.json()
             setIsLoading(false)
             const { data } = result
+            const {
+                token,
+                ...objWithoutToken
+            } = data
             console.log(result)
             if (result.status == 1) {
-                localStorage.setItem("user", JSON.stringify(data))
+                localStorage.setItem("user", JSON.stringify(objWithoutToken))
+                setCookie("token", data.token)
+                setToken(data.token)
                 router.replace('/dashboard')
                 setPostLogin({ message: "Succesfully logged in", status: 1, show: true })
                 toast({
@@ -174,12 +185,12 @@ export default function Signin() {
     return <div className="signin-container flex min-h-screen relative">
         <div className="left flex flex-col w-7/12 bg-purple-600 justify-center py-[6rem] 2xl:py-[10rem]">
             <div className="flex flex-row mb-8 absolute top-[44px] left-[44px]">
-                <Image src={"/purple-quarter-logo.png"} alt="purple search logo" width={167} height={44} />
+                <Image src={"/images/purple-quarter-logo.png"} alt="purple search logo" width={167} height={44} />
             </div>
             <div className="flex flex-col h-full justify-between gap-[50px]">
                 <div className="flex flex-row justify-center">
                     <div className="max-w-[596px]">
-                        <Image src={"/carousel-1.png"} alt="carousel first" width={0} height={0} sizes="100vw"
+                        <Image src={"/images/carousel-1.png"} alt="carousel first" width={0} height={0} sizes="100vw"
                             style={{ width: '100%', height: 'auto' }}
                         />
                     </div>
@@ -194,7 +205,7 @@ export default function Signin() {
 
             <Form {...form} >
                 <form className="flex flex-col" onSubmit={form.handleSubmit(onSubmit)} >
-                    <Image alt="pq search" src={"/pq-search.png"} width={40} height={40} className="mb-5" />
+                    <Image alt="pq search" src={"/images/pq-search.png"} width={40} height={40} className="mb-5" />
                     <div className="text-2xl my-2 text-gray-900 font-bold">Sign in</div>
                     <div className="text-gray-600 mb-6 text-sm">Welcome back! Please enter your details.</div>
                     <span className="text-gray-700 text-sm mb-1">Email</span>

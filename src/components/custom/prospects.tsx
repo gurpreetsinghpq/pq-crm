@@ -37,16 +37,10 @@ import { Separator } from "../ui/separator"
 import { IValueLabel, Permission, ProspectsGetResponse, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
-import { TableContext } from "@/app/helper/context"
-import SideSheet from "./sideSheet"
 import { useRouter, useSearchParams } from "next/navigation"
-import { columns } from "./table/columns"
-import { Router } from "next/router"
-import { RowModel } from "@tanstack/react-table"
 import { columnsProspects } from "./table/columns-prospect"
 import SideSheetProspects from "./sideSheetProspects"
-import { getToken } from "./leads"
-import { fetchUserDataList } from "./commonFunctions"
+import { fetchUserDataList, getToken } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -137,7 +131,6 @@ const Prospects = ({ form, permissions }: {
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    getToken()
     const token_superuser = getToken()
     async function fetchProspectData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
@@ -336,7 +329,7 @@ const Prospects = ({ form, permissions }: {
                                             fetchProspectData()
 
                                         }}>
-                                            <Image width={20} height={20} alt="Refresh" src={"/refresh.svg"} />
+                                            <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent side="right" sideOffset={5}>
@@ -389,7 +382,7 @@ const Prospects = ({ form, permissions }: {
                                                 </g>
                                             </svg>
                                             Last 7 Days
-                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                         </Button>
                                     </DropdownMenuTrigger> */}
                                         {/* <DropdownMenuContent className="w-56"> */}
@@ -415,7 +408,7 @@ const Prospects = ({ form, permissions }: {
                                                 return <DropdownMenu >
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Regions', regions)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="w-[160px]">
@@ -450,7 +443,7 @@ const Prospects = ({ form, permissions }: {
                                                 return <DropdownMenu >
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Sources', sources)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="w-[200px]">
@@ -486,7 +479,7 @@ const Prospects = ({ form, permissions }: {
                                                 return <DropdownMenu >
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="google" className="flex flex-row gap-2">{formatData(field.value, 'Statuses', ALL_PROSPECT_STATUSES)}
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent className="w-[180px]">
@@ -532,7 +525,7 @@ const Prospects = ({ form, permissions }: {
                                                             {
                                                                 field.value ? owners.find((owner) => owner.value === field.value)?.label : "Select Owner"
                                                             }
-                                                            <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                            <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
@@ -583,7 +576,7 @@ const Prospects = ({ form, permissions }: {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                     {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Owners', [{ value: "allOwners", label: "All Owners" }, ...userList])}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
@@ -651,7 +644,7 @@ const Prospects = ({ form, permissions }: {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
                                                                     {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Creators', [{ value: "allCreators", label: "All Creators" }, ...userList])}
-                                                                    <Image width={20} height={20} alt="Refresh" src={"/chevron-down.svg"} />
+                                                                    <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
