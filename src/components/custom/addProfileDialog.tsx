@@ -103,7 +103,7 @@ export type FormField = keyof typeof FormSchema['shape'];
 
 function AddProfileDialogBox({ children, permissions, parentData = undefined, setIsAddDialogClosed = undefined }: { children?: any | undefined, permissions: Permission, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined, setIsAddDialogClosed?: CallableFunction }) {
     const [open, setOpen] = useState<boolean>(false)
-    const [data, setData] = useState()
+    const [data, setData] = useState<SpecificProfileGetResponse>()
     const [checkFields, setCheckFields] = useState<boolean>(false)
     const [accessCategory, setAccessCategory] = useState<AccessCategoryGetResponse[]>()
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -309,7 +309,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
             }
             form.setValue("profileName", data.name)
             console.log("formvalue", form.getValues())
-
+            setData(data)
         }
         catch (err) {
             console.log("error", err)
@@ -557,7 +557,7 @@ return (
                             <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Profile" : "Add Profile"}</div>
                             {
                                 parentData?.open &&
-                                <Button disabled={!permissions?.change} variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' onClick={() => deactivateProfile()}>
+                                <Button disabled={!permissions?.change || data?.users.length!==0} variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' onClick={() => deactivateProfile()}>
                                     {/* <IconUserDeactive size={20} color={"white"} /> */}
                                     Delete Profile
                                 </Button>
