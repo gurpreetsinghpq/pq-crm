@@ -6,6 +6,7 @@ import { commonTabListClasses, commonTabTriggerClasses } from '@/app/constants/c
 import Notes from './deal-activity/notes';
 import Activity from './deal-activity/activity';
 import Todo from './deal-activity/todo';
+import { ArrowLeft, ArrowLeftCircle, ArrowRight, ArrowRightCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
@@ -60,6 +61,8 @@ const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
 function SideSheetTabs({ currentParentTab, contactFromParents }: { currentParentTab: string, contactFromParents: any }) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
+  const [isLeftVisible, setIsLeftVisible] = useState(false);
+  const [isRightVisible, setIsRightVisible] = useState(false);
   useEffect(() => {
     let currentTab = getCurrentActiveTab()
     setCurrentActiveTab(currentTab)
@@ -79,16 +82,86 @@ function SideSheetTabs({ currentParentTab, contactFromParents }: { currentParent
     // tabref.current = 
 
   }, [currentParentTab])
-  console.log("currentActiveTab", currentActiveTab)
+  const containerRef = useRef<HTMLDivElement | null>(null); 
+
+
+  const scrollLeft = () => {
+    if (containerRef.current) {
+      smoothScroll(containerRef.current.scrollLeft - 100, 300); 
+    }
+  };
+
+  const scrollRight = () => {
+    if (containerRef.current) {
+      smoothScroll(containerRef.current.scrollLeft + 100, 300); 
+    }
+  };
+
+  const checkScrollPosition = () => {
+    if (containerRef.current) {
+      setIsLeftVisible(containerRef.current.scrollLeft + containerRef.current.clientWidth <
+        containerRef.current.scrollWidth);
+      setIsRightVisible(
+        containerRef.current.scrollLeft + containerRef.current.clientWidth <
+          containerRef.current.scrollWidth
+      );
+    }
+  };
+
+  useEffect(() => {
+    // Initial check
+    checkScrollPosition();
+
+    // Add a window resize event listener to update arrow visibility
+    window.addEventListener('resize', checkScrollPosition);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('resize', checkScrollPosition);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Call checkScrollPosition again after the component mounts
+    checkScrollPosition();
+  }, []); // Empty dependency array ensures it only runs once on mount
+
+  const smoothScroll = (targetX: number, duration: number) => {
+    const element = containerRef.current;
+    if (!element) return;
+
+    const start = element.scrollLeft;
+    const distance = targetX - start;
+    const startTime = performance.now();
+
+    const easeInOutQuad = (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
+
+    const animateScroll = (currentTime: number) => {
+      const elapsedTime = currentTime - startTime;
+
+      if (elapsedTime < duration) {
+        element.scrollLeft = start + distance * easeInOutQuad(elapsedTime / duration);
+        requestAnimationFrame(animateScroll);
+      } else {
+        element.scrollLeft = targetX;
+      }
+    };
+
+    requestAnimationFrame(animateScroll);
+  };
   return (
     <div className='w-full'>
       {parentTab === SIDE_SHEET_TABS.DEAL_FLOW && <Tabs defaultValue={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
         <div className="flex flex-row  py-[24px] border-gray-100">
-          <TabsList className={commonTabListClasses}>
-            {dealFlowTab.map((tab) => {
-              return <TabsTrigger disabled={tab.value !== "Proposal"} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
-            })}
-          </TabsList>
+          <div className='flex flex-row items-center w-full gap-[8px]'>
+            {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft}/></div>}
+            <TabsList className={`${commonTabListClasses} overflow-hidden `} ref={containerRef}>
+              {dealFlowTab.map((tab) => {
+                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal"} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+              })}
+            </TabsList>
+            {isRightVisible && <div><ChevronRight className='cursor-pointer' onClick={scrollRight} /></div>}
+          </div>
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_ACTIVITY_TABS.USERS} className="flex flex-col flex-1">
@@ -118,7 +191,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents }: { currentParent
             <Activity contactFromParents={contactFromParents} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1">
-            <Todo/>
+            <Todo />
           </TabsContent>
         </div>
       </Tabs>}

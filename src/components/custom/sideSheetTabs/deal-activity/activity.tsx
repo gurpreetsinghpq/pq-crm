@@ -15,6 +15,7 @@ import { Check, ChevronDown } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { getContacts } from '../custom-stepper'
 
 
 
@@ -22,9 +23,7 @@ const FormSchema = z.object({
     activityType: z.string({
         // required_error: "Please enter a name.",
     }),
-    contact: z.string({
-        // required_error: "Please select a region"
-    }),
+    contact: z.array(z.string()),
     mode: z.string({
     }),
     status: z.string({
@@ -128,24 +127,66 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                             name="contact"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Select onValueChange={(value) => {
-                                                        return field.onChange(value)
-                                                    }} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
-                                                                <SelectValue placeholder="Select Contact" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                CONTACTS_FROM_PARENT.map((contact: any, index: any) => {
-                                                                    return <SelectItem key={index} value={contact.id.toString()}>
-                                                                        {contact.name}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog}`}>
+                                                                    {
+                                                                        field?.value?.length > 0 ? (
+                                                                            getContacts(field.value.map(contactId => {
+                                                                                const contact = CONTACTS_FROM_PARENT.find((contact:any) => contact.id === contactId);
+                                                                                return contact ? contact.name : null;
+                                                                            }))
+                                                                        ) : (
+                                                                            <span className='text-muted-foreground'>Contact</span>
+                                                                        )
+                                                                    }
+                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[430px] p-0">
+                                                            <Command>
+                                                                <CommandInput placeholder="Search Contact" />
+                                                                <CommandEmpty>No Contact found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                        {CONTACTS_FROM_PARENT.map((contact: any, index: any) => (
+                                                                            <CommandItem
+                                                                                value={contact.id}
+                                                                                key={contact.id}
+                                                                                onSelect={() => {
+                                                                                    console.log(field.value)
+                                                                                    if (field?.value?.length > 0) {
+                                                                                        if (field?.value?.includes(contact.id)) {
+                                                                                            form.setValue("contact", [...field.value.filter((value: string) => value !== contact.id)])
+                                                                                        } else {
+                                                                                            form.setValue("contact", [...field.value, contact.id])
+                                                                                        }
+                                                                                    } else {
+                                                                                        form.setValue("contact", [contact.id])
+                                                                                    }
+
+                                                                                }}
+                                                                            >
+                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                    {contact.name}
+                                                                                    <Check
+                                                                                        className={cn(
+                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                            field.value?.includes(contact.id)
+                                                                                                ? "opacity-100"
+                                                                                                : "opacity-0"
+                                                                                        )}
+                                                                                    />
+                                                                                </div>
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                    </div>
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
                                                 </FormItem>
                                             )}
                                         />
@@ -373,7 +414,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                         />
                                     </div>
                                 </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
+                                {/* <div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                         <IconReminder size="24" color="#98A2B3" />
                                         <div className='text-md text-gray-500 font-normal'>Related To</div>
@@ -459,7 +500,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                             />
                                         </div>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
 
                         </div>

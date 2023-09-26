@@ -133,10 +133,10 @@ export function getContacts(data: string[]) {
         {data.length>1 && <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <span className='text-purple-700 text-sm font-medium underline cursor-pointer'>+{data.length}</span>
+                    <span className='text-purple-700 text-sm font-medium underline cursor-pointer'>+{data.length-1}</span>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                    <div className='flex flex-col gap-[5px] py-[8px]'>{data.map((contact) => {
+                    <div className='flex flex-col gap-[5px] py-[8px]'>{data.slice(1).map((contact) => {
                         return <div>
                             {contact}
                         </div>
