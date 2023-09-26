@@ -17,9 +17,9 @@ import { getAllTime, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "../ui/use-toast"
 import { ArrowDown, ArrowUp } from "lucide-react"
-import { fetchMyDetails, fetchProfileDetailsById } from "../custom/commonFunctions"
+import { fetchMyDetails, fetchProfileDetailsById, setToken } from "../custom/commonFunctions"
 import { disabledSidebarItem } from "@/app/constants/classes"
-import { deleteCookie } from "cookies-next"
+import { deleteCookie, getCookie } from "cookies-next"
 
 
 const LeadFormSchema = z.object({
@@ -153,6 +153,7 @@ const ProfilesFormSchema = z.object({
 const TITLES = {
     LEADS: "Leads",
     PROSPECTS: "Prospects",
+    DEALS: "Deals",
     ACCOUNTS: "Accounts",
     CONTACTS: "Contacts",
     USER_MANAGEMENT: "User Management"
@@ -165,6 +166,7 @@ export default function DashboardComponent() {
     // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
     const [user, setUser] = useState<User>()
+    const [tokenDashboard, setTokenForDashboard] = useState<string>("")
     const [isScrollDown, setScrollDown] = useState<boolean>(true)
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [showScrollButton, setShowScrollButton] = useState(true);
@@ -174,6 +176,7 @@ export default function DashboardComponent() {
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth <= 1300 : false
     )
+    
 
     useEffect(() => {
         const handleResize = (): void => {
@@ -188,6 +191,13 @@ export default function DashboardComponent() {
         }
     }, [])
 
+    useEffect(()=>{
+        const token = getCookie("token")
+        const tokenAsString =String(token) 
+        setToken(tokenAsString )
+        setTokenForDashboard(tokenAsString )
+
+    },[])
 
     const router = useRouter();
     const { from, to } = getThisMonth()
@@ -432,7 +442,7 @@ export default function DashboardComponent() {
         }
     }, []);
 
-    return <div className="flex flex-row h-full ">
+    return  <>{tokenDashboard ? <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left z-[1] flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center  xl:px-1 2xl:px-[0px]">
                 <IconPq size={32} />
@@ -497,7 +507,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${ disabledSidebarItem }`}>
+                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ disabledSidebarItem }`}>
                                 <IconDealsHome size={24} />
                             </div>
                         </TooltipTrigger>
@@ -604,5 +614,5 @@ export default function DashboardComponent() {
 
             </div>
         </div>
-    </div>
+    </div>:<div>Loading...</div>}</>
 }
