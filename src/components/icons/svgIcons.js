@@ -51,6 +51,15 @@ const ProspectIcon = ({ size = "10" }) => (
   </svg>
 )
 
+const DealIconHome = ({ size = "10" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 25 24" fill="none">
+    <g id="wallet-06">
+      <path id="Icon" d="M12.5001 6.5H8.96437C8.44341 6.5 7.94379 6.28929 7.57541 5.91421C7.20704 5.53914 7.00009 5.03043 7.00009 4.5C7.00009 3.96957 7.20704 3.46086 7.57541 3.08579C7.94379 2.71071 8.44341 2.5 8.96437 2.5C11.7144 2.5 12.5001 6.5 12.5001 6.5ZM12.5001 6.5H16.0358C16.5568 6.5 17.0564 6.28929 17.4248 5.91421C17.7931 5.53914 18.0001 5.03043 18.0001 4.5C18.0001 3.96957 17.7931 3.46086 17.4248 3.08579C17.0564 2.71071 16.5568 2.5 16.0358 2.5C13.2858 2.5 12.5001 6.5 12.5001 6.5ZM19.5001 10L21.3642 13.1069C21.782 13.8032 21.9909 14.1514 22.0994 14.5262C22.1955 14.8582 22.2335 15.2045 22.2117 15.5495C22.1871 15.9389 22.0587 16.324 21.802 17.0944L21.5941 17.7179C21.2007 18.8981 21.004 19.4882 20.6392 19.9245C20.317 20.3098 19.9032 20.608 19.4358 20.7918C18.9066 21 18.2845 21 17.0404 21L7.95973 21C6.71566 21 6.09362 21 5.56435 20.7918C5.09696 20.608 4.68321 20.3098 4.36102 19.9245C3.99617 19.4882 3.79946 18.8981 3.40605 17.7179L3.19822 17.0944C2.94144 16.324 2.81304 15.9389 2.78844 15.5495C2.76664 15.2044 2.80464 14.8582 2.90078 14.5261C3.00926 14.1514 3.21815 13.8032 3.63593 13.1069L5.50009 10L5.08282 8.53955C4.88499 7.84717 4.78608 7.50097 4.86378 7.22708C4.93185 6.98715 5.08711 6.78132 5.29911 6.64996C5.54112 6.5 5.90116 6.5 6.62126 6.5L18.3789 6.5C19.099 6.5 19.4591 6.5 19.7011 6.64996C19.9131 6.78132 20.0683 6.98715 20.1364 7.22708C20.2141 7.50097 20.1152 7.84717 19.9174 8.53955L19.5001 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path id="Icon_2" d="M14.5 10.5498H12C11.1716 10.5498 10.5 11.2214 10.5 12.0498C10.5 12.8782 11.1716 13.5498 12 13.5498H13C13.8284 13.5498 14.5 14.2214 14.5 15.0498C14.5 15.8782 13.8284 16.5498 13 16.5498H10.5M12.5 9.5498V10.5498M12.5 16.5498V17.5498" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  </svg>
+)
+
 const AccountsIcon = ({ size = "10" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 20 20" fill="none">
     <g id="building-03">
@@ -567,6 +576,7 @@ export const InProgress = (props) => <InProgressIcon {...props} />;
 export const Junk = (props) => <JunkIcon {...props} />;
 export const IconLeads = (props) => <LeadsIcon {...props} />;
 export const IconProspects = (props) => <ProspectIcon {...props} />;
+export const IconDealsHome = (props) => <DealIconHome {...props} />;
 export const IconAccounts = (props) => <AccountsIcon {...props} />;
 export const IconRoles = (props) => <RolesIcon {...props} />;
 export const IconContacts = (props) => <ContactIcon {...props} />;

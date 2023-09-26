@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG, SIDE_SHEET_TABS } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -25,12 +25,13 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { fetchUserDataList, handleOnChangeNumeric } from './commonFunctions'
 import { toast, useToast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
+import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
 
 
 const FormSchema2 = z.object({
@@ -149,6 +150,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     const [addDialogOpen, setAddDialogOpen] = useState(false)
     const [budgetKey, setBudgetKey] = React.useState<number>(+new Date())
     const [places, setPlaces] = React.useState([])
+    const [currentSidesheetTab, setCurrentSidesheetTab] = React.useState<string>(SIDE_SHEET_TABS.DEAL_FLOW)
     const [beforePromoteToProspectDivsArray, setBeforePromoteToProspectDivsArray] = useState<any[]>([]);
     // used for handling on side sheet open and result from api as side sheet is not been closed when clicked on save (usage: promote to prospect)
     const [rowState, setRowState] = useState<DeepPartial<ProspectsGetResponse>>()
@@ -453,7 +455,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             // role_type: valueToLabel(form.getValues("role"), ROLETYPE),
             // region: region,
             location: form.getValues("locations"),
-            budget_range: valueToLabel(form.getValues("budget"), BUDGET_RANGE[labelToValue(form.getValues("regions"),REGIONS) || ""]),
+            budget_range: valueToLabel(form.getValues("budget"), BUDGET_RANGE[labelToValue(form.getValues("regions"), REGIONS) || ""]),
             fixed_budget: `${form.getValues("fixedCtcBudgetCurrency")} ${form.getValues("fixedCtcBudget")}`,
             fixed_budget_ul: `${form.getValues("fixedBudgetUlCurrency")} ${form.getValues("fixedBudgetUl")}`,
             esop_rsu: `${form.getValues("esopRsusUlCurrency")} ${form.getValues("esopRsusUl")}`,
@@ -654,9 +656,9 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                 }
             }
 
-            if(serviceFee !== null && serviceFee !=='' && serviceFee !== undefined){
+            if (serviceFee !== null && serviceFee !== '' && serviceFee !== undefined) {
                 const serviceFeeNumeric = Number(serviceFee);
-                const isServiceFeeValid = serviceFeeNumeric >= 10 && serviceFeeNumeric <=50;
+                const isServiceFeeValid = serviceFeeNumeric >= 10 && serviceFeeNumeric <= 50;
 
                 if (!isServiceFeeValid) {
                     ctx.addIssue({
@@ -812,1504 +814,1522 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                 <div className='absolute top-0 right-[100%] bg-white-900 p-[16px] rounded-l-[8px] cursor-pointer' onClick={closeSideSheet} >
                     <IconCross size={20} color={"#667085"} />
                 </div>
-                <Form {...form} >
-                    <form className='w-full h-full flex flex-row ' onSubmitCapture={preprocess} onSubmit={form.handleSubmit(onSubmit)}>
-                        <div className='relative pt-[24px] 2xl:w-1/4 w-4/12 h-full flex flex-col '>
-                            <div className='flex flex-col flex-1 overflow-y-auto  pr-[0px] '>
-                                <div className='sticky top-0 bg-white-900 z-50'>
-                                    <div className='px-[24px] text-gray-900 text-xl font-semibold '>
-                                        {data.lead.title}
-                                    </div>
-                                    <div className="px-[16px] mt-[24px] text-md font-medium w-full flex flex-row ">
-                                        <FormField
-                                            control={form.control}
-                                            name="statuses"
-                                            render={({ field }) => (
-                                                <FormItem className='w-full'>
-                                                    <Select onValueChange={(value) => {
-                                                        onStatusChange(value)
-                                                        return field.onChange(value)
-                                                    }
-                                                    } defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className={`border-gray-300 ${commonClasses}`}>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select a Status" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                PROSPECT_STATUSES.filter((status) => status.value !== 'allStatuses').map((status, index) => {
-                                                                    return <SelectItem key={index} value={status.value}>
-                                                                        <div className="">
-                                                                            <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
-                                                                                {status.icon && <status.icon />}
-                                                                                {status.label}
-                                                                            </div>
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                })
+                <div className='w-full h-full flex flex-row '>
+                    <div className='relative  2xl:w-1/4 w-4/12 h-full flex flex-col '>
+                        <Form {...form} >
+                            <form className='w-full h-full flex flex-row ' onSubmitCapture={preprocess} onSubmit={form.handleSubmit(onSubmit)}>
+                                <div className='pt-[24px] h-full flex flex-col w-full'>
+                                    <div className='flex flex-col flex-1 overflow-y-auto  pr-[0px] '>
+                                        <div className='sticky top-0 bg-white-900 z-50'>
+                                            <div className='px-[24px] text-gray-900 text-xl font-semibold '>
+                                                {data.lead.title}
+                                            </div>
+                                            <div className="px-[16px] mt-[24px] text-md font-medium w-full flex flex-row ">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="statuses"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-full'>
+                                                            <Select onValueChange={(value) => {
+                                                                onStatusChange(value)
+                                                                return field.onChange(value)
                                                             }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                    <FormMessage className={selectFormMessageClasses} />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                    </div>
-                                    {reasonMap[form.getValues("statuses")]?.length > 0 && (<div className="px-[16px] mt-[16px] mb-[6px] text-md font-medium w-full flex flex-row ">
-                                        <FormField
-                                            control={form.control}
-                                            name="reasons"
-                                            render={({ field }) => (
-                                                <FormItem className='w-full'>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className={`border-gray-300 shadow ${commonClasses}`}>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select Reason" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                reasonMap[form.getValues("statuses")]?.map((reason: string, index: number) => {
-                                                                    return <SelectItem key={index} value={reason}>
-                                                                        {reason}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                    </div>)}
-                                </div>
-                                <span className='px-[16px] my-[12px] text-gray-700 text-sm font-medium'>
-                                    Details
-                                </span>
-                                <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconUsersSearch size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Source
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                    <FormField
-                                        control={form.control}
-                                        name="sources"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-
-                                                <FormControl>
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Source" {...field} />
-                                                </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ">
-                                    <FormField
-                                        control={form.control}
-                                        name="owners"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full cursor-pointer'>
-                                                <Popover>
-                                                    <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
-                                                            <TooltipProvider>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <div>
-                                                                            <IconProfile size={24} />
-                                                                        </div>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent side="top">
-                                                                        Owned By
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </TooltipProvider>
-                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    {userList && userList.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
-                                                                </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                            </div>
-                                                        </div>
-
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
-                                                        <Command>
-                                                            <CommandInput className='w-full' placeholder="Search Owner" />
-                                                            <CommandEmpty>Owner not found.</CommandEmpty>
-                                                            <CommandGroup>
-                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                    {userList && userList.map((owner) => (
-                                                                        <CommandItem
-                                                                            value={owner.value}
-                                                                            key={owner.value}
-                                                                            onSelect={() => {
-                                                                                form.setValue("owners", owner.value, SET_VALUE_CONFIG)
-                                                                            }}
-                                                                        >
-                                                                            <PopoverClose asChild>
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {owner.label}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value === owner.value
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
+                                                            } defaultValue={field.value}>
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-gray-300 ${commonClasses}`}>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Select a Status" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        PROSPECT_STATUSES.filter((status) => status.value !== 'allStatuses').map((status, index) => {
+                                                                            return <SelectItem key={index} value={status.value}>
+                                                                                <div className="">
+                                                                                    <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}>
+                                                                                        {status.icon && <status.icon />}
+                                                                                        {status.label}
+                                                                                    </div>
                                                                                 </div>
-                                                                            </PopoverClose>
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </div>
-                                                            </CommandGroup>
-                                                        </Command>
-                                                    </PopoverContent>
-                                                </Popover>
-                                                {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
-
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                </div>
-
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div className='text-[#98A2B3]'>
-                                                    <IconClosedBy size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Closed By
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="closedBy"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Closed By" {...field} />
-                                                </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconUserCheck size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Fulfilled By
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="fulfilledBy"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Fulfilled By" {...field} />
-                                                </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconCurrencyDollars size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Deal Value
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="dealValue"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} bg-inherit`} placeholder="Deal Value" {...field} />
-                                                </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium'>
-                                    Role Details
-                                </span>
-                                <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconRoles size={24} color="#98A2B3" />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Role
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                    <FormField
-                                        control={form.control}
-                                        name="role"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-
-                                                <FormControl>
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Role" {...field} />
-                                                </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconGlobe size={24} color="#98A2B3" />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Region
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                    <FormField
-                                        control={form.control}
-                                        name="regions"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-
-                                                <FormControl>
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Region" {...field} />
-                                                </FormControl>
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 border-b-2 " >
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconLocation size={24} color="#98A2B3" />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Location
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="locations"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Location" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
-                                        control={form.control}
-                                        name="budget"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconWallet size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Budget Range
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-                                                                </div>
-                                                                <SelectValue placeholder="Select Budget" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            BUDGET_RANGE[labelToValue(form.getValues("regions"), REGIONS) || ""]?.map((budget, index) => {
-                                                                return <SelectItem key={index} value={budget.value}>
-                                                                    {budget.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconStackedCoins size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Cash CTC Budget
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <div className='flex ml-[2px] flex-row w-full items-start'>
-                                        <FormField
-                                            control={form.control}
-                                            name="fixedCtcBudgetCurrency"
-                                            render={({ field }) => (
-                                                <FormItem className='w-fit min-w-[80px]'>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                        <FormControl>
-                                                            <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                <SelectValue placeholder="INR" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                CURRENCIES?.map((currency, index) => {
-                                                                    return <SelectItem key={index} value={currency.value}>
-                                                                        {currency.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="fixedCtcBudget"
-                                            render={({ field }) => (
-                                                <FormItem className='flex-1'>
-                                                    <FormControl>
-                                                        <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Cash CTC Budget" {...field}
-                                                            onKeyPress={handleKeyPress}
-                                                            onChange={event => {
-                                                                return handleOnChangeNumeric(event, field)
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className={inputFormMessageClassesWithSelect} />
-                                                </FormItem>
-
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconStackedCoins2 size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Cash CTC Budget UL
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <div className='flex ml-[2px] flex-row w-full items-start'>
-                                        <FormField
-                                            control={form.control}
-                                            name="fixedBudgetUlCurrency"
-                                            render={({ field }) => (
-                                                <FormItem className='w-fit min-w-[80px]'>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                        <FormControl>
-                                                            <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                <SelectValue placeholder="INR" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                CURRENCIES?.map((currency, index) => {
-                                                                    return <SelectItem key={index} value={currency.value}>
-                                                                        {currency.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="fixedBudgetUl"
-                                            render={({ field }) => (
-                                                <FormItem className='flex-1'>
-                                                    <FormControl>
-                                                        <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Cash CTC Budget UL" {...field}
-                                                            onKeyPress={handleKeyPress}
-                                                            onChange={event => {
-                                                                return handleOnChangeNumeric(event, field)
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className={inputFormMessageClassesWithSelect} />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconEsop size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                ESOPs/RSUs Budget UL
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <div className='flex ml-[2px] flex-row w-full items-start'>
-                                        <FormField
-                                            control={form.control}
-                                            name="esopRsusUlCurrency"
-                                            render={({ field }) => (
-                                                <FormItem className='w-fit min-w-[80px]'>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                        <FormControl>
-                                                            <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                <SelectValue placeholder="INR" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                CURRENCIES?.map((currency, index) => {
-                                                                    return <SelectItem key={index} value={currency.value}>
-                                                                        {currency.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name="esopRsusUl"
-                                            render={({ field }) => (
-                                                <FormItem className='flex-1'>
-                                                    <FormControl>
-                                                        <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="ESOPs/RSUs Budget UL" {...field}
-                                                            onKeyPress={handleKeyPress}
-                                                            onChange={event => {
-                                                                return handleOnChangeNumeric(event, field)
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage className={inputFormMessageClassesWithSelect} />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
-                                        control={form.control}
-                                        name="timeToFill"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconClock size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Time to Fill
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-                                                                </div>
-                                                                <SelectValue placeholder="Time to Fill" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            TIME_TO_FILL.map((timeToFill, index) => {
-                                                                return <SelectItem key={index} value={timeToFill.value}>
-                                                                    {timeToFill.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
-                                    <span>Account Details</span>
-                                    <div> <LabelIcon /> </div>
-                                </span>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconOrgnaisation size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Organisation Name
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="orgnaisationName"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses}`} placeholder="Organisation Name" {...field} />
-                                                </FormControl>
-
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconShield size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                Registered Name
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                    <FormField
-                                        control={form.control}
-                                        name="registeredName"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Registered Name" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="pl-[6px] pr-[4px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
-                                        control={form.control}
-                                        name="industry"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full cursor-pointer'>
-                                                <Popover>
-                                                    <PopoverTrigger asChild >
-                                                        <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
-                                                            <TooltipProvider>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <div>
-                                                                            <IconIndustry size={24} color="#98A2B3" />
-                                                                        </div>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent side="top">
-                                                                        Industry
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </TooltipProvider>
-                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    {INDUSTRY.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Industry</span>}
-                                                                </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                            </div>
-                                                        </div>
-
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
-                                                        <Command>
-                                                            <CommandInput className='w-full' placeholder="Search Industry" />
-                                                            <CommandEmpty>Industry not found.</CommandEmpty>
-                                                            <CommandGroup>
-                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                    {INDUSTRY.map((industry) => (
-                                                                        <CommandItem
-                                                                            value={industry.value}
-                                                                            key={industry.value}
-                                                                            onSelect={() => {
-                                                                                form.setValue("industry", industry.value, SET_VALUE_CONFIG)
-                                                                                checkVcIndutsry()
-                                                                            }}
-                                                                        >
-                                                                            <PopoverClose asChild>
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {industry.label}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value === industry.value
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </div>
-                                                                            </PopoverClose>
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </div>
-                                                            </CommandGroup>
-                                                        </Command>
-                                                    </PopoverContent>
-                                                </Popover>
-                                                {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
-
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
-                                    <FormField
-                                        control={form.control}
-                                        name="domain"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2   ${commonFontClasses} ${isVcIndustrySelected && disabledClasses} `}>
-                                                            <div className='flex flex-row gap-[22px] items-center ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconBuildings size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Domain
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Domain" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            DOMAINS.map((domain, index) => {
-                                                                return <SelectItem key={index} value={domain.value}>
-                                                                    {domain.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
-                                    <FormField
-                                        control={form.control}
-                                        name="size"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && disabledClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconUsers size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Size
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Size" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            SIZE_OF_COMPANY.map((companySize, index) => {
-                                                                return <SelectItem key={index} value={companySize.value}>
-                                                                    {companySize.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className={`pl-[6px] pr-[4px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
-                                    <FormField
-                                        control={form.control}
-                                        name="lastFundingStage"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full cursor-pointer'>
-                                                <Popover >
-                                                    <PopoverTrigger asChild disabled={isVcIndustrySelected}>
-                                                        <div className={`flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ${isVcIndustrySelected ? `${disabledClasses} cursor-not-allowed ` : ""}`}  >
-                                                            <TooltipProvider>
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <div>
-                                                                            <IconCoinsHand size={24} color="#98A2B3" />
-                                                                        </div>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent side="top">
-                                                                        Last Funding Stage
-                                                                    </TooltipContent>
-                                                                </Tooltip>
-                                                            </TooltipProvider>
-                                                            <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
-                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
-                                                                </div>
-                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                            </div>
-                                                        </div>
-
-                                                    </PopoverTrigger>
-                                                    {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}  >
-                                                        <Command>
-                                                            <CommandInput className='w-full' placeholder="Search Funding Stage" />
-                                                            <CommandEmpty>Funding Stage not found.</CommandEmpty>
-                                                            <CommandGroup>
-                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                    {LAST_FUNDING_STAGE.map((lastFundingStage) => (
-                                                                        <CommandItem
-                                                                            value={lastFundingStage.value}
-                                                                            key={lastFundingStage.value}
-                                                                            onSelect={() => {
-                                                                                form.setValue("lastFundingStage", lastFundingStage.value, SET_VALUE_CONFIG)
-                                                                            }}
-                                                                        >
-                                                                            <PopoverClose asChild>
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {lastFundingStage.label}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value === lastFundingStage.value
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </div>
-                                                                            </PopoverClose>
-                                                                        </CommandItem>
-                                                                    ))}
-                                                                </div>
-                                                            </CommandGroup>
-                                                        </Command>
-                                                    </PopoverContent>}
-                                                </Popover>
-                                                {!form.getValues("lastFundingStage") && <FormMessage className={selectFormMessageClasses} />}
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
-                                    <FormField
-                                        control={form.control}
-                                        name="lastFundingAmount"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && `${disabledClasses}  `}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconStackedCoins3 size={24} />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Last Funding Amount
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Last Funding Amount" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <div className='h-[200px] overflow-y-scroll '>
-                                                            {
-                                                                LAST_FUNDING_AMOUNT.map((lastFundingStage, index) => {
-                                                                    return <SelectItem key={index} value={lastFundingStage.value}>
-                                                                        {lastFundingStage.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconBilling size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Billing Address
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="billingAddress"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Billing Address" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconPackage size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Shipping Address
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="shippingAddress"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Shipping Address" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-
-
-
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 ">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconGst size={24} />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                GSTIN/VAT/GST Number
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="gstinVatGstNo"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="GSTIN/VAT/GST Number" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <span className='px-[16px] mb-[12px] mt-[24px] text-gray-700 text-sm font-medium'>
-                                    Engagement Model
-                                </span>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
-                                        control={form.control}
-                                        name="retainerAdvance"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2  ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconRetainerAdvance size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Retainer Advance
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Retainer Advance" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            RETAINER_ADVANCE.map((retainer, index) => {
-                                                                return <SelectItem key={index} value={retainer.value}>
-                                                                    {retainer.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
-                                        control={form.control}
-                                        name="exclusivity"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconExclusitivity size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Exclusivity
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Exclusivity" />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            EXCLUSIVITY.map((retainer, index) => {
-                                                                return <SelectItem key={index} value={retainer.value}>
-                                                                    {retainer.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
-                                    <FormField
-                                        control={form.control}
-                                        name="serviceFeeRange"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div >
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconServiceFeeRange size={24} color="#98A2B3" />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Service Fee Range
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
-
-                                                                </div>
-                                                                <SelectValue defaultValue={field.value} placeholder="Service Fee Range" {...field} />
-                                                            </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        {
-                                                            SERVICE_FEE_RANGE.map((retainer, index) => {
-                                                                return <SelectItem key={index} value={retainer.value}>
-                                                                    {retainer.label}
-                                                                </SelectItem>
-                                                            })
-                                                        }
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                <FormMessage className={selectFormMessageClasses} />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <div>
-                                                    <IconPercent2 size={24} color="#98A2B3" />
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top">
-                                                Service Fee
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="serviceFee"
-                                        render={({ field }) => (
-                                            <FormItem className='w-full'>
-                                                <FormControl>
-                                                    <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Service Fee" {...field}
-                                                        onKeyPress={handleKeyPress}
-                                                        onChange={event => {
-                                                            return handleOnChangeNumeric(event, field, false)
-                                                        }} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                                <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
-                                    <span>Contact Details</span>
-                                    <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-                                        <DialogTrigger>
-                                            <span className={`text-sm text-purple-700  ${showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} >
-                                                + Add
-                                            </span>
-                                        </DialogTrigger>
-                                        <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()}>
-                                            <DialogHeader>
-                                                <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
-                                                    <div className='text-lg text-gray-900 font-semibold'>Add Contact</div>
-                                                </DialogTitle>
-                                            </DialogHeader>
-                                            <div className='w-fit min-w-[600px] '>
-                                                <Separator className="bg-gray-200 h-[1px]  mb-4" />
-                                                <div className='flex flex-col px-[24px]'>
-                                                    <div className='flex flex-col'>
-                                                        <FormField
-                                                            control={form.control}
-                                                            name="contacts.name"
-                                                            render={({ field }) => (
-                                                                <FormItem>
-                                                                    <FormControl>
-                                                                        <Input type="text" className={`mt-3 ${commonClasses2}`} placeholder="Contact Name" {...field} />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )} />
-                                                        <div className='flex flex-row gap-4 mt-3'>
-                                                            <div className='flex flex-col  w-full'>
-                                                                <FormField
-                                                                    control={form.control}
-                                                                    name="contacts.designation"
-                                                                    render={({ field }) => (
-                                                                        <FormItem className='w-full '>
-                                                                            <Popover>
-                                                                                <PopoverTrigger asChild>
-                                                                                    <FormControl>
-                                                                                        <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                                            <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
-                                                                                            </div>
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                                                        </Button>
-                                                                                    </FormControl>
-                                                                                </PopoverTrigger>
-                                                                                <PopoverContent className="w-[268px] p-0 ">
-                                                                                    <Command>
-                                                                                        <CommandInput className='w-full' placeholder="Search Designation" />
-                                                                                        <CommandEmpty>Designation not found.</CommandEmpty>
-                                                                                        <CommandGroup>
-                                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                                {DESIGNATION.map((designation) => (
-                                                                                                    <CommandItem
-                                                                                                        value={designation.value}
-                                                                                                        key={designation.value}
-                                                                                                        onSelect={() => {
-                                                                                                            form.setValue("contacts.designation", designation.value)
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        <PopoverClose asChild>
-                                                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                                                {designation.label}
-                                                                                                                <Check
-                                                                                                                    className={cn(
-                                                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                                                        field.value === designation.value
-                                                                                                                            ? "opacity-100"
-                                                                                                                            : "opacity-0"
-                                                                                                                    )}
-                                                                                                                />
-                                                                                                            </div>
-                                                                                                        </PopoverClose>
-                                                                                                    </CommandItem>
-                                                                                                ))}
-                                                                                            </div>
-                                                                                        </CommandGroup>
-                                                                                    </Command>
-                                                                                </PopoverContent>
-                                                                            </Popover>
-                                                                        </FormItem>
-                                                                    )}
-                                                                />
-                                                            </div>
-                                                            <div className='flex flex-col w-full'>
-                                                                <FormField
-                                                                    control={form.control}
-                                                                    name="contacts.type"
-                                                                    render={({ field }) => (
-                                                                        <FormItem>
-                                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                                <FormControl>
-                                                                                    <SelectTrigger className={commonClasses2}>
-                                                                                        <SelectValue placeholder="Type" />
-                                                                                    </SelectTrigger>
-                                                                                </FormControl>
-                                                                                <SelectContent>
-                                                                                    {TYPE.map((type, index) => {
-                                                                                        return <SelectItem value={type.value} key={index}>
-                                                                                            {type.label}
-                                                                                        </SelectItem>
-                                                                                    })}
-                                                                                </SelectContent>
-                                                                            </Select>
-                                                                        </FormItem>
-                                                                    )} />
-                                                            </div>
-                                                        </div>
-                                                        <FormField
-                                                            control={form.control}
-                                                            name="contacts.email"
-                                                            render={({ field }) => (
-                                                                <FormItem>
-                                                                    <FormControl>
-                                                                        <Input type="email" className={`mt-3 ${commonClasses2}`} placeholder="Email" {...field} />
-                                                                    </FormControl>
-                                                                </FormItem>
-                                                            )} />
-                                                        <div className='flex flex-row gap-2 items-center'>
-                                                            <div className=''>
-                                                                <FormField
-                                                                    control={form.control}
-                                                                    name="contacts.std_code"
-                                                                    render={({ field }) => (
-                                                                        <FormItem className='mt-3'>
-                                                                            <Popover >
-                                                                                <PopoverTrigger asChild>
-                                                                                    <FormControl>
-                                                                                        <Button variant={"google"} className={`flex flex-row gap-2 ${commonClasses2}`} >
-                                                                                            {COUNTRY_CODE.find((val) => {
-                                                                                                return val.value === field.value
-                                                                                            })?.value}
-                                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                                                        </Button>
-                                                                                    </FormControl>
-                                                                                </PopoverTrigger>
-                                                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
-                                                                                    <Command >
-                                                                                        <CommandInput className='w-full' placeholder="Search Country Code" />
-                                                                                        <CommandEmpty>Country code not found.</CommandEmpty>
-                                                                                        <CommandGroup >
-                                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                                {COUNTRY_CODE.map((cc) => (
-                                                                                                    <CommandItem
-                                                                                                        value={cc.label}
-                                                                                                        key={cc.label}
-                                                                                                        onSelect={() => {
-                                                                                                            console.log("contacts.std_code", cc.value)
-                                                                                                            changeStdCode(cc.value)
-                                                                                                            form.setValue("contacts.std_code", cc.value)
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        <PopoverClose asChild>
-                                                                                                            <div className="flex flex-row items-center justify-between w-full">
-                                                                                                                {cc.label}
-                                                                                                                <Check
-                                                                                                                    className={cn(
-                                                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                                                        field.value?.includes(cc.value)
-                                                                                                                            ? "opacity-100"
-                                                                                                                            : "opacity-0"
-                                                                                                                    )} />
-                                                                                                            </div>
-                                                                                                        </PopoverClose>
-                                                                                                    </CommandItem>
-                                                                                                ))}
-                                                                                            </div>
-                                                                                        </CommandGroup>
-                                                                                    </Command>
-                                                                                </PopoverContent>
-                                                                            </Popover>
-                                                                        </FormItem>
-                                                                    )} />
-                                                            </div>
-                                                            <div className='flex-1'>
-                                                                <FormField
-                                                                    control={form.control}
-                                                                    name="contacts.phone"
-                                                                    render={({ field }) => (
-                                                                        <FormControl>
-                                                                            <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder="Phone No" {...field}
-                                                                                onKeyPress={handleKeyPress}
-                                                                                onChange={event => {
-                                                                                    return handleOnChangeNumeric(event, field, false)
-                                                                                }}
-                                                                            />
-                                                                        </FormControl>
-                                                                    )} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
+                                                            <FormMessage className={selectFormMessageClasses} />
+                                                        </FormItem>
+                                                    )}
+                                                />
 
                                             </div>
+                                            {reasonMap[form.getValues("statuses")]?.length > 0 && (<div className="px-[16px] mt-[16px] mb-[6px] text-md font-medium w-full flex flex-row ">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="reasons"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-full'>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-gray-300 shadow ${commonClasses}`}>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Select Reason" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        reasonMap[form.getValues("statuses")]?.map((reason: string, index: number) => {
+                                                                            return <SelectItem key={index} value={reason}>
+                                                                                {reason}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
 
-                                            <div>
-                                                <Separator className="bg-gray-200 h-[1px]  mt-8" />
-                                                <div className="flex flex-row gap-2 justify-end mx-6 my-6">
-                                                    <Button variant={"google"} onClick={() => yesDiscard()}>Cancel</Button>
-                                                    <Button type='button' disabled={!areContactFieldValid || !permissions?.change} onClick={() => addContact()}>
-                                                        Save & Add
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
-
-                                </span>
-                                <div className='px-[16px]'>
-                                    {dummyContactData.length > 0 && <div className='flex flex-col w-full mt-4  pr-[16px] '>
-                                        <div className='flex flex-col w-full'>
-                                            {
-                                                dummyContactData.map((item, index: number) => (
-                                                    <div className={`${contactListClasses}`} key={index} >
-                                                        <div className='flex flex-col'>
-                                                            <div className='flex flex-row justify-between w-full'>
-
-                                                                <span className='text-sm font-semibold flex-1'>
-                                                                    {item.name}
-                                                                </span>
-                                                                {item?.type && item?.type?.trim() !== "" && <div>
-                                                                    <span className={`text-xs mr-[10px] px-[6px] py-[2px] border border-[1px] rounded-[6px] font-medium ${TYPE.find(val => val.label === item.type)?.class}`}>{item.type}</span>
-                                                                </div>}
-                                                            </div>
-                                                            <div className='text-xs font-medium text-purple-700 flex-1'>
-                                                                {item.designation}
-                                                            </div>
-                                                            <div className='text-xs text-gray-600 font-normal'>
-                                                                {item.email}
-                                                            </div>
-                                                            <div className='text-xs text-gray-600 font-normal'>
-                                                                {item.std_code} {item.phone}
-                                                            </div>
+                                            </div>)}
+                                        </div>
+                                        <span className='px-[16px] my-[12px] text-gray-700 text-sm font-medium'>
+                                            Details
+                                        </span>
+                                        <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconUsersSearch size={24} />
                                                         </div>
-                                                    </div>
-                                                ))
-                                            }
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Source
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                            <FormField
+                                                control={form.control}
+                                                name="sources"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
 
+                                                        <FormControl>
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Source" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
 
                                         </div>
-                                    </div>}
-                                </div>
-                            </div>
-                            <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && !isPromoteToProspectErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
-                                    <IconRequiredError size={16} />
-                                    <div className="flex flex-row text-xs text-error-700 gap-[3px] font-normal">
-                                        {(numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && <span className='font-bold'>Field(s)</span>}
-                                        {numberOfErrors.requiredErrors > 0 && <span>
-                                            Missing:
-                                            <span className='font-bold'> {numberOfErrors.requiredErrors} </span>
-                                        </span>}
-                                        {numberOfErrors.requiredErrors > 0 && numberOfErrors.invalidErrors > 0 && ";"}
-                                        {numberOfErrors.invalidErrors > 0 && <span>
-                                            Invalid: <span className='font-bold'>{numberOfErrors.invalidErrors}</span>
-                                        </span>}
+                                        <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ">
+                                            <FormField
+                                                control={form.control}
+                                                name="owners"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full cursor-pointer'>
+                                                        <Popover>
+                                                            <PopoverTrigger asChild >
+                                                                <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger asChild>
+                                                                                <div>
+                                                                                    <IconProfile size={24} />
+                                                                                </div>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent side="top">
+                                                                                Owned By
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
+                                                                    <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                        <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                            {userList && userList.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
+                                                                        </div>
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                    </div>
+                                                                </div>
+
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                                <Command>
+                                                                    <CommandInput className='w-full' placeholder="Search Owner" />
+                                                                    <CommandEmpty>Owner not found.</CommandEmpty>
+                                                                    <CommandGroup>
+                                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                            {userList && userList.map((owner) => (
+                                                                                <CommandItem
+                                                                                    value={owner.value}
+                                                                                    key={owner.value}
+                                                                                    onSelect={() => {
+                                                                                        form.setValue("owners", owner.value, SET_VALUE_CONFIG)
+                                                                                    }}
+                                                                                >
+                                                                                    <PopoverClose asChild>
+                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                            {owner.label}
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                    field.value === owner.value
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </PopoverClose>
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </div>
+                                                                    </CommandGroup>
+                                                                </Command>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
+
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                        </div>
+
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div className='text-[#98A2B3]'>
+                                                            <IconClosedBy size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Closed By
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="closedBy"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Closed By" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconUserCheck size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Fulfilled By
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="fulfilledBy"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Fulfilled By" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconCurrencyDollars size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Deal Value
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="dealValue"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} bg-inherit`} placeholder="Deal Value" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium'>
+                                            Role Details
+                                        </span>
+                                        <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconRoles size={24} color="#98A2B3" />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Role
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                            <FormField
+                                                control={form.control}
+                                                name="role"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+
+                                                        <FormControl>
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Role" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconGlobe size={24} color="#98A2B3" />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Region
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                            <FormField
+                                                control={form.control}
+                                                name="regions"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+
+                                                        <FormControl>
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses} `} placeholder="Region" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 border-b-2 " >
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconLocation size={24} color="#98A2B3" />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Location
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="locations"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Location" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                            <FormField
+                                                control={form.control}
+                                                name="budget"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                                    <div className='flex flex-row gap-[22px] items-center  ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconWallet size={24} color="#98A2B3" />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Budget Range
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+                                                                        </div>
+                                                                        <SelectValue placeholder="Select Budget" />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    BUDGET_RANGE[labelToValue(form.getValues("regions"), REGIONS) || ""]?.map((budget, index) => {
+                                                                        return <SelectItem key={index} value={budget.value}>
+                                                                            {budget.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconStackedCoins size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Cash CTC Budget
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <div className='flex ml-[2px] flex-row w-full items-start'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="fixedCtcBudgetCurrency"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-fit min-w-[80px]'>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses}`}>
+                                                                        <SelectValue placeholder="INR" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        CURRENCIES?.map((currency, index) => {
+                                                                            return <SelectItem key={index} value={currency.value}>
+                                                                                {currency.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="fixedCtcBudget"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1'>
+                                                            <FormControl>
+                                                                <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Cash CTC Budget" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumeric(event, field)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className={inputFormMessageClassesWithSelect} />
+                                                        </FormItem>
+
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconStackedCoins2 size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Cash CTC Budget UL
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <div className='flex ml-[2px] flex-row w-full items-start'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="fixedBudgetUlCurrency"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-fit min-w-[80px]'>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses}`}>
+                                                                        <SelectValue placeholder="INR" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        CURRENCIES?.map((currency, index) => {
+                                                                            return <SelectItem key={index} value={currency.value}>
+                                                                                {currency.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="fixedBudgetUl"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1'>
+                                                            <FormControl>
+                                                                <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Cash CTC Budget UL" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumeric(event, field)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className={inputFormMessageClassesWithSelect} />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconEsop size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        ESOPs/RSUs Budget UL
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <div className='flex ml-[2px] flex-row w-full items-start'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="esopRsusUlCurrency"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-fit min-w-[80px]'>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses}`}>
+                                                                        <SelectValue placeholder="INR" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        CURRENCIES?.map((currency, index) => {
+                                                                            return <SelectItem key={index} value={currency.value}>
+                                                                                {currency.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="esopRsusUl"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1'>
+                                                            <FormControl>
+                                                                <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="ESOPs/RSUs Budget UL" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumeric(event, field)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className={inputFormMessageClassesWithSelect} />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                            <FormField
+                                                control={form.control}
+                                                name="timeToFill"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                                    <div className='flex flex-row gap-[22px] items-center  ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconClock size={24} color="#98A2B3" />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Time to Fill
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+                                                                        </div>
+                                                                        <SelectValue placeholder="Time to Fill" />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    TIME_TO_FILL.map((timeToFill, index) => {
+                                                                        return <SelectItem key={index} value={timeToFill.value}>
+                                                                            {timeToFill.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
+                                            <span>Account Details</span>
+                                            <div> <LabelIcon /> </div>
+                                        </span>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconOrgnaisation size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Organisation Name
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="orgnaisationName"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} ${preFilledClasses}`} placeholder="Organisation Name" {...field} />
+                                                        </FormControl>
+
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconShield size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        Registered Name
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                            <FormField
+                                                control={form.control}
+                                                name="registeredName"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Registered Name" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="pl-[6px] pr-[4px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                            <FormField
+                                                control={form.control}
+                                                name="industry"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full cursor-pointer'>
+                                                        <Popover>
+                                                            <PopoverTrigger asChild >
+                                                                <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger asChild>
+                                                                                <div>
+                                                                                    <IconIndustry size={24} color="#98A2B3" />
+                                                                                </div>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent side="top">
+                                                                                Industry
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
+                                                                    <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                        <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                            {INDUSTRY.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Industry</span>}
+                                                                        </div>
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                    </div>
+                                                                </div>
+
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                                <Command>
+                                                                    <CommandInput className='w-full' placeholder="Search Industry" />
+                                                                    <CommandEmpty>Industry not found.</CommandEmpty>
+                                                                    <CommandGroup>
+                                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                            {INDUSTRY.map((industry) => (
+                                                                                <CommandItem
+                                                                                    value={industry.value}
+                                                                                    key={industry.value}
+                                                                                    onSelect={() => {
+                                                                                        form.setValue("industry", industry.value, SET_VALUE_CONFIG)
+                                                                                        checkVcIndutsry()
+                                                                                    }}
+                                                                                >
+                                                                                    <PopoverClose asChild>
+                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                            {industry.label}
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                    field.value === industry.value
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </PopoverClose>
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </div>
+                                                                    </CommandGroup>
+                                                                </Command>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                        {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
+
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
+                                            <FormField
+                                                control={form.control}
+                                                name="domain"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2   ${commonFontClasses} ${isVcIndustrySelected && disabledClasses} `}>
+                                                                    <div className='flex flex-row gap-[22px] items-center ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconBuildings size={24} color="#98A2B3" />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Domain
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+                                                                        </div>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Domain" />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    DOMAINS.map((domain, index) => {
+                                                                        return <SelectItem key={index} value={domain.value}>
+                                                                            {domain.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
+                                            <FormField
+                                                control={form.control}
+                                                name="size"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && disabledClasses}`}>
+                                                                    <div className='flex flex-row gap-[22px] items-center  ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconUsers size={24} color="#98A2B3" />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Size
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+                                                                        </div>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Size" />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    SIZE_OF_COMPANY.map((companySize, index) => {
+                                                                        return <SelectItem key={index} value={companySize.value}>
+                                                                            {companySize.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className={`pl-[6px] pr-[4px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
+                                            <FormField
+                                                control={form.control}
+                                                name="lastFundingStage"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full cursor-pointer'>
+                                                        <Popover >
+                                                            <PopoverTrigger asChild disabled={isVcIndustrySelected}>
+                                                                <div className={`flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ${isVcIndustrySelected ? `${disabledClasses} cursor-not-allowed ` : ""}`}  >
+                                                                    <TooltipProvider>
+                                                                        <Tooltip>
+                                                                            <TooltipTrigger asChild>
+                                                                                <div>
+                                                                                    <IconCoinsHand size={24} color="#98A2B3" />
+                                                                                </div>
+                                                                            </TooltipTrigger>
+                                                                            <TooltipContent side="top">
+                                                                                Last Funding Stage
+                                                                            </TooltipContent>
+                                                                        </Tooltip>
+                                                                    </TooltipProvider>
+                                                                    <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
+                                                                        <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
+                                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                                        </div>
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                    </div>
+                                                                </div>
+
+                                                            </PopoverTrigger>
+                                                            {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}  >
+                                                                <Command>
+                                                                    <CommandInput className='w-full' placeholder="Search Funding Stage" />
+                                                                    <CommandEmpty>Funding Stage not found.</CommandEmpty>
+                                                                    <CommandGroup>
+                                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                            {LAST_FUNDING_STAGE.map((lastFundingStage) => (
+                                                                                <CommandItem
+                                                                                    value={lastFundingStage.value}
+                                                                                    key={lastFundingStage.value}
+                                                                                    onSelect={() => {
+                                                                                        form.setValue("lastFundingStage", lastFundingStage.value, SET_VALUE_CONFIG)
+                                                                                    }}
+                                                                                >
+                                                                                    <PopoverClose asChild>
+                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                            {lastFundingStage.label}
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                    field.value === lastFundingStage.value
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </PopoverClose>
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </div>
+                                                                    </CommandGroup>
+                                                                </Command>
+                                                            </PopoverContent>}
+                                                        </Popover>
+                                                        {!form.getValues("lastFundingStage") && <FormMessage className={selectFormMessageClasses} />}
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className={`px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ${isVcIndustrySelected && "bg-gray-100 cursor-not-allowed"}`}>
+                                            <FormField
+                                                control={form.control}
+                                                name="lastFundingAmount"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select disabled={isVcIndustrySelected} onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2 ${commonFontClasses} ${isVcIndustrySelected && `${disabledClasses}  `}`}>
+                                                                    <div className='flex flex-row gap-[22px] items-center  ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconStackedCoins3 size={24} />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Last Funding Amount
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+
+                                                                        </div>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Last Funding Amount" />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                <div className='h-[200px] overflow-y-scroll '>
+                                                                    {
+                                                                        LAST_FUNDING_AMOUNT.map((lastFundingStage, index) => {
+                                                                            return <SelectItem key={index} value={lastFundingStage.value}>
+                                                                                {lastFundingStage.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </div>
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconBilling size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Billing Address
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="billingAddress"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Billing Address" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconPackage size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Shipping Address
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="shippingAddress"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Shipping Address" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
+
+
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 ">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconGst size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        GSTIN/VAT/GST Number
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="gstinVatGstNo"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="GSTIN/VAT/GST Number" {...field} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <span className='px-[16px] mb-[12px] mt-[24px] text-gray-700 text-sm font-medium'>
+                                            Engagement Model
+                                        </span>
+                                        <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                            <FormField
+                                                control={form.control}
+                                                name="retainerAdvance"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2  ${commonFontClasses}`}>
+                                                                    <div className='flex flex-row gap-[22px] items-center  ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconRetainerAdvance size={24} color="#98A2B3" />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Retainer Advance
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+                                                                        </div>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Retainer Advance" />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    RETAINER_ADVANCE.map((retainer, index) => {
+                                                                        return <SelectItem key={index} value={retainer.value}>
+                                                                            {retainer.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                            <FormField
+                                                control={form.control}
+                                                name="exclusivity"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                                    <div className='flex flex-row gap-[22px] items-center  ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconExclusitivity size={24} color="#98A2B3" />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Exclusivity
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+                                                                        </div>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Exclusivity" />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    EXCLUSIVITY.map((retainer, index) => {
+                                                                        return <SelectItem key={index} value={retainer.value}>
+                                                                            {retainer.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
+                                            <FormField
+                                                control={form.control}
+                                                name="serviceFeeRange"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
+                                                                    <div className='flex flex-row gap-[22px] items-center  ' >
+                                                                        <div >
+                                                                            <TooltipProvider>
+                                                                                <Tooltip>
+                                                                                    <TooltipTrigger asChild>
+                                                                                        <div>
+                                                                                            <IconServiceFeeRange size={24} color="#98A2B3" />
+                                                                                        </div>
+                                                                                    </TooltipTrigger>
+                                                                                    <TooltipContent side="top">
+                                                                                        Service Fee Range
+                                                                                    </TooltipContent>
+                                                                                </Tooltip>
+                                                                            </TooltipProvider>
+
+                                                                        </div>
+                                                                        <SelectValue defaultValue={field.value} placeholder="Service Fee Range" {...field} />
+                                                                    </div>
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    SERVICE_FEE_RANGE.map((retainer, index) => {
+                                                                        return <SelectItem key={index} value={retainer.value}>
+                                                                            {retainer.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        <FormMessage className={selectFormMessageClasses} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconPercent2 size={24} color="#98A2B3" />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Service Fee
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <FormField
+                                                control={form.control}
+                                                name="serviceFee"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full'>
+                                                        <FormControl>
+                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Service Fee" {...field}
+                                                                onKeyPress={handleKeyPress}
+                                                                onChange={event => {
+                                                                    return handleOnChangeNumeric(event, field, false)
+                                                                }} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
+                                            <span>Contact Details</span>
+                                            <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+                                                <DialogTrigger>
+                                                    <span className={`text-sm text-purple-700  ${showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} >
+                                                        + Add
+                                                    </span>
+                                                </DialogTrigger>
+                                                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()}>
+                                                    <DialogHeader>
+                                                        <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
+                                                            <div className='text-lg text-gray-900 font-semibold'>Add Contact</div>
+                                                        </DialogTitle>
+                                                    </DialogHeader>
+                                                    <div className='w-fit min-w-[600px] '>
+                                                        <Separator className="bg-gray-200 h-[1px]  mb-4" />
+                                                        <div className='flex flex-col px-[24px]'>
+                                                            <div className='flex flex-col'>
+                                                                <FormField
+                                                                    control={form.control}
+                                                                    name="contacts.name"
+                                                                    render={({ field }) => (
+                                                                        <FormItem>
+                                                                            <FormControl>
+                                                                                <Input type="text" className={`mt-3 ${commonClasses2}`} placeholder="Contact Name" {...field} />
+                                                                            </FormControl>
+                                                                        </FormItem>
+                                                                    )} />
+                                                                <div className='flex flex-row gap-4 mt-3'>
+                                                                    <div className='flex flex-col  w-full'>
+                                                                        <FormField
+                                                                            control={form.control}
+                                                                            name="contacts.designation"
+                                                                            render={({ field }) => (
+                                                                                <FormItem className='w-full '>
+                                                                                    <Popover>
+                                                                                        <PopoverTrigger asChild>
+                                                                                            <FormControl>
+                                                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                                                        {DESIGNATION.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Designation</span>}
+                                                                                                    </div>
+                                                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                                                </Button>
+                                                                                            </FormControl>
+                                                                                        </PopoverTrigger>
+                                                                                        <PopoverContent className="w-[268px] p-0 ">
+                                                                                            <Command>
+                                                                                                <CommandInput className='w-full' placeholder="Search Designation" />
+                                                                                                <CommandEmpty>Designation not found.</CommandEmpty>
+                                                                                                <CommandGroup>
+                                                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                                        {DESIGNATION.map((designation) => (
+                                                                                                            <CommandItem
+                                                                                                                value={designation.value}
+                                                                                                                key={designation.value}
+                                                                                                                onSelect={() => {
+                                                                                                                    form.setValue("contacts.designation", designation.value)
+                                                                                                                }}
+                                                                                                            >
+                                                                                                                <PopoverClose asChild>
+                                                                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                                                                        {designation.label}
+                                                                                                                        <Check
+                                                                                                                            className={cn(
+                                                                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                                field.value === designation.value
+                                                                                                                                    ? "opacity-100"
+                                                                                                                                    : "opacity-0"
+                                                                                                                            )}
+                                                                                                                        />
+                                                                                                                    </div>
+                                                                                                                </PopoverClose>
+                                                                                                            </CommandItem>
+                                                                                                        ))}
+                                                                                                    </div>
+                                                                                                </CommandGroup>
+                                                                                            </Command>
+                                                                                        </PopoverContent>
+                                                                                    </Popover>
+                                                                                </FormItem>
+                                                                            )}
+                                                                        />
+                                                                    </div>
+                                                                    <div className='flex flex-col w-full'>
+                                                                        <FormField
+                                                                            control={form.control}
+                                                                            name="contacts.type"
+                                                                            render={({ field }) => (
+                                                                                <FormItem>
+                                                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                                        <FormControl>
+                                                                                            <SelectTrigger className={commonClasses2}>
+                                                                                                <SelectValue placeholder="Type" />
+                                                                                            </SelectTrigger>
+                                                                                        </FormControl>
+                                                                                        <SelectContent>
+                                                                                            {TYPE.map((type, index) => {
+                                                                                                return <SelectItem value={type.value} key={index}>
+                                                                                                    {type.label}
+                                                                                                </SelectItem>
+                                                                                            })}
+                                                                                        </SelectContent>
+                                                                                    </Select>
+                                                                                </FormItem>
+                                                                            )} />
+                                                                    </div>
+                                                                </div>
+                                                                <FormField
+                                                                    control={form.control}
+                                                                    name="contacts.email"
+                                                                    render={({ field }) => (
+                                                                        <FormItem>
+                                                                            <FormControl>
+                                                                                <Input type="email" className={`mt-3 ${commonClasses2}`} placeholder="Email" {...field} />
+                                                                            </FormControl>
+                                                                        </FormItem>
+                                                                    )} />
+                                                                <div className='flex flex-row gap-2 items-center'>
+                                                                    <div className=''>
+                                                                        <FormField
+                                                                            control={form.control}
+                                                                            name="contacts.std_code"
+                                                                            render={({ field }) => (
+                                                                                <FormItem className='mt-3'>
+                                                                                    <Popover >
+                                                                                        <PopoverTrigger asChild>
+                                                                                            <FormControl>
+                                                                                                <Button variant={"google"} className={`flex flex-row gap-2 ${commonClasses2}`} >
+                                                                                                    {COUNTRY_CODE.find((val) => {
+                                                                                                        return val.value === field.value
+                                                                                                    })?.value}
+                                                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                                                </Button>
+                                                                                            </FormControl>
+                                                                                        </PopoverTrigger>
+                                                                                        <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                                            <Command >
+                                                                                                <CommandInput className='w-full' placeholder="Search Country Code" />
+                                                                                                <CommandEmpty>Country code not found.</CommandEmpty>
+                                                                                                <CommandGroup >
+                                                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                                        {COUNTRY_CODE.map((cc) => (
+                                                                                                            <CommandItem
+                                                                                                                value={cc.label}
+                                                                                                                key={cc.label}
+                                                                                                                onSelect={() => {
+                                                                                                                    console.log("contacts.std_code", cc.value)
+                                                                                                                    changeStdCode(cc.value)
+                                                                                                                    form.setValue("contacts.std_code", cc.value)
+                                                                                                                }}
+                                                                                                            >
+                                                                                                                <PopoverClose asChild>
+                                                                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                                                                        {cc.label}
+                                                                                                                        <Check
+                                                                                                                            className={cn(
+                                                                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                                field.value?.includes(cc.value)
+                                                                                                                                    ? "opacity-100"
+                                                                                                                                    : "opacity-0"
+                                                                                                                            )} />
+                                                                                                                    </div>
+                                                                                                                </PopoverClose>
+                                                                                                            </CommandItem>
+                                                                                                        ))}
+                                                                                                    </div>
+                                                                                                </CommandGroup>
+                                                                                            </Command>
+                                                                                        </PopoverContent>
+                                                                                    </Popover>
+                                                                                </FormItem>
+                                                                            )} />
+                                                                    </div>
+                                                                    <div className='flex-1'>
+                                                                        <FormField
+                                                                            control={form.control}
+                                                                            name="contacts.phone"
+                                                                            render={({ field }) => (
+                                                                                <FormControl>
+                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder="Phone No" {...field}
+                                                                                        onKeyPress={handleKeyPress}
+                                                                                        onChange={event => {
+                                                                                            return handleOnChangeNumeric(event, field, false)
+                                                                                        }}
+                                                                                    />
+                                                                                </FormControl>
+                                                                            )} />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div>
+                                                        <Separator className="bg-gray-200 h-[1px]  mt-8" />
+                                                        <div className="flex flex-row gap-2 justify-end mx-6 my-6">
+                                                            <Button variant={"google"} onClick={() => yesDiscard()}>Cancel</Button>
+                                                            <Button type='button' disabled={!areContactFieldValid || !permissions?.change} onClick={() => addContact()}>
+                                                                Save & Add
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+
+                                        </span>
+                                        <div className='px-[16px]'>
+                                            {dummyContactData.length > 0 && <div className='flex flex-col w-full mt-4  pr-[16px] '>
+                                                <div className='flex flex-col w-full'>
+                                                    {
+                                                        dummyContactData.map((item, index: number) => (
+                                                            <div className={`${contactListClasses}`} key={index} >
+                                                                <div className='flex flex-col'>
+                                                                    <div className='flex flex-row justify-between w-full'>
+
+                                                                        <span className='text-sm font-semibold flex-1'>
+                                                                            {item.name}
+                                                                        </span>
+                                                                        {item?.type && item?.type?.trim() !== "" && <div>
+                                                                            <span className={`text-xs mr-[10px] px-[6px] py-[2px] border border-[1px] rounded-[6px] font-medium ${TYPE.find(val => val.label === item.type)?.class}`}>{item.type}</span>
+                                                                        </div>}
+                                                                    </div>
+                                                                    <div className='text-xs font-medium text-purple-700 flex-1'>
+                                                                        {item.designation}
+                                                                    </div>
+                                                                    <div className='text-xs text-gray-600 font-normal'>
+                                                                        {item.email}
+                                                                    </div>
+                                                                    <div className='text-xs text-gray-600 font-normal'>
+                                                                        {item.std_code} {item.phone}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    }
+
+
+                                                </div>
+                                            </div>}
+                                        </div>
                                     </div>
-                                </div>}
-                                <div className='flex flex-row flex-1 justify-end '>
-                                    <Button variant="default" type="submit" disabled={!form.formState.isDirty || !permissions?.change} >Save</Button>
+                                    <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
+                                        {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && !isPromoteToProspectErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
+                                            <IconRequiredError size={16} />
+                                            <div className="flex flex-row text-xs text-error-700 gap-[3px] font-normal">
+                                                {(numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && <span className='font-bold'>Field(s)</span>}
+                                                {numberOfErrors.requiredErrors > 0 && <span>
+                                                    Missing:
+                                                    <span className='font-bold'> {numberOfErrors.requiredErrors} </span>
+                                                </span>}
+                                                {numberOfErrors.requiredErrors > 0 && numberOfErrors.invalidErrors > 0 && ";"}
+                                                {numberOfErrors.invalidErrors > 0 && <span>
+                                                    Invalid: <span className='font-bold'>{numberOfErrors.invalidErrors}</span>
+                                                </span>}
+                                            </div>
+                                        </div>}
+                                        <div className='flex flex-row flex-1 justify-end '>
+                                            <Button variant="default" type="submit" disabled={!form.formState.isDirty || !permissions?.change} >Save</Button>
+
+                                        </div>
+                                    </div>
 
                                 </div>
+                            </form>
+                        </Form>
+                    </div>
+                    <div className="w-[1px] bg-gray-200 "></div>
+
+                    <div className='pt-[24px]  2xl:w-3/4 w-8/12 h-full flex-1 flex flex-col'>
+                        <div className='flex px-[24px] flex-row justify-between w-full gap-[20px]'>
+                            <div className='flex flex-row gap-[16px]'>
+                                {
+                                    Object.keys(SIDE_SHEET_TABS).map((tab) => {
+                                        const tabName = SIDE_SHEET_TABS[tab]
+                                        return <>
+                                            <div className={`p-[12px] cursor-pointer  text-sm font-semibold  ${currentSidesheetTab === tabName && activeTabSideSheetClasses}`} onClick={() => setCurrentSidesheetTab(tabName)}>
+                                                {tabName}
+                                            </div>
+                                        </>
+                                    })
+                                }
                             </div>
-
-                        </div>
-                        <div className="w-[1px] bg-gray-200 "></div>
-
-                        <div className='p-[24px] 2xl:w-3/4 w-6/12 h-full flex-1 flex flex-col'>
-                            <div className='flex flex-row justify-end'>
+                            <div className='flex flex-row gap-[20px]'>
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         {/* <Button disabled={rowState?.status ? rowState?.status.toLowerCase() !== "qualified" : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
@@ -2349,29 +2369,15 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                         </div>
                                     </DialogContent>}
                                 </Dialog>
-
                             </div>
-                            <div className='flex flex-row'>
-                                <div className='flex flex-col w-full mt-[24px]'>
-                                    <Tabs defaultValue="account" className="w-full ">
-                                        <TabsList className='w-full justify-start px-[24px]' >
-                                            <IconLock size={24} />
-                                            {tabs.map((tab) => {
-                                                return <TabsTrigger disabled key={tab.value} value={tab.value} ><div className='text-sm font-semibold '>{tab.label}</div></TabsTrigger>
-                                            })}
-                                        </TabsList>
-                                        {
-                                            // tabs.map((tab) => {
-                                            //     return <TabsContent key={tab.value} value={tab.value}>{`you are in ${tab.label} Tab`}.</TabsContent>
-                                            // })
-                                        }
-                                    </Tabs>
 
-                                </div>
-                            </div>
+
                         </div>
-                    </form>
-                </Form>
+                        <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
+                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} />
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
