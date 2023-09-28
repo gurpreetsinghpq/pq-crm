@@ -1844,10 +1844,6 @@ const ROLE_STATUS: IValueLabel[] = [
         value: "eliminated",
         label: "Eliminated"
     },
-    {
-        value: "closed",
-        label: "Closed"
-    },
 ];
 
 const NEXT_STEP: IValueLabel[] = [
@@ -1890,6 +1886,14 @@ const ROLE_URGENCY: IValueLabel[] = [
         value: "low",
         label: "Low"
     },
+    {
+        value: "yetToConfirm",
+        label: "Yet to Confirm"
+    },
+    {
+        value: "notApplicable",
+        label: "Not Applicable"
+    }
 ];
 
 const YES_OR_NO: IValueLabel[] = [
@@ -1916,8 +1920,7 @@ const YES_NO_YET_TO_CONFIRM: IValueLabel[] = [
         label: "Yet to Confirm"
     },
 ]
-
-const OPEN_TO_RETAINER_MODEL: IValueLabel[] = [
+const YES_NO_YET_TO_CONFIRM_NA: IValueLabel[] = [
     {
         value: "yes",
         label: "Yes"
@@ -1934,10 +1937,14 @@ const OPEN_TO_RETAINER_MODEL: IValueLabel[] = [
         value: "notApplicable",
         label: "Not Applicable"
     },
+]
+
+const OPEN_TO_RETAINER_MODEL: IValueLabel[] = [
+    ...YES_NO_YET_TO_CONFIRM_NA
 ];
 
 const OPEN_TO_MIN_SERVICE_OR_FLAT_FEE: IValueLabel[] = [
-    ...OPEN_TO_RETAINER_MODEL
+    ...YES_NO_YET_TO_CONFIRM_NA
 ]
 
 const COLLATERAL_SHARED: IValueLabel[] = [
@@ -1952,7 +1959,7 @@ const OPEN_TO_ENGAGE: IValueLabel[] = [
     ...YES_NO_YET_TO_CONFIRM
 ]
 const WILLING_TO_PAY: IValueLabel[] = [
-    ...YES_NO_YET_TO_CONFIRM
+    ...YES_NO_YET_TO_CONFIRM_NA
 ]
 const ROLE_CLARITY: IValueLabel[] = [
     ...YES_OR_NO

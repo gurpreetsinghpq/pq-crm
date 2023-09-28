@@ -7,6 +7,7 @@ import Notes from './deal-activity/notes';
 import Activity from './deal-activity/activity';
 import Todo from './deal-activity/todo';
 import { ArrowLeft, ArrowLeftCircle, ArrowRight, ArrowRightCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import Proposal from './deal-flow/proposal';
 
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
@@ -151,7 +152,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents }: { currentParent
   };
   return (
     <div className='w-full'>
-      {parentTab === SIDE_SHEET_TABS.DEAL_FLOW && <Tabs defaultValue={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
+      {parentTab === SIDE_SHEET_TABS.DEAL_FLOW && <Tabs defaultValue={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1 h-full">
         <div className="flex flex-row  py-[24px] border-gray-100">
           <div className='flex flex-row items-center w-full gap-[8px]'>
             {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft}/></div>}
@@ -164,8 +165,8 @@ function SideSheetTabs({ currentParentTab, contactFromParents }: { currentParent
           </div>
         </div>
         <div className="bottom flex-1 flex flex-col  ">
-          <TabsContent value={DEAL_ACTIVITY_TABS.USERS} className="flex flex-col flex-1">
-
+          <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
+            <Proposal/>
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 

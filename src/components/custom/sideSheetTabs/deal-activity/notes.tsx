@@ -123,12 +123,15 @@ function Notes({ contactFromParents }: { contactFromParents: any }) {
         return () => subscription.unsubscribe()
     }, [form.watch])
 
-    const isFirstForm = (form.getValues("activityType")?.toLowerCase() === "coldoutreach" || form.getValues("activityType")?.toLowerCase() === "inboundleadverification") && (form.getValues("mode")?.toLowerCase() === "call" || form.getValues("mode")?.toLowerCase() === "vc" || form.getValues("mode")?.toLowerCase() === "inperson")
+    const isFirstForm = (form.getValues("activityType")?.toLowerCase() === "coldoutreach") && (form.getValues("mode")?.toLowerCase() === "call" || form.getValues("mode")?.toLowerCase() === "vc" || form.getValues("mode")?.toLowerCase() === "inperson")
     const isSecondForm = (form.getValues("activityType")?.toLowerCase() === "coldoutreach") && (form.getValues("mode")?.toLowerCase() === "email" || form.getValues("mode")?.toLowerCase() === "linkedin")
     const isThirdForm = (form.getValues("activityType")?.toLowerCase() === "exploratorydiscussion")
     const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "followup")
     const isFifthForm = (form.getValues("activityType")?.toLowerCase() === "negotiation")
-    const isAnyForm = [isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm].some((val) => val === true)
+    const isSixthForm = (form.getValues("activityType")?.toLowerCase() === "inboundleadverification") && (form.getValues("mode")?.toLowerCase() === "call" || form.getValues("mode")?.toLowerCase() === "vc" || form.getValues("mode")?.toLowerCase() === "inperson")
+    const isSeventhForm = (form.getValues("activityType")?.toLowerCase() === "inboundleadverification") && (form.getValues("mode")?.toLowerCase() === "email" || form.getValues("mode")?.toLowerCase() === "linkedin")
+
+    const isAnyForm = [isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm].some((val) => val === true)
     console.log(isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm)
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
@@ -202,7 +205,7 @@ function Notes({ contactFromParents }: { contactFromParents: any }) {
                                                                     {
                                                                         field?.value?.length > 0 ? (
                                                                             getContacts(field.value.map(contactId => {
-                                                                                const contact = CONTACTS_FROM_PARENT.find((contact:any) => contact.id === contactId);
+                                                                                const contact = CONTACTS_FROM_PARENT.find((contact: any) => contact.id === contactId);
                                                                                 return contact ? contact.name : null;
                                                                             }))
                                                                         ) : (
@@ -1135,6 +1138,286 @@ function Notes({ contactFromParents }: { contactFromParents: any }) {
                                         </div>
                                     </div>
                                 }
+                                {isSixthForm && <div className='flex flex-col gap-[16px] w-full max-w-[800px]'>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>1</div>
+                                            <div className='text-md text-gray-500 font-normal'>Role Urgency</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="roleUrgency"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Role Urgency" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    ROLE_URGENCY.map((roleUrgency, index) => {
+                                                                        return <SelectItem key={index} value={roleUrgency.value}>
+                                                                            {roleUrgency.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>2</div>
+                                            <div className='text-md text-gray-500 font-normal'>Open to Retainer Model</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="openToRetainerModel"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Open to Retainer  Model" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    OPEN_TO_RETAINER_MODEL.map((openToRetainerModel, index) => {
+                                                                        return <SelectItem key={index} value={openToRetainerModel.value}>
+                                                                            {openToRetainerModel.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>3</div>
+                                            <div className='text-md text-gray-500 font-normal'>Open to Min Service Fee or Flat Fee</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="openToMinServiceFeeOrFlatFee"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Open to Min Service Fee or Flat Fee" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    OPEN_TO_MIN_SERVICE_OR_FLAT_FEE.map((openToMinServiceOrFlatFee, index) => {
+                                                                        return <SelectItem key={index} value={openToMinServiceOrFlatFee.value}>
+                                                                            {openToMinServiceOrFlatFee.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>4</div>
+                                            <div className='text-md text-gray-500 font-normal'>Collateral Shared</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="collateralShared"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Collateral Shared" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    COLLATERAL_SHARED.map((collateralShared, index) => {
+                                                                        return <SelectItem key={index} value={collateralShared.value}>
+                                                                            {collateralShared.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>}
+                                {isSeventhForm && <div className='flex flex-col gap-[16px] w-full max-w-[800px]'>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>1</div>
+                                            <div className='text-md text-gray-500 font-normal'>Response Received</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="responseReceived"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Response Received" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    RESPONSE_RECEIVED.map((responseReceived, index) => {
+                                                                        return <SelectItem key={index} value={responseReceived.value}>
+                                                                            {responseReceived.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        {/* <FormMessage /> */}
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>2</div>
+                                            <div className='text-md text-gray-500 font-normal'>Open to Retainer Model</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="openToRetainerModel"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Open to Retainer  Model" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    OPEN_TO_RETAINER_MODEL.map((openToRetainerModel, index) => {
+                                                                        return <SelectItem key={index} value={openToRetainerModel.value}>
+                                                                            {openToRetainerModel.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>3</div>
+                                            <div className='text-md text-gray-500 font-normal'>Open to Min Service Fee or Flat Fee</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="openToMinServiceFeeOrFlatFee"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Open to Min Service Fee or Flat Fee" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    OPEN_TO_MIN_SERVICE_OR_FLAT_FEE.map((openToMinServiceOrFlatFee, index) => {
+                                                                        return <SelectItem key={index} value={openToMinServiceOrFlatFee.value}>
+                                                                            {openToMinServiceOrFlatFee.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>4</div>
+                                            <div className='text-md text-gray-500 font-normal'>Collateral Shared</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="collateralShared"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Collateral Shared" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    COLLATERAL_SHARED.map((collateralShared, index) => {
+                                                                        return <SelectItem key={index} value={collateralShared.value}>
+                                                                            {collateralShared.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>}
                             </div>}
                             <div className='flex flex-col gap-[24px]'>
                                 <div className='flex flex-row gap-[10px] items-center'>

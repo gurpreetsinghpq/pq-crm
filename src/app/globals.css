@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap'); */
 
 @layer base {
   :root {
@@ -131,35 +132,38 @@
   }
 }
 
-.slide-left{
+.slide-left {
   animation: slide-from-left 300ms;
 }
 
-.fade-in{
+.fade-in {
   animation: fade 100ms;
 }
 
 
 @keyframes fade {
   from {
-    opacity: 0 ;
+    opacity: 0;
   }
-  to{
+
+  to {
     opacity: 1;
   }
 }
 
 @keyframes slide-from-left {
   from {
-    transform: translateX(100vw) ;
+    transform: translateX(100vw);
   }
-  to{
+
+  to {
     transform: translateX(0);
   }
 }
-body{
+
+body {
   height: 100vh;
-  overflow: hidden;  
+  overflow: hidden;
 }
 
 /* .responsive-table-height{
@@ -173,17 +177,18 @@ body{
   width: auto;
 } */
 
-.responsive-popover-content-width{
+.responsive-popover-content-width {
   width: clamp(21.875rem, 16.8576rem + 7.3583vw, 25.6875rem);
 }
 
-.pq-sidebar::-webkit-scrollbar{
+.pq-sidebar::-webkit-scrollbar {
   display: none;
 }
 
 /* Custom scrollbar for the sidebar */
 .pq-sidebar::-webkit-scrollbar {
-  width: 4px; /* Set the width of the scrollbar */
+  width: 4px;
+  /* Set the width of the scrollbar */
 }
 
 /* Show scrollbar handle on hover */
@@ -191,12 +196,59 @@ body{
 
 /* Handle */
 .pq-sidebar::-webkit-scrollbar-thumb {
-  background: #7F56D9; /* Color of the scrollbar handle */
-  border-radius: 3px; /* Rounded corners for the scrollbar handle */
-  
+  background: #7F56D9;
+  /* Color of the scrollbar handle */
+  border-radius: 3px;
+  /* Rounded corners for the scrollbar handle */
+
 }
 
 /* Handle on hover */
 .pq-sidebar::-webkit-scrollbar-thumb:hover {
-  background:  #D6BBFB; /* Color of the scrollbar handle on hover */
+  background: #D6BBFB;
+  /* Color of the scrollbar handle on hover */
+}
+
+.manrope {
+  font-family: 'Manrope';
+}
+
+.pdf-gradient-strip {
+  background: linear-gradient(68deg, #BD2FFF 14.33%, rgba(130, 20, 181, 0.40) 73.25%);
+}
+.pdf-gradient-strip-light {
+  background: linear-gradient(68deg, #964437 14.33%, rgba(150, 68, 55, 0.40) 73.25%);
+}
+
+.pdf-bg-dark {
+  background: linear-gradient(151deg, #3B3B3B -7.36%, #0F0F0F 103.56%);
+}
+.pdf-bg-light {
+  background: #E8DFD6;
+}
+
+.summary-gradient-dark{
+  background: linear-gradient(76deg, #42307D 12.23%, #7F56D9 78.85%);
+}
+
+.summary-gradient-light{
+  background: linear-gradient(76deg, #241C35 12.23%, #964437 78.85%);
+}
+
+.thankyou-dark{
+  background: linear-gradient(90deg, #353260 2.4%, rgba(71, 123, 198, 0.72) 90.08%);
+}
+.thankyou-light{
+  background: linear-gradient(68deg, #964437 14.33%, rgba(150, 68, 55, 0.40) 73.25%);
+}
+
+
+.pdf-size {
+  /* width: 21cm;
+  height: 29.7cm; */
+  width: 794px;
+  height: 1122px;
+}
+.reset-transform {
+  transform: scale(1); /* Reset the scale to 1 for normal size */
 }
