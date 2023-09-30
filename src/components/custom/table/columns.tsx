@@ -180,18 +180,20 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
     },
     {
         accessorKey: "created_at",
+
         header: ({ column }) => {
+            console.log(column.getIsSorted(),column.getFirstSortDir())
             return (
                 <div
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
                 >
                     Created On
-                    <IconArrowDown size={20} />
+                    { <IconArrowDown size={20} />}
                 </div>
             )
         },
-        // sortDescFirst:true,
+        
         cell: ({ row }) => <div className=" font-normal">
             {multiLine(row.getValue("created_at"))}
 

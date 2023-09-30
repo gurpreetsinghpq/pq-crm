@@ -344,7 +344,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             { name: "industry", label: "Industry" },
             { name: "domain", label: "Domain" },
             { name: "size", label: "Size" },
-            { name: "lastFundingStage", label: "Last Funding Stage" },
+            { name: "lastFundingStage", label: "Last Funding Round" },
             { name: "lastFundingAmount", label: "Last Funding Amount" },
             { name: "retainerAdvance", label: "Retainer Advance" },
             { name: "exclusivity", label: "Exclusivity" },
@@ -882,13 +882,13 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                         </div>
                                                                     </TooltipTrigger>
                                                                     <TooltipContent side="top">
-                                                                        Last Funding Stage
+                                                                        Last Funding Round
                                                                     </TooltipContent>
                                                                 </Tooltip>
                                                             </TooltipProvider>
                                                             <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                                    {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Round</span>}
                                                                 </div>
                                                                 <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>

@@ -198,7 +198,7 @@ export function columnsClient(setChildDataHandler:CallableFunction): ColumnDef<C
                     // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                 >
-                    Last Funding Stage
+                    Last Funding Round
                     {/* <IconArrowDown size={20} /> */}
                 </div>
             )

@@ -1,6 +1,6 @@
 import { SIDESHEET_TAB_TYPE, STEPPER_STATUS } from '@/app/constants/constants'
-import { Stepper } from '@/app/interfaces/interface'
-import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconContacts, IconEmail, IconNotes } from '@/components/icons/svgIcons'
+import { Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
+import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconContacts, IconEmail, IconNotes, IconUserRight } from '@/components/icons/svgIcons'
 import React from 'react'
 import { valueToLabel } from '../sideSheet'
 import { multiLine, multiLineStyle2 } from '../table/columns'
@@ -9,7 +9,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button'
 import { Ban, CheckCircle, MoreVertical } from 'lucide-react'
 
-function CustomStepper({ details }: { details: Stepper }) {
+function CustomStepper({ details, type }: { details: TodoListGetResponse, type: {name: "todo" | "activity" | "changelog" | "notes", markStatusOfActivity?:(entityId: number, status: string) => Promise<void>} }) {
+
+    
 
     
     const status = STEPPER_STATUS.find(val => val.label === details.status)
@@ -18,14 +20,14 @@ function CustomStepper({ details }: { details: Stepper }) {
             <div className='custom-stepper-child flex flex-col items-center'>
                 <div className='h-[48px] w-[48px] rounded-[10px] border-[1px] border-gray-200 bg-white-900 shadow-xs flex flex-row justify-center items-center'>
                     {details.type === SIDESHEET_TAB_TYPE.CHANGE_LOG && <IconChangeLog />}
-                    {details.type === SIDESHEET_TAB_TYPE.ACTIVITY && <IconActivity />}
+                    {type.name === "todo" && <IconActivity />}
                     {details.type === SIDESHEET_TAB_TYPE.NOTES && <IconNotes />}
                 </div>
                 {!details?.isLastChild && <div className='custom-stepper-grandchild w-[2px] bg-gray-200 rounded-[2px] flex-1'>
                 </div>}
             </div>
             <div className='mb-[20px] p-[16px] rounded-[10px] border-[1px] border-gray-200 bg-white-900 shadow-xs xl:min-w-[650px]  2xl:min-w-[800px]'>
-                <div className='flex flex-col gap-[18px]'>
+                {type.name === "todo" &&  <div className='flex flex-col gap-[18px]'>
                     <div className='flex flex-row justify-between'>
                         <div className='text-md font-semibold text-gray-700'>
                             {details?.title}
@@ -44,7 +46,7 @@ function CustomStepper({ details }: { details: Stepper }) {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem >
+                                        <DropdownMenuItem onClick={()=>type.markStatusOfActivity && type.markStatusOfActivity(details.id, "Completed")}>
                                             <div className="text-gray-700 text-sm font-medium flex flex-row items-center gap-[8px]" >
                                                 <div>
                                                     <CheckCircle className='text-success-700' size={16}/>
@@ -52,7 +54,7 @@ function CustomStepper({ details }: { details: Stepper }) {
                                                 Mark as Completed
                                             </div>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem >
+                                        <DropdownMenuItem onClick={()=>type.markStatusOfActivity && type.markStatusOfActivity(details.id, "Cancelled")}>
                                             <div className="text-gray-700 text-sm font-medium flex flex-row items-center gap-[8px]" >
                                                 <div>
                                                     <Ban className='text-error-600' size={16}/>
@@ -71,23 +73,24 @@ function CustomStepper({ details }: { details: Stepper }) {
                                 <IconContacts size="20px" color="#7F56D9" />
                             </div>
                             <div>
-                                {getContacts(details.contacts)}
+                                {getContacts(details.contacts.map(val=>val.name))}
                             </div>
                         </div>}
-                        {details?.email && <div className='flex flex-row gap-[4px]'>
+                        {details?.mode && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
-                                <IconEmail size="20px" color="#7F56D9" />
+                                {/* <IconEmail size="20px" color="#7F56D9" /> */}
+                                <IconUserRight/>
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
-                                {details?.email}
+                                {details?.mode}
                             </div>
                         </div>}
-                        {details?.date && <div className='flex flex-row gap-[4px]'>
+                        {details?.created_at && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
                                 <IconCalendar size="20px" color="#7F56D9" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
-                                {multiLineStyle2(details?.date)}
+                                {multiLineStyle2(details?.created_at)}
                             </div>
                         </div>}
                     </div>
@@ -98,7 +101,8 @@ function CustomStepper({ details }: { details: Stepper }) {
                                 Assigned to
                             </div>
                             <div className='text-sm text-gray-700 font-medium'>
-                                {details?.assignedTo}
+                                {details?.assigned_to?.name}
+                                
                             </div>
                         </div>
                         <div className='flex flex-col flex-1'>
@@ -106,7 +110,7 @@ function CustomStepper({ details }: { details: Stepper }) {
                                 Created by
                             </div>
                             <div className='text-sm text-gray-700 font-medium'>
-                                {details?.createdBy}
+                                {details?.created_by.name}
                             </div>
                         </div>
                         <div className='flex flex-col flex-1'>
@@ -114,12 +118,12 @@ function CustomStepper({ details }: { details: Stepper }) {
                                 Created at
                             </div>
                             <div className='text-sm text-gray-700 font-medium'>
-                                {multiLineStyle2(details?.createdAt)}
+                                {multiLineStyle2(details?.created_at)}
                             </div>
                         </div>
 
                     </div>
-                </div>
+                </div>}
             </div>
 
         </div>

@@ -558,7 +558,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                 <FormControl>
                                                     <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] disabled:opacity-1">
                                                         <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Round</span>}
                                                         </div>
                                                         <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                     </Button>

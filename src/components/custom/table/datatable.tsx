@@ -141,14 +141,14 @@ export default function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
     },
-    // initialState:{
-    //   sorting: [
-    //     {
-    //       id: 'created_at',
-    //       desc:true
-    //     }
-    //   ]
-    // },
+    initialState:{
+      sorting: [
+        {
+          id: 'created_at',
+          desc:true
+        }
+      ]
+    },
     getRowId,
   })
 
@@ -190,6 +190,16 @@ export default function DataTable<TData, TValue>({
     setTableLeadRow(table.getFilteredRowModel())
   }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
 
+  useEffect(()=>{
+    setSorting(()=>{
+      return [
+        {
+          id: "created_at",
+          desc:true
+        }
+      ]
+    })
+  },[])
 
   function setLeadFilter() {
     if (filterObj?.regions && filterObj.regions.includes("allRegions")) {

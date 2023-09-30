@@ -1,0 +1,3482 @@
+[
+    {
+        "id": 317,
+        "displayName": "(GMT-12:00) International Date Line West",
+        "name": "Etc/GMT+12",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 318,
+        "displayName": "(GMT-11:00) Midway Island, Samoa",
+        "name": "Pacific/Midway",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 319,
+        "displayName": "(GMT-10:00) Hawaii",
+        "name": "Pacific/Honolulu",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 320,
+        "displayName": "(GMT-09:00) Alaska",
+        "name": "US/Alaska",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 321,
+        "displayName": "(GMT-08:00) Pacific Time (US & Canada)",
+        "name": "America/Los_Angeles",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 322,
+        "displayName": "(GMT-08:00) Tijuana, Baja California",
+        "name": "America/Tijuana",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 323,
+        "displayName": "(GMT-07:00) Arizona",
+        "name": "US/Arizona",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 324,
+        "displayName": "(GMT-07:00) Chihuahua, La Paz, Mazatlan",
+        "name": "America/Chihuahua",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 325,
+        "displayName": "(GMT-07:00) Mountain Time (US & Canada)",
+        "name": "US/Mountain",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 326,
+        "displayName": "(GMT-06:00) Central America",
+        "name": "America/Managua",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 327,
+        "displayName": "(GMT-06:00) Central Time (US & Canada)",
+        "name": "US/Central",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 328,
+        "displayName": "(GMT-06:00) Guadalajara, Mexico City, Monterrey",
+        "name": "America/Mexico_City",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 329,
+        "displayName": "(GMT-06:00) Saskatchewan",
+        "name": "Canada/Saskatchewan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 330,
+        "displayName": "(GMT-05:00) Bogota, Lima, Quito, Rio Branco",
+        "name": "America/Bogota",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 331,
+        "displayName": "(GMT-05:00) Eastern Time (US & Canada)",
+        "name": "US/Eastern",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 332,
+        "displayName": "(GMT-05:00) Indiana (East)",
+        "name": "US/East-Indiana",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 333,
+        "displayName": "(GMT-04:00) Atlantic Time (Canada)",
+        "name": "Canada/Atlantic",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 334,
+        "displayName": "(GMT-04:00) Caracas, La Paz",
+        "name": "America/Caracas",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 335,
+        "displayName": "(GMT-04:00) Manaus",
+        "name": "America/Manaus",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 336,
+        "displayName": "(GMT-04:00) Santiago",
+        "name": "America/Santiago",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 337,
+        "displayName": "(GMT-03:30) Newfoundland",
+        "name": "Canada/Newfoundland",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 338,
+        "displayName": "(GMT-03:00) Brasilia",
+        "name": "America/Sao_Paulo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 339,
+        "displayName": "(GMT-03:00) Buenos Aires, Georgetown",
+        "name": "America/Argentina/Buenos_Aires",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 340,
+        "displayName": "(GMT-03:00) Greenland",
+        "name": "America/Godthab",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 341,
+        "displayName": "(GMT-03:00) Montevideo",
+        "name": "America/Montevideo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 342,
+        "displayName": "(GMT-02:00) Mid-Atlantic",
+        "name": "America/Noronha",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 343,
+        "displayName": "(GMT-01:00) Cape Verde Is.",
+        "name": "Atlantic/Cape_Verde",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 344,
+        "displayName": "(GMT-01:00) Azores",
+        "name": "Atlantic/Azores",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 345,
+        "displayName": "(GMT+00:00) Casablanca, Monrovia, Reykjavik",
+        "name": "Africa/Casablanca",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 346,
+        "displayName": "(GMT+00:00) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London",
+        "name": "Etc/Greenwich",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 347,
+        "displayName": "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna",
+        "name": "Europe/Amsterdam",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 348,
+        "displayName": "(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague",
+        "name": "Europe/Belgrade",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 349,
+        "displayName": "(GMT+01:00) Brussels, Copenhagen, Madrid, Paris",
+        "name": "Europe/Brussels",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 350,
+        "displayName": "(GMT+01:00) Sarajevo, Skopje, Warsaw, Zagreb",
+        "name": "Europe/Sarajevo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 351,
+        "displayName": "(GMT+01:00) West Central Africa",
+        "name": "Africa/Lagos",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 352,
+        "displayName": "(GMT+02:00) Amman",
+        "name": "Asia/Amman",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 353,
+        "displayName": "(GMT+02:00) Athens, Bucharest, Istanbul",
+        "name": "Europe/Athens",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 354,
+        "displayName": "(GMT+02:00) Beirut",
+        "name": "Asia/Beirut",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 355,
+        "displayName": "(GMT+02:00) Cairo",
+        "name": "Africa/Cairo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 356,
+        "displayName": "(GMT+02:00) Harare, Pretoria",
+        "name": "Africa/Harare",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 357,
+        "displayName": "(GMT+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius",
+        "name": "Europe/Helsinki",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 358,
+        "displayName": "(GMT+02:00) Jerusalem",
+        "name": "Asia/Jerusalem",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 359,
+        "displayName": "(GMT+02:00) Minsk",
+        "name": "Europe/Minsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 360,
+        "displayName": "(GMT+02:00) Windhoek",
+        "name": "Africa/Windhoek",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 361,
+        "displayName": "(GMT+03:00) Kuwait, Riyadh, Baghdad",
+        "name": "Asia/Kuwait",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 362,
+        "displayName": "(GMT+03:00) Moscow, St. Petersburg, Volgograd",
+        "name": "Europe/Moscow",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 363,
+        "displayName": "(GMT+03:00) Nairobi",
+        "name": "Africa/Nairobi",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 364,
+        "displayName": "(GMT+03:00) Tbilisi",
+        "name": "Asia/Tbilisi",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 365,
+        "displayName": "(GMT+03:30) Tehran",
+        "name": "Asia/Tehran",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 366,
+        "displayName": "(GMT+04:00) Abu Dhabi, Muscat",
+        "name": "Asia/Muscat",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 367,
+        "displayName": "(GMT+04:00) Baku",
+        "name": "Asia/Baku",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 368,
+        "displayName": "(GMT+04:00) Yerevan",
+        "name": "Asia/Yerevan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 369,
+        "displayName": "(GMT+04:30) Kabul",
+        "name": "Asia/Kabul",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 370,
+        "displayName": "(GMT+05:00) Yekaterinburg",
+        "name": "Asia/Yekaterinburg",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 371,
+        "displayName": "(GMT+05:00) Islamabad, Karachi, Tashkent",
+        "name": "Asia/Karachi",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 372,
+        "displayName": "(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi / Sri Jayawardenapura",
+        "name": "Asia/Calcutta",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 373,
+        "displayName": "(GMT+05:45) Kathmandu",
+        "name": "Asia/Katmandu",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 374,
+        "displayName": "(GMT+06:00) Almaty, Novosibirsk",
+        "name": "Asia/Almaty",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 375,
+        "displayName": "(GMT+06:00) Astana, Dhaka",
+        "name": "Asia/Dhaka",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 376,
+        "displayName": "(GMT+06:30) Yangon (Rangoon)",
+        "name": "Asia/Rangoon",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 377,
+        "displayName": "(GMT+07:00) Bangkok, Hanoi, Jakarta",
+        "name": "Asia/Bangkok",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 378,
+        "displayName": "(GMT+07:00) Krasnoyarsk",
+        "name": "Asia/Krasnoyarsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 379,
+        "displayName": "(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi",
+        "name": "Asia/Hong_Kong",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 380,
+        "displayName": "(GMT+08:00) Kuala Lumpur, Singapore",
+        "name": "Asia/Kuala_Lumpur",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 381,
+        "displayName": "(GMT+08:00) Irkutsk, Ulaan Bataar",
+        "name": "Asia/Irkutsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 382,
+        "displayName": "(GMT+08:00) Perth",
+        "name": "Australia/Perth",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 383,
+        "displayName": "(GMT+08:00) Taipei",
+        "name": "Asia/Taipei",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 384,
+        "displayName": "(GMT+09:00) Osaka, Sapporo, Tokyo",
+        "name": "Asia/Tokyo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 385,
+        "displayName": "(GMT+09:00) Seoul",
+        "name": "Asia/Seoul",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 386,
+        "displayName": "(GMT+09:00) Yakutsk",
+        "name": "Asia/Yakutsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 387,
+        "displayName": "(GMT+09:30) Adelaide",
+        "name": "Australia/Adelaide",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 388,
+        "displayName": "(GMT+09:30) Darwin",
+        "name": "Australia/Darwin",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 389,
+        "displayName": "(GMT+10:00) Brisbane",
+        "name": "Australia/Brisbane",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 390,
+        "displayName": "(GMT+10:00) Canberra, Melbourne, Sydney",
+        "name": "Australia/Canberra",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 391,
+        "displayName": "(GMT+10:00) Hobart",
+        "name": "Australia/Hobart",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 392,
+        "displayName": "(GMT+10:00) Guam, Port Moresby",
+        "name": "Pacific/Guam",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 393,
+        "displayName": "(GMT+10:00) Vladivostok",
+        "name": "Asia/Vladivostok",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 394,
+        "displayName": "(GMT+11:00) Magadan, Solomon Is., New Caledonia",
+        "name": "Asia/Magadan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 395,
+        "displayName": "(GMT+12:00) Auckland, Wellington",
+        "name": "Pacific/Auckland",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 396,
+        "displayName": "(GMT+12:00) Fiji, Kamchatka, Marshall Is.",
+        "name": "Pacific/Fiji",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 397,
+        "displayName": "(GMT+13:00) Nuku'alofa",
+        "name": "Pacific/Tongatapu",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036352,
+        "displayName": "(GMT+01:00) Europe/Andorra",
+        "name": "Europe/Andorra",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036353,
+        "displayName": "(GMT+04:00) Asia/Dubai",
+        "name": "Asia/Dubai",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036354,
+        "displayName": "(GMT-04:00) America/Antigua",
+        "name": "America/Antigua",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036355,
+        "displayName": "(GMT-04:00) America/Anguilla",
+        "name": "America/Anguilla",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036356,
+        "displayName": "(GMT+01:00) Europe/Tirane",
+        "name": "Europe/Tirane",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036357,
+        "displayName": "(GMT+01:00) Africa/Luanda",
+        "name": "Africa/Luanda",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036358,
+        "displayName": "(GMT+13:00) New Zealand time - McMurdo, South Pole",
+        "name": "Antarctica/McMurdo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036359,
+        "displayName": "(GMT+11:00) Casey",
+        "name": "Antarctica/Casey",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036360,
+        "displayName": "(GMT+07:00) Davis",
+        "name": "Antarctica/Davis",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036361,
+        "displayName": "(GMT+10:00) Dumont-d Urville",
+        "name": "Antarctica/DumontDUrville",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036362,
+        "displayName": "(GMT+05:00) Mawson",
+        "name": "Antarctica/Mawson",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036363,
+        "displayName": "(GMT-03:00) Palmer",
+        "name": "Antarctica/Palmer",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036364,
+        "displayName": "(GMT-03:00) Rothera",
+        "name": "Antarctica/Rothera",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036365,
+        "displayName": "(GMT+03:00) Syowa",
+        "name": "Antarctica/Syowa",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036366,
+        "displayName": "(GMT+00:00) Troll",
+        "name": "Antarctica/Troll",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036367,
+        "displayName": "(GMT+06:00) Antarctica/Vostok",
+        "name": "Antarctica/Vostok",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036368,
+        "displayName": "(GMT-03:00) Argentina (most areas: CB, CC, CN, ER, FM, MN, SE, SF)",
+        "name": "America/Argentina/Cordoba",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036369,
+        "displayName": "(GMT-03:00) Salta (SA, LP, NQ, RN)",
+        "name": "America/Argentina/Salta",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036370,
+        "displayName": "(GMT-03:00) Jujuy (JY)",
+        "name": "America/Argentina/Jujuy",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036371,
+        "displayName": "(GMT-03:00) Tucuman (TM)",
+        "name": "America/Argentina/Tucuman",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036372,
+        "displayName": "(GMT-03:00) Catamarca (CT), Chubut (CH)",
+        "name": "America/Argentina/Catamarca",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036373,
+        "displayName": "(GMT-03:00) La Rioja (LR)",
+        "name": "America/Argentina/La_Rioja",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036374,
+        "displayName": "(GMT-03:00) San Juan (SJ)",
+        "name": "America/Argentina/San_Juan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036375,
+        "displayName": "(GMT-03:00) Mendoza (MZ)",
+        "name": "America/Argentina/Mendoza",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036376,
+        "displayName": "(GMT-03:00) San Luis (SL)",
+        "name": "America/Argentina/San_Luis",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036377,
+        "displayName": "(GMT-03:00) Santa Cruz (SC)",
+        "name": "America/Argentina/Rio_Gallegos",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036378,
+        "displayName": "(GMT-03:00) Tierra del Fuego (TF)",
+        "name": "America/Argentina/Ushuaia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036379,
+        "displayName": "(GMT-11:00) Pacific/Pago_Pago",
+        "name": "Pacific/Pago_Pago",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036380,
+        "displayName": "(GMT+01:00) Europe/Vienna",
+        "name": "Europe/Vienna",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036381,
+        "displayName": "(GMT+11:00) Lord Howe Island",
+        "name": "Australia/Lord_Howe",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036382,
+        "displayName": "(GMT+11:00) Macquarie Island",
+        "name": "Antarctica/Macquarie",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036383,
+        "displayName": "(GMT+11:00) Victoria",
+        "name": "Australia/Melbourne",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036384,
+        "displayName": "(GMT+11:00) New South Wales (most areas)",
+        "name": "Australia/Sydney",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036385,
+        "displayName": "(GMT+10:30) New South Wales (Yancowinna)",
+        "name": "Australia/Broken_Hill",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036386,
+        "displayName": "(GMT+10:00) Queensland (Whitsunday Islands)",
+        "name": "Australia/Lindeman",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036387,
+        "displayName": "(GMT+08:45) Western Australia (Eucla)",
+        "name": "Australia/Eucla",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036388,
+        "displayName": "(GMT-04:00) America/Aruba",
+        "name": "America/Aruba",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036389,
+        "displayName": "(GMT+02:00) Europe/Mariehamn",
+        "name": "Europe/Mariehamn",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036390,
+        "displayName": "(GMT-04:00) America/Barbados",
+        "name": "America/Barbados",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036391,
+        "displayName": "(GMT+00:00) Africa/Ouagadougou",
+        "name": "Africa/Ouagadougou",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036392,
+        "displayName": "(GMT+02:00) Europe/Sofia",
+        "name": "Europe/Sofia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036393,
+        "displayName": "(GMT+03:00) Asia/Bahrain",
+        "name": "Asia/Bahrain",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036394,
+        "displayName": "(GMT+02:00) Africa/Bujumbura",
+        "name": "Africa/Bujumbura",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036395,
+        "displayName": "(GMT+01:00) Africa/Porto-Novo",
+        "name": "Africa/Porto-Novo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036396,
+        "displayName": "(GMT-04:00) America/St_Barthelemy",
+        "name": "America/St_Barthelemy",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036397,
+        "displayName": "(GMT-04:00) Atlantic/Bermuda",
+        "name": "Atlantic/Bermuda",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036398,
+        "displayName": "(GMT+08:00) Asia/Brunei",
+        "name": "Asia/Brunei",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036399,
+        "displayName": "(GMT-04:00) America/La_Paz",
+        "name": "America/La_Paz",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036400,
+        "displayName": "(GMT+08:45) America/Kralendijk",
+        "name": "America/Kralendijk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036401,
+        "displayName": "(GMT-03:00) Para (east), Amapa",
+        "name": "America/Belem",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036402,
+        "displayName": "(GMT-03:00) Brazil (northeast: MA, PI, CE, RN, PB)",
+        "name": "America/Fortaleza",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036403,
+        "displayName": "(GMT-03:00) Pernambuco",
+        "name": "America/Recife",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036404,
+        "displayName": "(GMT-03:00) Tocantins",
+        "name": "America/Araguaina",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036405,
+        "displayName": "(GMT-03:00) Alagoas, Sergipe",
+        "name": "America/Maceio",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036406,
+        "displayName": "(GMT-03:00) Bahia",
+        "name": "America/Bahia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036407,
+        "displayName": "(GMT-04:00) Mato Grosso do Sul",
+        "name": "America/Campo_Grande",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036408,
+        "displayName": "(GMT-04:00) Mato Grosso",
+        "name": "America/Cuiaba",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036409,
+        "displayName": "(GMT-03:00) Para (west)",
+        "name": "America/Santarem",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036410,
+        "displayName": "(GMT-04:00) Rondonia",
+        "name": "America/Porto_Velho",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036411,
+        "displayName": "(GMT-04:00) Roraima",
+        "name": "America/Boa_Vista",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036412,
+        "displayName": "(GMT-05:00) Amazonas (west)",
+        "name": "America/Eirunepe",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036413,
+        "displayName": "(GMT-05:00) Acre",
+        "name": "America/Rio_Branco",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036414,
+        "displayName": "(GMT-05:00) America/Nassau",
+        "name": "America/Nassau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036415,
+        "displayName": "(GMT+06:00) Asia/Thimphu",
+        "name": "Asia/Thimphu",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036416,
+        "displayName": "(GMT+02:00) Africa/Gaborone",
+        "name": "Africa/Gaborone",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036417,
+        "displayName": "(GMT-06:00) America/Belize",
+        "name": "America/Belize",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036418,
+        "displayName": "(GMT-03:30) Newfoundland, Labrador (southeast)",
+        "name": "America/St_Johns",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036419,
+        "displayName": "(GMT-04:00) Atlantic - NS (most areas), PE",
+        "name": "America/Halifax",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036420,
+        "displayName": "(GMT-04:00) Atlantic - NS (Cape Breton)",
+        "name": "America/Glace_Bay",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036421,
+        "displayName": "(GMT-04:00) Atlantic - New Brunswick",
+        "name": "America/Moncton",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036422,
+        "displayName": "(GMT-04:00) Atlantic - Labrador (most areas)",
+        "name": "America/Goose_Bay",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036423,
+        "displayName": "(GMT-04:00) AST - QC (Lower North Shore)",
+        "name": "America/Blanc-Sablon",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036424,
+        "displayName": "(GMT-05:00) Eastern - ON, QC (most areas)",
+        "name": "America/Toronto",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036425,
+        "displayName": "(GMT-05:00) Eastern - NU (most areas)",
+        "name": "America/Iqaluit",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036426,
+        "displayName": "(GMT-05:00) EST - ON (Atikokan), NU (Coral H)",
+        "name": "America/Atikokan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036427,
+        "displayName": "(GMT-06:00) Central - ON (west), Manitoba",
+        "name": "America/Winnipeg",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036428,
+        "displayName": "(GMT-06:00) Central - NU (Resolute)",
+        "name": "America/Resolute",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036429,
+        "displayName": "(GMT-06:00) Central - NU (central)",
+        "name": "America/Rankin_Inlet",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036430,
+        "displayName": "(GMT-06:00) CST - SK (most areas)",
+        "name": "America/Regina",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036431,
+        "displayName": "(GMT-06:00) CST - SK (midwest)",
+        "name": "America/Swift_Current",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036432,
+        "displayName": "(GMT-07:00) Mountain - AB, BC (E), SK (W)",
+        "name": "America/Edmonton",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036433,
+        "displayName": "(GMT-07:00) Mountain - NU (west)",
+        "name": "America/Cambridge_Bay",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036434,
+        "displayName": "(GMT-07:00) Mountain - NT (central)",
+        "name": "America/Yellowknife",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036435,
+        "displayName": "(GMT-07:00) Mountain - NT (west)",
+        "name": "America/Inuvik",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036436,
+        "displayName": "(GMT-07:00) MST - BC (Creston)",
+        "name": "America/Creston",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036437,
+        "displayName": "(GMT-07:00) MST - BC (Dawson Cr, Ft St John)",
+        "name": "America/Dawson_Creek",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036438,
+        "displayName": "(GMT-07:00) MST - BC (Ft Nelson)",
+        "name": "America/Fort_Nelson",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036439,
+        "displayName": "(GMT-07:00) MST - Yukon (east)",
+        "name": "America/Whitehorse",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036440,
+        "displayName": "(GMT-07:00) MST - Yukon (west)",
+        "name": "America/Dawson",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036441,
+        "displayName": "(GMT-08:00) Pacific - BC (most areas)",
+        "name": "America/Vancouver",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036442,
+        "displayName": "(GMT+06:30) Indian/Cocos",
+        "name": "Indian/Cocos",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036443,
+        "displayName": "(GMT+01:00) Dem. Rep. of Congo (west)",
+        "name": "Africa/Kinshasa",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036444,
+        "displayName": "(GMT+02:00) Dem. Rep. of Congo (east)",
+        "name": "Africa/Lubumbashi",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036445,
+        "displayName": "(GMT+01:00) Africa/Bangui",
+        "name": "Africa/Bangui",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036446,
+        "displayName": "(GMT+01:00) Africa/Brazzaville",
+        "name": "Africa/Brazzaville",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036447,
+        "displayName": "(GMT+01:00) Europe/Zurich",
+        "name": "Europe/Zurich",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036448,
+        "displayName": "(GMT+00:00) Africa/Abidjan",
+        "name": "Africa/Abidjan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036449,
+        "displayName": "(GMT-10:00) Pacific/Rarotonga",
+        "name": "Pacific/Rarotonga",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036450,
+        "displayName": "(GMT-03:00) Region of Magallanes",
+        "name": "America/Punta_Arenas",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036451,
+        "displayName": "(GMT-05:00) Easter Island",
+        "name": "Pacific/Easter",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036452,
+        "displayName": "(GMT-06:00) Africa/Douala",
+        "name": "Africa/Douala",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036453,
+        "displayName": "(GMT+08:00) Beijing Time",
+        "name": "Asia/Shanghai",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036454,
+        "displayName": "(GMT+06:00) Xinjiang Time",
+        "name": "Asia/Urumqi",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036455,
+        "displayName": "(GMT-06:00) America/Costa_Rica",
+        "name": "America/Costa_Rica",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036456,
+        "displayName": "(GMT-05:00) America/Havana",
+        "name": "America/Havana",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036457,
+        "displayName": "(GMT-04:00) America/Curacao",
+        "name": "America/Curacao",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036458,
+        "displayName": "(GMT+07:00) Indian/Christmas",
+        "name": "Indian/Christmas",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036459,
+        "displayName": "(GMT+02:00) Cyprus (most areas)",
+        "name": "Asia/Nicosia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036460,
+        "displayName": "(GMT+02:00) Northern Cyprus",
+        "name": "Asia/Famagusta",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036461,
+        "displayName": "(GMT+01:00) Europe/Prague",
+        "name": "Europe/Prague",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036462,
+        "displayName": "(GMT+01:00) Germany (most areas)",
+        "name": "Europe/Berlin",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036463,
+        "displayName": "(GMT+01:00) Busingen",
+        "name": "Europe/Busingen",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036464,
+        "displayName": "(GMT+03:00) Africa/Djibouti",
+        "name": "Africa/Djibouti",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036465,
+        "displayName": "(GMT+01:00) Europe/Copenhagen",
+        "name": "Europe/Copenhagen",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036466,
+        "displayName": "(GMT-04:00) America/Dominica",
+        "name": "America/Dominica",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036467,
+        "displayName": "(GMT-04:00) America/Santo_Domingo",
+        "name": "America/Santo_Domingo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036468,
+        "displayName": "(GMT+01:00) Africa/Algiers",
+        "name": "Africa/Algiers",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036469,
+        "displayName": "(GMT-05:00) Ecuador (mainland)",
+        "name": "America/Guayaquil",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036470,
+        "displayName": "(GMT-06:00) Galapagos Islands",
+        "name": "Pacific/Galapagos",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036471,
+        "displayName": "(GMT+02:00) Europe/Tallinn",
+        "name": "Europe/Tallinn",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036472,
+        "displayName": "(GMT-00:00) Africa/El_Aaiun",
+        "name": "Africa/El_Aaiun",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036473,
+        "displayName": "(GMT+03:00) Africa/Asmara",
+        "name": "Africa/Asmara",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036474,
+        "displayName": "(GMT+01:00) Spain (mainland)",
+        "name": "Europe/Madrid",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036475,
+        "displayName": "(GMT+01:00) Ceuta, Melilla",
+        "name": "Africa/Ceuta",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036476,
+        "displayName": "(GMT+00:00) Canary Islands",
+        "name": "Atlantic/Canary",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036477,
+        "displayName": "(GMT+03:00) Africa/Addis_Ababa",
+        "name": "Africa/Addis_Ababa",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036478,
+        "displayName": "(GMT-03:00) Atlantic/Stanley",
+        "name": "Atlantic/Stanley",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036479,
+        "displayName": "(GMT+10:00) Chuuk/Truk, Yap",
+        "name": "Pacific/Chuuk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036480,
+        "displayName": "(GMT+11:00) Pohnpei/Ponape",
+        "name": "Pacific/Pohnpei",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036481,
+        "displayName": "(GMT+11:00) Kosrae",
+        "name": "Pacific/Kosrae",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036482,
+        "displayName": "(GMT+00:00) Atlantic/Faroe",
+        "name": "Atlantic/Faroe",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036483,
+        "displayName": "(GMT+01:00) Europe/Paris",
+        "name": "Europe/Paris",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036484,
+        "displayName": "(GMT+01:00) Africa/Libreville",
+        "name": "Africa/Libreville",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036485,
+        "displayName": "(GMT+00:00) Europe/London",
+        "name": "Europe/London",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036486,
+        "displayName": "(GMT-04:00) America/Grenada",
+        "name": "America/Grenada",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036487,
+        "displayName": "(GMT-04:00) America/Cayenne",
+        "name": "America/Cayenne",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036488,
+        "displayName": "(GMT+00:00) Europe/Guernsey",
+        "name": "Europe/Guernsey",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036489,
+        "displayName": "(GMT+00:00) Africa/Accra",
+        "name": "Africa/Accra",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036490,
+        "displayName": "(GMT+01:00) Europe/Gibraltar",
+        "name": "Europe/Gibraltar",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036491,
+        "displayName": "(GMT-03:00) Greenland (most areas)",
+        "name": "America/Nuuk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036492,
+        "displayName": "(GMT+00:00) National Park (east coast)",
+        "name": "America/Danmarkshavn",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036493,
+        "displayName": "(GMT-01:00) Scoresbysund/Ittoqqortoormiit",
+        "name": "America/Scoresbysund",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036494,
+        "displayName": "(GMT-01:00) Thule/Pituffik",
+        "name": "America/Thule",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036495,
+        "displayName": "(GMT+00:00) Africa/Banjul",
+        "name": "Africa/Banjul",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036496,
+        "displayName": "(GMT+00:00) Africa/Conakry",
+        "name": "Africa/Conakry",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036497,
+        "displayName": "(GMT-04:00) America/Guadeloupe",
+        "name": "America/Guadeloupe",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036498,
+        "displayName": "(GMT+01:00) Africa/Malabo",
+        "name": "Africa/Malabo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036499,
+        "displayName": "(GMT-02:00) Atlantic/South_Georgia",
+        "name": "Atlantic/South_Georgia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036500,
+        "displayName": "(GMT-06:00) America/Guatemala",
+        "name": "America/Guatemala",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036501,
+        "displayName": "(GMT+00:00) Africa/Bissau",
+        "name": "Africa/Bissau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036502,
+        "displayName": "(GMT-04:00) America/Guyana",
+        "name": "America/Guyana",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036503,
+        "displayName": "(GMT-06:00) America/Tegucigalpa",
+        "name": "America/Tegucigalpa",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036504,
+        "displayName": "(GMT+01:00) Europe/Zagreb",
+        "name": "Europe/Zagreb",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036505,
+        "displayName": "(GMT-05:00) America/Port-au-Prince",
+        "name": "America/Port-au-Prince",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036506,
+        "displayName": "(GMT+01:00) Europe/Budapest",
+        "name": "Europe/Budapest",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036507,
+        "displayName": "(GMT+07:00) Java, Sumatra",
+        "name": "Asia/Jakarta",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036508,
+        "displayName": "(GMT+07:00) Borneo (west, central)",
+        "name": "Asia/Pontianak",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036509,
+        "displayName": "(GMT+08:00) Borneo (east, south), Sulawesi/Celebes, Bali, Nusa Tengarra, Timor (west)",
+        "name": "Asia/Makassar",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036510,
+        "displayName": "(GMT+09:00) New Guinea (West Papua / Irian Jaya), Malukus/Moluccas",
+        "name": "Asia/Jayapura",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036511,
+        "displayName": "(GMT+00:00) Europe/Dublin",
+        "name": "Europe/Dublin",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036512,
+        "displayName": "(GMT+00:00) Europe/Isle_of_Man",
+        "name": "Europe/Isle_of_Man",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036513,
+        "displayName": "(GMT+5:30) Asia/Kolkata",
+        "name": "Asia/Kolkata",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036514,
+        "displayName": "(GMT+06:00) Indian/Chagos",
+        "name": "Indian/Chagos",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036515,
+        "displayName": "(GMT+03:00) Asia/Baghdad",
+        "name": "Asia/Baghdad",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036516,
+        "displayName": "(GMT+00:00) Atlantic/Reykjavik",
+        "name": "Atlantic/Reykjavik",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036517,
+        "displayName": "(GMT+01:00) Europe/Rome",
+        "name": "Europe/Rome",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036518,
+        "displayName": "(GMT+00:00) Europe/Jersey",
+        "name": "Europe/Jersey",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036519,
+        "displayName": "(GMT-05:00) America/Jamaica",
+        "name": "America/Jamaica",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036520,
+        "displayName": "(GMT+06:00) Asia/Bishkek",
+        "name": "Asia/Bishkek",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036521,
+        "displayName": "(GMT+07:00) Asia/Phnom_Penh",
+        "name": "Asia/Phnom_Penh",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036522,
+        "displayName": "(GMT+12:00) Gilbert Islands",
+        "name": "Pacific/Tarawa",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036523,
+        "displayName": "(GMT+013:00) Phoenix Islands",
+        "name": "Pacific/Kanton",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036524,
+        "displayName": "(GMT+14:00) Line Islands",
+        "name": "Pacific/Kiritimati",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036525,
+        "displayName": "(GMT+03:00) Indian/Comoro",
+        "name": "Indian/Comoro",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036526,
+        "displayName": "(GMT-04:00) America/St_Kitts",
+        "name": "America/St_Kitts",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036527,
+        "displayName": "(GMT+09:00) Asia/Pyongyang",
+        "name": "Asia/Pyongyang",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036528,
+        "displayName": "(GMT-05:00) America/Cayman",
+        "name": "America/Cayman",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036529,
+        "displayName": "(GMT+05:00) Qyzylorda/Kyzylorda/Kzyl-Orda",
+        "name": "Asia/Qyzylorda",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036530,
+        "displayName": "(GMT+06:00) Qostanay/Kostanay/Kustanay",
+        "name": "Asia/Qostanay",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036531,
+        "displayName": "(GMT+05:00) Aqtobe/Aktobe",
+        "name": "Asia/Aqtobe",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036532,
+        "displayName": "(GMT+05:00) Mangghystau/Mankistau",
+        "name": "Asia/Aqtau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036533,
+        "displayName": "(GMT+05:00) Atyrau/Atirau/Gur yev",
+        "name": "Asia/Atyrau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036534,
+        "displayName": "(GMT+05:00) West Kazakhstan",
+        "name": "Asia/Oral",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036535,
+        "displayName": "(GMT+07:00) Asia/Vientiane",
+        "name": "Asia/Vientiane",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036536,
+        "displayName": "(GMT-04:00) America/St_Lucia",
+        "name": "America/St_Lucia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036537,
+        "displayName": "(GMT+1:00) Europe/Vaduz",
+        "name": "Europe/Vaduz",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036538,
+        "displayName": "(GMT+05:30) Asia/Colombo",
+        "name": "Asia/Colombo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036539,
+        "displayName": "(GMT+00:00) Africa/Monrovia",
+        "name": "Africa/Monrovia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036540,
+        "displayName": "(GMT+02:00) Africa/Maseru",
+        "name": "Africa/Maseru",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036541,
+        "displayName": "(GMT+02:00) Europe/Vilnius",
+        "name": "Europe/Vilnius",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036542,
+        "displayName": "(GMT+01:00) Europe/Luxembourg",
+        "name": "Europe/Luxembourg",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036543,
+        "displayName": "(GMT+02:00) Europe/Riga",
+        "name": "Europe/Riga",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036544,
+        "displayName": "(GMT+02:00) Africa/Tripoli",
+        "name": "Africa/Tripoli",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036545,
+        "displayName": "(GMT+01:00) Europe/Monaco",
+        "name": "Europe/Monaco",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036546,
+        "displayName": "(GMT+02:00) Europe/Chisinau",
+        "name": "Europe/Chisinau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036547,
+        "displayName": "(GMT+01:00) Europe/Podgorica",
+        "name": "Europe/Podgorica",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036548,
+        "displayName": "(GMT-04:00) America/Marigot",
+        "name": "America/Marigot",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036549,
+        "displayName": "(GMT-04:00) Indian/Antananarivo",
+        "name": "Indian/Antananarivo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036550,
+        "displayName": "(GMT+12:00) Marshall Islands (most areas)",
+        "name": "Pacific/Majuro",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036551,
+        "displayName": "(GMT+12:00) Kwajalein",
+        "name": "Pacific/Kwajalein",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036552,
+        "displayName": "(GMT+01:00) Europe/Skopje",
+        "name": "Europe/Skopje",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036553,
+        "displayName": "(GMT+00:00) Africa/Bamako",
+        "name": "Africa/Bamako",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036554,
+        "displayName": "(GMT++6:30) Asia/Yangon",
+        "name": "Asia/Yangon",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036555,
+        "displayName": "(GMT+08:00) Mongolia (most areas)",
+        "name": "Asia/Ulaanbaatar",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036556,
+        "displayName": "(GMT+07:00) Bayan-Olgiy, Govi-Altai, Hovd, Uvs, Zavkhan",
+        "name": "Asia/Hovd",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036557,
+        "displayName": "(GMT+08:00) Dornod, Sukhbaatar",
+        "name": "Asia/Choibalsan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036558,
+        "displayName": "(GMT+08:00) Asia/Macau",
+        "name": "Asia/Macau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036559,
+        "displayName": "(GMT+10:00) Pacific/Saipan",
+        "name": "Pacific/Saipan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036560,
+        "displayName": "(GMT-04:00) America/Martinique",
+        "name": "America/Martinique",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036561,
+        "displayName": "(GMT+00:00) Africa/Nouakchott",
+        "name": "Africa/Nouakchott",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036562,
+        "displayName": "(GMT-04:00) America/Montserrat",
+        "name": "America/Montserrat",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036563,
+        "displayName": "(GMT+01:00) Europe/Malta",
+        "name": "Europe/Malta",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036564,
+        "displayName": "(GMT+04:00) Indian/Mauritius",
+        "name": "Indian/Mauritius",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036565,
+        "displayName": "(GMT+05:00) Indian/Maldives",
+        "name": "Indian/Maldives",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036566,
+        "displayName": "(GMT+02:00) Africa/Blantyre",
+        "name": "Africa/Blantyre",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036567,
+        "displayName": "(GMT-05:00) Quintana Roo",
+        "name": "America/Cancun",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036568,
+        "displayName": "(GMT-06:00) Campeche, Yucatan",
+        "name": "America/Merida",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036569,
+        "displayName": "(GMT-06:00) Durango Coahuila, Nuevo Leon, Tamaulipas (most areas)",
+        "name": "America/Monterrey",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036570,
+        "displayName": "(GMT-06:00) Coahuila, Nuevo Leon, Tamaulipas (US border)",
+        "name": "America/Matamoros",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036571,
+        "displayName": "(GMT-07:00) Chihuahua (US border - west)",
+        "name": "America/Ciudad_Juarez",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036572,
+        "displayName": "(GMT-07:00) Chihuahua (US border - east)",
+        "name": "America/Ojinaga",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036573,
+        "displayName": "(GMT-07:00) Baja California Sur, Nayarit (most areas), Sinaloa",
+        "name": "America/Mazatlan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036574,
+        "displayName": "(GMT-06:00) Bahia de Banderas",
+        "name": "America/Bahia_Banderas",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036575,
+        "displayName": "(GMT-07:00) Sonora",
+        "name": "America/Hermosillo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036576,
+        "displayName": "(GMT+08:00) Sabah, Sarawak",
+        "name": "Asia/Kuching",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036577,
+        "displayName": "(GMT+02:00) Africa/Maputo",
+        "name": "Africa/Maputo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036578,
+        "displayName": "(GMT+11:00) Pacific/Noumea",
+        "name": "Pacific/Noumea",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036579,
+        "displayName": "(GMT+01:00) Africa/Niamey",
+        "name": "Africa/Niamey",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036580,
+        "displayName": "(GMT+11:00) Pacific/Norfolk",
+        "name": "Pacific/Norfolk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036581,
+        "displayName": "(GMT+01:00) Europe/Oslo",
+        "name": "Europe/Oslo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036582,
+        "displayName": "(GMT+05:45) Asia/Kathmandu",
+        "name": "Asia/Kathmandu",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036583,
+        "displayName": "(GMT+12:00) Pacific/Nauru",
+        "name": "Pacific/Nauru",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036584,
+        "displayName": "(GMT-11:00) Pacific/Niue",
+        "name": "Pacific/Niue",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036585,
+        "displayName": "(GMT+13:45) Chatham Islands",
+        "name": "Pacific/Chatham",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036586,
+        "displayName": "(GMT-05:00) America/Panama",
+        "name": "America/Panama",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036587,
+        "displayName": "(GMT-05:00) America/Lima",
+        "name": "America/Lima",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036588,
+        "displayName": "(GMT-10:00) Society Islands",
+        "name": "Pacific/Tahiti",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036589,
+        "displayName": "(GMT-09:30) Marquesas Islands",
+        "name": "Pacific/Marquesas",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036590,
+        "displayName": "(GMT-09:00) Gambier Islands",
+        "name": "Pacific/Gambier",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036591,
+        "displayName": "(GMT+10:00) Papua New Guinea (most areas)",
+        "name": "Pacific/Port_Moresby",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036592,
+        "displayName": "(GMT+11:00) Bougainville",
+        "name": "Pacific/Bougainville",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036593,
+        "displayName": "(GMT+08:00) Asia/Manila",
+        "name": "Asia/Manila",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036594,
+        "displayName": "(GMT+01:00) Europe/Warsaw",
+        "name": "Europe/Warsaw",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036595,
+        "displayName": "(GMT-03:00) America/Miquelon",
+        "name": "America/Miquelon",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036596,
+        "displayName": "(GMT-08:00) Pacific/Pitcairn",
+        "name": "Pacific/Pitcairn",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036597,
+        "displayName": "(GMT-04:00) America/Puerto_Rico",
+        "name": "America/Puerto_Rico",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036598,
+        "displayName": "(GMT+02:00) Gaza Strip",
+        "name": "Asia/Gaza",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036599,
+        "displayName": "(GMT+02:00) West Bank",
+        "name": "Asia/Hebron",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036600,
+        "displayName": "(GMT+00:00) Portugal (mainland)",
+        "name": "Europe/Lisbon",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036601,
+        "displayName": "(GMT+00:00) Madeira Islands",
+        "name": "Atlantic/Madeira",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036602,
+        "displayName": "(GMT+09:00) Pacific/Palau",
+        "name": "Pacific/Palau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036603,
+        "displayName": "(GMT-04:00) America/Asuncion",
+        "name": "America/Asuncion",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036604,
+        "displayName": "(GMT+03:00) Asia/Qatar",
+        "name": "Asia/Qatar",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036605,
+        "displayName": "(GMT+04:00) Indian/Reunion",
+        "name": "Indian/Reunion",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036606,
+        "displayName": "(GMT+02:00) Europe/Bucharest",
+        "name": "Europe/Bucharest",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036607,
+        "displayName": "(GMT+02:00) MSK-01 - Kaliningrad",
+        "name": "Europe/Kaliningrad",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036608,
+        "displayName": "(GMT+03:00) Crimea",
+        "name": "Europe/Simferopol",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036609,
+        "displayName": "(GMT+03:00) MSK+00 - Kirov",
+        "name": "Europe/Kirov",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036610,
+        "displayName": "(GMT+03:00) MSK+00 - Volgograd",
+        "name": "Europe/Volgograd",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036611,
+        "displayName": "(GMT+04:00) MSK+01 - Astrakhan",
+        "name": "Europe/Astrakhan",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036612,
+        "displayName": "(GMT+04:00) MSK+01 - Saratov",
+        "name": "Europe/Saratov",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036613,
+        "displayName": "(GMT+04:00) MSK+01 - Ulyanovsk",
+        "name": "Europe/Ulyanovsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036614,
+        "displayName": "(GMT+04:00) MSK+01 - Samara, Udmurtia",
+        "name": "Europe/Samara",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036615,
+        "displayName": "(GMT+06:00) MSK+03 - Omsk",
+        "name": "Asia/Omsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036616,
+        "displayName": "(GMT+07:00) MSK+04 - Novosibirsk",
+        "name": "Asia/Novosibirsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036617,
+        "displayName": "(GMT+07:00) MSK+04 - Altai",
+        "name": "Asia/Barnaul",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036618,
+        "displayName": "(GMT+07:00) MSK+04 - Tomsk",
+        "name": "Asia/Tomsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036619,
+        "displayName": "(GMT+07:00) MSK+04 - Kemerovo",
+        "name": "Asia/Novokuznetsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036620,
+        "displayName": "(GMT+09:00) MSK+06 - Zabaykalsky",
+        "name": "Asia/Chita",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036621,
+        "displayName": "(GMT+09:00) MSK+06 - Tomponsky, Ust-Maysky",
+        "name": "Asia/Khandyga",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036622,
+        "displayName": "(GMT+10:00) MSK+07 - Oymyakonsky",
+        "name": "Asia/Ust-Nera",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036623,
+        "displayName": "(GMT+11:00) MSK+08 - Sakhalin Island",
+        "name": "Asia/Sakhalin",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036624,
+        "displayName": "(GMT+11:00) MSK+08 - Sakha (E) North Kuril Is",
+        "name": "Asia/Srednekolymsk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036625,
+        "displayName": "(GMT+12:00) MSK+09 - Kamchatka",
+        "name": "Asia/Kamchatka",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036626,
+        "displayName": "(GMT+12:00) MSK+09 - Bering Sea",
+        "name": "Asia/Anadyr",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036627,
+        "displayName": "(GMT+02:00) Africa/Kigali",
+        "name": "Africa/Kigali",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036628,
+        "displayName": "(GMT+03:00) Asia/Riyadh",
+        "name": "Asia/Riyadh",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036629,
+        "displayName": "(GMT+11:00) Pacific/Guadalcanal",
+        "name": "Pacific/Guadalcanal",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036630,
+        "displayName": "(GMT+04:00) Indian/Mahe",
+        "name": "Indian/Mahe",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036631,
+        "displayName": "(GMT+02:00) Africa/Khartoum",
+        "name": "Africa/Khartoum",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036632,
+        "displayName": "(GMT+01:00) Europe/Stockholm",
+        "name": "Europe/Stockholm",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036633,
+        "displayName": "(GMT+01:00) Asia/Singapore",
+        "name": "Asia/Singapore",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036634,
+        "displayName": "(GMT+08:00) Atlantic/St_Helena",
+        "name": "Atlantic/St_Helena",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036635,
+        "displayName": "(GMT+00:00) Europe/Ljubljana",
+        "name": "Europe/Ljubljana",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036636,
+        "displayName": "(GMT+01:00) Arctic/Longyearbyen",
+        "name": "Arctic/Longyearbyen",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036637,
+        "displayName": "(GMT+01:00) Europe/Bratislava",
+        "name": "Europe/Bratislava",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036638,
+        "displayName": "(GMT+00:00) Africa/Freetown",
+        "name": "Africa/Freetown",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036639,
+        "displayName": "(GMT+01:00) Europe/San_Marino",
+        "name": "Europe/San_Marino",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036640,
+        "displayName": "(GMT+00:00) Africa/Dakar",
+        "name": "Africa/Dakar",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036641,
+        "displayName": "(GMT+03:00) Africa/Mogadishu",
+        "name": "Africa/Mogadishu",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036642,
+        "displayName": "(GMT-03:00) America/Paramaribo",
+        "name": "America/Paramaribo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036643,
+        "displayName": "(GMT+02:00) Africa/Juba",
+        "name": "Africa/Juba",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036644,
+        "displayName": "(GMT+00:00) Africa/Sao_Tome",
+        "name": "Africa/Sao_Tome",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036645,
+        "displayName": "(GMT-06:00) America/El_Salvador",
+        "name": "America/El_Salvador",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036646,
+        "displayName": "(GMT-04:00) America/Lower_Princes",
+        "name": "America/Lower_Princes",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036647,
+        "displayName": "(GMT+02:00) Asia/Damascus",
+        "name": "Asia/Damascus",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036648,
+        "displayName": "(GMT+02:00) Africa/Mbabane",
+        "name": "Africa/Mbabane",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036649,
+        "displayName": "(GMT-05:00) America/Grand_Turk",
+        "name": "America/Grand_Turk",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036650,
+        "displayName": "(GMT+01:00) Africa/Ndjamena",
+        "name": "Africa/Ndjamena",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036651,
+        "displayName": "(GMT+05:00) Indian/Kerguelen",
+        "name": "Indian/Kerguelen",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036652,
+        "displayName": "(GMT+00:00) Africa/Lome",
+        "name": "Africa/Lome",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036653,
+        "displayName": "(GMT+05:00) Asia/Dushanbe",
+        "name": "Asia/Dushanbe",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036654,
+        "displayName": "(GMT+13:00) Pacific/Fakaofo",
+        "name": "Pacific/Fakaofo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036655,
+        "displayName": "(GMT+09:00) Asia/Dili",
+        "name": "Asia/Dili",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036656,
+        "displayName": "(GMT+05:00) Asia/Ashgabat",
+        "name": "Asia/Ashgabat",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036657,
+        "displayName": "(GMT+01:00) Africa/Tunis",
+        "name": "Africa/Tunis",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036658,
+        "displayName": "(GMT+01:00) Europe/Istanbul",
+        "name": "Europe/Istanbul",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036659,
+        "displayName": "(GMT-04:00) America/Port_of_Spain",
+        "name": "America/Port_of_Spain",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036660,
+        "displayName": "(GMT+12:00) Pacific/Funafuti",
+        "name": "Pacific/Funafuti",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036661,
+        "displayName": "(GMT+03:00) Africa/Dar_es_Salaam",
+        "name": "Africa/Dar_es_Salaam",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036662,
+        "displayName": "(GMT+02:00) Ukraine (most areas)",
+        "name": "Europe/Kyiv",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036663,
+        "displayName": "(GMT+03:00) Africa/Kampala",
+        "name": "Africa/Kampala",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036664,
+        "displayName": "(GMT+12:00) Wake Island",
+        "name": "Pacific/Wake",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036665,
+        "displayName": "(GMT-05:00) Eastern (most areas)",
+        "name": "America/New_York",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036666,
+        "displayName": "(GMT-05:00) Eastern - MI (most areas)",
+        "name": "America/Detroit",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036667,
+        "displayName": "(GMT-05:00) Eastern - KY (Louisville area)",
+        "name": "America/Kentucky/Louisville",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036668,
+        "displayName": "(GMT-05:00) Eastern - KY (Wayne)",
+        "name": "America/Kentucky/Monticello",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036669,
+        "displayName": "(GMT-05:00) Eastern - IN (most areas)",
+        "name": "America/Indiana/Indianapolis",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036670,
+        "displayName": "(GMT-05:00) Eastern - IN (Da, Du, K, Mn)",
+        "name": "America/Indiana/Vincennes",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036671,
+        "displayName": "(GMT-05:00) Eastern - IN (Pulaski)",
+        "name": "America/Indiana/Winamac",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036672,
+        "displayName": "(GMT-05:00) Eastern - IN (Crawford)",
+        "name": "America/Indiana/Marengo",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036673,
+        "displayName": "(GMT-05:00) Eastern - IN (Pike)",
+        "name": "America/Indiana/Petersburg",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036674,
+        "displayName": "(GMT-05:00) Eastern - IN (Switzerland)",
+        "name": "America/Indiana/Vevay",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036675,
+        "displayName": "(GMT-06:00) Central (most areas)",
+        "name": "America/Chicago",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036676,
+        "displayName": "(GMT-06:00) Central - IN (Perry)",
+        "name": "America/Indiana/Tell_City",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036677,
+        "displayName": "(GMT-06:00) Central - IN (Starke)",
+        "name": "America/Indiana/Knox",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036678,
+        "displayName": "(GMT-06:00) Central - MI (Wisconsin border)",
+        "name": "America/Menominee",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036679,
+        "displayName": "(GMT-06:00) Central - ND (Oliver)",
+        "name": "America/North_Dakota/Center",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036680,
+        "displayName": "(GMT-06:00) Central - ND (Morton rural)",
+        "name": "America/North_Dakota/New_Salem",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036681,
+        "displayName": "(GMT-06:00) Central - ND (Mercer)",
+        "name": "America/North_Dakota/Beulah",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036682,
+        "displayName": "(GMT-07:00) Mountain (most areas)",
+        "name": "America/Denver",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036683,
+        "displayName": "(GMT-07:00) Mountain - ID (south) OR (east)",
+        "name": "America/Boise",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036684,
+        "displayName": "(GMT-09:00) MST - Arizona (except Navajo)",
+        "name": "America/Phoenix",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036685,
+        "displayName": "(GMT-09:00) Alaska (most areas)",
+        "name": "America/Anchorage",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036686,
+        "displayName": "(GMT-09:00) Alaska - Juneau area",
+        "name": "America/Juneau",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036687,
+        "displayName": "(GMT-09:00) Alaska - Sitka area",
+        "name": "America/Sitka",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036688,
+        "displayName": "(GMT-09:00) Alaska - Annette Island",
+        "name": "America/Metlakatla",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036689,
+        "displayName": "(GMT-09:00) Alaska - Yakutat",
+        "name": "America/Yakutat",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036690,
+        "displayName": "(GMT-09:00) Alaska (west)",
+        "name": "America/Nome",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036691,
+        "displayName": "(GMT-10:00) Aleutian Islands",
+        "name": "America/Adak",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036692,
+        "displayName": "(GMT+05:00) Uzbekistan (west)",
+        "name": "Asia/Samarkand",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036693,
+        "displayName": "(GMT+05:00) Uzbekistan (east)",
+        "name": "Asia/Tashkent",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036694,
+        "displayName": "(GMT+02:00) Europe/Vatican",
+        "name": "Europe/Vatican",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036695,
+        "displayName": "(GMT-04:00) America/St_Vincent",
+        "name": "America/St_Vincent",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036696,
+        "displayName": "(GMT-04:00) America/Tortola",
+        "name": "America/Tortola",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036697,
+        "displayName": "(GMT-04:00) America/St_Thomas",
+        "name": "America/St_Thomas",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036698,
+        "displayName": "(GMT+07:00) Asia/Ho_Chi_Minh",
+        "name": "Asia/Ho_Chi_Minh",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036699,
+        "displayName": "(GMT+11:00) Pacific/Efate",
+        "name": "Pacific/Efate",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036700,
+        "displayName": "(GMT+12:00) Pacific/Wallis",
+        "name": "Pacific/Wallis",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036701,
+        "displayName": "(GMT+14:00) Pacific/Apia",
+        "name": "Pacific/Apia",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036702,
+        "displayName": "(GMT+03:00) Asia/Aden",
+        "name": "Asia/Aden",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036703,
+        "displayName": "(GMT+03:00) Indian/Mayotte",
+        "name": "Indian/Mayotte",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036704,
+        "displayName": "(GMT+02:00) Africa/Johannesburg",
+        "name": "Africa/Johannesburg",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    },
+    {
+        "id": 1036705,
+        "displayName": "(GMT+02:00) Africa/Lusaka",
+        "name": "Africa/Lusaka",
+        "lookupUrl": null,
+        "systemDefault": true,
+        "disabled": false
+    }
+]

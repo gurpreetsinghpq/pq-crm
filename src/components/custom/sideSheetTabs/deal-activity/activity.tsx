@@ -1,6 +1,6 @@
 import { commonClasses, commonFontClassesAddDialog, commonNumericIconClasses } from '@/app/constants/classes'
 import { ACTIVITY_STATUS, ACTIVITY_TYPE, COLLATERAL_SHARED, DEAL_STATUS, ENTITY_TYPE, EXPECTED_SERVICE_FEE_RANGE, MODE, NEGOTIATION_BLOCKER, NEXT_STEP, OPEN_TO_ENGAGE, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, OPEN_TO_RETAINER_MODEL, PROPOSAL_SHARED, PROSPECT_STATUS_NOTES, REMINDER, RESPONSE_RECEIVED, ROLE_CLARITY, ROLE_STATUS, ROLE_URGENCY, SERVICE_CONTRACT_DRAFT_SHARED, SET_VALUE_CONFIG, TIME_OPTIONS, WILLING_TO_PAY } from '@/app/constants/constants'
-import { IconActivityType, IconCalendar, IconClock, IconContacts, IconDueDateAndTime, IconMode, IconNextStep, IconReminder } from '@/components/icons/svgIcons'
+import { IconActivityType, IconAssignedTo, IconCalendar, IconClock, IconContacts, IconDueDateAndTime, IconMode, IconNextStep, IconReminder } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
@@ -16,18 +16,22 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
+import { ActivityPostBody, IValueLabel } from '@/app/interfaces/interface'
+import { compareTimeStrings, fetchTimeZone, fetchUserDataList, getCurrentDateTime, getToken } from '../../commonFunctions'
+import { toast } from '@/components/ui/use-toast'
+import { valueToLabel } from '../../sideSheet'
 
 
 
 const FormSchema = z.object({
-    activityType: z.string({
+    type: z.string({
         // required_error: "Please enter a name.",
     }),
-    contact: z.array(z.string()),
+    contact: z.array(z.number()),
     mode: z.string({
     }),
-    status: z.string({
-    }),
+    // status: z.string({
+    // }),
     assignedTo: z.string({
     }),
     dueDate: z.date({
@@ -36,36 +40,114 @@ const FormSchema = z.object({
     }),
     reminder: z.string({
     }),
-    entityType: z.string({
-    }),
-    entityName: z.string({
-    }),
+    // entityType: z.string({
+    // }),
+    // entityName: z.string({
+    // }),
 
 })
 
 
 
-function Activity({ contactFromParents }: { contactFromParents: any }) {
-
+function Activity({ contactFromParents, entityId }: { contactFromParents: any, entityId: number }) {
+    const [userList, setUserList] = React.useState<IValueLabel[]>()
+    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
+    const [currentTime, setCurrentTime] = React.useState<string>()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
+            type: undefined,
+            mode: undefined,
+            reminder: undefined
 
         }
     })
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    const token_superuser = getToken()
 
     const watcher = form.watch()
 
     useEffect(() => {
         const subscription = form.watch(() => {
-
+            form.formState.isValid
         })
         return () => subscription.unsubscribe()
     }, [form.watch])
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log(data)
+    async function getUserList() {
+        setIsUserDataLoading(true)
+        try {
+            const userList: any = await fetchUserDataList()
+            setIsUserDataLoading(false)
+            setUserList(userList)
+        } catch (err) {
+            setIsUserDataLoading(false)
+            console.error("user fetch error", err)
+        }
+
     }
+    async function onSubmit(data: z.infer<typeof FormSchema>) {
+        const dueDate = form.getValues("dueDate")
+        const dueTime = form.getValues("dueTime")
+        const [hours, minutes] = dueTime.split(":").map(Number);
+        dueDate.setHours(hours);
+        dueDate.setMinutes(minutes);
+        dueDate.setSeconds(0);
+        dueDate.setMilliseconds(0);
+        console.log("dueDate", dueDate,)
+        const utcDate = dueDate.toISOString()
+        console.log("utcDate", utcDate)
+        const formattedDueDate = utcDate.replace('T', ' ').replace('Z', '');
+
+        const dataToSend: ActivityPostBody = {
+            contact: data.contact,
+            due_date: formattedDueDate,
+            lead: entityId,
+            mode: valueToLabel(data.mode, MODE) || "",
+            reminder: Number(data.reminder) === -1 ? null : Number(data.reminder),
+            type: valueToLabel(data.type, ACTIVITY_TYPE) || "",
+            assigned_to: Number(form.getValues("assignedTo"))
+        }
+
+
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/activity/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            toast({
+                title: "Activity Created Succesfully!",
+                variant: "dark"
+            })
+            console.log(result)
+            form.reset()
+
+        } catch (err) {
+            console.log(err)
+        }
+
+    }
+
+    async function getTimeZone() {
+        const result = await fetchTimeZone()
+        if (result) {
+            const dateTime = new Date(result)
+            const formatter = new Intl.DateTimeFormat([], {
+                timeZone: result,
+                hour: "numeric",
+                minute: "numeric",
+                hour12: false, // Use 24-hour format
+
+            });
+            const currentTime = formatter.format(new Date()) 
+            setCurrentTime(currentTime)
+            console.log("timezone", currentTime);
+        }
+    }
+
+    useEffect(() => {
+        getUserList()
+        // console.log("timezone", getCurrentDateTime())
+        getTimeZone()
+    }, [])
     console.log(form.getValues())
     const CONTACTS_FROM_PARENT: any = contactFromParents
 
@@ -86,15 +168,15 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                     <div className='flex-1 w-[60%]'>
                                         <FormField
                                             control={form.control}
-                                            name="activityType"
+                                            name="type"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <Select onValueChange={(value) => {
                                                         return field.onChange(value)
-                                                    }} defaultValue={field.value}>
+                                                    }} defaultValue={field.value} key={field.value}>
                                                         <FormControl>
                                                             <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
-                                                                <SelectValue placeholder="Select Activity" />
+                                                                <SelectValue placeholder="Select Activity Type" />
                                                             </SelectTrigger>
                                                         </FormControl>
                                                         <SelectContent>
@@ -134,11 +216,11 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                                     {
                                                                         field?.value?.length > 0 ? (
                                                                             getContacts(field.value.map(contactId => {
-                                                                                const contact = CONTACTS_FROM_PARENT.find((contact:any) => contact.id === contactId);
+                                                                                const contact = CONTACTS_FROM_PARENT.find((contact: any) => contact.id === contactId);
                                                                                 return contact ? contact.name : null;
                                                                             }))
                                                                         ) : (
-                                                                            <span className='text-muted-foreground'>Contact</span>
+                                                                            <span className='text-muted-foreground'>Select Account Contact</span>
                                                                         )
                                                                     }
                                                                     <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
@@ -147,7 +229,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[430px] p-0">
                                                             <Command>
-                                                                <CommandInput placeholder="Search Contact" />
+                                                                <CommandInput placeholder="Search Account Contact" />
                                                                 <CommandEmpty>No Contact found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
@@ -159,7 +241,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                                                     console.log(field.value)
                                                                                     if (field?.value?.length > 0) {
                                                                                         if (field?.value?.includes(contact.id)) {
-                                                                                            form.setValue("contact", [...field.value.filter((value: string) => value !== contact.id)])
+                                                                                            form.setValue("contact", [...field.value.filter((value: number) => value !== contact.id)])
                                                                                         } else {
                                                                                             form.setValue("contact", [...field.value, contact.id])
                                                                                         }
@@ -205,7 +287,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                 <FormItem>
                                                     <Select onValueChange={(value) => {
                                                         return field.onChange(value)
-                                                    }} defaultValue={field.value}>
+                                                    }} defaultValue={field.value} key={field.value}>
                                                         <FormControl>
                                                             <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                                 <SelectValue placeholder="Select Mode" />
@@ -232,37 +314,60 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                 </div>
                                 <div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconMode size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Status</div>
+                                        <IconAssignedTo size="24" color="#98A2B3" />
+                                        <div className='text-md text-gray-500 font-normal'>Assigned To</div>
                                     </div>
                                     <div className='flex-1 w-[60%]'>
                                         <FormField
                                             control={form.control}
-                                            name="status"
+                                            name="assignedTo"
                                             render={({ field }) => (
-                                                <FormItem>
-                                                    <Select onValueChange={(value) => {
-                                                        return field.onChange(value)
-                                                    }} defaultValue={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
-                                                                <SelectValue placeholder="Select Status" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                ACTIVITY_STATUS.map((status, index) => {
-                                                                    return <SelectItem key={index} value={status.value}>
-                                                                        {status.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                    {/* <FormMessage /> */}
+                                                <FormItem className='w-full '>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                        {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Choose</span>}
+                                                                    </div>
+                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-[350px] p-0">
+                                                            <Command>
+                                                                <CommandInput className='w-full' placeholder="Search User" />
+                                                                <CommandEmpty>User not found.</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                        {userList && userList?.length > 0 && userList.map((reportingManager) => (
+                                                                            <CommandItem
+                                                                                value={reportingManager.value}
+                                                                                key={reportingManager.value}
+                                                                                onSelect={() => {
+                                                                                    form.setValue("assignedTo", reportingManager.value, SET_VALUE_CONFIG)
+                                                                                }}
+                                                                            >
+                                                                                <PopoverClose asChild>
+                                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                                        {reportingManager.label}
+                                                                                        <Check
+                                                                                            className={cn(
+                                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                                field.value === reportingManager.value
+                                                                                                    ? "opacity-100"
+                                                                                                    : "opacity-0"
+                                                                                            )}
+                                                                                        />
+                                                                                    </div>
+                                                                                </PopoverClose>
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                    </div>
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
                                                 </FormItem>
                                             )}
                                         />
@@ -303,11 +408,16 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                                         mode="single"
                                                                         selected={field.value}
                                                                         onSelect={field.onChange}
-                                                                        disabled={(date) =>
-                                                                            date > new Date() || date < new Date("1900-01-01")
+                                                                        disabled={(date) => {
+                                                                            // const today = new Date().toISOString().split('T')[0];
+                                                                            const today = new Date();
+                                                                            today.setHours(0, 0, 0, 0);
+                                                                            return date < new Date(today)
+                                                                        }
                                                                         }
                                                                         initialFocus
                                                                     />
+
                                                                 </PopoverContent>
                                                             </Popover>
                                                         </FormItem>
@@ -324,7 +434,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                                 <PopoverTrigger asChild>
                                                                     <FormControl>
                                                                         <FormControl>
-                                                                            <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                            <Button disabled={form.getValues("dueDate") == undefined} variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                                 <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                                     {field.value ? (
                                                                                         field.value
@@ -343,15 +453,18 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                                         <CommandEmpty>Due Time not found.</CommandEmpty>
                                                                         <CommandGroup>
                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                {TIME_OPTIONS.map((timeOption) => (
-                                                                                    <CommandItem
+                                                                                {TIME_OPTIONS.filter((timeOption) => {
+                                                                                    const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate") ) :false
+                                                                                    return !shouldDisable
+                                                                                }).map((timeOption)=>{
+                                                                                    return (<CommandItem
                                                                                         value={timeOption.value}
                                                                                         key={timeOption.value}
                                                                                         onSelect={() => {
                                                                                             form.setValue("dueTime", timeOption.value, SET_VALUE_CONFIG)
                                                                                         }}
                                                                                     >
-                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                        <div className={`flex flex-row items-center justify-between w-full `}>
                                                                                             {timeOption.label}
                                                                                             <Check
                                                                                                 className={cn(
@@ -362,8 +475,8 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                                                                 )}
                                                                                             />
                                                                                         </div>
-                                                                                    </CommandItem>
-                                                                                ))}
+                                                                                    </CommandItem>)
+                                                                                })}
                                                                             </div>
                                                                         </CommandGroup>
                                                                     </Command>
@@ -389,7 +502,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                                                 <FormItem>
                                                     <Select onValueChange={(value) => {
                                                         return field.onChange(value)
-                                                    }} defaultValue={field.value}>
+                                                    }} defaultValue={field.value} key={field.value} >
                                                         <FormControl>
                                                             <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                                 <SelectValue placeholder="Select Reminder" />
@@ -508,7 +621,7 @@ function Activity({ contactFromParents }: { contactFromParents: any }) {
                     <div className="bg-gray-200 h-[1px]  mt-8" />
                     <div className="flex flex-row gap-2 justify-end p-[16px]">
                         {/* <Button variant={"google"} >Cancel</Button> */}
-                        <Button >Save </Button>
+                        <Button type='submit' disabled={!(form.formState.isValid)}>Save </Button>
                     </div>
                 </div>
             </form>

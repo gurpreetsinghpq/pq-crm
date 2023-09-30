@@ -1,5 +1,5 @@
 "use client"
-import { IconCheckCircle, IconEmail, IconKey, IconLock, IconLock2, IconUserCheck } from '@/components/icons/svgIcons'
+import { IconCheckCircle, IconEmail, IconKey } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'

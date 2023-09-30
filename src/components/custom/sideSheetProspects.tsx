@@ -1682,13 +1682,13 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                                 </div>
                                                                             </TooltipTrigger>
                                                                             <TooltipContent side="top">
-                                                                                Last Funding Stage
+                                                                                Last Funding Round
                                                                             </TooltipContent>
                                                                         </Tooltip>
                                                                     </TooltipProvider>
                                                                     <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
                                                                         <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Round</span>}
                                                                         </div>
                                                                         <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                     </div>
@@ -2374,7 +2374,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
 
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} />
+                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} />
                         </div>
                     </div>
                 </div>

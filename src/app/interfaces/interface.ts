@@ -1,13 +1,12 @@
 
 export interface IValueLabel {
-    value: string
+    value: string 
     label: string
     isDefault?: boolean
     icon?: any
     class?: string
     acronym?: string
 }
-
 
 export interface Client {
     organisation: Organisation;
@@ -411,7 +410,7 @@ export interface UsersGetResponse {
     email: string;
     region: string | null;
     function: string;
-    // time_zone: string | null;
+    time_zone: string | null;
     // gauth: Record<string, any>;
     is_email_verified: boolean;
     // gender: string;
@@ -600,7 +599,8 @@ export interface UserPostBody {
     function: string;
     profile: number;
     reporting_to: number;
-    region: string
+    region: string;
+    time_zone:string;
 }
 export interface UserPatchBody {
     first_name: string;
@@ -612,6 +612,7 @@ export interface UserPatchBody {
     reporting_to: number
     active: boolean;
     region: string
+    time_zone:string;
 }
 export interface ContactPatchBody {
     name: string;
@@ -696,11 +697,12 @@ export interface Permission {
     is_email_verified: boolean;
     is_active: boolean;
     created_at: string;
+    time_zone:string|null;
 }
 export interface Stepper {
     title?: string;
     contacts?: string[];
-    email?: string;
+    mode?: string;
     date?: string;
     roleStatus?: string;
     roleUrgency?: string;
@@ -716,3 +718,89 @@ export interface Stepper {
     
   }
   
+ export interface ActivityPostBody {
+    lead: number;
+    type: string;
+    contact: number[];
+    mode: string;
+    due_date: string;
+    reminder: number | null;
+    assigned_to:number
+}
+
+export interface TodoListGetResponse {
+    id: number;
+    contacts: {
+        name: string;
+        email: string;
+        std_code: string;
+        phone: string;
+        designation: string;
+    }[];
+    created_by: {
+        name: string;
+        id: number;
+    };
+    status: string;
+    type: string;
+    mode: string;
+    due_date: string;
+    reminder: number;
+    created_at: string;
+    closed_at: string | null;
+    lead: number;
+    contact: number[];
+    isLastChild?:boolean
+    title?: string
+    assigned_to:{
+        name: string;
+        id: number;
+    };
+}
+
+export interface ActivityAccToEntity {
+    id: number;
+    contacts: {
+        name: string;
+        email: string;
+        std_code: string;
+        phone: string;
+        designation: string;
+    }[];
+    created_by: {
+        name: string;
+        id: number;
+    };
+    assigned_to: null;
+    status: null;
+    title: string;
+    type: string;
+    mode: string;
+    due_date: string;
+    reminder: number;
+    created_at: string;
+    closed_at: string | null;
+    lead: number;
+    contact: number[];
+}
+
+export interface NotesPostBody {
+    activity: number;
+    role_status: string | null;
+    role_urgency: string | null;
+    is_retainer_model: string | null;
+    is_min_flat_Service: string | null;
+    is_collateral_shared: boolean | null;
+    is_response_shared: string | null;
+    is_open_engange: string | null;
+    is_role_clear: boolean | null;
+    is_willing_pay_ra: string | null;
+    exp_service_fee: string;
+    is_proposal_shared: boolean | null;
+    related_to: string | null;
+    prospect_status: string | null;
+    deal_status: string;
+    negotiation_broker: string | null;
+    is_contract_draft_shared: boolean | null;
+    next_step: string | null;
+}

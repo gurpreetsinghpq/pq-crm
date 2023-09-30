@@ -59,7 +59,7 @@ const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
 }));
 
 
-function SideSheetTabs({ currentParentTab, contactFromParents }: { currentParentTab: string, contactFromParents: any }) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { currentParentTab: string, contactFromParents: any , entityId:number}) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
@@ -186,13 +186,13 @@ function SideSheetTabs({ currentParentTab, contactFromParents }: { currentParent
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_ACTIVITY_TABS.NOTES} className="flex flex-col flex-1">
-            <Notes contactFromParents={contactFromParents} />
+            <Notes contactFromParents={contactFromParents} entityId={entityId}/>
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.ACTIVITY} className="flex flex-col flex-1">
-            <Activity contactFromParents={contactFromParents} />
+            <Activity contactFromParents={contactFromParents} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1">
-            <Todo />
+            <Todo entityId={entityId}/>
           </TabsContent>
         </div>
       </Tabs>}

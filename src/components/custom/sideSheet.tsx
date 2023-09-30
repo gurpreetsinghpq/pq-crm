@@ -770,7 +770,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         //     { name: "industry", label: "Industry" },
         //     { name: "domain", label: "Domain" },
         //     { name: "size", label: "Size" },
-        //     { name: "lastFundingStage", label: "Last Funding Stage" },
+        //     { name: "lastFundingStage", label: "Last Funding Round" },
         //     { name: "lastFundingAmount", label: "Last Funding Amount" },
         //     { name: "retainerAdvance", label: "Retainer Advance" },
         //     { name: "exclusivity", label: "Exclusivity" },
@@ -946,7 +946,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                     </TooltipProvider>
                                                                     <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                         <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                            {userList && userList.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
+                                                                            {userList && userList?.length>0 && userList?.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
                                                                         </div>
                                                                         <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                     </div>
@@ -959,7 +959,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                     <CommandEmpty>Owner not found.</CommandEmpty>
                                                                     <CommandGroup>
                                                                         <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                            {userList && userList.map((owner) => (
+                                                                            {userList && userList?.length>0 && userList.map((owner) => (
                                                                                 <CommandItem
                                                                                     value={owner.value}
                                                                                     key={owner.value}
@@ -1681,13 +1681,13 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                                 </div>
                                                                             </TooltipTrigger>
                                                                             <TooltipContent side="top">
-                                                                                Last Funding Stage
+                                                                                Last Funding Round
                                                                             </TooltipContent>
                                                                         </Tooltip>
                                                                     </TooltipProvider>
                                                                     <div className={`flex  flex-row gap-2 w-full px-[14px] `}>
                                                                         <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Stage</span>}
+                                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Round</span>}
                                                                         </div>
                                                                         <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                     </div>
@@ -2344,7 +2344,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                             </div>
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData}/>
+                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id}/>
                         </div>
                     </div>
                 </div>

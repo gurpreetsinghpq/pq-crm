@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { Check, ChevronDown } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
-import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, SET_VALUE_CONFIG, TYPE } from '@/app/constants/constants'
+import { ALL_FUNCTIONS, COUNTRY_CODE, DESIGNATION, FUNCTION, PROFILE, REGION, REPORTING_MANAGERS, SET_VALUE_CONFIG, TIME_ZONES, TYPE } from '@/app/constants/constants'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { commonClasses, commonClasses2, commonFontClassesAddDialog } from '@/app/constants/classes'
 import { Separator } from '../ui/separator'
@@ -53,18 +53,16 @@ const FormSchema = z.object({
     profile: z.string({
 
     }).min(1),
-    // timeZone: z.string({
-
-    // })
+    timeZone: z.string()
 })
 
 // const allTimezones = getAllTimezones()
 
-function AddUserDialogBox({ children, permissions, parentData = undefined, setIsAddDialogClosed }: { children?: any | undefined, permissions:Permission,  parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined , setIsAddDialogClosed?:CallableFunction}) {
+function AddUserDialogBox({ children, permissions, parentData = undefined, setIsAddDialogClosed }: { children?: any | undefined, permissions: Permission, parentData?: { childData: IChildData, setChildDataHandler: CallableFunction, open: boolean } | undefined, setIsAddDialogClosed?: CallableFunction }) {
     const [open, setOpen] = useState<boolean>(false)
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [teamList, setTeamList] = useState<IValueLabel[]>()
-    const [profileList, setProfileList] = useState<IValueLabel[]>()    
+    const [profileList, setProfileList] = useState<IValueLabel[]>()
     const [formSchema, setFormSchema] = useState(FormSchema)
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -79,7 +77,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             function: undefined,
             reportingTo: undefined,
             profile: undefined,
-            // timeZone: getClientTimezone()
+            timeZone: ""
         }
     })
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -105,24 +103,24 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
         console.log("updatedSchema", updatedSchema)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log("formschema", formSchema)
         console.log("formschema errors", form.formState.errors)
         form.trigger()
-    },[formSchema])
+    }, [formSchema])
 
-    function yesDiscard(isAdd:boolean=false) {
+    function yesDiscard(isAdd: boolean = false) {
         setOpen(false)
         form.reset()
-        if(isAdd && setIsAddDialogClosed){
+        if (isAdd && setIsAddDialogClosed) {
             setIsAddDialogClosed(true)
-        }else{
+        } else {
             parentData?.setChildDataHandler('row', undefined)
         }
     }
 
     async function addUser(isUpdate: boolean = false) {
-        
+
         const dataToSend: UserPostBody = {
             first_name: form.getValues("firstName") || "",
             last_name: form.getValues("lastName") || "",
@@ -131,9 +129,11 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             password: "12345678",
             profile: Number(form.getValues("profile")),
             reporting_to: Number(form.getValues("reportingTo")),
-            region: valueToLabel(form.getValues("region") || "", REGION) || ""
+            region: valueToLabel(form.getValues("region") || "", REGION) || "",
+            time_zone: form.getValues("timeZone")
+
         }
-        
+
         const dataToSendOnUpdate: Partial<UserPatchBody> = {
             first_name: form.getValues("firstName") || "",
             last_name: form.getValues("lastName") || "",
@@ -143,18 +143,20 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             mobile: `${form.getValues("phone")}`,
             profile: Number(form.getValues("profile")),
             reporting_to: Number(form.getValues("reportingTo")),
-            region: valueToLabel(form.getValues("region") || "", REGION) || ""
+            region: valueToLabel(form.getValues("region") || "", REGION) || "",
+            time_zone: form.getValues("timeZone")
         }
-       
-        if(form.getValues("phone")){
-            const mobileNumber = `${form.getValues("std_code")} ${form.getValues("phone")}` 
+        console.log("isUpdate", isUpdate, dataToSend)
+
+        if (form.getValues("phone")) {
+            const mobileNumber = `${form.getValues("std_code")} ${form.getValues("phone")}`
             dataToSend["mobile"] = mobileNumber
             dataToSendOnUpdate["mobile"] = mobileNumber
-        }else{
+        } else {
             dataToSend["mobile"] = ""
-            dataToSendOnUpdate["mobile"] =""
+            dataToSendOnUpdate["mobile"] = ""
         }
-        
+
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/users/${isUpdate ? `${parentData?.childData.row.original.id}/` : ""}`, { method: isUpdate ? "PATCH" : "POST", body: JSON.stringify(isUpdate ? dataToSendOnUpdate : dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
 
@@ -219,6 +221,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
         getTeamList()
         getProfileList()
         changeStdCode()
+
     }, [])
 
     useEffect(() => {
@@ -229,16 +232,22 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             form.setValue("firstName", data.first_name)
             form.setValue("lastName", data.last_name)
             form.setValue("email", data.email)
-            const [stdCode, mobile] =  data.mobile.split(" ")
-            if(stdCode?.length>0 && mobile?.length>0){
+            const [stdCode, mobile] = data.mobile.split(" ")
+            if (stdCode?.length > 0 && mobile?.length > 0) {
                 form.setValue("phone", mobile)
-                form.setValue("std_code",stdCode)
+                form.setValue("std_code", stdCode)
             }
             form.setValue("reportingTo", data?.reporting_to?.id?.toString())
             form.setValue("profile", data.profile.id.toString())
             form.setValue("function", labelToValue(data.function, ALL_FUNCTIONS) || undefined)
             form.setValue("region", labelToValue(data.region || "", REGION) || undefined)
+            // const findTimeZone = TIME_ZONES.find((val)=>val.utc[0]===data.time_zone)?.utc[0]
+            // console.log("timezone", findTimeZone, "data",data.time_zone)
+            if(data?.time_zone){
+                form.setValue("timeZone",data.time_zone)
+            }
             console.log("function", labelToValue(data.function, ALL_FUNCTIONS))
+            
         } else {
             setOpen(false)
         }
@@ -250,11 +259,11 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
 
 
     useEffect(() => {
-        // console.log(form.getValues())
         // console.log(allTimezones.find((val) => console.log(val.value, form.getValues("timeZone")))?.label)
         const subscription = form.watch(() => {
             form.getValues()
-            console.log(form.formState.isValid, form.formState.isDirty, form.formState.errors)
+            // console.log(form.formState.isValid, form.formState.isDirty, form.formState.errors)
+            console.log(form.getValues())
         })
         return () => subscription.unsubscribe()
     }, [form.watch])
@@ -589,7 +598,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                 </FormItem>
                                             )}
                                         />
-                                        {/* <FormField
+                                        <FormField
                                             control={form.control}
                                             name="timeZone"
                                             render={({ field }) => (
@@ -599,7 +608,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {allTimezones.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Time Zone</span>}
+                                                                        {TIME_ZONES.find((val) => val.utc[0] === field.value)?.text || <span className='text-muted-foreground '>Time Zone</span>}
                                                                     </div>
                                                                     <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                 </Button>
@@ -611,21 +620,21 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                                 <CommandEmpty>Search Time Zone.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {allTimezones.map((timeZone) => (
+                                                                        {TIME_ZONES.map((timeZone) => (
                                                                             <CommandItem
-                                                                                value={timeZone.value}
-                                                                                key={timeZone.value}
+                                                                                value={timeZone.text}
+                                                                                key={timeZone.text}
                                                                                 onSelect={() => {
-                                                                                    form.setValue("timeZone", timeZone.value)
+                                                                                    form.setValue("timeZone", timeZone.utc[0], SET_VALUE_CONFIG)
                                                                                 }}
                                                                             >
                                                                                 <PopoverClose asChild>
                                                                                     <div className="flex flex-row items-center justify-between w-full">
-                                                                                        {timeZone.label}
+                                                                                        {timeZone.text}
                                                                                         <Check
                                                                                             className={cn(
                                                                                                 "mr-2 h-4 w-4 text-purple-600",
-                                                                                                field.value === timeZone.value
+                                                                                                field.value === timeZone.utc[0]
                                                                                                     ? "opacity-100"
                                                                                                     : "opacity-0"
                                                                                             )}
@@ -641,7 +650,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                     </Popover>
                                                 </FormItem>
                                             )}
-                                        /> */}
+                                        />
                                         {/* <div className='text-sm text-gray-600 font-normal col-span-2'>Timezone is updated automatically to match your computer timezone</div> */}
 
                                     </div>
@@ -677,36 +686,5 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
     )
 }
 
-function getClientTimezone() {
-    const timeZoneOffsetMinutes = new Date().getTimezoneOffset();
-    const hours = Math.floor(Math.abs(timeZoneOffsetMinutes) / 60);
-    const minutes = Math.abs(timeZoneOffsetMinutes) % 60;
-    const sign = timeZoneOffsetMinutes > 0 ? '-' : '+';
-
-    const timeZoneString = `Time Zone (${sign}${hours}:${minutes < 10 ? '0' : ''}${minutes})`;
-    const timeZoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    return `${timeZoneString} ${timeZoneName}`;
-}
-
-function getAllTimezones(): IValueLabel[] {
-    const allTimezones = Intl.supportedValuesOf('timeZone');
-
-    const timezoneOptions: IValueLabel[] = allTimezones
-        .map((timezone) => ({
-            value: `Time Zone (${getUserTimezoneOffset(timezone)}) ${timezone}`,
-            label: `Time Zone (${getUserTimezoneOffset(timezone)}) ${timezone}`,
-        }));
-
-    return timezoneOptions;
-}
-
-function getUserTimezoneOffset(timezone: string): string {
-    const now = new Date();
-    const userTimezoneOffset = now
-        .toLocaleTimeString('en-us', { timeZone: timezone, timeZoneName: 'short' })
-        .split(' ')[2];
-    return userTimezoneOffset;
-}
 
 export default AddUserDialogBox
