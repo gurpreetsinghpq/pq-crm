@@ -756,6 +756,8 @@ export interface TodoListGetResponse {
         name: string;
         id: number;
     };
+    typeOfEntity?:string
+
 }
 
 export interface ActivityAccToEntity {
@@ -782,6 +784,8 @@ export interface ActivityAccToEntity {
     closed_at: string | null;
     lead: number;
     contact: number[];
+    isLastChild?:boolean;
+    typeOfEntity?:string
 }
 
 export interface NotesPostBody {
@@ -795,12 +799,88 @@ export interface NotesPostBody {
     is_open_engange: string | null;
     is_role_clear: boolean | null;
     is_willing_pay_ra: string | null;
-    exp_service_fee: string;
+    exp_service_fee: string | null;
     is_proposal_shared: boolean | null;
     related_to: string | null;
     prospect_status: string | null;
-    deal_status: string;
+    deal_status: string | null;
     negotiation_broker: string | null;
     is_contract_draft_shared: boolean | null;
     next_step: string | null;
+}
+
+export interface HistoryDataGetResponse {
+    notes:  NotesHistory[],
+    activity: ActivityHistory[]
+    all: HistoryAllMode 
+}
+
+export type HistoryAllMode = (NotesHistory | ActivityHistory)[]
+
+export interface NotesHistory{
+    id: number;
+    activity_type: string;
+    mode: string;
+    contacts: {
+        name: string;
+        email: string;
+        std_code: string;
+        phone: string;
+        designation: string;
+    }[];
+    role_status: string | null;
+    role_urgency: string | null;
+    is_retainer_model: string;
+    is_min_flat_Service: string;
+    is_collateral_shared: boolean;
+    is_response_shared: boolean;
+    is_open_engange: string | null;
+    is_role_clear: boolean | null;
+    is_willing_pay_ra: string | null;
+    exp_service_fee: string | null;
+    is_proposal_shared: boolean;
+    related_to: string | null;
+    prospect_status: string | null;
+    deal_status: string | null;
+    negotiation_broker: string | null;
+    is_contract_draft_shared: boolean | null;
+    next_step: string;
+    created_at: string;
+    activity: number;
+    created_by: {
+        name: string;
+        id: number;
+    }
+    isLastChild?:boolean
+    typeOfEntity?:string
+
+}
+
+export interface ActivityHistory{
+    id: number;
+    contacts:  {
+        name: string;
+        email: string;
+        std_code: string;
+        phone: string;
+        designation: string;
+    }[];
+    created_by: {
+        name: string;
+        id: number;
+    };
+    assigned_to: null | any;
+    status: string;
+    title: string;
+    type: string;
+    mode: string;
+    due_date: string;
+    reminder: number;
+    created_at: string;
+    closed_at: string | null;
+    lead: number;
+    contact: number[];
+    isLastChild?:boolean
+    typeOfEntity?:string
+
 }

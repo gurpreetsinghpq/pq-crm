@@ -270,9 +270,8 @@ export function columnsUsers(setChildDataHandler:CallableFunction): ColumnDef<Us
             }
             return true
         },
-        sortingFn: (a, b) => {
-            // console.log(a.getValue("created_at"))
-            return +new Date(b.getValue("created_at")) - +new Date(a.getValue("created_at"));
+        sortingFn: (a,b)=>{
+            return +new Date(a.getValue("created_at")) - +new Date(b.getValue("created_at"));
         },
     },
     {

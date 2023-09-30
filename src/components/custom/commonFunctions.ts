@@ -257,3 +257,17 @@ export function compareTimeStrings(timeVlaue: string, currentTime: string, today
   }
   return false
 }
+
+export function changeBooleanToYesOrNo(value:boolean|undefined|null){
+
+  if(value === null|| value=== undefined){
+    return "—"
+  }else{
+    if(value){
+      return "Yes"
+    }else{
+      return "No"
+    }
+
+  }
+}

@@ -219,7 +219,7 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
             return true
         },
         sortingFn: (a,b)=>{
-            return +new Date(b. getValue("created_at")) - +new Date(a.getValue("created_at"));
+            return +new Date(a.getValue("created_at")) - +new Date(b.getValue("created_at"));
         },
         
         

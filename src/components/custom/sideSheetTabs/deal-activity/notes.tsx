@@ -152,13 +152,13 @@ function Notes({ contactFromParents, entityId }: { contactFromParents: any, enti
 
         const dataToSend:Partial<NotesPostBody> = {
             activity: Number(data.activity),
-            deal_status: form.getValues("dealStatus"),
-            exp_service_fee: form.getValues("expectedServiceFeeRange"),
+            deal_status: valueToLabel(form.getValues("dealStatus") || "", DEAL_STATUS) || null,
+            exp_service_fee: valueToLabel(form.getValues("expectedServiceFeeRange") || "", EXPECTED_SERVICE_FEE_RANGE) || null,
             is_collateral_shared: form.getValues("collateralShared")?.toLowerCase() === "yes" ? true :form.getValues("collateralShared")?.toLowerCase() === "no"?false:null,
             is_contract_draft_shared: form.getValues("serviceContractDraftShared")?.toLowerCase() === "yes" ? true :form.getValues("serviceContractDraftShared")?.toLowerCase() === "no"?false:null,
             is_min_flat_Service: valueToLabel(form.getValues("openToMinServiceFeeOrFlatFee") || "", OPEN_TO_MIN_SERVICE_OR_FLAT_FEE) || null,
             is_open_engange: valueToLabel(form.getValues("openToEngage") || "", OPEN_TO_ENGAGE) || null,
-            is_proposal_shared: form.getValues("collateralShared")?.toLowerCase() === "yes" ? true :form.getValues("collateralShared")?.toLowerCase() === "no"?false:null,
+            is_proposal_shared: form.getValues("proposalShared")?.toLowerCase() === "yes" ? true :form.getValues("proposalShared")?.toLowerCase() === "no"?false:null,
             is_response_shared: valueToLabel(form.getValues("responseReceived") || "", RESPONSE_RECEIVED) || null,
             is_retainer_model: valueToLabel(form.getValues("openToRetainerModel") || "", OPEN_TO_RETAINER_MODEL) || null,
             is_role_clear: form.getValues("roleClarity")?.toLowerCase() === "yes" ? true :form.getValues("roleClarity")?.toLowerCase() === "no"?false:null,

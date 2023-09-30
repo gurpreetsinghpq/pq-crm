@@ -254,8 +254,7 @@ export function columnsProspects(setChildDataHandler:CallableFunction,patchArchi
             return true
         },
         sortingFn: (a,b)=>{
-            // console.log(a.getValue("created_at"))
-            return +new Date(b. getValue("created_at")) - +new Date(a.getValue("created_at"));
+            return +new Date(a.getValue("created_at")) - +new Date(b.getValue("created_at"));
         },
     },
     {

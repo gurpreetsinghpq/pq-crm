@@ -25,7 +25,11 @@ function Todo({ entityId }: { entityId: number }) {
             const result = await dataResp.json()
             let data: TodoListGetResponse[] = structuredClone(result.data)
             // dataFromApi = addTitleToTodoList(data)
-            setTodoList(data)
+            let updatedData = data.map((val)=>{
+                val.typeOfEntity="todo"
+                return val
+            })
+            setTodoList(updatedData)
             setIsLoading(false)
 
         }
@@ -59,7 +63,7 @@ function Todo({ entityId }: { entityId: number }) {
             {
                 todoList ? todoList.length>0? todoList.map((val, index) => {
                     return <div className='custom-stepper'>
-                        <CustomStepper type={{name:"todo", markStatusOfActivity:markStatusOfActivity}} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
+                        <CustomStepper markStatusOfActivity={markStatusOfActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
                     </div>
                 }) : <> No data found </> : <> <Loader2 className="mr-2 h-4 w-4 animate-spin " size={80} /></>
             }

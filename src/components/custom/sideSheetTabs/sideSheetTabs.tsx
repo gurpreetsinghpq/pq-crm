@@ -1,4 +1,4 @@
-import { IValueLabel } from '@/app/interfaces/interface';
+import { ActivityHistory, HistoryAllMode, HistoryDataGetResponse, IValueLabel, NotesHistory } from '@/app/interfaces/interface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
 import { SIDE_SHEET_TABS } from '@/app/constants/constants';
@@ -8,6 +8,10 @@ import Activity from './deal-activity/activity';
 import Todo from './deal-activity/todo';
 import { ArrowLeft, ArrowLeftCircle, ArrowRight, ArrowRightCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import Proposal from './deal-flow/proposal';
+import HistoryNotes from './history/history-notes';
+import HistoryActivity from './history/history-activity';
+import { getToken } from '../commonFunctions';
+import HistoryAll from './history/history-all';
 
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
@@ -21,8 +25,8 @@ const HISTORY_TABS: {
   [key: string]: string
 } = {
   ALL: "All",
-  ACTIVITY: "Activity",
   NOTES: "Notes",
+  ACTIVITY: "Activity",
   CHANGE_LOG: "Change log"
 }
 
@@ -59,11 +63,13 @@ const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
 }));
 
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { currentParentTab: string, contactFromParents: any , entityId:number}) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId }: { currentParentTab: string, contactFromParents: any, entityId: number }) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
   const [isRightVisible, setIsRightVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [historyList, setHistoryList] = useState<HistoryDataGetResponse>()
   useEffect(() => {
     let currentTab = getCurrentActiveTab()
     setCurrentActiveTab(currentTab)
@@ -75,26 +81,69 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { curr
       } else if (currentParentTab === SIDE_SHEET_TABS.DEAL_FLOW) {
         return DEAL_FLOW_TABS.PROPOSAL;
       } else if (currentParentTab === SIDE_SHEET_TABS.HISTORY) {
+        fetchHistoryList()
         return HISTORY_TABS.ALL;
       } else {
         return "";
       }
     }
+
     // tabref.current = 
 
   }, [currentParentTab])
-  const containerRef = useRef<HTMLDivElement | null>(null); 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+  const token_superuser = getToken()
+
+  async function fetchHistoryList() {
+    setIsLoading(true)
+    try {
+      const dataResp = await fetch(`${baseUrl}/v1/api/history/activity/?lead=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+      const result = await dataResp.json()
+
+      let data: HistoryDataGetResponse = structuredClone(result.data)
+      let notesData = data.notes.map((val) => {
+        val.typeOfEntity = "notes"
+        return val
+      })
+      let activityData = data.activity.map((val) => {
+        val.typeOfEntity = "activity"
+        return val
+      })
+      const flattenedData: HistoryAllMode  = [
+        ...data.notes,
+        ...data.activity
+      ]
+      flattenedData.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
+
+      const dataToSet: HistoryDataGetResponse = {
+        ...data,
+        notes: notesData,
+        activity: activityData,
+        all: flattenedData
+      }
+
+      setHistoryList(dataToSet)
+      setIsLoading(false)
+
+    }
+    catch (err) {
+      setIsLoading(false)
+      console.log("error", err)
+    }
+  }
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
 
 
   const scrollLeft = () => {
     if (containerRef.current) {
-      smoothScroll(containerRef.current.scrollLeft - 100, 300); 
+      smoothScroll(containerRef.current.scrollLeft - 100, 300);
     }
   };
 
   const scrollRight = () => {
     if (containerRef.current) {
-      smoothScroll(containerRef.current.scrollLeft + 100, 300); 
+      smoothScroll(containerRef.current.scrollLeft + 100, 300);
     }
   };
 
@@ -104,7 +153,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { curr
         containerRef.current.scrollWidth);
       setIsRightVisible(
         containerRef.current.scrollLeft + containerRef.current.clientWidth <
-          containerRef.current.scrollWidth
+        containerRef.current.scrollWidth
       );
     }
   };
@@ -126,6 +175,8 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { curr
     // Call checkScrollPosition again after the component mounts
     checkScrollPosition();
   }, []); // Empty dependency array ensures it only runs once on mount
+
+
 
   const smoothScroll = (targetX: number, duration: number) => {
     const element = containerRef.current;
@@ -155,7 +206,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { curr
       {parentTab === SIDE_SHEET_TABS.DEAL_FLOW && <Tabs defaultValue={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1 h-full">
         <div className="flex flex-row  py-[24px] border-gray-100">
           <div className='flex flex-row items-center w-full gap-[8px]'>
-            {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft}/></div>}
+            {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft} /></div>}
             <TabsList className={`${commonTabListClasses} overflow-hidden `} ref={containerRef}>
               {dealFlowTab.map((tab) => {
                 return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal"} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
@@ -166,7 +217,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { curr
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
-            <Proposal/>
+            <Proposal />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 
@@ -186,34 +237,33 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId}: { curr
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_ACTIVITY_TABS.NOTES} className="flex flex-col flex-1">
-            <Notes contactFromParents={contactFromParents} entityId={entityId}/>
+            <Notes contactFromParents={contactFromParents} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.ACTIVITY} className="flex flex-col flex-1">
             <Activity contactFromParents={contactFromParents} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1">
-            <Todo entityId={entityId}/>
+            <Todo entityId={entityId} />
           </TabsContent>
         </div>
       </Tabs>}
       {parentTab === SIDE_SHEET_TABS.HISTORY && <Tabs defaultValue={HISTORY_TABS.ALL} className="flex flex-col flex-1">
         <div className="flex flex-row  py-[24px] border-gray-100">
           <TabsList className={commonTabListClasses}>
-
             {historyTab.map((tab) => {
               return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
             })}
           </TabsList>
         </div>
         <div className="bottom flex-1 flex flex-col  ">
-          <TabsContent value={DEAL_ACTIVITY_TABS.USERS} className="flex flex-col flex-1">
-
+          <TabsContent value={HISTORY_TABS.NOTES} className="flex flex-col flex-1">
+            <HistoryNotes data={historyList?.notes} entityId={entityId} />
           </TabsContent>
-          <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
-
+          <TabsContent value={HISTORY_TABS.ACTIVITY} className="flex flex-col flex-1">
+            <HistoryActivity data={historyList?.activity} entityId={entityId} />
           </TabsContent>
-          <TabsContent value={DEAL_ACTIVITY_TABS.PROFILES} className="flex flex-col flex-1">
-
+          <TabsContent value={HISTORY_TABS.ALL} className="flex flex-col flex-1">
+            <HistoryAll data={historyList?.all} entityId={entityId} />
           </TabsContent>
         </div>
       </Tabs>}
