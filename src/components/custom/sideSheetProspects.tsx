@@ -420,14 +420,14 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         })
 
         const statusToSend = valueToLabel(form.getValues("statuses"), PROSPECT_STATUSES)
-        const reasonToSend = ["deferred", "lost", "junk"].includes(form.getValues("statuses")) ? form.getValues("reasons") : ""
+        const reasonToSend = ["deferred", "lost", "disqualified"].includes(form.getValues("statuses")) ? form.getValues("reasons") : ""
 
 
         const leadData: Partial<PatchLead> = {
             retainer_advance: form.getValues("retainerAdvance")?.toLowerCase() === "yes" ? true : form.getValues("retainerAdvance")?.toLowerCase() === "no" ? false : null,
             exclusivity: form.getValues("exclusivity")?.toLowerCase() === "yes" ? true : form.getValues("exclusivity")?.toLowerCase() === "no" ? false : null,
             service_fee_range: valueToLabel(form.getValues("serviceFeeRange") || "", SERVICE_FEE_RANGE),
-            service_fee: form.getValues("serviceFee"),
+            service_fee: form.getValues("serviceFee") || null,
             // owner: valueToLabel(form.getValues("owners"), OWNERS)
         }
 
@@ -2374,7 +2374,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
 
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} />
+                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.lead.id} />
                         </div>
                     </div>
                 </div>

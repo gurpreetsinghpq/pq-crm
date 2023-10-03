@@ -22,7 +22,7 @@ import { beforeCancelDialog } from './addLeadDetailedDialog'
 import { IChildData } from './userManagement'
 import { IValueLabel, Permission, UserPatchBody, UserPostBody, UsersGetResponse } from '@/app/interfaces/interface'
 import { labelToValue, valueToLabel } from './sideSheet'
-import { IconPower, IconUserActive, IconUserDeactive } from '../icons/svgIcons'
+import { IconEmail, IconPower, IconUserActive, IconUserDeactive } from '../icons/svgIcons'
 import { toast } from '../ui/use-toast'
 
 const FormSchema = z.object({
@@ -169,12 +169,12 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                 console.log(result)
                 yesDiscard(true)
             } else {
-                if(result?.error?.email?.includes("user with this email already exists")){
+                if (result?.error?.email?.includes("user with this email already exists")) {
                     toast({
                         title: "user with this email already exists",
                         variant: "destructive"
                     })
-                }else{
+                } else {
                     toast({
                         title: "Api Failure!",
                         variant: "destructive"
@@ -216,6 +216,29 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
         }
     }
 
+    async function resendEmail() {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/users/resend_verification_email/`, { method: "POST", body: JSON.stringify({ email: data.email }), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            if (result.status == "1") {
+                toast({
+                    title: `Email Resent Succesfully!`,
+                    variant: "dark"
+                })
+                console.log(result)
+                yesDiscard(true)
+            } else {
+                toast({
+                    title: "Api Failure!",
+                    variant: "destructive"
+                })
+            }
+        } catch (err) {
+            console.log(err)
+        }
+
+    }
+
     useEffect(() => {
         getUserList()
         getTeamList()
@@ -243,11 +266,11 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             form.setValue("region", labelToValue(data.region || "", REGION) || undefined)
             // const findTimeZone = TIME_ZONES.find((val)=>val.utc[0]===data.time_zone)?.utc[0]
             // console.log("timezone", findTimeZone, "data",data.time_zone)
-            if(data?.time_zone){
-                form.setValue("timeZone",data.time_zone)
+            if (data?.time_zone) {
+                form.setValue("timeZone", data.time_zone)
             }
             console.log("function", labelToValue(data.function, ALL_FUNCTIONS))
-            
+
         } else {
             setOpen(false)
         }
@@ -323,25 +346,20 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                             <div className='flex flex-row justify-between w-full items-center'>
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit User" : "Add User"}</div>
                                 {
-                                    parentData?.open &&
-                                    <Button disabled={!permissions?.change || !data.is_email_verified} onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
-                                        {
-                                            data.is_active ? <>
-                                                <IconUserDeactive size={20} color={"white"} />
-                                                Deactivate User
-                                            </> :
-                                                <>
-                                                    <IconUserActive size={20} color={"white"} />
-                                                    Activate User
-                                                </>
-                                        }
+                                    parentData?.open && data?.is_email_verified ?
+                                        (<Button disabled={!permissions?.change || !data.is_email_verified} onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
+                                            {
+                                                data.is_active ? <>
+                                                    <IconUserDeactive size={20} color={"white"} />
+                                                    Deactivate User
+                                                </> :
+                                                    <>
+                                                        <IconUserActive size={20} color={"white"} />
+                                                        Activate User
+                                                    </>
+                                            }
 
-                                    </Button>
-                                    // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
-                                    //     <IconPower size={20} />
-                                    //     Deactivate User
-                                    // </div>
-
+                                        </Button>) : <Button onClick={() => resendEmail()} className='flex flex-row gap-[5px] items-center'><IconEmail size="20px" color="white"/> Resend Email</Button>
                                 }
                             </div>
                         </DialogTitle>

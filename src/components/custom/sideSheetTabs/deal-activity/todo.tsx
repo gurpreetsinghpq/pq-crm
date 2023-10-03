@@ -25,10 +25,14 @@ function Todo({ entityId }: { entityId: number }) {
             const result = await dataResp.json()
             let data: TodoListGetResponse[] = structuredClone(result.data)
             // dataFromApi = addTitleToTodoList(data)
+            const todayDate = new Date().toISOString()
             let updatedData = data.map((val)=>{
                 val.typeOfEntity="todo"
+                val.status = val.due_date < todayDate ?  "Over Due" : "In Progress"
+                console.log("due date",  val.due_date, "today date", todayDate, val.due_date >= todayDate )
                 return val
             })
+            // console.log(todayDate )
             setTodoList(updatedData)
             setIsLoading(false)
 
@@ -48,7 +52,7 @@ function Todo({ entityId }: { entityId: number }) {
                 variant: "dark"
             })
             fetchTodoList()
-            console.log(result)
+            console.log("todo",result)
         } catch (err) {
             console.log(err)
         }
@@ -63,7 +67,7 @@ function Todo({ entityId }: { entityId: number }) {
             {
                 todoList ? todoList.length>0? todoList.map((val, index) => {
                     return <div className='custom-stepper'>
-                        <CustomStepper markStatusOfActivity={markStatusOfActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
+                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
                     </div>
                 }) : <> No data found </> : <> <Loader2 className="mr-2 h-4 w-4 animate-spin " size={80} /></>
             }

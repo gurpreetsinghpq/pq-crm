@@ -224,11 +224,11 @@ export async function getCurrentDateTime() {
 
 export function compareTimeStrings(timeVlaue: string, currentTime: string, todayDate: Date | undefined): boolean {
   // Create Date objects for the current date and the two time strings
-  if(todayDate){
+  if (todayDate) {
 
     const currentDate: Date = new Date();
     if (todayDate.getDay() === currentDate.getDay() && todayDate.getMonth() === currentDate.getMonth() && todayDate.getFullYear() === currentDate.getFullYear()) {
-  
+
       const timeParts1: string[] = timeVlaue.split(":");
       const timeParts2: string[] = currentTime.split(":");
       const time1: Date = new Date(
@@ -245,7 +245,7 @@ export function compareTimeStrings(timeVlaue: string, currentTime: string, today
         parseInt(timeParts2[0]),
         parseInt(timeParts2[1])
       );
-  
+
       // Compare the Date objects to determine which time is in the past
       if (time1 < time2) {
         return true
@@ -258,16 +258,37 @@ export function compareTimeStrings(timeVlaue: string, currentTime: string, today
   return false
 }
 
-export function changeBooleanToYesOrNo(value:boolean|undefined|null){
+export function changeBooleanToYesOrNo(value: boolean | undefined | null) {
 
-  if(value === null|| value=== undefined){
+  if (value === null || value === undefined) {
     return "—"
-  }else{
-    if(value){
+  } else {
+    if (value) {
       return "Yes"
-    }else{
+    } else {
       return "No"
     }
 
   }
+}
+export function checkIsPhoneMandatory(type: string): boolean {
+  if (type === "decisionMaker" || type === "investor" || type === "accountsPayable" || type === "budgetHolder") {
+    return true
+  } else {
+    return false
+  }
+}
+
+export function backendkeyToTitle(keyName: string) {
+  const keySplitted = keyName.split("_")
+  let finalName: string = ""
+  if (keySplitted.length > 0) {
+    keySplitted.map((val,index) => {
+      finalName += `${val[0].toUpperCase()}${val.slice(1)}${keySplitted.length-1 === index ? "" : " "}` 
+    })
+    return finalName
+  }else{
+    return keyName
+  }
+
 }

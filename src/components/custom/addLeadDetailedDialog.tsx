@@ -23,7 +23,7 @@ import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 import { commonClasses, commonFontClassesAddDialog, contactListClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
-import { getToken } from './commonFunctions'
+import { checkIsPhoneMandatory, getToken } from './commonFunctions'
 import Link from 'next/link'
 
 
@@ -93,6 +93,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
     const [formSchema2, setFormSchema2] = useState(FormSchema2)
+    const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const { toast } = useToast()
 
 
@@ -340,10 +341,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         setFormSchema2(updatedSchema)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         form2.trigger()
-    },[formSchema2])
+    }, [formSchema2])
 
+    useEffect(()=>{
+        
+
+    },[isPhoneMandatory])
     return (
         <div>
             {/* <Dialog>
@@ -379,7 +384,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 </FormItem>
                             )}
                         />
-                        {filteredLeadData && filteredLeadData?.length > 0 && <Link href={`/dashboard?ids=${details?.name}`} target='_blank' className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' >
+                        {filteredLeadData && filteredLeadData?.length > 0 && <Link href={`/filtered-data?ids=${details?.name}`} target='_blank' className='mt-3 text-sm text-blue-600 flex flex-row gap-2 justify-end items-center font-medium cursor-pointer' >
                             <span>
                                 {filteredLeadData?.length} Exisiting {filteredLeadData?.length === 1 ? "Lead" : "Leads"}
                             </span>
@@ -667,7 +672,12 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                         name="type"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select onValueChange={(val) => { 
+                                                    const isPhoneMandatory = checkIsPhoneMandatory(val)
+                                                    setIsPhoneMandatory(isPhoneMandatory)
+                                                    return field.onChange(val)
+                                                 }
+                                                } defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                             <SelectValue placeholder="Type" />

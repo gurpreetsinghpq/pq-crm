@@ -214,14 +214,15 @@ body {
 }
 
 .pdf-gradient-strip {
-  background: linear-gradient(68deg, #BD2FFF 14.33%, rgba(130, 20, 181, 0.40) 73.25%);
+  background: linear-gradient(90deg, #353260 2.4%, rgba(71, 123, 198, 0.72) 90.08%);
 }
 .pdf-gradient-strip-light {
   background: linear-gradient(68deg, #964437 14.33%, rgba(150, 68, 55, 0.40) 73.25%);
 }
 
 .pdf-bg-dark {
-  background: linear-gradient(151deg, #3B3B3B -7.36%, #0F0F0F 103.56%);
+  /* background: linear-gradient(151deg, #3B3B3B -7.36%, #0F0F0F 103.56%); */
+  background: #241C35;
 }
 .pdf-bg-light {
   background: #E8DFD6;

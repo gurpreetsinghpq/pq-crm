@@ -6,12 +6,13 @@ import { commonTabListClasses, commonTabTriggerClasses } from '@/app/constants/c
 import Notes from './deal-activity/notes';
 import Activity from './deal-activity/activity';
 import Todo from './deal-activity/todo';
-import { ArrowLeft, ArrowLeftCircle, ArrowRight, ArrowRightCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowLeftCircle, ArrowRight, ArrowRightCircle, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Proposal from './deal-flow/proposal';
 import HistoryNotes from './history/history-notes';
 import HistoryActivity from './history/history-activity';
 import { getToken } from '../commonFunctions';
 import HistoryAll from './history/history-all';
+import HistoryChangelog from './history/history-changelog';
 
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
@@ -26,7 +27,7 @@ const HISTORY_TABS: {
 } = {
   ALL: "All",
   NOTES: "Notes",
-  ACTIVITY: "Activity",
+  ACTIVITY: "Activities",
   CHANGE_LOG: "Change log"
 }
 
@@ -109,9 +110,15 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId }: { cur
         val.typeOfEntity = "activity"
         return val
       })
+      let changeLogData = data.changelog.map((val) => {
+        val.typeOfEntity = "changelog"
+        return val
+      }) 
+
       const flattenedData: HistoryAllMode  = [
         ...data.notes,
-        ...data.activity
+        ...data.activity,
+        ...data.changelog
       ]
       flattenedData.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
 
@@ -119,6 +126,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId }: { cur
         ...data,
         notes: notesData,
         activity: activityData,
+        changelog: changeLogData,
         all: flattenedData
       }
 
@@ -132,7 +140,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId }: { cur
     }
   }
   const containerRef = useRef<HTMLDivElement | null>(null);
-
+console.log("isloading", isLoading)
 
 
   const scrollLeft = () => {
@@ -201,6 +209,29 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId }: { cur
 
     requestAnimationFrame(animateScroll);
   };
+  function getFormattedLabel(text:string){
+    const activityLength = historyList?.activity.length 
+    const notesLength = historyList?.notes.length 
+    const changelogLength = historyList?.changelog.length 
+    const allLength = Number(activityLength || 0) + Number(notesLength || 0) + Number(changelogLength || 0)
+    if(text==="Activities"){
+      return `${text} (${activityLength})`
+    }
+    else if(text==="Change log"){
+      return `${text} (${changelogLength})`
+    }
+    else if(text==="Notes"){
+      return `${text} (${notesLength})`
+    }else if(text==="All"){
+      return `${text} (${allLength})`
+    }
+    // else if(text==="Change log"){
+    //   return `${text} (${historyList?.notes.length})`
+    // }
+    else{
+      return text
+    }
+  }
   return (
     <div className='w-full'>
       {parentTab === SIDE_SHEET_TABS.DEAL_FLOW && <Tabs defaultValue={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1 h-full">
@@ -251,19 +282,22 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId }: { cur
         <div className="flex flex-row  py-[24px] border-gray-100">
           <TabsList className={commonTabListClasses}>
             {historyTab.map((tab) => {
-              return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+              return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{getFormattedLabel(tab.label)}</div></TabsTrigger>
             })}
           </TabsList>
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={HISTORY_TABS.NOTES} className="flex flex-col flex-1">
-            <HistoryNotes data={historyList?.notes} entityId={entityId} />
+            {!isLoading ? <HistoryNotes data={historyList?.notes} entityId={entityId} /> : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           </TabsContent>
           <TabsContent value={HISTORY_TABS.ACTIVITY} className="flex flex-col flex-1">
             <HistoryActivity data={historyList?.activity} entityId={entityId} />
           </TabsContent>
+          <TabsContent value={HISTORY_TABS.CHANGE_LOG} className="flex flex-col flex-1">
+            {!isLoading ? <HistoryChangelog data={historyList?.changelog} entityId={entityId} /> :<Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          </TabsContent>
           <TabsContent value={HISTORY_TABS.ALL} className="flex flex-col flex-1">
-            <HistoryAll data={historyList?.all} entityId={entityId} />
+            {!isLoading ? <HistoryAll data={historyList?.all} entityId={entityId} /> : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           </TabsContent>
         </div>
       </Tabs>}

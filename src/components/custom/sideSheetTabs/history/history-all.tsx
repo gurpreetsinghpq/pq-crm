@@ -26,11 +26,11 @@ function HistoryAll({ entityId, data }: { entityId: number, data: HistoryAllMode
     return (
         <div>
             {
-                historyNotesList ? historyNotesList.length>0? historyNotesList.map((val, index) => {
+                historyNotesList && historyNotesList.length>0? historyNotesList.map((val, index) => {
                     return <div className='custom-stepper'>
                         <CustomStepper details={{ ...val, isLastChild: index === historyNotesList.length - 1 ? true : false }} />
                     </div>
-                }) : <> No data found </> : <> <Loader2 className="mr-2 h-4 w-4 animate-spin " size={80} /></>
+                }) : <> No data found </> 
             }
         </div>
     )

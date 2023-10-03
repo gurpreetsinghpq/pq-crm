@@ -1,22 +1,23 @@
-import { SIDESHEET_TAB_TYPE, STEPPER_STATUS } from '@/app/constants/constants'
-import { ActivityAccToEntity, ActivityHistory, NotesHistory, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
-import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconNotes, IconUserRight } from '@/components/icons/svgIcons'
+import { ALL_STATUS_MERGED, SIDESHEET_TAB_TYPE, STATUSES, STEPPER_STATUS } from '@/app/constants/constants'
+import { ActivityAccToEntity, ActivityHistory, ChangeLogHistory, NotesHistory, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
+import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconNotes, IconUserEdit, IconUserRight } from '@/components/icons/svgIcons'
 import React from 'react'
 import { valueToLabel } from '../sideSheet'
 import { multiLine, multiLineStyle2 } from '../table/columns'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { Ban, CheckCircle, MoreVertical } from 'lucide-react'
-import { changeBooleanToYesOrNo } from '../commonFunctions'
+import { ArrowRight, Ban, CheckCircle, MoreVertical } from 'lucide-react'
+import { backendkeyToTitle, changeBooleanToYesOrNo } from '../commonFunctions'
 
 
-type DetailsType = Partial<TodoListGetResponse> & Partial<ActivityHistory> & Partial<NotesHistory>;
+type DetailsType = Partial<TodoListGetResponse> & Partial<ActivityHistory> & Partial<NotesHistory> & Partial<ChangeLogHistory>;
 
 
 function CustomStepper({ details, markStatusOfActivity }: {
     details: DetailsType
-    ,  markStatusOfActivity?: (entityId: number, status: string) => Promise<void> }) {
+    , markStatusOfActivity?: (entityId: number, status: string) => Promise<void>
+}) {
 
     const status = STEPPER_STATUS.find(val => val.label === details?.status)
 
@@ -28,20 +29,20 @@ function CustomStepper({ details, markStatusOfActivity }: {
     const isFifthForm = (details?.activity_type?.toLowerCase() === "negotiation")
     const isSixthForm = (details?.activity_type?.toLowerCase() === "inbound lead verification") && (details?.mode?.toLowerCase() === "call" || details?.mode?.toLowerCase() === "video call" || details?.mode?.toLowerCase() === "in-person")
     const isSeventhForm = (details?.activity_type?.toLowerCase() === "inbound lead verification") && (details?.mode?.toLowerCase() === "email" || details?.mode?.toLowerCase() === "linkedin")
-    console.log("details", details.activity_type?.toLowerCase(), "mode", details?.mode?.toLowerCase() , "isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm", isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm)
+    console.log("details", details.activity_type?.toLowerCase(), "mode", details?.mode?.toLowerCase(), "isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm", isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm)
 
     return (
         <div className='custom-stepper-parent flex flex-row gap-[16px]'>
             <div className='custom-stepper-child flex flex-col items-center'>
                 <div className='h-[48px] w-[48px] rounded-[10px] border-[1px] border-gray-200 bg-white-900 shadow-xs flex flex-row justify-center items-center'>
-                    {details.type === SIDESHEET_TAB_TYPE.CHANGE_LOG && <IconChangeLog />}
+                    {details.typeOfEntity === "changelog" && <IconChangeLog />}
                     {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <IconActivity />}
                     {details.typeOfEntity === "notes" && <IconNotes />}
                 </div>
                 {!details?.isLastChild && <div className='custom-stepper-grandchild w-[2px] bg-gray-200 rounded-[2px] flex-1'>
                 </div>}
             </div>
-            <div className='mb-[20px] p-[16px] rounded-[10px] border-[1px] border-gray-200 bg-white-900 shadow-xs xl:min-w-[650px]  2xl:min-w-[800px]'>
+            <div className={`mb-[20px] p-[16px] rounded-[10px] xl:min-w-[650px]  2xl:min-w-[800px] ${details.typeOfEntity != "changelog" && "border-[1px] border-gray-200 bg-white-900 shadow-xs"}`}>
                 {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <div className='flex flex-col gap-[18px]'>
                     <div className='flex flex-row justify-between'>
                         <div className='text-md font-semibold text-gray-700'>
@@ -83,18 +84,18 @@ function CustomStepper({ details, markStatusOfActivity }: {
                         </div>
                     </div>
                     <div className='flex flex-row justify-between'>
-                        {details?.contacts && <div className='flex flex-row gap-[4px]'>
+                        {details?.contacts && <div className='flex flex-row gap-[4px] items-center'>
                             <div className='flex flex-row gap-[4px]'>
-                                <IconContacts size="20px" color="#7F56D9" />
+                                <IconContacts size="20px" color="#98A2B3" />
                             </div>
-                            <div>
+                            <div className='text-sm font-medium'>
                                 {getContacts(details.contacts.map(val => val.name))}
                             </div>
                         </div>}
                         {details?.mode && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
-                                {/* <IconEmail size="20px" color="#7F56D9" /> */}
-                                <IconUserRight />
+                                {/* <IconEmail size="20px" color="#98A2B3" /> */}
+                                <IconUserRight color="#98A2B3" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
                                 {details?.mode}
@@ -102,10 +103,10 @@ function CustomStepper({ details, markStatusOfActivity }: {
                         </div>}
                         {details?.created_at && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
-                                <IconCalendar size="20px" color="#7F56D9" />
+                                <IconCalendar size="20px" color="#98A2B3" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
-                                {multiLineStyle2(details?.created_at)}
+                                {multiLineStyle2(details?.due_date)}
                             </div>
                         </div>}
                     </div>
@@ -146,18 +147,18 @@ function CustomStepper({ details, markStatusOfActivity }: {
                         </div>
                     </div>
                     <div className='flex flex-row justify-between'>
-                        {details?.contacts && <div className='flex flex-row gap-[4px]'>
+                        {details?.contacts && <div className='flex flex-row gap-[4px] items-center'>
                             <div className='flex flex-row gap-[4px]'>
-                                <IconContacts size="20px" color="#7F56D9" />
+                                <IconContacts size="20px" color="#98A2B3" />
                             </div>
-                            <div>
+                            <div className='text-sm font-medium'>
                                 {getContacts(details.contacts.map(val => val.name))}
                             </div>
                         </div>}
                         {details?.mode && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
-                                {/* <IconEmail size="20px" color="#7F56D9" /> */}
-                                <IconUserRight />
+                                {/* <IconEmail size="20px" color="#98A2B3" /> */}
+                                <IconUserRight color="#98A2B3" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
                                 {details?.mode}
@@ -165,7 +166,7 @@ function CustomStepper({ details, markStatusOfActivity }: {
                         </div>}
                         {details?.created_at && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
-                                <IconClock size="20px" color="#7F56D9" />
+                                <IconClock size="20px" color="#98A2B3" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
                                 {multiLineStyle2(details?.created_at)}
@@ -313,6 +314,42 @@ function CustomStepper({ details, markStatusOfActivity }: {
 
                     </div>
                 </div>}
+                {
+                    details.typeOfEntity === "changelog" && <div className=''>
+                        <div className='flex flex-col gap-[16px]'>
+                            <div className='flex flex-row text-sm font-normal items-center gap-[5px]'>
+                                <div className='text-gray-700 font-medium'>
+                                    {/* {details.field_name !== "is_created"? <div> */}
+                                    {/* {backendkeyToTitle(details.field_name || "—")}: */}
+                                    {details.description}
+                                    {/* </div>:<div >{details.description} </div>} */}
+                                </div>
+                                {!(details.field_name === "is_created" || details.field_name === "is_converted_to_prospect") && <div className='font-semibold flex flex-row gap-[5px] items-center'>
+                                    :
+                                    <div className='flex flex-row'>
+                                        {fetchStatusOrDescription(details.changed_from, details.field_name?.toLowerCase() === "status")}
+                                    </div>
+                                    <div> <ArrowRight size={16} /> </div>
+                                    <div className='flex flex-row'>
+                                        {fetchStatusOrDescription(details.changed_to, details.field_name?.toLowerCase() === "status")}
+                                    </div>
+                                </div>}
+                            </div>
+                            <div className='flex flex-row gap-[24px]'>
+                                <div className='flex flex-row gap-[5px]'>
+                                    <IconClock size="20px" color="#98A2B3" />
+                                    <div className='text-gray-700 text-sm font-normal'>{multiLineStyle2(details.created_at)}</div>
+                                </div>
+                                <div className='flex flex-row gap-[5px]'>
+                                    <IconUserEdit size="20px" color="#98A2B3" />
+                                    <div className='text-gray-700 text-sm font-normal'>{details.changed_by?.name}</div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
 
             </div>
 
@@ -341,5 +378,18 @@ export function getContacts(data: string[]) {
 
     </div>
 
+}
+
+function fetchStatusOrDescription(text: string | null | undefined, isStatus: boolean = false) {
+    if (isStatus) {
+        const status = ALL_STATUS_MERGED.find((status) => status.label.toLowerCase() === text?.toLowerCase())
+        const render = <div className={`flex flex-row gap-2 items-center  pl-2 pr-3 py-1 w-fit ${!status?.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status?.class} `}>
+            {status?.icon && <status.icon />}
+            {status?.label}
+        </div>
+        return render
+    } else {
+        return text || "Empty"
+    }
 }
 export default CustomStepper

@@ -812,10 +812,27 @@ export interface NotesPostBody {
 export interface HistoryDataGetResponse {
     notes:  NotesHistory[],
     activity: ActivityHistory[]
-    all: HistoryAllMode 
+    changelog: ChangeLogHistory[]
+    all: HistoryAllMode
 }
 
-export type HistoryAllMode = (NotesHistory | ActivityHistory)[]
+export type HistoryAllMode = (NotesHistory | ActivityHistory | ChangeLogHistory)[]
+
+export interface ChangeLogHistory{
+    id: number;
+    changed_by: {
+        name: string;
+        id: number;
+    };
+    type: string;
+    field_name: string;
+    changed_from: string;
+    changed_to: string;
+    description: string;
+    created_at: string;
+    isLastChild?:boolean
+    typeOfEntity?:string
+}
 
 export interface NotesHistory{
     id: number;

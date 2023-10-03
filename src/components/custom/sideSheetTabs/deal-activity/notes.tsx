@@ -764,7 +764,7 @@ function Notes({ contactFromParents, entityId }: { contactFromParents: any, enti
                                                                 <CommandEmpty>Activity not found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {activityList && activityList?.length > 0 && activityList?.map((activity) => (
+                                                                        {(activityList && activityList?.length > 0) ? activityList?.map((activity) => (
                                                                             <CommandItem
                                                                                 value={activity.id.toString()}
                                                                                 key={activity.id}
@@ -785,7 +785,7 @@ function Notes({ contactFromParents, entityId }: { contactFromParents: any, enti
                                                                                     />
                                                                                 </div>
                                                                             </CommandItem>
-                                                                        ))}
+                                                                        )) : <div className="flex flex-row items-center justify-center w-full py-2"> No activity has been created related to this entity.</div> }
                                                                     </div>
                                                                 </CommandGroup>
                                                             </Command>

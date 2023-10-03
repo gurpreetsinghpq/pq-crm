@@ -3,6 +3,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter, Manrope } from 'next/font/google'
 import Head from 'next/head'
+import Script from 'next/script'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <Script src="./html2pdf.min.js" />
         {children}
         <Toaster />
       </body>

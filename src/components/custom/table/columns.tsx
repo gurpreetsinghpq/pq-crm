@@ -47,7 +47,7 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadData: CallableFunction, isInbox:boolean, permissions: Permission): ColumnDef<LeadInterface>[] { return [
+export function columns(setChildDataHandler?:CallableFunction, patchArchiveLeadData?: CallableFunction, isInbox?:boolean, permissions?: Permission): ColumnDef<LeadInterface>[] { return [
     {
         id: "select",
         header: ({ table }) => (
@@ -229,23 +229,22 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
         enableHiding: false,
         cell: ({ row, cell }) => {
             const payment = row.original
-
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button disabled={!(setChildDataHandler || patchArchiveLeadData)} variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
                             <MoreVertical className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={()=>setChildDataHandler('row',row)}>
+                        <DropdownMenuItem onClick={()=>setChildDataHandler && setChildDataHandler('row',row)}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
                             </div>
                         </DropdownMenuItem>
-                        <DropdownMenuItem disabled={!permissions?.change} onClick={()=>{patchArchiveLeadData([row.original.id])}}>
+                        <DropdownMenuItem disabled={!permissions?.change} onClick={()=>{patchArchiveLeadData && patchArchiveLeadData([row.original.id])}}>
                             <div className="flex flex-row gap-2 items-center">
                                 {isInbox?  <IconArchive size={16} color={"#344054"} />: <IconInbox size={16} color={"#344054"} />}
                                 {isInbox? "Archive": "Inbox"}
@@ -255,7 +254,9 @@ export function columns(setChildDataHandler:CallableFunction, patchArchiveLeadDa
                 </DropdownMenu>
             )
         },
+        
     },
+
 
 ]}
 export const multiLine = (dateStr: any) => {
