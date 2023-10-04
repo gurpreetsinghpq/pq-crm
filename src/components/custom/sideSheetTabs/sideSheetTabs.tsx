@@ -1,4 +1,4 @@
-import { ActivityHistory, HistoryAllMode, HistoryDataGetResponse, IValueLabel, NotesHistory } from '@/app/interfaces/interface';
+import { ActivityHistory, HistoryAllMode, HistoryDataGetResponse, IValueLabel, NotesHistory, Permission } from '@/app/interfaces/interface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
 import { SIDE_SHEET_TABS } from '@/app/constants/constants';
@@ -64,7 +64,7 @@ const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
 }));
 
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId }: { currentParentTab: string, contactFromParents: any, entityId: number }) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission }) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
@@ -268,13 +268,13 @@ console.log("isloading", isLoading)
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_ACTIVITY_TABS.NOTES} className="flex flex-col flex-1">
-            <Notes contactFromParents={contactFromParents} entityId={entityId} />
+            <Notes contactFromParents={contactFromParents} entityId={entityId} permissions={permissions}/>
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.ACTIVITY} className="flex flex-col flex-1">
-            <Activity contactFromParents={contactFromParents} entityId={entityId} />
+            <Activity contactFromParents={contactFromParents} entityId={entityId} permissions={permissions}/>
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1">
-            <Todo entityId={entityId} />
+            <Todo entityId={entityId} permissions={permissions}/>
           </TabsContent>
         </div>
       </Tabs>}

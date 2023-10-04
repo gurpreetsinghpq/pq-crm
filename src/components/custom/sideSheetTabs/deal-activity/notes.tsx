@@ -13,7 +13,7 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
-import { ActivityAccToEntity, IValueLabel, NotesPostBody } from '@/app/interfaces/interface'
+import { ActivityAccToEntity, IValueLabel, NotesPostBody, Permission } from '@/app/interfaces/interface'
 import { fetchActivityListAccToEntity, getToken } from '../../commonFunctions'
 import { Input } from '@/components/ui/input'
 import { labelToValue, valueToLabel } from '../../sideSheet'
@@ -111,7 +111,7 @@ const FormSchemaWhenNegotiation = z.object({
     }),
 })
 
-function Notes({ contactFromParents, entityId }: { contactFromParents: any, entityId: number }) {
+function Notes({ contactFromParents, entityId, permissions }: { contactFromParents: any, entityId: number, permissions: Permission }) {
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -1287,7 +1287,7 @@ function Notes({ contactFromParents, entityId }: { contactFromParents: any, enti
                     <div className="bg-gray-200 h-[1px]  mt-8" />
                     <div className="flex flex-row gap-2 justify-end p-[16px]">
                         {/* <Button variant={"google"} >Cancel</Button> */}
-                        <Button disabled={!(form.formState.isValid)}>Save </Button>
+                        <Button disabled={!form.formState.isValid || !permissions?.add}>Save </Button>
                     </div>
                 </div>
             </form>

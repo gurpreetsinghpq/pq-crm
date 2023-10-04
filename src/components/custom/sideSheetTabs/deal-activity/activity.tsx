@@ -16,7 +16,7 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
-import { ActivityPostBody, IValueLabel } from '@/app/interfaces/interface'
+import { ActivityPostBody, IValueLabel, Permission } from '@/app/interfaces/interface'
 import { compareTimeStrings, fetchTimeZone, fetchUserDataList, getCurrentDateTime, getToken } from '../../commonFunctions'
 import { toast } from '@/components/ui/use-toast'
 import { valueToLabel } from '../../sideSheet'
@@ -49,7 +49,7 @@ const FormSchema = z.object({
 
 
 
-function Activity({ contactFromParents, entityId }: { contactFromParents: any, entityId: number }) {
+function Activity({ contactFromParents, entityId, permissions }: { contactFromParents: any, entityId: number, permissions: Permission }) {
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
@@ -622,7 +622,7 @@ function Activity({ contactFromParents, entityId }: { contactFromParents: any, e
                     <div className="bg-gray-200 h-[1px]  mt-8" />
                     <div className="flex flex-row gap-2 justify-end p-[16px]">
                         {/* <Button variant={"google"} >Cancel</Button> */}
-                        <Button type='submit' disabled={!(form.formState.isValid)}>Save </Button>
+                        <Button type='submit' disabled={!form.formState.isValid || !permissions?.add}>Save </Button>
                     </div>
                 </div>
             </form>

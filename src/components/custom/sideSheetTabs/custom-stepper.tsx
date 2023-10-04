@@ -1,5 +1,5 @@
 import { ALL_STATUS_MERGED, SIDESHEET_TAB_TYPE, STATUSES, STEPPER_STATUS } from '@/app/constants/constants'
-import { ActivityAccToEntity, ActivityHistory, ChangeLogHistory, NotesHistory, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
+import { ActivityAccToEntity, ActivityHistory, ChangeLogHistory, NotesHistory, Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
 import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconNotes, IconUserEdit, IconUserRight } from '@/components/icons/svgIcons'
 import React from 'react'
 import { valueToLabel } from '../sideSheet'
@@ -14,9 +14,10 @@ import { backendkeyToTitle, changeBooleanToYesOrNo } from '../commonFunctions'
 type DetailsType = Partial<TodoListGetResponse> & Partial<ActivityHistory> & Partial<NotesHistory> & Partial<ChangeLogHistory>;
 
 
-function CustomStepper({ details, markStatusOfActivity }: {
+function CustomStepper({ details, markStatusOfActivity, permissions }: {
     details: DetailsType
-    , markStatusOfActivity?: (entityId: number, status: string) => Promise<void>
+    , markStatusOfActivity?: (entityId: number, status: string) => Promise<void>,
+    permissions?: Permission
 }) {
 
     const status = STEPPER_STATUS.find(val => val.label === details?.status)
@@ -53,7 +54,7 @@ function CustomStepper({ details, markStatusOfActivity }: {
                                 {status?.icon && <status.icon />}
                                 {status?.label}
                             </div>
-                            {details.typeOfEntity === "todo" && <div>
+                            {details.typeOfEntity === "todo" && permissions?.change && <div>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-8 w-8 p-0">

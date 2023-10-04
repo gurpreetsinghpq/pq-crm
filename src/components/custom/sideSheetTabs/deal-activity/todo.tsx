@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import CustomStepper from '../custom-stepper'
 import { SIDESHEET_TAB_TYPE, STEPPER_STATUS } from '@/app/constants/constants'
-import { Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
+import { Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
 import { getToken } from '../../commonFunctions'
 import { Loader2 } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
 
 let dataFromApi: TodoListGetResponse[] = []
 
-function Todo({ entityId }: { entityId: number }) {
+function Todo({ entityId, permissions }: { entityId: number, permissions: Permission }) {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [todoList, setTodoList] = useState<TodoListGetResponse[]>()
     // const randomDetails: Stepper[] = []
@@ -67,7 +67,7 @@ function Todo({ entityId }: { entityId: number }) {
             {
                 todoList ? todoList.length>0? todoList.map((val, index) => {
                     return <div className='custom-stepper'>
-                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
+                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} permissions={permissions}/>
                     </div>
                 }) : <> No data found </> : <> <Loader2 className="mr-2 h-4 w-4 animate-spin " size={80} /></>
             }
