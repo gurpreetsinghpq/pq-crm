@@ -28,8 +28,9 @@ type FormSchema = {
     interimRetainerFees: string,
     finalRetainerFees: string,
     exclusivityTimePeriod: string,
-    guaranteeTimePeriod: string
-
+    guaranteeTimePeriod: string,
+    serviceFeeInclusions: string,
+    additionalServices: string
 }
 
 declare let html2pdf: any;
@@ -50,9 +51,11 @@ function Proposal() {
         register,
         handleSubmit,
         watch,
-        formState: { errors },
+        formState,
         control,
-        getValues
+        setValue,
+        getValues,
+
     } = useForm<FormSchema>({
         defaultValues: {
             searchInvestment: [
@@ -61,8 +64,8 @@ function Proposal() {
                     field2: "30% of Cash CTC Budget"
                 }
             ],
-            clientName:"We are excited to present our competitive pricing proposal for executive search services to [Client's Company Name]  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies."
-        }
+        },
+
     })
 
     const { fields, append, remove } = useFieldArray({
@@ -72,6 +75,7 @@ function Proposal() {
 
     useEffect(() => {
         // addSearchInvestment()
+
     }, [])
 
     const addSearchInvestment = () => {
@@ -199,6 +203,10 @@ function Proposal() {
 
     }
 
+    useEffect(() => {
+        console.log(formState.isValid)
+    }, [watch()])
+
     return (
         <div className='relative h-full flex flex-col  w-full'>
             <div className={`pdf-container max-h-[70vh] overflow-y-scroll manrope items-center ${manrope.className}`}>
@@ -209,12 +217,12 @@ function Proposal() {
                         </div>
                         <div className='flex flex-row justify-between pt-[48px] pl-[41px] pr-[31px]'>
                             <div className='flex flex-col gap-[10px]'>
-                                <div className={` ${isDarkMode ? "text-gray-400" : "text-black-900"} ${pdfFontStyle1}`}>
+                                {/* <div className={` ${isDarkMode ? "text-gray-400" : "text-black-900"} ${pdfFontStyle1}`}>
                                     Posuere fermentum sit sed
-                                </div>
+                                </div> */}
                                 <div className={` ${pdfFontStyle2} ${isDarkMode ? "text-gray-300" : "text-black-900"}`}>
                                     Purple Quarter <br /> Service Proposal for <br />
-                                    {!isDownloadClicked ? <input placeholder="Enter Client Name" {...register("organisationName")} className={`${pdfInputClasses}`} /> : getValues("organisationName")}
+                                    {!isDownloadClicked ? <input placeholder="Enter Client Name" {...register("organisationName", { required: true })} className={`${pdfInputClasses}`} /> : getValues("organisationName")}
                                 </div>
                             </div>
                             <div className={` ${isDarkMode ? "text-[#393249]" : "text-[#D1C9C1]"} mt-[-40px] ${pdfFontStyle3}`}>
@@ -238,9 +246,16 @@ function Proposal() {
                         <div className={` w-full `}>
                             <div className={` w-full pt-[20px] py-[40px] px-[44px] flex flex-col gap-[10px] ${isDarkMode ? "bg-[#E8DFD6]" : "bg-[#964437]"} relative `}>
                                 <div className={`font-bold text-[28px] ${isDarkMode ? "text-black-900" : "text-white-900"}`}>Executive Summary</div>
-                                <textarea {...register("clientName")}
-                                    className={`w-full h-[100px] text-gray-200 focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline:  `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset:"5px"}}>
-                                </textarea>
+                                <div contentEditable={true}
+                                    onInput={(e) => {
+                                        setValue('clientName', e.currentTarget.textContent || "", { shouldValidate: true });
+                                    }}
+                                    {...register('clientName', {
+                                        required: true,
+                                    })}
+                                    className={`w-full h-[100px] focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
+                                    We are excited to present our competitive pricing proposal for executive search services to <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}>[Client's Company Name]</span>  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies.
+                                </div>
                                 {/* <div className={`${isDarkMode ? "text-black-900" : "text-white-900"} font-normal`}>
                                     {!isDownloadClicked ? <div>We are excited to present our competitive pricing proposal for executive search services to
                                         &nbsp; <input {...register("clientName")} placeholder="[Client's Company Name]" className={`${pdfInputClasses2}`} /> &nbsp;
@@ -259,19 +274,19 @@ function Proposal() {
                                 <div className='grid grid-cols-2 gap-y-[10px] mt-[10px] gap-x-[10px]'>
                                     <div>Role Hiring for </div>
                                     <div>
-                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("roleHiringFor")} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("roleHiringFor")}</div>}
+                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("roleHiringFor", { required: true })} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("roleHiringFor")}</div>}
                                     </div>
                                     <div>Number of Role(s)</div>
                                     <div>
-                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("numberOfRoles")} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("numberOfRoles")}</div>}
+                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("numberOfRoles", { required: true })} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("numberOfRoles")}</div>}
                                     </div>
                                     <div>Role Budget</div>
                                     <div>
-                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("roleBudget")} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("roleBudget")}</div>}
+                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("roleBudget", { required: true })} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("roleBudget")}</div>}
                                     </div>
                                     <div>Role Location</div>
                                     <div>
-                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("roleLocation")} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("roleLocation")}</div>}
+                                        {!isDownloadClicked ? <input placeholder="Enter" {...register("roleLocation", { required: true })} className={`w-full ${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues("roleLocation")}</div>}
                                     </div>
                                 </div>
                             </div>
@@ -287,8 +302,8 @@ function Proposal() {
                                     {
                                         fields.map((obj, index) => {
                                             return <>
-                                                {!isDownloadClicked ? <input key={`searchInvestment.${index}.field1`} placeholder="Field1" {...register(`searchInvestment.${index}.field1`)} className={`${pdfInputClasses}`} /> : <div>{getValues(`searchInvestment.${index}.field1`)}</div>}
-                                                {!isDownloadClicked ? <input key={`searchInvestment.${index}.field2`} placeholder="Field2" {...register(`searchInvestment.${index}.field2`)} className={`${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues(`searchInvestment.${index}.field2`)}</div>}
+                                                {!isDownloadClicked ? <input key={`searchInvestment.${index}.field1`} placeholder="Field1" {...register(`searchInvestment.${index}.field1`, { required: true })} className={`${pdfInputClasses}`} /> : <div>{getValues(`searchInvestment.${index}.field1`)}</div>}
+                                                {!isDownloadClicked ? <input key={`searchInvestment.${index}.field2`} placeholder="Field2" {...register(`searchInvestment.${index}.field2`, { required: true })} className={`${pdfInputClasses}`} /> : <div className='border-l-[1px] border-gray-700 pl-[10px] font-bold'>{getValues(`searchInvestment.${index}.field2`)}</div>}
                                             </>
                                         })
                                     }
@@ -306,26 +321,26 @@ function Proposal() {
                                 {!isDownloadClicked ? <div className='grid grid-cols-[1fr_1fr_2fr] gap-y-[10px] mt-[10px] gap-x-[20px]'>
                                     <div>Retainer Advance</div>
                                     <div>
-                                        <input {...register("retainerAdvance")} placeholder="[% or Amount]" className={`${pdfInputClasses}`} />
+                                        <input {...register("retainerAdvance", { required: true })} placeholder="[% or Amount]" className={`${pdfInputClasses}`} />
                                     </div>
                                     <div className=''>
                                         due upon signing the agreement
                                     </div>
                                     <div>Interim Retainer Fees</div>
                                     <div>
-                                        <input {...register("interimRetainerFees")} placeholder="[% or Amount]" className={`${pdfInputClasses}`} />
+                                        <input {...register("interimRetainerFees", { required: true })} placeholder="[% or Amount]" className={`${pdfInputClasses}`} />
                                     </div>
                                     <div>
-                                        due upon signing the agreement
-                                        {/* due upon offer rollout to candidate */}
+                                        {/* due upon signing the agreement */}
+                                        due upon offer rollout to candidate
                                     </div>
                                     <div>Final Retainer Fees</div>
                                     <div>
-                                        <input {...register("finalRetainerFees")} placeholder="[% or Amount]" className={`${pdfInputClasses}`} />
+                                        <input {...register("finalRetainerFees", { required: true })} placeholder="[% or Amount]" className={`${pdfInputClasses}`} />
                                     </div>
                                     <div>
-                                        due upon signing the agreement
-                                        {/* due upon successful candidate onboarding */}
+                                        {/* due upon signing the agreement */}
+                                        due upon successful candidate onboarding
                                     </div>
                                 </div> : <div className='flex grid grid-cols-2 gap-y-[10px] gap-x-[10px] mt-[10px]'>
                                     <div>
@@ -385,14 +400,27 @@ function Proposal() {
                             </div>
                             <div className={`w-[58%] px-[30px]  flex flex-col justify-center  ${isDarkMode ? "text-black-900 bg-[#E8DFD6]" : "text-white-900 bg-[#964437]"}`}>
                                 <div className={`font-bold text-[28px] `}>Service Fee Inclusions</div>
-                                <ul className='text-gray-800 text-[16px] font-normal list-disc list-inside' >
+                                {/* <ul className='text-gray-800 text-[16px] font-normal list-disc list-inside' >
                                     <li className='list-item ' >Candidate Sourcing and Pipeline Development</li>
                                     <li className='list-item ' >In-depth candidate assessments</li>
                                     <li className='list-item ' >Detailed Candidate Profiles</li>
                                     <li className='list-item ' >Interview Coordination and Scheduling </li>
                                     <li className='list-item ' >Negotiation Support</li>
                                     <li className='list-item ' >Onboarding Assistance</li>
-                                </ul>
+                                </ul> */}
+
+                                {<div contentEditable={true}
+                                    onInput={(e) => {
+                                        setValue('serviceFeeInclusions', e.currentTarget.textContent || "", { shouldValidate: true });
+                                    }}
+                                    className={`w-full mt-[10px] text-gray-200 focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
+                                    <li className='list-item ' >Candidate Sourcing and Pipeline Development</li>
+                                    <li className='list-item ' >In-depth Candidate assessments</li>
+                                    <li className='list-item ' >Detailed Candidate Profiles</li>
+                                    <li className='list-item ' >Interview Coordination and Scheduling </li>
+                                    <li className='list-item ' >Negotiation Support</li>
+                                    <li className='list-item ' >Onboarding Assistance</li>
+                                </div>}
 
                             </div>
                         </div>
@@ -401,13 +429,25 @@ function Proposal() {
                                 <div className='mt-[5px]'>
                                     <IconAward size="28" color={isDarkMode ? "#477BC6" : "#964437"} />
                                 </div>
-                                <div className={`flex flex-col gap-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+                                <div className={`w-full flex flex-col gap-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                                     <div className={`text-[28px] font-medium`}>Additional Services</div>
-                                    <div className='text-[16px] font-medium'>We also offer optional add-on services to enhance your executive search experience:</div>
-                                    <ul className='list-disc list-inside text-[16px] font-medium'>
+                                    {/* <ul className='list-disc list-inside text-[16px] font-medium'>
                                         <li>Market intelligence and compensation benchmarking</li>
                                         <li>Leadership assessment and development</li>
-                                    </ul>
+                                    </ul> */}
+
+                                    {<div contentEditable={true}
+                                        onInput={(e) => {
+                                            setValue('additionalServices', e.currentTarget.textContent || "", { shouldValidate: true });
+                                        }}
+                                        className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
+                                        <div className='text-[16px] font-medium'>We also offer optional add-on services to enhance your executive search experience:</div>
+                                        <ul className='list-disc list-inside text-[16px] font-medium'>
+                                            <li>Market intelligence and compensation benchmarking</li>
+                                            <li>Leadership assessment and development</li>
+                                        </ul>
+                                    </div>}
+
                                 </div>
                             </div>
                             <div className='flex flex-row gap-[10px] py-[16px] items-start' >
@@ -416,9 +456,18 @@ function Proposal() {
                                 </div>
                                 <div className={`flex flex-col gap-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                                     <div className={`text-[28px] font-medium`}>Exclusivity</div>
-                                    <div className='text-[16px] font-medium'>
-                                        We are committed to delivering results. To ensure your success, we work on an exclusivity arrangement for a period of {!isDownloadClicked ? <input {...register("exclusivityTimePeriod")} placeholder="[Time Period]" className={`${pdfInputClasses} w-auto`} size={10} /> : <span className='font-bold'>{getValues("exclusivityTimePeriod")}</span>} business days from the date of detailed role requirement finalization.
-                                    </div>
+                                    {<div contentEditable={true}
+                                        onInput={(e) => {
+                                            setValue('exclusivityTimePeriod', e.currentTarget.textContent || "", { shouldValidate: true });
+                                        }}
+                                        {...register('exclusivityTimePeriod', {
+                                            required: true,
+                                        })}
+                                        className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
+                                        <div className='text-[16px] font-medium'>
+                                            We are committed to delivering results. To ensure your success, we work on an exclusivity arrangement for a period of <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}>[Time Period]</span> business days from the date of detailed role requirement finalization.
+                                        </div>
+                                    </div>}
                                 </div>
                             </div>
                             <div className='flex flex-row gap-[10px] py-[16px] items-start' >
@@ -428,8 +477,20 @@ function Proposal() {
                                 <div className={`flex flex-col gap-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                                     <div className={`text-[28px] font-medium`}>Guarantee</div>
                                     <div className='text-[16px] font-medium'>
-                                        We are confident in our ability to deliver exceptional candidates, which is why we offer a unique guarantee. If a placed candidate leaves within {!isDownloadClicked ? <input {...register("guaranteeTimePeriod")} placeholder="[Time Period]" className={`${pdfInputClasses}`} size={10} /> : <span className='font-bold'>{getValues("guaranteeTimePeriod")}</span>} of their start date, we offer a replacement search at no additional cost.
+
                                     </div>
+                                    {<div contentEditable={true}
+                                        onInput={(e) => {
+                                            setValue('exclusivityTimePeriod', e.currentTarget.textContent || "", { shouldValidate: true });
+                                        }}
+                                        {...register('exclusivityTimePeriod', {
+                                            required: true,
+                                        })}
+                                        className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
+                                        <div className='text-[16px] font-medium'>
+                                            We are confident in our ability to deliver exceptional candidates, which is why we offer a unique guarantee. If a placed candidate leaves within  <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}>[Time Period]</span> of their start date, we offer a replacement search at no additional cost.
+                                        </div>
+                                    </div>}
                                 </div>
                             </div>
                         </div>
@@ -501,9 +562,13 @@ function Proposal() {
                         <div onClick={() => {
                             setZoomLevel(100)
                             setIsDownloadClicked(true)
-                        }} className={`rounded-[8px] bg-gray-200 py-[12px] px-[20px] flex flex-row items-center gap-[8px]`}>
+                        }} className={`rounded-[8px] bg-gray-200 py-[12px] px-[20px] flex flex-row items-center gap-[8px] 
+                        ${!formState.isValid && disabledSidebarItem}
+                        `}
+                        >
+
                             <IconDownload />
-                            <div className='cursor-pointer flex flex-row gap-[8px] text-purple-700 text-md font-semibold '>
+                            <div className={`cursor-pointer flex flex-row gap-[8px] text-purple-700 text-md font-semibold `}>
                                 Download
                             </div>
                         </div>

@@ -215,7 +215,7 @@ export function columnsProspects(setChildDataHandler:CallableFunction,patchArchi
     },
     {
         accessorKey: "created_at",
-        accessorFn:(originalRow, index) => originalRow.lead.created_at,
+        accessorFn:(originalRow, index) => originalRow.created_at,
         header: ({ column }) => {
             return (
                 <div

@@ -28,7 +28,7 @@ const HISTORY_TABS: {
   ALL: "All",
   NOTES: "Notes",
   ACTIVITY: "Activities",
-  CHANGE_LOG: "Change log"
+  CHANGE_LOG: "Changelog"
 }
 
 const DEAL_FLOW_TABS: {
@@ -217,7 +217,7 @@ console.log("isloading", isLoading)
     if(text==="Activities"){
       return `${text} (${activityLength})`
     }
-    else if(text==="Change log"){
+    else if(text==="Changelog"){
       return `${text} (${changelogLength})`
     }
     else if(text==="Notes"){

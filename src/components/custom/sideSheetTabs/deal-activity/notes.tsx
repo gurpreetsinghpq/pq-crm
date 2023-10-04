@@ -180,6 +180,7 @@ function Notes({ contactFromParents, entityId, permissions }: { contactFromParen
             })
             console.log(result)
             form.reset()
+            getActivityList()
 
         } catch (err) {
             console.log(err)
@@ -718,8 +719,9 @@ function Notes({ contactFromParents, entityId, permissions }: { contactFromParen
         console.log("selected activity", selectedActivity)
 
 
-        if (selectedActivity?.contact) {
-            form.setValue("contact", selectedActivity.contact.map(val => val.toString()), SET_VALUE_CONFIG)
+        if (selectedActivity?.contacts) {
+            form.setValue("contact", selectedActivity.contacts.map(val => val.id.toString()), SET_VALUE_CONFIG)
+            console.log("contact", form.getValues("contact"))
         }
         if (selectedActivity?.mode) {
             form.setValue("mode", selectedActivity.mode, SET_VALUE_CONFIG)

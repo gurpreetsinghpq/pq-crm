@@ -143,8 +143,13 @@ function CustomStepper({ details, markStatusOfActivity, permissions }: {
                 </div>}
                 {details.typeOfEntity === "notes" && <div className='flex flex-col gap-[18px]'>
                     <div className='flex flex-row justify-between'>
-                        <div className='text-md font-semibold text-gray-700'>
-                            {details?.activity_type}
+                        <div className='flex flex-row '>
+                            <div>
+                                Note on &nbsp;
+                            </div>
+                            <div className='text-md italic quote font-semibold text-gray-700'>
+                                "{details?.title}"
+                            </div>
                         </div>
                     </div>
                     <div className='flex flex-row justify-between'>

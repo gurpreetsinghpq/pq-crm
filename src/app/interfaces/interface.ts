@@ -301,16 +301,28 @@ export interface ProspectsGetResponse {
         id: number;
         name: string
     };
-    updated_by: string;
+    updated_by: {
+        id: number,
+        name: string
+    };
     owner: {
         id: number;
         name: string
     };
     lead: {
         id: number;
-        created_by: string;
-        updated_by: string;
-        owner: string;
+        created_by: {
+            id: number,
+            name: string
+        };
+        updated_by: {
+            id: number,
+            name: string
+        };
+        owner: {
+            id: number,
+            name: string
+        };
         role: {
             id: number;
             role_type: string;
@@ -373,7 +385,7 @@ export interface ProspectsGetResponse {
     reason: null | string;
     is_converted_to_deal: boolean;
     archived: boolean;
-
+    created_at: string;
 }
 
 export interface PatchProspect {
@@ -381,7 +393,7 @@ export interface PatchProspect {
     reason: string,
     is_converted_to_deal: boolean,
     archived: boolean
-    owner: boolean
+    owner: number
     lead: Partial<PatchLead>
 }
 
@@ -763,6 +775,7 @@ export interface TodoListGetResponse {
 export interface ActivityAccToEntity {
     id: number;
     contacts: {
+        id:number
         name: string;
         email: string;
         std_code: string;
@@ -864,13 +877,13 @@ export interface NotesHistory{
     next_step: string;
     created_at: string;
     activity: number;
+    title:string
     created_by: {
         name: string;
         id: number;
     }
     isLastChild?:boolean
     typeOfEntity?:string
-
 }
 
 export interface ActivityHistory{

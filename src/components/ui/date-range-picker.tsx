@@ -63,9 +63,9 @@ interface Preset {
 const PRESETS: Preset[] = [
     { name: 'today', label: 'Today' },
     { name: 'yesterday', label: 'Yesterday' },
+    { name: 'last7', label: 'Last 7 Days' },
     { name: 'thisWeek', label: 'This Week' },
     { name: 'lastWeek', label: 'Last Week' },
-    // { name: 'last7', label: 'Last 7 Days' },
     { name: 'thisMonth', label: 'This Month' },
     { name: 'lastMonth', label: 'Last Month' },
     { name: 'thisQuarter', label: 'This Quarter' },
@@ -281,7 +281,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         }
 
         const resetValues = (): void => {
-            const { from, to } = getThisMonth(queryParamString)
+            const { from, to } = getLast7Days(queryParamString)
 
             setRange({
                 from: from,
@@ -610,7 +610,16 @@ export function getAllTime() {
     let from = new Date()
     let to = new Date()
     from.setTime(0);
-    to.setHours(23, 59, 59, 999);    
-    return { fromAllTime:from, toAllTime:to }
+    to.setHours(23, 59, 59, 999);
+    return { fromAllTime: from, toAllTime: to }
+
+}
+export function getLast7Days(queryParamString: string | undefined = undefined) {
+    let from = new Date()
+    let to = new Date()
+    from.setDate(from.getDate() - 6)
+    from.setHours(0, 0, 0, 0)
+    to.setHours(23, 59, 59, 999)
+    return { from: from, to: to }
 
 }

@@ -13,7 +13,7 @@ import Contacts from "../custom/contacts"
 import UserManagement from "../custom/userManagement"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
-import { getAllTime, getThisMonth } from "../ui/date-range-picker"
+import { getAllTime, getLast7Days, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "../ui/use-toast"
 import { ArrowDown, ArrowUp } from "lucide-react"
@@ -200,7 +200,7 @@ export default function DashboardComponent() {
     },[])
 
     const router = useRouter();
-    const { from, to } = getThisMonth()
+    const { from, to } = getLast7Days()
     const { fromAllTime, toAllTime } = getAllTime()
     const LeadForm = useForm<z.infer<typeof LeadFormSchema>>({
         resolver: zodResolver(LeadFormSchema),

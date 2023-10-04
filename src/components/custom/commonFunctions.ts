@@ -75,7 +75,7 @@ export async function fetchUserDataList() {
 }
 export async function fetchActivityListAccToEntity(entityId: number) {
   try {
-    const dataResp = await fetch(`${baseUrl}/v1/api/activity/?lead=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const dataResp = await fetch(`${baseUrl}/v1/api/activity/activity_wo_notes/?lead=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
     let data: ActivityAccToEntity[] = structuredClone(result.data)
     let filteredData = data.filter((val) => val.status !== null)
