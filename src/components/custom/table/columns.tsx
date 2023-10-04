@@ -271,7 +271,7 @@ export const multiLineStyle2 = (dateStr: any) => {
     const formattedDate = formatUtcDateToLocal(dateStr);
     const [date, time] = formattedDate.split("@");
     return <>
-        <div className="text-gray-700 text-sm font-medium">{date}, {time}</div>
+        <div className="">{date}, {time}</div>
     </>
 }
 

@@ -69,7 +69,8 @@ function Activity({ contactFromParents, entityId }: { contactFromParents: any, e
 
     useEffect(() => {
         const subscription = form.watch(() => {
-            form.formState.isValid
+            console.log(form.formState.isValid)
+            // console.log(form.formState.errors)
         })
         return () => subscription.unsubscribe()
     }, [form.watch])

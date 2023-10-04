@@ -299,11 +299,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         const finalData = form.getValues().contacts
         const ftype = TYPE.find((role) => role.value === finalData.type)?.label
         const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
-        setDummyContactData((prevValues: any) => {
-            const list = [{ ...form.getValues().contacts, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
-            return list
-        })
-
         delete finalData["contactId"]
         const orgId = data.organisation.id
         const dataToSend: ContactPostBody = {
@@ -320,6 +315,10 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                 toast({
                     title: "Contact Added Successfully!",
                     variant: "dark"
+                })
+                setDummyContactData((prevValues: any) => {
+                    const list = [{...result.data}, ...prevValues]
+                    return list
                 })
             } else {
                 toast({

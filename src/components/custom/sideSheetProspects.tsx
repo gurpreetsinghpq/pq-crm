@@ -295,10 +295,6 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         const finalData = form.getValues().contacts
         const ftype = TYPE.find((role) => role.value === finalData.type)?.label
         const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
-        setDummyContactData((prevValues: any) => {
-            const list = [{ ...form.getValues().contacts, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
-            return list
-        })
 
         delete finalData["contactId"]
         const orgId = data.lead.organisation.id
@@ -316,6 +312,10 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                 toast({
                     title: "Contact Added Successfully!",
                     variant: "dark"
+                })
+                setDummyContactData((prevValues: any) => {
+                    const list = [{...result.data}, ...prevValues]
+                    return list
                 })
             } else {
                 toast({
