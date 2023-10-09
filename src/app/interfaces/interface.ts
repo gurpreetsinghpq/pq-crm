@@ -6,6 +6,7 @@ export interface IValueLabel {
     icon?: any
     class?: string
     acronym?: string
+    mandatory?:boolean
 }
 
 export interface Client {

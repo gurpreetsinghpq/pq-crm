@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIDE_SHEET_TABS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { ZodObject, z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Contact, ContactPostBody, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
@@ -24,7 +24,7 @@ import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from '
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
-import { fetchUserDataList, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { doesTypeIncludesMandatory, fetchUserDataList, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useToast } from '../ui/use-toast'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
@@ -63,19 +63,29 @@ const FormSchema2Mod = z.object({
     }),
     contactId: z.string().optional(),
 })
-const optionalFormschema2 = z.object({
+const FormSchema2Optional = z.object({
     name: z.string({
-    }).optional(),
+    }).min(2).max(30),
     designation: z.string({
-    }).optional(),
-    type: z.string({
-    }).optional(),
+    }).transform((val) => val === undefined ? undefined : val.trim()),
+    type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
     email: z.string({
-    }).optional(),
+    }).email(),
     phone: z.string({
-    }).optional(),
-    std_code: z.string({
-    }).optional(),
+    }).min(10).max(10).optional().nullable(),
+    std_code: z.string({}).optional(),
+    contactId: z.string().optional(),
+})
+const FormSchema2ModOptional = z.object({
+    name: z.string({
+    }).min(2).max(30),
+    designation: z.string({
+    }).transform((val) => val === undefined ? undefined : val.trim()),
+    type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
+    email: z.string({
+    }).email(),
+    phone: z.string().min(4).max(13).optional().nullable(),
+    std_code: z.string({}).optional(),
     contactId: z.string().optional(),
 })
 
@@ -155,6 +165,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     // used for handling on side sheet open and result from api as side sheet is not been closed when clicked on save (usage: promote to prospect)
     const [rowState, setRowState] = useState<DeepPartial<LeadInterface>>()
     const { childData: { row }, setChildDataHandler } = parentData
+    const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
 
     const data: LeadInterface = row.original
 
@@ -196,7 +207,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     console.log("formSchema initial", formSchema)
 
     useEffect(() => {
-        console.log("touched fields", form.formState.touchedFields)
+        form.formState.touchedFields
         setRowState({
             status: data.status,
             organisation: {
@@ -282,10 +293,18 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     function safeparse2() {
         const contacts = form.getValues("contacts")
         let result
-        if (contacts?.std_code !== "+91") {
-            result = FormSchema2Mod.safeParse(contacts)
-        } else {
-            result = FormSchema2.safeParse(contacts)
+        if(isPhoneMandatory){
+            if (contacts?.std_code !== "+91") {
+                result = FormSchema2Mod.safeParse(contacts)
+            } else {
+                result = FormSchema2.safeParse(contacts)
+            }
+        }else{
+            if (contacts?.std_code !== "+91") {
+                result = FormSchema2ModOptional.safeParse(contacts)
+            } else {
+                result = FormSchema2Optional.safeParse(contacts)
+            }
         }
         console.log("safe prase 2 ", result)
         if (result.success) {
@@ -301,8 +320,14 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
         delete finalData["contactId"]
         const orgId = data.organisation.id
+        let phone = form.getValues("contacts.phone")
+        let std_code = form.getValues("contacts.std_code")
+        if (!isPhoneMandatory && !phone) {
+            phone = ""
+            std_code = ""
+        }
         const dataToSend: ContactPostBody = {
-            ...finalData, type: ftype, designation: fDesignation, organisation: orgId
+            ...finalData, type: ftype, designation: fDesignation, organisation: orgId, phone, std_code
         }
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -317,7 +342,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                     variant: "dark"
                 })
                 setDummyContactData((prevValues: any) => {
-                    const list = [{...result.data}, ...prevValues]
+                    const list = [{ ...result.data }, ...prevValues]
                     return list
                 })
             } else {
@@ -343,8 +368,12 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     }
 
     function resetForm2() {
-        // form.resetField("contacts", { defaultValue: form2Defaults })
-        form.reset({ "contacts": form2Defaults })
+        form.setValue("contacts.name","")
+        form.setValue("contacts.phone","")
+        form.setValue("contacts.email","")
+        form.setValue("contacts.std_code","+91")
+        form.setValue("contacts.designation",undefined)
+        form.setValue("contacts.type",undefined)
     }
     useEffect(() => {
         // console.log(reasonMap[form.getValues("reasons")])
@@ -456,7 +485,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             patchLeadData(leadData, roleDetailsData),
             patchOrgData(orgId, orgData),
             patchRoleData(roleId, roleDetailsData),
-            patchContactData(contacts)
+            // patchContactData(contacts)
         ]
 
         try {
@@ -539,8 +568,8 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         updateFormSchemaOnStatusChange(value, false, true)
     }
 
-    function updateFormSchemaOnStatusChange(value: string, isPromoteToProspect: boolean = false, changeReason: boolean = false) {
-        let updatedSchema
+    function updateFormSchemaOnStatusChange(value: string, isPromoteToProspect: boolean = false, changeReason: boolean = false, type: string | undefined = undefined) {
+        let updatedSchema 
         if (value.toLowerCase() !== "unverified") {
             if (value.toLowerCase() === "verified") {
                 updatedSchema = FormSchema.extend({
@@ -590,16 +619,41 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         }
         if (addDialogOpen) {
             const std_code = form.getValues("contacts.std_code")
-            if (std_code !== "+91") {
-                updatedSchema = updatedSchema.extend({
-                    contacts: FormSchema2Mod
-                })
-            } else {
-                updatedSchema = updatedSchema.extend({
-                    contacts: FormSchema2
-                })
+            const isMandatory = type ? doesTypeIncludesMandatory(type) : false
+            if(type){
+                setIsPhoneMandatory(isMandatory)
             }
-            console.log("status code watcher", updatedSchema)
+            if(isMandatory){
+                if (std_code !== "+91") {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2Mod
+                    })
+                } else {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2
+                    })
+                }
+            }else{
+                if (std_code !== "+91") {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2ModOptional
+                    })
+                } else {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2Optional
+                    })
+                }
+            }
+            if (type) {
+                const phone = form.getValues("contacts.phone")
+                if (!phone) {
+                    if (isMandatory) {
+                        form.setValue("contacts.phone", '')
+                    } else {
+                        form.setValue("contacts.phone", null)
+                    }
+                }
+            }
         } else {
             updatedSchema = updatedSchema.omit({ contacts: true })
         }
@@ -945,7 +999,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                     </TooltipProvider>
                                                                     <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                         <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                            {userList && userList?.length>0 && userList?.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
+                                                                            {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
                                                                         </div>
                                                                         <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                     </div>
@@ -958,7 +1012,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                     <CommandEmpty>Owner not found.</CommandEmpty>
                                                                     <CommandGroup>
                                                                         <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                            {userList && userList?.length>0 && userList.map((owner) => (
+                                                                            {userList && userList?.length > 0 && userList.map((owner) => (
                                                                                 <CommandItem
                                                                                     value={owner.value}
                                                                                     key={owner.value}
@@ -986,7 +1040,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                 </Command>
                                                             </PopoverContent>
                                                         </Popover>
-                                                        {!form.getValues("industry") && <FormMessage className={selectFormMessageClasses} />}
+                                                        {!form.getValues("owners") && <FormMessage className={selectFormMessageClasses} />}
 
                                                     </FormItem>
                                                 )}
@@ -2041,7 +2095,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                         <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                             <span>Contact Details</span>
                                             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-                                                <DialogTrigger>
+                                                <DialogTrigger asChild>
                                                     <span className={`text-sm text-purple-700   opacity-[1] cursor-pointer`} >
                                                         + Add
                                                     </span>
@@ -2050,7 +2104,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                     <DialogHeader>
                                                         <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
                                                             <div className='text-lg text-gray-900 font-semibold'>Add Contact</div>
-                                                        </DialogTitle>
+                                                        </DialogTitle> 
                                                     </DialogHeader>
                                                     <div className='w-fit min-w-[600px] '>
                                                         <Separator className="bg-gray-200 h-[1px]  mb-4" />
@@ -2128,7 +2182,10 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                             name="contacts.type"
                                                                             render={({ field }) => (
                                                                                 <FormItem>
-                                                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                                    <Select onValueChange={(val) => {
+                                                                                        updateFormSchemaOnStatusChange(form.getValues("statuses"), false, false, val)
+                                                                                        return field.onChange(val)
+                                                                                    }} defaultValue={field.value}>
                                                                                         <FormControl>
                                                                                             <SelectTrigger className={commonClasses2}>
                                                                                                 <SelectValue placeholder="Type" />
@@ -2216,10 +2273,10 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                             name="contacts.phone"
                                                                             render={({ field }) => (
                                                                                 <FormControl>
-                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder="Phone No" {...field}
+                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
                                                                                         onKeyPress={handleKeyPress}
                                                                                         onChange={event => {
-                                                                                            return handleOnChangeNumeric(event, field, false)
+                                                                                            return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
                                                                                         }}
                                                                                     />
                                                                                 </FormControl>
@@ -2343,7 +2400,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                             </div>
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions}/>
+                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions} disable={{ proposal: true }} />
                         </div>
                     </div>
                 </div>

@@ -15,7 +15,22 @@ import { Input } from "../ui/input"
 
 const FormSchema = z.object({
     owners: z.string().transform((val) => val === undefined ? undefined : val.trim()),
-    organisationName: z.string()
+    organisationName: z.string(),
+    contact: z.object({
+        name: z.string({
+        }).min(2).max(30),
+        designation: z.string({
+        }).transform((val) => val === undefined ? undefined : val.trim()),
+        type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
+        email: z.string({
+        }).email(),
+        phone: z.string({
+        }).min(10).max(10),
+        std_code: z.string({
+    
+        }),
+        contactId: z.string().optional(),
+    })
 })
 function TestComponent() {
     const { toast } = useToast()
@@ -37,7 +52,7 @@ function TestComponent() {
     }
     const watch = form.watch()
     useEffect(()=>{
-
+        
         console.log(form.getValues())
     },[watch])
     return (

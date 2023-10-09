@@ -6,12 +6,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Input } from '../ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
-import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
+import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon, Phone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, SET_VALUE_CONFIG } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import { toast, useToast } from '../ui/use-toast'
@@ -23,7 +23,7 @@ import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 import { commonClasses, commonFontClassesAddDialog, contactListClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
-import { checkIsPhoneMandatory, getToken } from './commonFunctions'
+import { doesTypeIncludesMandatory, getMandatoryFromType, getToken, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull } from './commonFunctions'
 import Link from 'next/link'
 
 
@@ -31,19 +31,19 @@ import Link from 'next/link'
 const FormSchema = z.object({
     organisationName: z.string({
         // required_error: "Please enter a name.",
-    }).min(2),
+    }).min(1),
     region: z.string({
         // required_error: "Please select a region"
-    }),
+    }).min(1),
     roleType: z.string({
         // required_error: "Please select role type"
-    }),
+    }).min(1),
     budget: z.string({
         // required_error: "Please select budget range"
-    }),
+    }).min(1),
     leadSource: z.string({
         // required_error: "Please select a lead source"
-    }),
+    }).min(1),
 })
 
 const FormSchema2 = z.object({
@@ -70,7 +70,7 @@ const FormSchema2 = z.object({
 const form2Defaults = {
     name: "",
     email: "",
-    phone: "",
+    phone: null,
     std_code: "+91"
 }
 
@@ -92,7 +92,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     const [showContactForm, setShowContactForm] = useState<any>(true)
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
-    const [formSchema2, setFormSchema2] = useState(FormSchema2)
+    const [formSchema2, setFormSchema2] = useState<any>(FormSchema2)
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const { toast } = useToast()
 
@@ -120,8 +120,11 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
     }, [watcher1])
     useEffect(() => {
-        console.log(form2.getValues())
-
+        // console.log(form2.getValues())
+        form2.formState.isValid
+        console.log(form2.formState.errors)
+        console.log("form2.formState.isValid", form2.formState.isValid)
+        console.log("formSchema2", formSchema2)
     }, [watcher2])
 
     useEffect(() => {
@@ -148,8 +151,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         const ftype = type.find((role) => role.value === finalData.type)?.label
         console.log(finalData.type)
         const fDesignation = designation.find((des) => des.value === finalData.designation)?.label
+        let phone = form2.getValues("phone")
+        let std_code = form2.getValues("std_code")
+        if (!isPhoneMandatory && !phone) {
+            phone = ""
+            std_code = ""
+        }
         setDummyContactData((prevValues: any) => {
-            const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
+            const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
             return list
         })
         setShowContactForm(false)
@@ -195,8 +204,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         const budgetLabel = specificValueFinder(formData.budget, budgetRange[form.getValues("region")])?.label
         const leadSourceLabel = specificValueFinder(formData.leadSource, leadSource)?.label
         const roleTypeLabel = specificValueFinder(formData.roleType, roleType)?.label
-        const createdOn = new Date()
-
         const regionAcronym = acronymFinder(regionLabel, REGION)
         const roleTypeAcronym = acronymFinder(roleTypeLabel, ROLETYPE)
 
@@ -279,14 +286,20 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         if (ftype) {
             form2.setValue("type", ftype, SET_VALUE_CONFIG)
         }
-        form2.setValue("std_code", item.std_code, SET_VALUE_CONFIG)
         if (fDesignation) {
             form2.setValue("designation", fDesignation, SET_VALUE_CONFIG)
         }
         form2.setValue("email", item.email, SET_VALUE_CONFIG)
-        form2.setValue("phone", item.phone, SET_VALUE_CONFIG)
+        let phone = item.phone
+        let std_code = item.std_code
+        if (!isPhoneMandatory && !phone) {
+            phone = null
+            std_code = "+91"
+        }
+        form2.setValue("std_code", std_code, SET_VALUE_CONFIG)
+        form2.setValue("phone", phone, SET_VALUE_CONFIG)
         form2.setValue("contactId", item.contactId, SET_VALUE_CONFIG)
-        console.log(form2.getValues())
+        console.log("formSchema2", formSchema2)
         setShowContactForm(true)
         setFormInUpdateState(true)
     }
@@ -308,10 +321,16 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             if (roleType) {
                 data.type = specificValueFinder(roleType, TYPE)?.label
             }
-            data.std_code = form2.getValues("std_code")
-            data.designation = specificValueFinder(form2.getValues("designation"), DESIGNATION)?.label
             data.email = form2.getValues("email")
-            data.phone = form2.getValues("phone")
+            data.designation = specificValueFinder(form2.getValues("designation"), DESIGNATION)?.label
+            let phone = form2.getValues("phone")
+            let std_code = form2.getValues("std_code")
+            if (!isPhoneMandatory && !phone) {
+                phone = ""
+                std_code = ""
+            }
+            data.std_code = std_code
+            data.phone = phone
             setDummyContactData(newData)
         }
         resetForm2()
@@ -326,29 +345,57 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         dataFromChild()
     }
 
-    function changeStdCode() {
+    function changeStdCode(type: string | undefined = undefined) {
         const value = form2.getValues("std_code")
         let updatedSchema
-        console.log(value, value != "+91")
-        if (value != "+91") {
-            updatedSchema = FormSchema2.extend({
-                phone: z.string().min(4).max(13)
-            })
+        const isMandatory = type ? doesTypeIncludesMandatory(type) : false
+        if(type){
+            setIsPhoneMandatory(isMandatory)
+        }
+        if (isMandatory) {
+            if (value != "+91") {
+                updatedSchema = FormSchema2.extend({
+                    phone: z.string().min(4).max(13),
+                    std_code: z.string()
+                })
+            }
+            else {
+                updatedSchema = FormSchema2
+            }
         } else {
-            console.log("neh")
-            updatedSchema = FormSchema2
+            if (value != "+91") {
+                updatedSchema = FormSchema2.extend({
+                    phone: z.string().min(4).max(13).optional().nullable(),
+                    std_code: z.string().optional()
+                })
+            }
+            else {
+                updatedSchema = FormSchema2.extend({
+                    phone: z.string().min(10).max(10).optional().nullable(),
+                    std_code: z.string().optional()
+                })
+            }
+        }
+        if (type) {
+            const phone = form2.getValues("phone")
+            if (!phone) {
+                if(isMandatory){
+                    form2.setValue("phone", '')
+                }else{
+                    form2.setValue("phone", null)
+                }
+            }
         }
         setFormSchema2(updatedSchema)
     }
 
     useEffect(() => {
+        console.log("form2.formState.errors", form2.formState.errors)
+        console.log("form2.formState.errors", form2.formState.isValid)
         form2.trigger()
     }, [formSchema2])
 
-    useEffect(()=>{
-        
 
-    },[isPhoneMandatory])
     return (
         <div>
             {/* <Dialog>
@@ -672,12 +719,10 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                         name="type"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Select onValueChange={(val) => { 
-                                                    const isPhoneMandatory = checkIsPhoneMandatory(val)
-                                                    setIsPhoneMandatory(isPhoneMandatory)
+                                                <Select onValueChange={(val) => {
+                                                    changeStdCode(val)
                                                     return field.onChange(val)
-                                                 }
-                                                } defaultValue={field.value}>
+                                                }} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                             <SelectValue placeholder="Type" />
@@ -723,7 +768,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
-                                                            {countryCode.find((val) => val.value === field.value)?.value}
+                                                            {countryCode.find((val) => val.value === field.value)?.value || <span className='text-muted-foreground '>STD Code</span>}
                                                             <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                         </Button>
                                                     </FormControl>
@@ -771,9 +816,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     control={form2.control}
                                     name="phone"
                                     render={({ field }) => (
-                                        <FormItem className='mt-3  w-3/4 flex-1'>
+                                        <FormItem className='mt-3  w-3/4 flex-1' >
                                             <FormControl>
-                                                <Input type="text" className={` ${commonFontClassesAddDialog} ${commonClasses}`} placeholder="Phone No" {...field} />
+                                                <Input type="text" className={` ${commonFontClassesAddDialog} ${commonClasses}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                    onKeyPress={handleKeyPress}
+                                                    onChange={event => {
+                                                        return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
+                                                    }}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}

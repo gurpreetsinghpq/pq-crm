@@ -63,8 +63,12 @@ const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
 
 }));
 
+interface DisabledProps{
+  proposal?:boolean
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission }) {
+}
+
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = {proposal:false} }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps}) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
@@ -248,7 +252,7 @@ console.log("isloading", isLoading)
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
-            <Proposal />
+            <Proposal isDisabled={disable.proposal}  />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 

@@ -211,12 +211,14 @@ const TYPE: IValueLabel[] = [
     {
         value: "influencer",
         label: "Influencer",
-        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-purple-700 bg-purple-50 border-purple-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-purple-700 bg-purple-50 border-purple-600",
+
     },
     {
         value: "decisionMaker",
         label: "Decision Maker",
-        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600",
+        mandatory:true
     },
     {
         value: "gatekeeper",
@@ -226,7 +228,8 @@ const TYPE: IValueLabel[] = [
     {
         value: "investor",
         label: "Investor",
-        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600",
+        mandatory:true
     },
     {
         value: "legal",
@@ -236,12 +239,14 @@ const TYPE: IValueLabel[] = [
     {
         value: "accountsPayable",
         label: "Accounts Payable",
-        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-warning-700 bg-warning-50 border-warning-500"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-warning-700 bg-warning-50 border-warning-500",
+        mandatory:true
     },
     {
         value: "budgetHolder",
         label: "Budget Holder",
-        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600"
+        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600",
+        mandatory:true
     },
 ]
 

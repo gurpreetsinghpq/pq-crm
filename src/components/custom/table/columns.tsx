@@ -226,7 +226,7 @@ export function columns(setChildDataHandler?:CallableFunction, patchArchiveLeadD
     },
     {
         id: "actions",
-        enableHiding: false,
+        enableHiding: true,
         cell: ({ row, cell }) => {
             const payment = row.original
             return (

@@ -536,7 +536,7 @@ function filteredData() {
 
         </form>
       </Form>
-      <DataTable columns={columns()} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} />
+      <DataTable columns={columns()} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} hidden={{threeDots:true}}/>
     </div>
   )
 }

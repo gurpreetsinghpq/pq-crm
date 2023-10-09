@@ -8,6 +8,7 @@ import html2canvas from "html2canvas"
 import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import SelectableDiv from '../../selectable-div'
 const manrope = Manrope({ subsets: ['latin'] })
 
 type SearchInvestment = {
@@ -35,7 +36,7 @@ type FormSchema = {
 
 declare let html2pdf: any;
 
-function Proposal() {
+function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
     const [isDarkMode, setDarkMode] = useState(true)
     const [isDownloadClicked, setIsDownloadClicked] = useState(false)
     const [zoomLevel, setZoomLevel] = useState(100); // Initial zoom level is 100%
@@ -46,6 +47,7 @@ function Proposal() {
     const pdf4 = useRef<HTMLDivElement | null>(null)
     const dateRef = useRef<HTMLDivElement | null>(null)
     const zoomContainer = useRef<HTMLDivElement | null>(null)
+    const minimap = useRef<HTMLDivElement | null>(null)
 
     const {
         register,
@@ -75,7 +77,7 @@ function Proposal() {
 
     useEffect(() => {
         // addSearchInvestment()
-
+        createMinimap()
     }, [])
 
     const addSearchInvestment = () => {
@@ -183,7 +185,9 @@ function Proposal() {
     };
 
     const zoomStyle = {
-        transform: `scale(${zoomLevel / 100})`, // Apply the scale transformation
+        transform: `scale(${zoomLevel / 100})`, // Apply the scale transformation,
+        transformOrigin: "50% 0%"
+
     };
 
 
@@ -205,12 +209,31 @@ function Proposal() {
 
     useEffect(() => {
         console.log(formState.isValid)
+        createMinimap()
     }, [watch()])
+
+
+    function createMinimap() {
+        const map = zoomContainer.current?.cloneNode(true)
+        console.log("hey")
+        if (map && minimap.current) {
+            minimap.current.innerHTML = ''
+            minimap.current.appendChild(map)
+            console.log("hey")
+        }
+    }
 
     return (
         <div className='relative h-full flex flex-col  w-full'>
-            <div className={`pdf-container max-h-[70vh] overflow-y-scroll manrope items-center ${manrope.className}`}>
-                <div id="doc" ref={zoomContainer} className={`flex flex-col justify-center items-center ${!isDownloadClicked ? "gap-[60px]" : ""}`} style={zoomStyle} >
+            <div className='absolute w-[150px] h-[200px]  z-[1] '>
+                <div className='minimap-wrapper absolute top-0 left-0  scale-[0.13] hidden'>
+                    <div ref={minimap} className='minimap absolute pointer-events-none top-0 left-0  '>
+
+                    </div>
+                </div>
+            </div>
+            <div className={`pdf-container max-h-[70vh] overflow-y-scroll manrope items-center ${manrope.className}`} >
+                <div id="doc" ref={zoomContainer} className={`flex flex-col justify-center items-center ${!isDownloadClicked ? "gap-[60px]" : ""}`}  style={zoomStyle} >
                     <div ref={pdf1} className={`pdf-1 flex flex-col pdf-size  ${isDarkMode ? "pdf-bg-dark" : "pdf-bg-light"}`}>
                         <div className={`${isDarkMode ? "pdf-gradient-strip" : "pdf-gradient-strip-light"} to-opacity-40 h-[10px] w-full`}>
 
@@ -229,7 +252,7 @@ function Proposal() {
                                 01
                             </div>
                         </div>
-                        <div className={`flex bg-purple-300 flex-1 ${isDarkMode ? "bg-[url('/images/pdf-dark-bg.png')]" : "bg-[url('/images/pdf-light-bg.png')]"} bg-cover bg-no-repeat mt-[170px] flex flex-col justify-end items-end py-[19px] px-[17px]`}>
+                        <div className={`flex bg-purple-300 flex-1 ${isDarkMode ? "bg-[url('/images/pdf-dark-bg.png')]" : "bg-[url('/images/pdf-light-bg-2.png')]"} bg-cover bg-no-repeat mt-[170px] flex flex-col justify-end items-end py-[19px] px-[17px]`}>
                             <div className={`${isDarkMode ? "text-gray-400" : "text-white-900"} ${pdfFontStyle4}`} ref={dateRef}>{new Date().toLocaleDateString('en-us', { year: "numeric", month: "short", day: "2-digit" }).toUpperCase()}</div>
                         </div>
                         <div className={`${isDarkMode ? "pdf-gradient-strip" : "pdf-gradient-strip-light"} to-opacity-40 h-[10px] w-full`}>
@@ -240,7 +263,7 @@ function Proposal() {
                         <div className={`${isDarkMode ? "pdf-gradient-strip" : "pdf-gradient-strip-light"} to-opacity-40 h-[10px] w-full`}>
 
                         </div>
-                        <div className={`flex bg-purple-300  h-[250px] ${isDarkMode ? "bg-[url('/images/pdf-dark-bg.png')]" : "bg-[url('/images/pdf-light-bg.png')]"} bg-cover bg-no-repeat  px-[20px]`}>
+                        <div className={`flex bg-purple-300  h-[250px] ${isDarkMode ? "bg-[url('/images/pdf-dark-bg.png')]" : "bg-[url('/images/pdf-light-bg-2.png')]"} bg-cover bg-no-repeat  px-[20px]`}>
                             {/* <div className={`${isDarkMode ? "text-gray-400" : "text-white-900"} ${pdfFontStyle4}`} ref={dateRef}>{new Date().toLocaleDateString()}</div> */}
                         </div>
                         <div className={` w-full `}>
@@ -254,7 +277,7 @@ function Proposal() {
                                         required: true,
                                     })}
                                     className={`w-full h-[100px] focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
-                                    We are excited to present our competitive pricing proposal for executive search services to <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}>[Client's Company Name]</span>  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies.
+                                    We are excited to present our competitive pricing proposal for executive search services to <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}> <SelectableDiv text="[Client's Company Name]"/>  </span>  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies.
                                 </div>
                                 {/* <div className={`${isDarkMode ? "text-black-900" : "text-white-900"} font-normal`}>
                                     {!isDownloadClicked ? <div>We are excited to present our competitive pricing proposal for executive search services to
@@ -395,7 +418,7 @@ function Proposal() {
 
                         </div>
                         <div className='flex flex-row min-h-[304px]'>
-                            <div className={`w-[42%] flex bg-purple-300  ${isDarkMode ? "bg-[url('/images/pdf-dark-bg.png')]" : "bg-[url('/images/pdf-light-bg.png')]"} bg-cover bg-no-repeat  px-[20px]`}>
+                            <div className={`w-[42%] flex bg-purple-300  ${isDarkMode ? "bg-[url('/images/pdf-dark-bg.png')]" : "bg-[url('/images/pdf-light-bg-2.png')]"} bg-cover bg-no-repeat  px-[20px]`}>
                                 {/* <div className={`${isDarkMode ? "text-gray-400" : "text-white-900"} ${pdfFontStyle4}`} ref={dateRef}>{new Date().toLocaleDateString()}</div> */}
                             </div>
                             <div className={`w-[58%] px-[30px]  flex flex-col justify-center  ${isDarkMode ? "text-black-900 bg-[#E8DFD6]" : "text-white-900 bg-[#964437]"}`}>
@@ -415,7 +438,7 @@ function Proposal() {
                                     }}
                                     className={`w-full mt-[10px] text-gray-200 focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
                                     <li className='list-item ' >Candidate Sourcing and Pipeline Development</li>
-                                    <li className='list-item ' >In-depth Candidate assessments</li>
+                                    <li className='list-item ' >In-depth Candidate Assessments</li>
                                     <li className='list-item ' >Detailed Candidate Profiles</li>
                                     <li className='list-item ' >Interview Coordination and Scheduling </li>
                                     <li className='list-item ' >Negotiation Support</li>
@@ -465,7 +488,7 @@ function Proposal() {
                                         })}
                                         className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
                                         <div className='text-[16px] font-medium'>
-                                            We are committed to delivering results. To ensure your success, we work on an exclusivity arrangement for a period of <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}>[Time Period]</span> business days from the date of detailed role requirement finalization.
+                                            We are committed to delivering results. To ensure your success, we work on an exclusivity arrangement for a period of <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}><SelectableDiv text="[Time Period]" /></span> business days from the date of detailed role requirement finalization.
                                         </div>
                                     </div>}
                                 </div>
@@ -488,7 +511,7 @@ function Proposal() {
                                         })}
                                         className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
                                         <div className='text-[16px] font-medium'>
-                                            We are confident in our ability to deliver exceptional candidates, which is why we offer a unique guarantee. If a placed candidate leaves within  <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}>[Time Period]</span> of their start date, we offer a replacement search at no additional cost.
+                                            We are confident in our ability to deliver exceptional candidates, which is why we offer a unique guarantee. If a placed candidate leaves within  <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}><SelectableDiv text="[Time Period]" /></span> of their start date, we offer a replacement search at no additional cost.
                                         </div>
                                     </div>}
                                 </div>
@@ -581,6 +604,9 @@ function Proposal() {
                     </div>
                 </div>
             </div>
+            {isDisabled && <div className='absolute top-0 left-0 bottom-0 right-0 bg-black-900 opacity-[0.2] hover:opacity-[0.3] rounded-[5px] cursor-not-allowed '>
+
+            </div>}
         </div>
     )
 }

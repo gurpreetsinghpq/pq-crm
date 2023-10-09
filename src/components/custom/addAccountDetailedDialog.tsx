@@ -22,10 +22,10 @@ import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, IErrors
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
-import { contactListClasses, disabledClasses, preFilledClasses } from '@/app/constants/classes'
+import { commonFontClassesAddDialog, contactListClasses, disabledClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
-import { getToken } from './commonFunctions'
+import { doesTypeIncludesMandatory, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from './commonFunctions'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -70,7 +70,7 @@ const FormSchema2 = z.object({
 const form2Defaults = {
     name: "",
     email: "",
-    phone: "",
+    phone: null,
     std_code: "+91"
 }
 
@@ -94,13 +94,14 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     const [showContactForm, setShowContactForm] = useState<any>(true)
     const [isFormInUpdateState, setFormInUpdateState] = useState<any>(false)
     const [budgetKey, setBudgetKey] = useState<number>(+new Date())
-    const [formSchema2, setFormSchema2] = useState(FormSchema2)
+    const [formSchema2, setFormSchema2] = useState<any>(FormSchema2)
     const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const { toast } = useToast()
     const [numberOfErrors, setNumberOfErrors] = useState<IErrors>({
         invalidErrors: 0,
         requiredErrors: 0
     })
+    const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
 
 
@@ -152,9 +153,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         form2.trigger()
-    },[formSchema])
+    }, [formSchema])
 
     const watcher = form.watch()
 
@@ -190,8 +191,14 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         const ftype = type.find((role) => role.value === finalData.type)?.label
         console.log(finalData.type)
         const fDesignation = designation.find((des) => des.value === finalData.designation)?.label
+        let phone = form2.getValues("phone")
+        let std_code = form2.getValues("std_code")
+        if (!isPhoneMandatory && !phone) {
+            phone = ""
+            std_code = ""
+        }
         setDummyContactData((prevValues: any) => {
-            const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
+            const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
             return list
         })
         setShowContactForm(false)
@@ -327,12 +334,18 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         if (ftype) {
             form2.setValue("type", ftype, SET_VALUE_CONFIG)
         }
-        form2.setValue("std_code", item.std_code, SET_VALUE_CONFIG)
         if (fDesignation) {
             form2.setValue("designation", fDesignation, SET_VALUE_CONFIG)
         }
         form2.setValue("email", item.email, SET_VALUE_CONFIG)
-        form2.setValue("phone", item.phone, SET_VALUE_CONFIG)
+        let phone = item.phone
+        let std_code = item.std_code
+        if (!isPhoneMandatory && !phone) {
+            phone = null
+            std_code = "+91"
+        }
+        form2.setValue("std_code", std_code, SET_VALUE_CONFIG)
+        form2.setValue("phone", phone, SET_VALUE_CONFIG)
         form2.setValue("contactId", item.contactId, SET_VALUE_CONFIG)
         console.log(form2.getValues())
         setShowContactForm(true)
@@ -355,10 +368,16 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             if (roleType) {
                 data.type = specificValueFinder(roleType, TYPE)?.label
             }
-            data.std_code = form2.getValues("std_code")
-            data.designation = specificValueFinder(form2.getValues("designation"), DESIGNATION)?.label
             data.email = form2.getValues("email")
-            data.phone = form2.getValues("phone")
+            data.designation = specificValueFinder(form2.getValues("designation"), DESIGNATION)?.label
+            let phone = form2.getValues("phone")
+            let std_code = form2.getValues("std_code")
+            if (!isPhoneMandatory && !phone) {
+                phone = ""
+                std_code = ""
+            }
+            data.std_code = std_code
+            data.phone = phone
             setDummyContactData(newData)
         }
         resetForm2()
@@ -373,20 +392,48 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         dataFromChild()
     }
 
-    function changeStdCode() {
+    function changeStdCode(type: string | undefined = undefined) {
         const value = form2.getValues("std_code")
         let updatedSchema
-        console.log(value, value != "+91")
-        if (value != "+91") {
-            updatedSchema = FormSchema2.extend({
-                phone: z.string().min(4).max(13)
-            })
+        const isMandatory = type ? doesTypeIncludesMandatory(type) : false
+        if(type){
+            setIsPhoneMandatory(isMandatory)
+        }
+        if (isMandatory) {
+            if (value != "+91") {
+                updatedSchema = FormSchema2.extend({
+                    phone: z.string().min(4).max(13),
+                    std_code: z.string()
+                })
+            }
+            else {
+                updatedSchema = FormSchema2
+            }
         } else {
-            console.log("neh")
-            updatedSchema = FormSchema2
+            if (value != "+91") {
+                updatedSchema = FormSchema2.extend({
+                    phone: z.string().min(4).max(13).optional().nullable(),
+                    std_code: z.string().optional()
+                })
+            }
+            else {
+                updatedSchema = FormSchema2.extend({
+                    phone: z.string().min(10).max(10).optional().nullable(),
+                    std_code: z.string().optional()
+                })
+            }
+        }
+        if (type) {
+            const phone = form2.getValues("phone")
+            if (!phone) {
+                if (isMandatory) {
+                    form2.setValue("phone", '')
+                } else {
+                    form2.setValue("phone", null)
+                }
+            }
         }
         setFormSchema2(updatedSchema)
-
     }
 
     function checkVcIndutsry() {
@@ -717,7 +764,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                             <div className={`text-sm text-purple-700  ${!showContactForm ? 'opacity-[1] cursor-pointer' : 'opacity-[0.3] cursor-not-allowed'}`} onClick={() => !showContactForm && addNewForm()}>+ Add</div>
                         </div>
                         {dummyContactData.length > 0 && <div className={`flex flex-col w-full mt-4  pr-[16px] max-h-[340px] overflow-y-auto   ${showContactForm && "h-[150px] overflow-y-scroll "} `}>
-                            <div className='flex flex-col w-full gap-[24px]'>
+                            <div className='flex flex-col w-full '>
                                 {
                                     dummyContactData.map((item: any, index: number) => (
                                         <div className={`${contactListClasses}`} key={index} >
@@ -837,7 +884,10 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                         name="type"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select onValueChange={(val) => {
+                                                    changeStdCode(val)
+                                                    return field.onChange(val)
+                                                }} defaultValue={field.value}>
                                                     <FormControl>
                                                         <SelectTrigger className={commonClasses}>
                                                             <SelectValue placeholder="Type" />
@@ -883,7 +933,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
-                                                            {countryCode.find((val) => val.value === field.value)?.value}
+                                                            {countryCode.find((val) => val.value === field.value)?.value || <span className='text-muted-foreground '>STD Code</span>}
                                                             <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                         </Button>
                                                     </FormControl>
@@ -933,7 +983,12 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     render={({ field }) => (
                                         <FormItem className='mt-3  w-3/4 flex-1'>
                                             <FormControl>
-                                                <Input type="text" className={` ${commonClasses}`} placeholder="Phone No" {...field} />
+                                                <Input type="text" className={` ${commonFontClassesAddDialog} ${commonClasses}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                    onKeyPress={handleKeyPress}
+                                                    onChange={event => {
+                                                        return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
+                                                    }}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}

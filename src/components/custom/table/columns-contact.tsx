@@ -49,233 +49,241 @@ function getClassOfType(typeName: string) {
 function getIcon(segmentName: string) {
     const lastFundingStage = TYPE.find((status) => status.acronym === segmentName)
     const render = <>{lastFundingStage?.icon && <lastFundingStage.icon /> || "—"}</>
-        
-    
+
+
     return render
 }
 
 
-export function columnsContacts(setChildDataHandler:CallableFunction): ColumnDef<ContactsGetResponse>[] {return [
-    {
-        id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={table.getIsAllPageRowsSelected()}
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    // {
-    //     accessorKey: "id",
-    //     header: ({ column }) => {
-    //         return (
-    //             <div
-    //                 // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-    //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-    //             >
-    //                 Id
-    //                 {/* <IconArrowDown size={20} /> */}
-    //             </div>
-    //         )
-    //     },
+export function columnsContacts(setChildDataHandler: CallableFunction): ColumnDef<ContactsGetResponse>[] {
+    return [
+        {
+            id: "select",
+            header: ({ table }) => (
+                <Checkbox
+                    checked={table.getIsAllPageRowsSelected()}
+                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                    aria-label="Select all"
+                />
+            ),
+            cell: ({ row }) => (
+                <Checkbox
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(value) => row.toggleSelected(!!value)}
+                    aria-label="Select row"
+                />
+            ),
+            enableSorting: false,
+            enableHiding: false,
+        },
+        // {
+        //     accessorKey: "id",
+        //     header: ({ column }) => {
+        //         return (
+        //             <div
+        //                 // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+        //             >
+        //                 Id
+        //                 {/* <IconArrowDown size={20} /> */}
+        //             </div>
+        //         )
+        //     },
 
-    //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("id")}</div>,
-    //     filterFn: (row, id, value) => {
-    //         console.log(row,id,value)
-    //         return value.includes(row.getValue(id))
-    //     },        
-    //     enableHiding:true,
+        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("id")}</div>,
+        //     filterFn: (row, id, value) => {
+        //         console.log(row,id,value)
+        //         return value.includes(row.getValue(id))
+        //     },        
+        //     enableHiding:true,
 
 
-    // },    
-    {
-        accessorKey: "name",
-        accessorFn: (row) => `${row.name}{}${row.email}`,
-        header: ({ column }) => {
-            return (
-                <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Name & Email
-                    {/* <IconArrowDown size={20} /> */}
-                </div>
-            )
+        // },    
+        {
+            accessorKey: "name",
+            accessorFn: (row) => `${row.name}{}${row.email}`,
+            header: ({ column }) => {
+                return (
+                    <div
+                        // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Name & Email
+                        {/* <IconArrowDown size={20} /> */}
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div><span className="text-gray-900 text-sm">{getTextMultiLine(row.getValue("name"))}</span></div>
         },
-        cell: ({ row }) => <div><span className="text-gray-900 text-sm">{getTextMultiLine(row.getValue("name"))}</span></div>
-    },
-    {
-        accessorKey: "organisation",
-        accessorFn: (originalRow, index) => originalRow.organisation.name,
-        header: ({ column }) => {
-            return (
-                <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Account
-                    {/* <IconArrowDown size={20} /> */}
-                </div>
-            )
+        {
+            accessorKey: "organisation",
+            accessorFn: (originalRow, index) => originalRow.organisation.name,
+            header: ({ column }) => {
+                return (
+                    <div
+                        // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Account
+                        {/* <IconArrowDown size={20} /> */}
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("organisation") || "—"}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal ">{row.getValue("organisation") ||  "—" }</div>,
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+        {
+            accessorKey: "designation",
+            header: ({ column }) => {
+                return (
+                    <div
+                        // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Designation
+                        {/* <IconArrowDown size={20} /> */}
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("designation") || "—"}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
         },
-    },
-    {
-        accessorKey: "designation",
-        header: ({ column }) => {
-            return (
-                <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Designation
-                    {/* <IconArrowDown size={20} /> */}
-                </div>
-            )
+        {
+            accessorKey: "phone",
+            accessorFn: (row) => {
+                if (!row.std_code && !row.phone) {
+                    return "—";
+                } else {
+                    return `${row.std_code} ${row.phone}`;
+                }
+            },
+            header: ({ column }) => {
+                return (
+                    <div
+                        // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Mobile
+                        {/* <IconArrowDown size={20} /> */}
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal"> {row.getValue("phone") || "—"}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
         },
-        cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("designation") || "—"}</div>,
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
+        {
+            accessorKey: "type",
+            header: ({ column }) => {
+                return (
+                    <div
+                        // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Type
+                        {/* <IconArrowDown size={20} /> */}
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="text-gray-600 font-normal">{getClassOfType(row.getValue("type"))}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
         },
-    },
-    {
-        accessorKey: "phone",
-        accessorFn: (row) => `${row.std_code} ${row.phone}`,
-        header: ({ column }) => {
-            return (
-                <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Mobile
-                    {/* <IconArrowDown size={20} /> */}
-                </div>
-            )
+        {
+            accessorKey: "created_by",
+            header: ({ column }) => {
+                return (
+                    <div
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Created By
+                    </div>
+                )
+            }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{getName(row.getValue("created_by")) || "—"}</div>,
+            filterFn: (row, id, value) => {
+                const rowData: any = row.getValue(id)
+                return value.includes(rowData?.id?.toString())
+            },
         },
-        cell: ({ row }) =>  <div className="text-gray-600 text-sm font-normal">{` ${row.getValue("phone")}` || "—"}</div>,
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
-        },
-    },
-    {
-        accessorKey: "type",
-        header: ({ column }) => {
-            return (
-                <div
-                    // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Type
-                    {/* <IconArrowDown size={20} /> */}
-                </div>
-            )
-        },
-        cell: ({ row }) => <div className="text-gray-600 font-normal">{getClassOfType(row.getValue("type"))}</div>,
-        filterFn: (row, id, value) => {
-            return value.includes(row.getValue(id))
-        },
-    },
-    {
-        accessorKey: "created_by",
-        header: ({ column }) => {
-            return (
-                <div
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                >
-                    Created By
-                </div>
-            )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("created_by")) || "—"}</div>,
-        filterFn: (row, id, value) => {
-            const rowData:any = row.getValue(id)
-            return value.includes(rowData?.id?.toString())
-        },
-    },
-    {
-        accessorKey: "created_at",
-        accessorFn: (originalRow, index) => originalRow.created_at,
-        header: ({ column }) => {
-            return (
-                <div
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
-                >
-                    Created On
-                    <IconArrowDown size={20} />
-                    
-                </div>
-            )
-        },
-        cell: ({ row }) => <div className=" font-normal">
-            {multiLine(row.getValue("created_at"))}
+        {
+            accessorKey: "created_at",
+            accessorFn: (originalRow, index) => originalRow.created_at,
+            header: ({ column }) => {
+                return (
+                    <div
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
+                    >
+                        Created On
+                        <IconArrowDown size={20} />
 
-        </div>,
-        filterFn: (row, id, value) => {
-            const { range } = value
-            if (range) {
-                const startDate = range?.from;
-                const endDate = range?.to;
-                if (startDate && endDate) {
-                    const createdOnDate = new Date(row.getValue(id));
-                    endDate.setHours(23, 59, 0, 0)
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className=" font-normal">
+                {multiLine(row.getValue("created_at"))}
 
-                    if (!startDate || !endDate) {
-                        return true; // No date range specified, don't apply filtering
+            </div>,
+            filterFn: (row, id, value) => {
+                const { range } = value
+                if (range) {
+                    const startDate = range?.from;
+                    const endDate = range?.to;
+                    if (startDate && endDate) {
+                        const createdOnDate = new Date(row.getValue(id));
+                        endDate.setHours(23, 59, 0, 0)
+
+                        if (!startDate || !endDate) {
+                            return true; // No date range specified, don't apply filtering
+                        }
+
+
+                        return createdOnDate >= startDate && createdOnDate <= endDate;
                     }
-
-
-                    return createdOnDate >= startDate && createdOnDate <= endDate;
+                    return true
                 }
                 return true
-            }
-            return true
+            },
+            sortingFn: (a, b) => {
+                return +new Date(a.getValue("created_at")) - +new Date(b.getValue("created_at"));
+            },
         },
-        sortingFn: (a,b)=>{
-            return +new Date(a.getValue("created_at")) - +new Date(b.getValue("created_at"));
-        },
-    },
-    {
-        id: "actions",
-        enableHiding: false,
-        cell: ({ row, cell }) => {
-            const payment = row.original
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row, cell }) => {
+                const payment = row.original
 
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={()=>setChildDataHandler('row',row)}>
-                            <div className="flex flex-row gap-2 items-center" >
-                                <IconEdit size={16} />
-                                Edit
-                            </div>
-                        </DropdownMenuItem>
-                        {/* <DropdownMenuSeparator /> */}
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            )
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setChildDataHandler('row', row)}>
+                                <div className="flex flex-row gap-2 items-center" >
+                                    <IconEdit size={16} />
+                                    Edit
+                                </div>
+                            </DropdownMenuItem>
+                            {/* <DropdownMenuSeparator /> */}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                )
+            },
         },
-    },
 
-]}
+    ]
+}
 
 const getTextMultiLine = (text: any) => {
     const [name, email] = text.split("{}");

@@ -1,3 +1,4 @@
+import { TYPE } from "@/app/constants/constants";
 import { ActivityAccToEntity, IValueLabel, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 
@@ -18,6 +19,35 @@ export function handleOnChangeNumeric(
   inputElement.value = formattedValue; // Update the input value
   field.onChange(formattedValue); // Update the field value
 }
+
+export function handleOnChangeNumericReturnNull(
+  event: React.ChangeEvent<HTMLInputElement>,
+  field: any,
+  isSeparator: boolean = true,
+  isPhoneMandatory: boolean
+) {
+  const inputElement = event.target;
+  const inputValue = inputElement.value;
+
+  // Remove non-numeric characters except for . and ,
+  const cleanedValue = inputValue.replace(/[^0-9.,]/g, '');
+
+  // If the cleaned value is empty, set it as undefined
+  const formattedValue = cleanedValue === '' ? undefined : formatNumber(cleanedValue, isSeparator);
+  console.log("input value", inputValue, "cleanedValue", cleanedValue, "formattedValue", formattedValue)
+
+  inputElement.value = formattedValue || ''; // Update the input value (use an empty string if undefined)
+  field.onChange(formattedValue); // Update the field value
+  if (isPhoneMandatory) {
+    // form2.setValue("phone", "", SET_VALUE_CONFIG)
+    field.onChange(formattedValue || "")
+  } else {
+    // form2.setValue("phone", null, SET_VALUE_CONFIG)
+    field.onChange(formattedValue || null)
+  }
+}
+
+
 
 // Helper function to format a number with or without separators
 function formatNumber(value: string, isSeparator: boolean): string {
@@ -41,6 +71,20 @@ export const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => 
     event.preventDefault();
   }
 };
+
+export const handleKeyPressReturnUndefined = (event: React.KeyboardEvent<HTMLInputElement>, field: any) => {
+  const keyValue = event.key;
+  const validCharacters = /^[0-9.,\b]+$/; // Allow numbers, comma, period, and backspace (\b)
+  const inputValue = event.currentTarget.value;
+
+  if (keyValue === 'Backspace' && inputValue === '') {
+    field.onChange(undefined); // Set the field value to undefined when backspace is pressed and input is empty
+  } else if (!validCharacters.test(keyValue)) {
+    event.preventDefault(); // Prevent input of invalid characters
+  }
+};
+
+
 export function camelCaseToTitleCase(input: string) {
   // Replace capital letters with a space followed by the same letter in uppercase
   return input.replace(/([A-Z])/g, ' $1')
@@ -283,12 +327,19 @@ export function backendkeyToTitle(keyName: string) {
   const keySplitted = keyName.split("_")
   let finalName: string = ""
   if (keySplitted.length > 0) {
-    keySplitted.map((val,index) => {
-      finalName += `${val[0].toUpperCase()}${val.slice(1)}${keySplitted.length-1 === index ? "" : " "}` 
+    keySplitted.map((val, index) => {
+      finalName += `${val[0].toUpperCase()}${val.slice(1)}${keySplitted.length - 1 === index ? "" : " "}`
     })
     return finalName
-  }else{
+  } else {
     return keyName
   }
 
+}
+
+export function getMandatoryFromType() {
+  return TYPE.filter((val) => val.mandatory).map(val => val.value)
+}
+export function doesTypeIncludesMandatory(value: string) {
+  return TYPE.filter((val) => val.mandatory).map(val => val.value).includes(value)
 }

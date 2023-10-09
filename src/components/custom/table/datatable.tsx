@@ -89,6 +89,10 @@ interface TeamsInterfaceFilter {
 
 type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter & TeamsInterfaceFilter
 
+interface HiddenIf{
+  threeDots?:boolean
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
@@ -96,7 +100,8 @@ interface DataTableProps<TData, TValue> {
   setTableLeadRow: CallableFunction,
   setChildDataHandler: CallableFunction,
   setIsMultiSelectOn: CallableFunction,
-  page: string
+  page: string,
+  hidden?: HiddenIf
 }
 
 export default function DataTable<TData, TValue>({
@@ -106,7 +111,10 @@ export default function DataTable<TData, TValue>({
   setTableLeadRow,
   setChildDataHandler,
   setIsMultiSelectOn,
-  page
+  page,
+  hidden={
+    threeDots:false
+  }
 }: DataTableProps<TData, TValue>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -147,8 +155,10 @@ export default function DataTable<TData, TValue>({
           id: 'created_at',
           desc:true
         }
-      ]
+      ],
     },
+    
+    
     getRowId,
   })
 
@@ -199,6 +209,13 @@ export default function DataTable<TData, TValue>({
         }
       ]
     })
+    if(hidden?.threeDots){
+      setColumnVisibility(()=>{
+        return {
+          "actions":false
+        }
+      })
+    }
   },[])
 
   function setLeadFilter() {

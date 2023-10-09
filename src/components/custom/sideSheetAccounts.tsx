@@ -29,7 +29,7 @@ import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, d
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
-import { handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { doesTypeIncludesMandatory, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull } from './commonFunctions'
 import { getCookie } from 'cookies-next'
 
 const FormSchema2 = z.object({
@@ -63,21 +63,32 @@ const FormSchema2Mod = z.object({
     contactId: z.string().optional(),
 })
 
-const optionalFormschema2 = z.object({
+const FormSchema2Optional = z.object({
     name: z.string({
-    }).optional(),
+    }).min(2).max(30),
     designation: z.string({
-    }).optional(),
-    type: z.string({
-    }).optional(),
+    }).transform((val) => val === undefined ? undefined : val.trim()),
+    type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
     email: z.string({
-    }).optional(),
+    }).email(),
     phone: z.string({
-    }).optional(),
-    std_code: z.string({
-    }).optional(),
+    }).min(10).max(10).optional().nullable(),
+    std_code: z.string({}).optional(),
     contactId: z.string().optional(),
 })
+const FormSchema2ModOptional = z.object({
+    name: z.string({
+    }).min(2).max(30),
+    designation: z.string({
+    }).transform((val) => val === undefined ? undefined : val.trim()),
+    type: z.string().transform((val) => val === undefined ? undefined : val.trim()),
+    email: z.string({
+    }).email(),
+    phone: z.string().min(4).max(13).optional().nullable(),
+    std_code: z.string({}).optional(),
+    contactId: z.string().optional(),
+})
+
 
 const FormSchema = z.object({
     // creators: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -98,19 +109,6 @@ const FormSchema = z.object({
 })
 
 
-
-const form2Defaults: z.infer<typeof FormSchema2> = {
-    name: "",
-    email: "",
-    phone: "",
-    std_code: "+91",
-    designation: undefined,
-    type: undefined,
-    contactId: undefined
-}
-
-
-
 function SideSheetAccounts({ parentData, permissions }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction }, permissions: Permission }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
@@ -128,7 +126,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     const [beforePromoteToProspectDivsArray, setBeforePromoteToProspectDivsArray] = useState<any[]>([]);
     const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const { childData: { row }, setChildDataHandler } = parentData
-
+    const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const data: ClientGetResponse = row.original
 
 
@@ -145,7 +143,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         },
         mode: "all"
     })
-    
+
 
     useEffect(() => {
         console.log("sidesheetaccounts", data)
@@ -171,7 +169,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             updateFormSchema()
             resetForm2()
         }
-        safeparse2()    
+        safeparse2()
     }, [addDialogOpen])
 
     function checkVcIndutsry() {
@@ -189,7 +187,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         updateFormSchema()
     }
 
-    function updateFormSchema() {
+    function updateFormSchema(type: string | undefined = undefined) {
         let updatedSchema
         if (form.getValues("industry") === "vc_pe") {
             updatedSchema = FormSchema.extend({
@@ -201,23 +199,48 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         } else {
             updatedSchema = FormSchema
         }
-        console.log("updatedSchema",updatedSchema, FormSchema)
-        if(addDialogOpen){
+        console.log("updatedSchema", updatedSchema, FormSchema)
+        if (addDialogOpen) {
             const std_code = form.getValues("contacts.std_code")
-            console.log("std_code", std_code)
-            if (std_code !== "+91") {
-                updatedSchema = updatedSchema.extend({
-                    contacts: FormSchema2Mod
-                })
-            } else {
-                updatedSchema = updatedSchema.extend({
-                    contacts: FormSchema2
-                })
+            const isMandatory = type ? doesTypeIncludesMandatory(type) : false
+            if (type) {
+                setIsPhoneMandatory(isMandatory)
             }
-        }else {
+            if (isMandatory) {
+                if (std_code !== "+91") {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2Mod
+                    })
+                } else {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2
+                    })
+                }
+            } else {
+                if (std_code !== "+91") {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2ModOptional
+                    })
+                } else {
+                    updatedSchema = updatedSchema.extend({
+                        contacts: FormSchema2Optional
+                    })
+                }
+            }
+            if (type) {
+                const phone = form.getValues("contacts.phone")
+                if (!phone) {
+                    if (isMandatory) {
+                        form.setValue("contacts.phone", '')
+                    } else {
+                        form.setValue("contacts.phone", null)
+                    }
+                }
+            }
+        } else {
             updatedSchema = updatedSchema.omit({ contacts: true })
         }
-        console.log("updatedSchema",updatedSchema)
+        console.log("updatedSchema", updatedSchema)
         setFormSchema(updatedSchema)
     }
 
@@ -263,7 +286,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
 
 
     useEffect(() => {
-        if(addDialogOpen){
+        if (addDialogOpen) {
             safeparse2()
             console.log("formSchema safeparse", formSchema)
         }
@@ -295,17 +318,23 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     function safeparse2() {
         const contacts = form.getValues("contacts")
         let result
-        if (contacts?.std_code !== "+91") {
-            result = FormSchema2Mod.safeParse(contacts)
-        } else {
-            result = FormSchema2.safeParse(contacts)
+        if(isPhoneMandatory){
+            if (contacts?.std_code !== "+91") {
+                result = FormSchema2Mod.safeParse(contacts)
+            } else {
+                result = FormSchema2.safeParse(contacts)
+            }
+        }else{
+            if (contacts?.std_code !== "+91") {
+                result = FormSchema2ModOptional.safeParse(contacts)
+            } else {
+                result = FormSchema2Optional.safeParse(contacts)
+            }
         }
         console.log("safe prase 2 ", result)
-
         if (result.success) {
             setContactFieldValid(true)
         } else {
-            console.log("safe prase 2 ", result.error.errors)
             setContactFieldValid(false)
         }
     }
@@ -316,8 +345,12 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     }
 
     function resetForm2() {
-        // form.resetField("contacts", { defaultValue: form2Defaults })
-        form.reset({ "contacts": form2Defaults })
+        form.setValue("contacts.name", "")
+        form.setValue("contacts.phone", "")
+        form.setValue("contacts.email", "")
+        form.setValue("contacts.std_code", "+91")
+        form.setValue("contacts.designation", undefined)
+        form.setValue("contacts.type", undefined)
     }
     console.log(form.formState.errors)
     useEffect(() => {
@@ -388,17 +421,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
 
     async function patchData() {
 
-
-        const finalContactData = dummyContactData.filter((contact) => !contact.id)
-        let keysToRemove: any = ["contactId", "isLocallyAdded",]
-        finalContactData.forEach((item) => {
-            keysToRemove.forEach((key: string) => {
-                if (key in item) {
-                    delete item[key];
-                }
-            });
-        })
-
         const orgData: Partial<PatchOrganisation> = {
             name: form.getValues("organisationName"),
             industry: valueToLabel(form.getValues("industry") || "", INDUSTRY),
@@ -415,14 +437,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         }
 
         console.log("datatosend", orgData)
-
-
-        const contactToSend: Contact[] = finalContactData.map((val) => {
-            val.organisation = data.id
-            val.archived = false
-            return val
-        })
-        const contacts: Contact[] = contactToSend
 
         const orgId = data.id
 
@@ -446,7 +460,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     }
 
 
-    
+
     function preprocess() {
         console.log("preprocess")
         safeprs()
@@ -546,15 +560,16 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         const finalData = form.getValues().contacts
         const ftype = TYPE.find((role) => role.value === finalData.type)?.label
         const fDesignation = DESIGNATION.find((des) => des.value === finalData.designation)?.label
-        setDummyContactData((prevValues: any) => {
-            const list = [{ ...form.getValues().contacts, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator() }, ...prevValues]
-            return list
-        })
-
         delete finalData["contactId"]
         const orgId = data.id
+        let phone = form.getValues("contacts.phone")
+        let std_code = form.getValues("contacts.std_code")
+        if (!isPhoneMandatory && !phone) {
+            phone = ""
+            std_code = ""
+        }
         const dataToSend: ContactPostBody = {
-            ...finalData, type: ftype, designation: fDesignation, organisation: orgId
+            ...finalData, type: ftype, designation: fDesignation, organisation: orgId, phone, std_code
         }
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -567,6 +582,10 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                 toast({
                     title: "Contact Added Successfully!",
                     variant: "dark"
+                })
+                setDummyContactData((prevValues: any) => {
+                    const list = [{ ...result.data }, ...prevValues]
+                    return list
                 })
             } else {
                 toast({
@@ -1161,7 +1180,10 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                     name="contacts.type"
                                                                     render={({ field }) => (
                                                                         <FormItem>
-                                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                            <Select onValueChange={(val) => {
+                                                                                updateFormSchema(val)
+                                                                                return field.onChange(val)
+                                                                            }} defaultValue={field.value}>
                                                                                 <FormControl>
                                                                                     <SelectTrigger className={commonClasses2}>
                                                                                         <SelectValue placeholder="Type" />
@@ -1218,7 +1240,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                                                         value={cc.label}
                                                                                                         key={cc.label}
                                                                                                         onSelect={() => {
-                                                                                                            console.log("contacts.std_code", cc.value)
                                                                                                             form.setValue("contacts.std_code", cc.value)
                                                                                                         }}
                                                                                                     >
@@ -1250,10 +1271,10 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                     name="contacts.phone"
                                                                     render={({ field }) => (
                                                                         <FormControl>
-                                                                            <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder="Phone No" {...field}
+                                                                            <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
                                                                                 onKeyPress={handleKeyPress}
                                                                                 onChange={event => {
-                                                                                    return handleOnChangeNumeric(event, field, false)
+                                                                                    return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
                                                                                 }}
                                                                             />
                                                                         </FormControl>
@@ -1334,7 +1355,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
 
     )
 
-    
+
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })

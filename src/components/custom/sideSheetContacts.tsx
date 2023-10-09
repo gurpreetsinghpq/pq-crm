@@ -63,7 +63,7 @@ const formDefaults: z.infer<typeof FormSchema> = {
 
 
 
-function SideSheetContacts({ parentData, permissions, accountList }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction }, permissions:Permission, accountList:IValueLabel[] | undefined }) {
+function SideSheetContacts({ parentData, permissions, accountList }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction }, permissions: Permission, accountList: IValueLabel[] | undefined }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
     const [editContactNameClicked, setEditContactNameClicked] = useState<boolean>(false);
@@ -78,7 +78,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     useEffect(() => {
         console.log(data)
         fetchClientData()
-        setRowState((prevState)=>({
+        setRowState((prevState) => ({
             ...prevState,
             name: data.name
         }))
@@ -137,9 +137,9 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
     }, [watcher])
 
-    useEffect(()=>{
+    useEffect(() => {
         form.trigger()
-    },[formSchema])
+    }, [formSchema])
 
     const tabs: IValueLabel[] = [
         { label: "Proposal", value: "proposal" },
@@ -306,12 +306,12 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             updatedSchema = FormSchema
         }
         setFormSchema(updatedSchema)
-        console.log("updatedschema",updatedSchema)
+        console.log("updatedschema", updatedSchema)
     }
 
     function updateContactName(): void {
         setEditContactNameClicked(false)
-        setRowState((prevState)=>({
+        setRowState((prevState) => ({
             ...prevState,
             name: form.getValues("name")
         }))
@@ -590,7 +590,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                                             {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                                            {COUNTRY_CODE.find((val) => val.value === field.value)?.value}
+                                                                            {COUNTRY_CODE.find((val) => val.value === field.value)?.value || <span className='text-muted-foreground '> STD Code</span>}
                                                                             <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                         </Button>
                                                                     </FormControl>
