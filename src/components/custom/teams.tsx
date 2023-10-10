@@ -300,15 +300,6 @@ function Teams({ form, permissions }: {
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
                             <span className="text-sm ">{isLoading ? "Loading..." : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Teams" : "Team"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Teams" : "Team"}` : "No Teams"}</span>
-                            {/* {form.getValues("queryParamString") && <div
-                                onClick={() => {
-                                    window.history.replaceState(null, '', '/dashboard')
-                                    location.reload()
-                                }}
-                                className="rounded-[16px] bg-gray-50 border-[1px] border-gray-200 mix-blend-multiply text-sm px-[12px] py-[4px] flex flex-row gap-[6px] items-center hover:shadow-lg hover:cursor-pointer">
-                                {form.getValues("queryParamString")}
-                                <IconCross size={14} color={"#98A2B3"} />
-                            </div>} */}
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -323,38 +314,6 @@ function Teams({ form, permissions }: {
                             </TooltipProvider>
                         </div>
                         <div className="flex-1 flex flex-row gap-3 justify-end">
-                            {isMultiSelectOn && !form.getValues("queryParamString") ? <div className="multi-selected flex flex-row gap-2">
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button variant={"google"} className="flex flex-row gap-2" type="button" >
-                                            <IconArchive size={20} color="#344054" />
-                                            {isInbox ? "Archive" : "Inbox"}
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
-                                        <div className='w-fit'>
-                                            <DialogHeader>
-                                                <div className=' rounded-full w-fit'>
-                                                    <IconArchive2 size={62} />
-                                                </div>
-                                            </DialogHeader>
-                                            <div className='flex flex-col gap-[32px] mt-[16px] min-w-[380px] '>
-                                                <div className='flex flex-col gap-[5px]'>
-                                                    <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Leads" : "Lead"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
-                                                </div>
-                                                <div className='flex flex-row gap-[12px] w-full'>
-                                                    <DialogClose asChild>
-                                                        <Button className='text-md flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
-                                                    </DialogClose>
-                                                    <Button onClick={archiveApi} className='flex-1 text-md font-semibold px-[38px] py-[10px]'>{isInbox ? "Archive" : "Confirm"} </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </DialogContent>
-                                </Dialog>
-                                {/* <Button variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>Promote to Prospect <IconArrowSquareRight size={20} /></Button> */}
-                            </div> :
                                 <>
                                     <div>
                                         <DateRangePicker
@@ -433,7 +392,7 @@ function Teams({ form, permissions }: {
                                         />
 
                                     </div>
-                                </>}
+                                </>
                         </div>
                     </div>
                 </form>

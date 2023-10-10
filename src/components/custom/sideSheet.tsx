@@ -464,9 +464,9 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             // region: region,
             location: form.getValues("locations"),
             budget_range: valueToLabel(form.getValues("budget"), BUDGET_RANGE[labelToValue(form.getValues("regions"), REGIONS) || ""]),
-            fixed_budget: `${form.getValues("fixedCtcBudgetCurrency")} ${form.getValues("fixedCtcBudget")}`,
-            fixed_budget_ul: `${form.getValues("fixedBudgetUlCurrency")} ${form.getValues("fixedBudgetUl")}`,
-            esop_rsu: `${form.getValues("esopRsusUlCurrency")} ${form.getValues("esopRsusUl")}`,
+            fixed_budget: form.getValues("fixedCtcBudget") ? `${form.getValues("fixedCtcBudgetCurrency")} ${form.getValues("fixedCtcBudget")}` : null,
+            fixed_budget_ul: form.getValues("fixedBudgetUl") ? `${form.getValues("fixedBudgetUlCurrency")} ${form.getValues("fixedBudgetUl")}` : null,
+            esop_rsu: form.getValues("esopRsusUl") ? `${form.getValues("esopRsusUlCurrency")} ${form.getValues("esopRsusUl")}` : null,
             time_To_fill: valueToLabel(form.getValues("timeToFill") || "", TIME_TO_FILL)
         }
 

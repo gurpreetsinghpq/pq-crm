@@ -17,7 +17,7 @@ import { getAllTime, getLast7Days, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "../ui/use-toast"
 import { ArrowDown, ArrowUp } from "lucide-react"
-import { fetchMyDetails, fetchProfileDetailsById, setToken } from "../custom/commonFunctions"
+import { fetchMyDetails, fetchProfileDetailsById, fetchTimeZone, setToken } from "../custom/commonFunctions"
 import { disabledSidebarItem } from "@/app/constants/classes"
 import { deleteCookie, getCookie } from "cookies-next"
 
@@ -383,6 +383,7 @@ export default function DashboardComponent() {
 
         getMyDetails()
         setUser(userFromLocalstorage)
+        fetchTimeZone()
     }, [])
 
     function getInitials(first_name: string | undefined, last_name: string | undefined) {

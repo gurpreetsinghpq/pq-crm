@@ -1,6 +1,6 @@
 import { ALL_STATUS_MERGED, SIDESHEET_TAB_TYPE, STATUSES, STEPPER_STATUS } from '@/app/constants/constants'
 import { ActivityAccToEntity, ActivityHistory, ChangeLogHistory, NotesHistory, Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
-import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconNotes, IconUserEdit, IconUserRight } from '@/components/icons/svgIcons'
+import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconNotes, IconReschedule, IconUserEdit, IconUserRight } from '@/components/icons/svgIcons'
 import React from 'react'
 import { valueToLabel } from '../sideSheet'
 import { multiLine, multiLineStyle2 } from '../table/columns'
@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Ban, CheckCircle, MoreVertical } from 'lucide-react'
 import { backendkeyToTitle, changeBooleanToYesOrNo } from '../commonFunctions'
+import RescheduleActivity from './deal-activity/reschedule-activity'
 
 
 type DetailsType = Partial<TodoListGetResponse> & Partial<ActivityHistory> & Partial<NotesHistory> & Partial<ChangeLogHistory>;
@@ -55,7 +56,7 @@ function CustomStepper({ details, markStatusOfActivity, permissions }: {
                                 {status?.label}
                             </div>
                             {details.typeOfEntity === "todo" && permissions?.change && <div>
-                                <DropdownMenu>
+                                <DropdownMenu modal={false}>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-8 w-8 p-0">
                                             <span className="sr-only">Open menu</span>
@@ -63,6 +64,11 @@ function CustomStepper({ details, markStatusOfActivity, permissions }: {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
+                                        {
+                                          details.id &&  <>
+                                                    <RescheduleActivity key={details.id} data={details} permissions={permissions} entityId={details.id} contactFromParents={details.contacts}/>
+                                            </>
+                                        }
                                         <DropdownMenuItem onClick={() => markStatusOfActivity && details.id && markStatusOfActivity(details.id, "Completed")}>
                                             <div className="text-gray-700 text-sm font-medium flex flex-row items-center gap-[8px]" >
                                                 <div>

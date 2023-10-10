@@ -40,8 +40,7 @@ export default function Signin() {
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth < 1300 : false
     )
-    const [timerId, setTimerId] = useState<number | null>(null);
-
+    
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [googleWidth, setGoogleWidth] = useState<string>("")
 
@@ -97,9 +96,6 @@ export default function Signin() {
                     })
                 }
             }
-            setTimeout(() => {
-                setPostLogin(undefined)
-            }, 3000)
 
         }
         catch (err) {
@@ -169,9 +165,7 @@ export default function Signin() {
                     })
                 }
             }
-            setTimeout(() => {
-                setPostLogin(undefined)
-            }, 3000)
+            
 
         }
         catch (err) {

@@ -19,7 +19,8 @@ import { getContacts } from '../custom-stepper'
 import { ActivityPostBody, IValueLabel, Permission } from '@/app/interfaces/interface'
 import { compareTimeStrings, fetchTimeZone, fetchUserDataList, getCurrentDateTime, getToken } from '../../commonFunctions'
 import { toast } from '@/components/ui/use-toast'
-import { valueToLabel } from '../../sideSheet'
+import { labelToValue, valueToLabel } from '../../sideSheet'
+import { beforeCancelDialog } from '../../addLeadDetailedDialog'
 
 
 
@@ -49,10 +50,11 @@ const FormSchema = z.object({
 
 
 
-function Activity({ contactFromParents, entityId, permissions }: { contactFromParents: any, entityId: number, permissions: Permission }) {
+function Activity({ contactFromParents, entityId, permissions, editMode = { isEditMode: false, data: null, yesDiscard: null } }: { contactFromParents: any, entityId: number, permissions: Permission, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null } }) {
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
+    const [timeZone, setTimeZone] = React.useState<string>()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -138,8 +140,9 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
                 hour12: false, // Use 24-hour format
 
             });
-            const currentTime = formatter.format(new Date()) 
+            const currentTime = formatter.format(new Date())
             setCurrentTime(currentTime)
+            setTimeZone(result)
             console.log("timezone", currentTime);
         }
     }
@@ -148,6 +151,33 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
         getUserList()
         // console.log("timezone", getCurrentDateTime())
         getTimeZone()
+
+        if (editMode.isEditMode) {
+            form.setValue("assignedTo", editMode?.data?.assigned_to?.id?.toString())
+            form.setValue("type", labelToValue(editMode?.data?.type, ACTIVITY_TYPE) || "")
+            form.setValue("mode", labelToValue(editMode?.data?.mode, MODE) || "")
+            form.setValue("contact", editMode?.data?.contact)
+            console.log("REMINDER", editMode?.data?.reminder?.toString(), editMode.data.id)
+            form.setValue("reminder", editMode?.data?.reminder?.toString())
+            const dueDateFromEdit: string = editMode?.data?.due_date
+            if (dueDateFromEdit) {
+                const dateObject = new Date(dueDateFromEdit);
+                const formatter = new Intl.DateTimeFormat([], {
+                    timeZone: timeZone,
+                    hour: "numeric",
+                    minute: "numeric",
+                    hour12: false, // Use 24-hour format
+
+                });
+                const dueTime = formatter.format(dateObject)
+                const dueDate = new Date(new Date(dueDateFromEdit).toLocaleString("en-us", { timeZone: timeZone }))
+                form.setValue("dueTime", dueTime)
+                form.setValue("dueDate", dueDate)
+
+
+            }
+
+        }
     }, [])
     console.log(form.getValues())
     const CONTACTS_FROM_PARENT: any = contactFromParents
@@ -157,7 +187,7 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
     return (
         <Form {...form}>
             <form className='w-full' onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='flex flex-col rounded-[8px] bg-white-900 border-[1px] border-gray-200'>
+                <div className={`flex flex-col rounded-[8px] bg-white-900 ${!editMode.isEditMode && "border-[1px] border-gray-200"}`}>
                     <div className='px-[28px] py-[24px] w-full '>
                         <div className=' flex flex-col gap-[28px]'>
                             <div className='max-w-[800px] flex flex-col gap-[16px]'>
@@ -172,11 +202,11 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
                                             name="type"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Select onValueChange={(value) => {
+                                                    <Select disabled={editMode.isEditMode} onValueChange={(value) => {
                                                         return field.onChange(value)
                                                     }} defaultValue={field.value} key={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
                                                                 <SelectValue placeholder="Select Activity Type" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -213,7 +243,7 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
                                                     <Popover>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
-                                                                <Button variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog}`}>
+                                                                <Button variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
                                                                     {
                                                                         field?.value?.length > 0 ? (
                                                                             getContacts(field.value.map(contactId => {
@@ -286,11 +316,11 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
                                             name="mode"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Select onValueChange={(value) => {
+                                                    <Select disabled={editMode.isEditMode} onValueChange={(value) => {
                                                         return field.onChange(value)
                                                     }} defaultValue={field.value} key={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
                                                                 <SelectValue placeholder="Select Mode" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -327,7 +357,7 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
                                                     <Popover>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
-                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <Button variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                         {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Choose</span>}
                                                                     </div>
@@ -455,9 +485,9 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
                                                                         <CommandGroup>
                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                                 {TIME_OPTIONS.filter((timeOption) => {
-                                                                                    const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate") ) :false
+                                                                                    const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate")) : false
                                                                                     return !shouldDisable
-                                                                                }).map((timeOption)=>{
+                                                                                }).map((timeOption) => {
                                                                                     return (<CommandItem
                                                                                         value={timeOption.value}
                                                                                         key={timeOption.value}
@@ -620,10 +650,18 @@ function Activity({ contactFromParents, entityId, permissions }: { contactFromPa
                         </div>
                     </div>
                     <div className="bg-gray-200 h-[1px]  mt-8" />
-                    <div className="flex flex-row gap-2 justify-end p-[16px]">
-                        {/* <Button variant={"google"} >Cancel</Button> */}
-                        <Button type='submit' disabled={!form.formState.isValid || !permissions?.add}>Save </Button>
-                    </div>
+                    {editMode.isEditMode ?
+                        <div className='flex flex-row gap-2 w-full justify-end p-[24px]'>
+                            {editMode.yesDiscard && beforeCancelDialog(editMode.yesDiscard)}
+                            <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty || !permissions?.change}>
+                                Update
+                            </Button>
+                        </div> :
+                        <>
+                            <div className="flex flex-row gap-2 justify-end p-[16px]">
+                                <Button type='submit' disabled={!form.formState.isValid || !permissions?.add}>Save </Button>
+                            </div>
+                        </>}
                 </div>
             </form>
         </Form>

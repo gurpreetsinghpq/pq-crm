@@ -405,6 +405,11 @@ const PercentIcon2 = ({ size = 24, color = "#98A2B3" }) => (
     <path d="M19 5L5 19M9 7C9 8.10457 8.10457 9 7 9C5.89543 9 5 8.10457 5 7C5 5.89543 5.89543 5 7 5C8.10457 5 9 5.89543 9 7ZM19 17C19 18.1046 18.1046 19 17 19C15.8954 19 15 18.1046 15 17C15 15.8954 15.8954 15 17 15C18.1046 15 19 15.8954 19 17Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 )
+const RescheduleIcon = ({ size = 24, color = "#344054" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" fill="none">
+  <path d="M15.1333 7.66667L13.8004 9L12.4666 7.66667M13.9634 8.66667C13.9876 8.44778 14 8.22534 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14C9.88484 14 11.5667 13.1309 12.6667 11.7716M8 4.66667V8L10 9.33333" stroke={color} stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+)
 const GstIcon = ({ size = 24, color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none">
     <path d="M11.5 2H15.2C16.8802 2 17.7202 2 18.362 2.32698C18.9265 2.6146 19.3854 3.07354 19.673 3.63803C20 4.27976 20 5.11984 20 6.8V17.2C20 18.8802 20 19.7202 19.673 20.362C19.3854 20.9265 18.9265 21.3854 18.362 21.673C17.7202 22 16.8802 22 15.2 22H8.8C7.11984 22 6.27976 22 5.63803 21.673C5.07354 21.3854 4.6146 20.9265 4.32698 20.362C4 19.7202 4 18.8802 4 17.2V14.5" stroke="#98A2B3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -903,5 +908,6 @@ export const IconPqNameLight = (props) => <PqNameLight {...props} />;
 export const IconUserRight = (props) => <UserRightIcon {...props} />;
 export const IconUserEdit = (props) => <UserEditIcon {...props} />;
 export const IconAward = (props) => <AwardIcon {...props} />;
+export const IconReschedule = (props) => <RescheduleIcon {...props} />;
 
 

@@ -234,11 +234,13 @@ export const getToken = () => {
   return token_superuser
 }
 
+export let TIMEZONE = ''
 export async function fetchTimeZone() {
   const myDetails = await fetchMyDetails();
   if (myDetails) {
     const timeZone = myDetails.time_zone;
     if (timeZone) {
+      TIMEZONE = timeZone
       return timeZone
     }
   }

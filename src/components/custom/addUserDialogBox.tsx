@@ -15,7 +15,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
-import { fetchProfileDataList, fetchTeamDataList, fetchUserDataList, getToken, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { fetchProfileDataList, fetchTeamDataList, fetchTimeZone, fetchUserDataList, getToken, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
@@ -168,6 +168,9 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                 })
                 console.log(result)
                 yesDiscard(true)
+                if(isUpdate){
+                    fetchTimeZone()
+                }
             } else {
                 if (result?.error?.email?.includes("user with this email already exists")) {
                     toast({

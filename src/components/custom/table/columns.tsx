@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
-import { getName } from "../commonFunctions"
+import { TIMEZONE, getName } from "../commonFunctions"
 
 
 
@@ -279,7 +279,7 @@ export const multiLineStyle2 = (dateStr: any) => {
 function formatUtcDateToLocal(backendUtcDate: any) {
 
 
-    const inputString = new Date(backendUtcDate).toLocaleString('en-US', { hour12: false })
+    const inputString = new Date(backendUtcDate).toLocaleString('en-US', { timeZone: TIMEZONE ,  hour12: false })
     const months = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"

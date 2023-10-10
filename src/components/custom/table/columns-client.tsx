@@ -297,30 +297,6 @@ export function columnsClient(setChildDataHandler:CallableFunction): ColumnDef<C
 
 ]}
 
-function formatUtcDateToLocal(backendUtcDate: any) {
-
-
-    const inputString = new Date(backendUtcDate).toLocaleString('en-US', { hour12: false })
-    const months = [
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-
-    const [datePart, timePart] = inputString.split(', ');
-    const [month, date, year] = datePart.split('/');
-    const timeString = timePart;
-
-    const formattedDate = `${months[parseInt(month) - 1]} ${parseInt(date)}, ${year}`;
-    const [hours, minutes] = timeString.split(':');
-    const numericHours = parseInt(hours);
-    const period = numericHours >= 12 ? 'pm' : 'am';
-    const formattedHours = numericHours === 0 ? 12 : (numericHours > 12 ? numericHours - 12 : numericHours);
-    const formattedTime = `${formattedHours}:${minutes}${period}`;
-
-
-
-    return `${formattedDate}@${formattedTime}`;
-}
 function capitalizeFirstLetters(inputString: string) {
     return inputString.replace(/\b\w/g, char => char.toUpperCase());
 }
