@@ -243,7 +243,7 @@ export default function Signin() {
                 </form>
             </Form>
             <div className="flex flex-row justify-center w-full">
-                <GoogleOAuthProvider clientId="272679518967-j4530tj210q5k9mud5kmrtsg6e40kd06.apps.googleusercontent.com">
+                <GoogleOAuthProvider clientId="100459258268-sn7hlrrck2h8vu96luhaa4q3cv7nv6lr.apps.googleusercontent.com">
                     {<GoogleLogin
                         // size="large"
                         width={googleWidth}
