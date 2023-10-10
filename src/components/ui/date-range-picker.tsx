@@ -311,7 +311,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             isSelected: boolean
         }): JSX.Element => (
             <Button
-                className={cn(isSelected && 'pointer-events-none bg-accent text-accent-foreground')}
+                className={cn("py-[4px]", isSelected && 'pointer-events-none bg-accent text-accent-foreground')}
                 variant="ghost"
                 onClick={() => { setPreset(preset) }}
             >
@@ -380,7 +380,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                         <div className="flex py-2">
                             {
                                 !isSmallScreen && (<div className="flex flex-col gap-1 pl-2 pr-6 pb-0">
-                                    <div className="flex w-full flex-col items-start gap-1 pr-6 pb-2">
+                                    <div className="flex w-full flex-col items-start gap-1 pr-6 pb-2 overflow-y-auto 2xl:max-h-[410px]">
                                         {PRESETS.map((preset) => (
                                             <PresetButton
                                                 key={preset.name}
