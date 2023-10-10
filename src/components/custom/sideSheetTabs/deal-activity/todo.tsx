@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CustomStepper from '../custom-stepper'
 import { SIDESHEET_TAB_TYPE, STEPPER_STATUS } from '@/app/constants/constants'
-import { Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
+import { ActivityPatchBody, Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
 import { getToken } from '../../commonFunctions'
 import { Loader2 } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
@@ -58,6 +58,21 @@ function Todo({ entityId, permissions }: { entityId: number, permissions: Permis
         }
     }
 
+    async function rescheduleActivity(entityId:number, data:ActivityPatchBody){
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/`, { method: "PATCH", body: JSON.stringify(data), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            toast({
+                title: `Activity Rescheduled`,
+                variant: "dark"
+            })
+            fetchTodoList()
+            console.log("todo",result)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     useEffect(() => {
         fetchTodoList()
     }, [])
@@ -67,7 +82,7 @@ function Todo({ entityId, permissions }: { entityId: number, permissions: Permis
             {
                 todoList ? todoList.length>0? todoList.map((val, index) => {
                     return <div className='custom-stepper'>
-                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} permissions={permissions}/>
+                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} rescheduleActivity={rescheduleActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} permissions={permissions}/>
                     </div>
                 }) : <> No data found </> : <> <Loader2 className="mr-2 h-4 w-4 animate-spin " size={80} /></>
             }

@@ -1,5 +1,5 @@
 import { ALL_STATUS_MERGED, SIDESHEET_TAB_TYPE, STATUSES, STEPPER_STATUS } from '@/app/constants/constants'
-import { ActivityAccToEntity, ActivityHistory, ChangeLogHistory, NotesHistory, Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
+import { ActivityAccToEntity, ActivityHistory, ActivityPatchBody, ChangeLogHistory, NotesHistory, Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
 import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconNotes, IconReschedule, IconUserEdit, IconUserRight } from '@/components/icons/svgIcons'
 import React from 'react'
 import { valueToLabel } from '../sideSheet'
@@ -15,9 +15,10 @@ import RescheduleActivity from './deal-activity/reschedule-activity'
 type DetailsType = Partial<TodoListGetResponse> & Partial<ActivityHistory> & Partial<NotesHistory> & Partial<ChangeLogHistory>;
 
 
-function CustomStepper({ details, markStatusOfActivity, permissions }: {
-    details: DetailsType
-    , markStatusOfActivity?: (entityId: number, status: string) => Promise<void>,
+function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permissions }: {
+    details: DetailsType,
+    markStatusOfActivity?: (entityId: number, status: string) => Promise<void>,
+    rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>,
     permissions?: Permission
 }) {
 
@@ -65,8 +66,8 @@ function CustomStepper({ details, markStatusOfActivity, permissions }: {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         {
-                                          details.id &&  <>
-                                                    <RescheduleActivity key={details.id} data={details} permissions={permissions} entityId={details.id} contactFromParents={details.contacts}/>
+                                            details.id && <>
+                                                <RescheduleActivity rescheduleActivity={rescheduleActivity} key={details.id} data={details} permissions={permissions} entityId={details.id} contactFromParents={details.contacts} />
                                             </>
                                         }
                                         <DropdownMenuItem onClick={() => markStatusOfActivity && details.id && markStatusOfActivity(details.id, "Completed")}>

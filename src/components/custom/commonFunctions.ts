@@ -268,11 +268,10 @@ export async function getCurrentDateTime() {
   }
 }
 
-export function compareTimeStrings(timeVlaue: string, currentTime: string, todayDate: Date | undefined): boolean {
+export function compareTimeStrings(timeVlaue: string, currentTime: string, todayDate: Date | undefined, currentDate: Date): boolean {
   // Create Date objects for the current date and the two time strings
   if (todayDate) {
 
-    const currentDate: Date = new Date();
     if (todayDate.getDay() === currentDate.getDay() && todayDate.getMonth() === currentDate.getMonth() && todayDate.getFullYear() === currentDate.getFullYear()) {
 
       const timeParts1: string[] = timeVlaue.split(":");

@@ -3,12 +3,12 @@ import Activity from './activity'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button'
-import { Permission } from '@/app/interfaces/interface'
+import { ActivityPatchBody, Permission } from '@/app/interfaces/interface'
 import { IconReschedule } from '@/components/icons/svgIcons'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 
-function RescheduleActivity({ data, entityId, permissions, contactFromParents }: { data: any, entityId: number, permissions: Permission, contactFromParents: any }) {
+function RescheduleActivity({ data, entityId, permissions, contactFromParents, rescheduleActivity }: { data: any, entityId: number, permissions: Permission, contactFromParents: any, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void> }) {
     const [open, setOpen] = useState<boolean>(false)
     function yesDiscard(isAdd: boolean = false) {
         setOpen(false)
@@ -36,7 +36,7 @@ function RescheduleActivity({ data, entityId, permissions, contactFromParents }:
                     </DialogHeader>
                     <div className='flex flex-col gap-[32px] min-w-[780px] '>
                         <div>
-                            <Activity editMode={{ isEditMode: true, data, yesDiscard }} entityId={entityId} permissions={permissions} contactFromParents={contactFromParents} />
+                            <Activity editMode={{ isEditMode: true, data, yesDiscard, rescheduleActivity, setOpen }} entityId={entityId} permissions={permissions} contactFromParents={contactFromParents} />
                         </div>
                     </div>
                 </div>

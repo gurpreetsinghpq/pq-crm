@@ -915,3 +915,7 @@ export interface ActivityHistory{
     typeOfEntity?:string
 
 }
+export interface ActivityPatchBody{
+    reminder:number,
+    due_date:string
+}

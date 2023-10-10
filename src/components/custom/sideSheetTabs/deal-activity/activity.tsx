@@ -16,7 +16,7 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
-import { ActivityPostBody, IValueLabel, Permission } from '@/app/interfaces/interface'
+import { ActivityPatchBody, ActivityPostBody, IValueLabel, Permission } from '@/app/interfaces/interface'
 import { compareTimeStrings, fetchTimeZone, fetchUserDataList, getCurrentDateTime, getToken } from '../../commonFunctions'
 import { toast } from '@/components/ui/use-toast'
 import { labelToValue, valueToLabel } from '../../sideSheet'
@@ -50,7 +50,7 @@ const FormSchema = z.object({
 
 
 
-function Activity({ contactFromParents, entityId, permissions, editMode = { isEditMode: false, data: null, yesDiscard: null } }: { contactFromParents: any, entityId: number, permissions: Permission, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null } }) {
+function Activity({ contactFromParents, entityId, permissions, editMode = { isEditMode: false, data: null, yesDiscard: null } }: { contactFromParents: any, entityId: number, permissions: Permission, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction } }) {
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
@@ -71,7 +71,6 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
 
     useEffect(() => {
         const subscription = form.watch(() => {
-            console.log(form.formState.isValid)
             // console.log(form.formState.errors)
         })
         return () => subscription.unsubscribe()
@@ -90,17 +89,7 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
 
     }
     async function onSubmit(data: z.infer<typeof FormSchema>) {
-        const dueDate = form.getValues("dueDate")
-        const dueTime = form.getValues("dueTime")
-        const [hours, minutes] = dueTime.split(":").map(Number);
-        dueDate.setHours(hours);
-        dueDate.setMinutes(minutes);
-        dueDate.setSeconds(0);
-        dueDate.setMilliseconds(0);
-        console.log("dueDate", dueDate,)
-        const utcDate = dueDate.toISOString()
-        console.log("utcDate", utcDate)
-        const formattedDueDate = utcDate.replace('T', ' ').replace('Z', '');
+        const formattedDueDate = formattedDueDateToSend()
 
         const dataToSend: ActivityPostBody = {
             contact: data.contact,
@@ -127,6 +116,21 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
             console.log(err)
         }
 
+    }
+
+    function formattedDueDateToSend() {
+        const dueDate = form.getValues("dueDate")
+        const dueTime = form.getValues("dueTime")
+        const [hours, minutes] = dueTime.split(":").map(Number)
+        dueDate.setHours(hours)
+        dueDate.setMinutes(minutes)
+        dueDate.setSeconds(0)
+        dueDate.setMilliseconds(0)
+        console.log("dueDate", dueDate)
+        const utcDate = dueDate.toISOString()
+        console.log("utcDate", utcDate)
+        const formattedDueDate = utcDate.replace('T', ' ').replace('Z', '')
+        return formattedDueDate
     }
 
     async function getTimeZone() {
@@ -183,6 +187,20 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
     const CONTACTS_FROM_PARENT: any = contactFromParents
 
     console.log("contactFromParents", contactFromParents)
+
+    function reschedule() {
+        const formattedDueDate = formattedDueDateToSend()
+        const reminder = Number(form.getValues("reminder"))
+        if (editMode.rescheduleActivity) {
+            editMode.rescheduleActivity(editMode.data.id, {
+                due_date: formattedDueDate,
+                reminder: reminder
+            })
+            editMode.setOpen && editMode.setOpen(false)
+        }
+
+
+    }
 
     return (
         <Form {...form}>
@@ -441,7 +459,7 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
                                                                         onSelect={field.onChange}
                                                                         disabled={(date) => {
                                                                             // const today = new Date().toISOString().split('T')[0];
-                                                                            const today = new Date();
+                                                                            const today = getCurrentDateAccToTimezone()
                                                                             today.setHours(0, 0, 0, 0);
                                                                             return date < new Date(today)
                                                                         }
@@ -465,7 +483,12 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
                                                                 <PopoverTrigger asChild>
                                                                     <FormControl>
                                                                         <FormControl>
-                                                                            <Button disabled={form.getValues("dueDate") == undefined} variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                            <Button disabled={(() => {
+                                                                                const today = getCurrentDateAccToTimezone()
+                                                                                today.setDate(today.getDate() - 1)
+                                                                                const disable = form.getValues("dueDate") == undefined || new Date(form.getValues("dueDate")) < today
+                                                                                return disable
+                                                                            })()} variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                                 <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                                     {field.value ? (
                                                                                         field.value
@@ -485,7 +508,8 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
                                                                         <CommandGroup>
                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                                 {TIME_OPTIONS.filter((timeOption) => {
-                                                                                    const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate")) : false
+                                                                                    const today = getCurrentDateAccToTimezone()
+                                                                                    const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate"), today) : false
                                                                                     return !shouldDisable
                                                                                 }).map((timeOption) => {
                                                                                     return (<CommandItem
@@ -653,9 +677,9 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
                     {editMode.isEditMode ?
                         <div className='flex flex-row gap-2 w-full justify-end p-[24px]'>
                             {editMode.yesDiscard && beforeCancelDialog(editMode.yesDiscard)}
-                            <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty || !permissions?.change}>
+                            {editMode?.rescheduleActivity && <Button onClick={() => reschedule()} type='button' disabled={!form.formState.isDirty || !permissions?.change}>
                                 Update
-                            </Button>
+                            </Button>}
                         </div> :
                         <>
                             <div className="flex flex-row gap-2 justify-end p-[16px]">
@@ -666,6 +690,10 @@ function Activity({ contactFromParents, entityId, permissions, editMode = { isEd
             </form>
         </Form>
     )
+
+    function getCurrentDateAccToTimezone() {
+        return new Date(new Date().toLocaleString("en-us", { timeZone: timeZone }))
+    }
 }
 
 export default Activity
