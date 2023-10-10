@@ -379,8 +379,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
 
                         <div className="flex py-2">
                             {
-                                !isSmallScreen && (<div className="flex flex-col gap-1 pl-2 pr-6 pb-6">
-                                    <div className="flex w-full flex-col items-start gap-1 pr-6 pb-6">
+                                !isSmallScreen && (<div className="flex flex-col gap-1 pl-2 pr-6 pb-0">
+                                    <div className="flex w-full flex-col items-start gap-1 pr-6 pb-2">
                                         {PRESETS.map((preset) => (
                                             <PresetButton
                                                 key={preset.name}
