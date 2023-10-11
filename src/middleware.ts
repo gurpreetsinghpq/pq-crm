@@ -8,7 +8,13 @@ export function middleware(request: NextRequest) {
     if(!token){
         return NextResponse.redirect(`${origin}/signin`)
     } else {
-        return NextResponse.next();
+        const url = request.nextUrl.clone()   
+        if (url.pathname === '/') {
+            url.pathname = '/dashboard'
+            return NextResponse.redirect(url)
+        } else{
+            return NextResponse.next();
+        }
     }
 }
  
@@ -23,5 +29,5 @@ export const config = {
          * - favicon.ico (favicon file)
          */
         '/((?!api|_next/static|_next/image|images|favicon.ico|verifytoken|forgotpassword|setpassword|signin).*)',
-      ],
+    ],
 }
