@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Script src="./html2pdf.min.js" />
+      
         {children}
         <Toaster />
       </body>
