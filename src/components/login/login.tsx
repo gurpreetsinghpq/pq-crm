@@ -125,7 +125,6 @@ export default function Signin() {
 
     useEffect(() => {
         const googleWidth = buttonRef.current?.offsetWidth
-        console.dir(buttonRef.current)
         setGoogleWidth(`${googleWidth}px`)
 
     }, [])
