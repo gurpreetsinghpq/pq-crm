@@ -103,28 +103,28 @@ const FormSchema = z.object({
     budget: z.string(), // [x]
     closedBy: z.string().optional(),
     fulfilledBy: z.string().optional(),
-    locations: z.string().optional(), // [x]
-    fixedCtcBudget: z.string().optional(), // [x]
+    locations: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
+    fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
     fixedCtcBudgetCurrency: z.string().optional(),
     dealValue: z.string().optional(),
     orgnaisationName: z.string(), // [x]
     registeredName: z.string().optional(),
-    industry: z.string().optional(), // [x]
+    industry: z.string(required_error).min(1, { message: required_error.required_error }), // [x]
     domain: z.string().optional(), // [x]
     size: z.string().optional(), // [x]
     lastFundingStage: z.string().optional(), // [x]
     lastFundingAmount: z.string().optional(), // [x]
     shippingAddress: z.string().optional(),
     billingAddress: z.string().optional(),
-    exclusivity: z.string().optional(),
-    serviceFeeRange: z.string().optional(),
+    exclusivity: z.string(required_error).min(1, { message: required_error.required_error }),
+    serviceFeeRange: z.string(required_error).min(1, { message: required_error.required_error }),
     serviceFee: z.string().optional(),
-    retainerAdvance: z.string().optional(),
+    retainerAdvance: z.string(required_error).min(1, { message: required_error.required_error }),
     esopRsusUl: z.string().optional(),
     esopRsusUlCurrency: z.string().optional(),
-    fixedBudgetUl: z.string().optional(),
+    fixedBudgetUl: z.string(required_error).min(1, { message: required_error.required_error }),
     fixedBudgetUlCurrency: z.string().optional(),
-    timeToFill: z.string().optional(),
+    timeToFill: z.string(required_error).min(1, { message: required_error.required_error }),
     gstinVatGstNo: z.string().optional(),
     contacts: z.string().optional()
 })
@@ -614,6 +614,13 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                 size: z.string().optional(),
                 lastFundingStage: z.string().optional(),
                 lastFundingAmount: z.string().optional(),
+            })
+        }else{
+            updatedSchema = updatedSchema.extend({
+                domain: z.string(required_error).min(1, { message: required_error.required_error }),
+                size: z.string(required_error).min(1, { message: required_error.required_error }),
+                lastFundingStage: z.string(required_error).min(1, { message: required_error.required_error }),
+                lastFundingAmount: z.string(required_error).min(1, { message: required_error.required_error }),
             })
         }
 
