@@ -39,10 +39,10 @@ function setPassword() {
 
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [started, setStarted] = useState(false); // Track whether the countdown has started
-    
+
     const [errorChecks, setErrorChecks] = useState<Partial<ErrorChecks>>()
     const [seconds, setSeconds] = useState<number>(5)
-    
+
     useEffect(() => {
         let timer: any
         if (started) {
@@ -51,8 +51,8 @@ function setPassword() {
                     setSeconds(seconds - 1);
                 } else {
                     clearInterval(timer);
-                    // router.replace("/signin");
-                    
+                    router.replace("/signin");
+
                 }
             }, 1000);
         }
@@ -60,16 +60,16 @@ function setPassword() {
             clearInterval(timer)
         };
     }, [started, seconds]);
-    
+
     const [isPasswordSet, setIsPasswordSet] = useState(false)
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         mode: "all"
     })
-    
+
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    
-    
+
+
     const searchParams = useSearchParams()
 
     async function setPasswordApi() {
@@ -78,8 +78,8 @@ function setPassword() {
 
         const queryParamUid = searchParams.get("uid")
 
-        console.log("queryParamUid",queryParamUid)
-        if (queryParamUid ) {
+        console.log("queryParamUid", queryParamUid)
+        if (queryParamUid) {
             const formData = form.getValues()
             const { password } = formData
 
@@ -88,14 +88,14 @@ function setPassword() {
                 password
             }
 
-            // todo: move to try
-            setIsPasswordSet(true)
-            setStarted(true)
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/users/set_password/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Token e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b` } })
                 const result = await dataResp.json()
                 console.log(result)
                 setIsLoading(false)
+                setIsPasswordSet(true)
+                setStarted(true)
+
             }
             catch (err) {
                 setIsLoading(false)

@@ -29,6 +29,8 @@ function VerifyTokenComonent() {
       setIsLoading(false);
       if(result.status==1){
         router.replace(`/setpassword?uid=${queryParamUid}`);
+      }else{
+        router.replace(`/link-invalid`);
       }
     }
     catch (err) {

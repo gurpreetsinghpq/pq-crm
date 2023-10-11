@@ -13,7 +13,7 @@ import { z } from 'zod'
 const FormSchema = z.object({
     email: z.string({
         // required_error: "Please select designation.",
-    }),
+    }).email(),
 })
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
