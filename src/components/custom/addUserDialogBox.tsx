@@ -349,7 +349,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                             <div className='flex flex-row justify-between w-full items-center'>
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit User" : "Add User"}</div>
                                 {
-                                    parentData?.open && data?.is_email_verified ?
+                                    (parentData?.open && data?.is_email_verified) ?
                                         (<Button disabled={!permissions?.change || !data.is_email_verified} onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
                                             {
                                                 data.is_active ? <>
@@ -362,7 +362,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                     </>
                                             }
 
-                                        </Button>) : <Button onClick={() => resendEmail()} className='flex flex-row gap-[5px] items-center'><IconEmail size="20px" color="white"/> Resend Email</Button>
+                                        </Button>) : ( parentData?.open && <Button onClick={() => resendEmail()} className='flex flex-row gap-[5px] items-center'><IconEmail size="20px" color="white"/> Resend Email</Button>)
                                 }
                             </div>
                         </DialogTitle>
