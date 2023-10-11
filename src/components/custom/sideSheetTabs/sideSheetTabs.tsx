@@ -272,13 +272,13 @@ console.log("isloading", isLoading)
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_ACTIVITY_TABS.NOTES} className="flex flex-col flex-1">
-            <Notes contactFromParents={contactFromParents} entityId={entityId} permissions={permissions}/>
+            <Notes contactFromParents={contactFromParents} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.ACTIVITY} className="flex flex-col flex-1">
-            <Activity contactFromParents={contactFromParents} entityId={entityId} permissions={permissions}/>
+            <Activity contactFromParents={contactFromParents} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1">
-            <Todo entityId={entityId} permissions={permissions}/>
+            <Todo entityId={entityId} />
           </TabsContent>
         </div>
       </Tabs>}

@@ -111,7 +111,7 @@ const FormSchemaWhenNegotiation = z.object({
     }),
 })
 
-function Notes({ contactFromParents, entityId, permissions }: { contactFromParents: any, entityId: number, permissions: Permission }) {
+function Notes({ contactFromParents, entityId}: { contactFromParents: any, entityId: number }) {
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -1289,7 +1289,7 @@ function Notes({ contactFromParents, entityId, permissions }: { contactFromParen
                     <div className="bg-gray-200 h-[1px]  mt-8" />
                     <div className="flex flex-row gap-2 justify-end p-[16px]">
                         {/* <Button variant={"google"} >Cancel</Button> */}
-                        <Button disabled={!form.formState.isValid || !permissions?.add}>Save </Button>
+                        <Button disabled={!form.formState.isValid}>Save </Button>
                     </div>
                 </div>
             </form>

@@ -1,4 +1,4 @@
-import { TYPE } from "@/app/constants/constants";
+import { TIME_ZONES, TYPE } from "@/app/constants/constants";
 import { ActivityAccToEntity, IValueLabel, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 
@@ -268,11 +268,10 @@ export async function getCurrentDateTime() {
   }
 }
 
-export function compareTimeStrings(timeVlaue: string, currentTime: string, todayDate: Date | undefined, currentDate: Date): boolean {
+export function compareTimeStrings(timeVlaue: string, currentTime: string, dueDate: Date | undefined, currentDate: Date): boolean {
   // Create Date objects for the current date and the two time strings
-  if (todayDate) {
-
-    if (todayDate.getDay() === currentDate.getDay() && todayDate.getMonth() === currentDate.getMonth() && todayDate.getFullYear() === currentDate.getFullYear()) {
+  if (dueDate) {
+    if (dueDate.getDay() === currentDate.getDay() && dueDate.getMonth() === currentDate.getMonth() && dueDate.getFullYear() === currentDate.getFullYear()) {
 
       const timeParts1: string[] = timeVlaue.split(":");
       const timeParts2: string[] = currentTime.split(":");
@@ -343,4 +342,23 @@ export function getMandatoryFromType() {
 }
 export function doesTypeIncludesMandatory(value: string) {
   return TYPE.filter((val) => val.mandatory).map(val => val.value).includes(value)
+}
+
+export function replaceTimeZone(inputDate:string, replacementString:string) {
+  // Use regular expressions to replace the timezone part
+  const regex = /\+\d{4}\s\(.+?\)/;
+  const updatedDate = inputDate.replace(regex, replacementString);
+  console.log("timezoneOffSet replaced", inputDate,replacementString)
+  return updatedDate;
+}
+
+
+export function getTimeOffsetFromUTC(utcValue:string) {
+  const timeZone = TIME_ZONES.find(zone => zone.utc.includes(utcValue));
+  if (timeZone) {
+    const match = timeZone.text.match(/\(([^)]+)\)/);
+    return match ? match[1].replace("UTC", "").replace(":", "").trim() : "Offset not found";
+
+  }
+  return "Time zone not found";
 }

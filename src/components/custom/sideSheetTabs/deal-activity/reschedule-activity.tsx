@@ -8,7 +8,7 @@ import { IconReschedule } from '@/components/icons/svgIcons'
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 
-function RescheduleActivity({ data, entityId, permissions, contactFromParents, rescheduleActivity }: { data: any, entityId: number, permissions: Permission, contactFromParents: any, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void> }) {
+function RescheduleActivity({ data, entityId,  contactFromParents, rescheduleActivity }: { data: any, entityId: number,  contactFromParents: any, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void> }) {
     const [open, setOpen] = useState<boolean>(false)
     function yesDiscard(isAdd: boolean = false) {
         setOpen(false)
@@ -36,7 +36,7 @@ function RescheduleActivity({ data, entityId, permissions, contactFromParents, r
                     </DialogHeader>
                     <div className='flex flex-col gap-[32px] min-w-[780px] '>
                         <div>
-                            <Activity editMode={{ isEditMode: true, data, yesDiscard, rescheduleActivity, setOpen }} entityId={entityId} permissions={permissions} contactFromParents={contactFromParents} />
+                            <Activity editMode={{ isEditMode: true, data, yesDiscard, rescheduleActivity, setOpen }} entityId={entityId} contactFromParents={contactFromParents} />
                         </div>
                     </div>
                 </div>

@@ -56,7 +56,7 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                                 {status?.icon && <status.icon />}
                                 {status?.label}
                             </div>
-                            {details.typeOfEntity === "todo" && permissions?.change && <div>
+                            {details.typeOfEntity === "todo" && <div>
                                 <DropdownMenu modal={false}>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -67,7 +67,7 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                                     <DropdownMenuContent align="end">
                                         {
                                             details.id && <>
-                                                <RescheduleActivity rescheduleActivity={rescheduleActivity} key={details.id} data={details} permissions={permissions} entityId={details.id} contactFromParents={details.contacts} />
+                                                <RescheduleActivity rescheduleActivity={rescheduleActivity} key={details.id} data={details} entityId={details.id} contactFromParents={details.contacts} />
                                             </>
                                         }
                                         <DropdownMenuItem onClick={() => markStatusOfActivity && details.id && markStatusOfActivity(details.id, "Completed")}>

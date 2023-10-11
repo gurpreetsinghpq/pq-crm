@@ -278,7 +278,6 @@ export const multiLineStyle2 = (dateStr: any) => {
 
 function formatUtcDateToLocal(backendUtcDate: any) {
 
-
     const inputString = new Date(backendUtcDate).toLocaleString('en-US', { timeZone: TIMEZONE ,  hour12: false })
     const months = [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun",

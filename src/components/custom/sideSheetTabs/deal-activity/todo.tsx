@@ -8,7 +8,7 @@ import { toast } from '@/components/ui/use-toast'
 
 let dataFromApi: TodoListGetResponse[] = []
 
-function Todo({ entityId, permissions }: { entityId: number, permissions: Permission }) {
+function Todo({ entityId}: { entityId: number}) {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [todoList, setTodoList] = useState<TodoListGetResponse[]>()
     // const randomDetails: Stepper[] = []
@@ -82,7 +82,7 @@ function Todo({ entityId, permissions }: { entityId: number, permissions: Permis
             {
                 todoList ? todoList.length>0? todoList.map((val, index) => {
                     return <div className='custom-stepper'>
-                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} rescheduleActivity={rescheduleActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} permissions={permissions}/>
+                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} rescheduleActivity={rescheduleActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
                     </div>
                 }) : <> No data found </> : <> <Loader2 className="mr-2 h-4 w-4 animate-spin " size={80} /></>
             }
