@@ -369,8 +369,8 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
         </div>
     )
 }
-export function getContacts(data: string[]) {
-    return <div className='flex flex-row gap-[8px] items-center'>
+export function getContacts(data: string[], isInline:boolean=false) {
+    return <div className='flex flex-row gap-[8px] items-center' style={{display:isInline?"inline":"block"}}>
         <span className='text-gray-700'>
             {data[0]} {data.length > 1 && <>,</>}
         </span>

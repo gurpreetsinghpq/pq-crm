@@ -1,8 +1,8 @@
-import { UserPatchBody, UserProfile } from '@/app/interfaces/interface'
+import { PasswordPatchBody, UserPatchBody, UserProfile } from '@/app/interfaces/interface'
 import React, { useEffect, useState } from 'react'
 import { Button } from '../ui/button'
 import { IconCheckCircle, IconHomeLine, IconLock, IconLockUnblocked, IconProfile } from '../icons/svgIcons'
-import { Check, ChevronDown, ChevronRight, HelpCircle } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, Eye, EyeOff, HelpCircle } from 'lucide-react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -61,23 +61,33 @@ const FormSchema = z.object({
 const FormSchema2 = z.object({
     oldPassword: z.string({
         required_error: "Please enter password.",
-    }),
+    }).min(1),
     password: z.string({
         required_error: "Please enter password.",
-    }),
+    }).min(1),
     confirm_password: z.string({
         required_error: "Please re-enter your password.",
-    })
+    }).min(1)
 }).refine((data) => data.password === data.confirm_password, {
     path: ["confirm_password"],
     message: "Password don't match",
 })
 
+type PasswordShow = {
+    password: boolean,
+    confirmPassword: boolean,
+    oldPassword: boolean
+}
 function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParentTitle }: { myDetails: UserProfile | undefined, setCurrentParentTab: CallableFunction, parentTitles: any, initialParentTitle: string }) {
 
     const [currentTab, setCurrentTab] = useState(TITLES.PROFILE)
     const [formSchema, setFormSchema] = useState(FormSchema)
     const [errorChecks, setErrorChecks] = useState<Partial<ErrorChecks>>()
+    const [showPassword, setShowPassword] = useState<PasswordShow>({
+        confirmPassword: true,
+        oldPassword: true,
+        password: true
+    })
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -103,6 +113,15 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
 
+
+    function showPasswordHandler(key: keyof PasswordShow, show: boolean) {
+        setShowPassword((prevState) => {
+            return {
+                ...prevState,
+                [key]: show
+            }
+        })
+    }
 
     function changeStdCode() {
         const value = form.getValues("std_code")
@@ -208,6 +227,42 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
         }
 
     }
+    async function updatePassword() {
+
+        const dataToSendOnUpdate: Partial<PasswordPatchBody> = {
+            old_password: form2.getValues("oldPassword"),
+            new_password: form2.getValues("password"),
+        }
+
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/users/${myDetails?.id}/update_password/`, { method: "PATCH", body: JSON.stringify(dataToSendOnUpdate), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+
+            const result = await dataResp.json()
+            if (result.status == "1") {
+                toast({
+                    title: `Password Updated Succesfully!`,
+                    variant: "dark"
+                })
+                setCurrentParentTab(initialParentTitle, true)
+            } else {
+                if (result?.error?.email?.includes("user with this email already exists")) {
+                    toast({
+                        title: "user with this email already exists",
+                        variant: "destructive"
+                    })
+                } else {
+                    toast({
+                        title:  result?.error?.message ?  result?.error?.message :  "Api Failure!",
+                        variant: "destructive"
+                    })
+                }
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+
+    }
 
 
     useEffect(() => {
@@ -225,10 +280,6 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                 form.setValue("reportingTo", data.reporting_to.id?.toString())
             }
             form.setValue("profile", data.profile.id.toString())
-            // form.setValue("function", labelToValue(data.function, ALL_FUNCTIONS))
-            // form.setValue("region", labelToValue(data.region || "", REGION))
-            // const findTimeZone = TIME_ZONES.find((val)=>val.utc[0]===data.time_zone)?.utc[0]
-            // console.log("timezone", findTimeZone, "data",data.time_zone)
             if (data?.time_zone) {
                 form.setValue("timeZone", data.time_zone)
             }
@@ -245,7 +296,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
     }
     function onSubmit2(data: z.infer<typeof FormSchema2>) {
         console.log("form data", data)
-        updateMyDetails()
+        updatePassword()
 
     }
 
@@ -531,17 +582,22 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                         <div className={`text-sm font-semibold text-gray-700 ${myAccountLabelClasses}`}>
                                             Current Password
                                         </div>
-                                        <div className='flex flex-row gap-[16px] min-w-[600px]'>
+                                        <div className='flex flex-row gap-[16px] min-w-[600px] items-center'>
                                             <FormField
                                                 control={form2.control}
                                                 name="oldPassword"
                                                 render={({ field }) => (
                                                     <FormItem className='flex-1'>
                                                         <FormControl>
-                                                            <Input type="text" className={` ${commonClasses2}`} placeholder="Enter Current Password" {...field} />
+                                                            <Input type={showPassword.oldPassword ? "password" : "text"} className={` ${commonClasses2}`} placeholder="Enter Current Password" {...field} />
                                                         </FormControl>
                                                     </FormItem>
                                                 )} />
+                                            <div className='cursor-pointer' >
+                                                {
+                                                    showPassword.oldPassword ? <EyeOff className='text-gray-600' onClick={() => showPasswordHandler("oldPassword", false)} /> : <Eye className='text-gray-600' onClick={() => showPasswordHandler("oldPassword", true)} />
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                     <div className='h-[1px] w-full bg-gray-200 my-[20px]'></div>
@@ -549,38 +605,48 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                         <div className={`text-sm font-semibold text-gray-700 ${myAccountLabelClasses}`}>
                                             New Password
                                         </div>
-                                        <div className='flex flex-row gap-[16px] min-w-[600px]'>
+                                        <div className='flex flex-row gap-[16px] min-w-[600px] items-center'>
                                             <FormField
                                                 control={form2.control}
                                                 name="password"
                                                 render={({ field }) => (
                                                     <FormItem className='flex-1'>
                                                         <FormControl>
-                                                            <Input type="text" className={` ${commonClasses2}`} placeholder="Enter New Password" {...field} />
+                                                            <Input type={showPassword.password ? "password" : "text"} className={` ${commonClasses2}`} placeholder="Enter New Password" {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
                                             />
+                                            <div className='cursor-pointer' >
+                                                {
+                                                    showPassword.password ? <EyeOff className='text-gray-600' onClick={() => showPasswordHandler("password", false)} /> : <Eye className='text-gray-600' onClick={() => showPasswordHandler("password", true)} />
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                     <div className='flex flex-row py-[24px]'>
                                         <div className={`text-sm font-semibold text-gray-700 ${myAccountLabelClasses}`}>
                                             Confirm Password
                                         </div>
-                                        <div className='flex flex-row gap-[16px] min-w-[600px]'>
+                                        <div className='flex flex-row gap-[16px] min-w-[600px] items-center'>
                                             <FormField
                                                 control={form2.control}
                                                 name="confirm_password"
                                                 render={({ field }) => (
                                                     <FormItem className='flex-1'>
                                                         <FormControl>
-                                                            <Input type="text" className={` ${commonClasses2}`} placeholder="Enter Confirm Password" {...field} />
+                                                            <Input type={showPassword.confirmPassword ? "password" : "text"} className={` ${commonClasses2}`} placeholder="Enter Confirm Password" {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
                                                 )}
                                             />
+                                            <div className='cursor-pointer' >
+                                                {
+                                                    showPassword.confirmPassword ? <EyeOff className='text-gray-600' onClick={() => showPasswordHandler("confirmPassword", false)} /> : <Eye className='text-gray-600' onClick={() => showPasswordHandler("confirmPassword", true)} />
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                     <div className='flex flex-col gap-[12px]'>
@@ -597,7 +663,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                     <div className='h-[1px] w-full bg-gray-200 my-[20px]'></div>
                                     <div className='flex flex-row justify-end gap-[12px]'>
                                         <Button type='button' variant={"google"} onClick={() => setCurrentParentTab(initialParentTitle)}>Cancel</Button>
-                                        <Button type='submit' disabled={!form2.formState.isDirty || !form2.formState.isValid}>Update Password</Button>
+                                        <Button type='submit' disabled={!form2.formState.isDirty || !form2.formState.isValid || !errorChecks?.minChars || !errorChecks.oneSpecialChar}>Update Password</Button>
 
                                     </div>
                                 </div>

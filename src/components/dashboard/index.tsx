@@ -1,6 +1,6 @@
 "use client"
 import Prospects from "@/components/custom/prospects"
-import { IconAccounts, IconAccounts2, IconContacts, IconDashboard, IconDealsHome, IconHome, IconLeads, IconLineChart, IconLogout, IconPq, IconProfile, IconProspects, IconUser, IconUserManagement } from "@/components/icons/svgIcons"
+import { IconAccounts, IconAccounts2, IconContacts, IconDashboard, IconDealsHome, IconHome, IconLeads, IconLineChart, IconLogout, IconNotification, IconPq, IconProfile, IconProspects, IconUser, IconUserManagement } from "@/components/icons/svgIcons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useRef, useState } from "react"
@@ -21,6 +21,8 @@ import { fetchMyDetails, fetchProfileDetailsById, fetchTimeZone, setToken } from
 import { disabledSidebarItem, profileCircleClasses } from "@/app/constants/classes"
 import { deleteCookie, getCookie } from "cookies-next"
 import MyAccount from "../custom/my-account"
+import { multiLineStyle2 } from "../custom/table/columns"
+import { getContacts } from "../custom/sideSheetTabs/custom-stepper"
 
 
 const LeadFormSchema = z.object({
@@ -161,7 +163,44 @@ const TITLES = {
     MY_ACCOUNT: "My Account",
 }
 
-let INITIAL_PARENT_TITLE = '' 
+let INITIAL_PARENT_TITLE = ''
+
+const DUMMY_NOTIFICATION = [
+    {
+        title: "Ola Cabs",
+        activity_name: "Inbound Lead Verification 2",
+        contacts: [
+            {
+                id: 1,
+                name: "Raj"
+            },
+            {
+                id: 2,
+                name: "Suganth"
+            },
+        ],
+        dueDate: new Date().setMinutes(new Date().getMinutes() + 10),
+        createdAt: new Date()
+
+    },
+    {
+        title: "CRED",
+        activity_name: "Inbound Lead Verification 2",
+        contacts: [
+            {
+                id: 1,
+                name: "Raj"
+            },
+            {
+                id: 2,
+                name: "Suganth"
+            },
+        ],
+        dueDate: new Date().setMinutes(new Date().getMinutes() + 10),
+        createdAt: new Date()
+
+    }
+]
 
 export default function DashboardComponent() {
     const [currentTab, setCurrentTab] = useState("")
@@ -176,6 +215,7 @@ export default function DashboardComponent() {
     const [permissions, setPermissions] = useState<{ [key: string]: { access: boolean, view: boolean, add: boolean, change: boolean } }>({});
     const [noPermissionAllowed, setNoPermissionAllowed] = useState<boolean>(false)
     const [menuOpen, setMenuOpen] = useState<boolean>(false)
+    const [notifiactionOpen, setNotificationOpen] = useState<boolean>(false)
     const [myDetails, setMyDetails] = useState<UserProfile>()
 
     const [isSmallScreen, setIsSmallScreen] = useState(
@@ -382,7 +422,7 @@ export default function DashboardComponent() {
     }
     async function getMyDetails() {
         console.log("inside mydetails")
-        const data:UserProfile | undefined= await fetchMyDetails()
+        const data: UserProfile | undefined = await fetchMyDetails()
         if (data) {
             const profileId: string = data.profile.id.toString()
             getUserPermissions(profileId)
@@ -422,7 +462,7 @@ export default function DashboardComponent() {
     function scrollUp() {
         if (sidebarRef.current) {
             sidebarRef.current.scrollTop = 0;
-            setShowScrollButton(true)       
+            setShowScrollButton(true)
         }
     }
 
@@ -431,8 +471,8 @@ export default function DashboardComponent() {
             const { scrollTop, scrollHeight, clientHeight } = sidebarRef.current;
 
             // Show the "Scroll to Bottom" button when not at the bottom
-            console.log("scrollTop + clientHeight",scrollTop + clientHeight , "scrollHeight", scrollHeight -20 )
-            setShowScrollButton(scrollTop + clientHeight < scrollHeight - 20 );
+            console.log("scrollTop + clientHeight", scrollTop + clientHeight, "scrollHeight", scrollHeight - 20)
+            setShowScrollButton(scrollTop + clientHeight < scrollHeight - 20);
         }
     };
 
@@ -454,8 +494,8 @@ export default function DashboardComponent() {
         }
     }, [sidebarRef.current]);
 
-    function updateParentTitle(title:string, refreshDashboard:boolean=false){
-        if(refreshDashboard){
+    function updateParentTitle(title: string, refreshDashboard: boolean = false) {
+        if (refreshDashboard) {
             getMyDetails()
             fetchTimeZone()
         }
@@ -607,12 +647,71 @@ export default function DashboardComponent() {
                 </div>
                 <div className="flex flex-row ">
                     <div className="flex flex-row items-center gap-6">
-                        <div className="cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <g id="bell-01">
-                                    <path id="Icon" d="M7.79514 17.5001C8.38275 18.0187 9.15462 18.3334 10 18.3334C10.8454 18.3334 11.6172 18.0187 12.2048 17.5001M15 6.66675C15 5.34067 14.4732 4.0689 13.5355 3.13121C12.5978 2.19353 11.3261 1.66675 10 1.66675C8.67391 1.66675 7.40214 2.19353 6.46446 3.13121C5.52678 4.0689 5 5.34067 5 6.66675C5 9.2419 4.35039 11.005 3.62472 12.1713C3.0126 13.155 2.70654 13.6468 2.71777 13.784C2.73019 13.936 2.76238 13.9939 2.88481 14.0847C2.99538 14.1667 3.49382 14.1667 4.49071 14.1667H15.5093C16.5062 14.1667 17.0046 14.1667 17.1152 14.0847C17.2376 13.9939 17.2698 13.936 17.2822 13.784C17.2934 13.6468 16.9874 13.155 16.3753 12.1713C15.6496 11.005 15 9.2419 15 6.66675Z" stroke="#667085" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round" />
-                                </g>
-                            </svg>
+                        <div className="">
+                            <DropdownMenu onOpenChange={setNotificationOpen} open={notifiactionOpen}>
+                                <DropdownMenuTrigger asChild >
+                                    <div className="cursor-pointer p-[10px]">
+                                        <IconNotification />
+                                    </div>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="min-w-[479px] mr-[30px] p-0" side="bottom" >
+                                    {/* <DropdownMenuItem className="p-0 border-b-[1px] border-gray-200 hover:bg-white-900"> */}
+                                    <div>
+                                        <div className="inset-shadow  px-[24px] py-[16px] w-full flex flex-col">
+                                            <div className="flex flex-row items-center justify-between w-full">
+                                                <div className="flex flex-row gap-[6px] items-center ">
+                                                    <div className="text-header-100 text-md font-medium">
+                                                        Notifications
+                                                    </div>
+                                                    <div className="bg-[#0085FF] rounded-[15px] h-[30px] w-[30px] flex flex-row justify-center items-center text-white-900 text-sm font-medium p-[4px]">
+                                                        {DUMMY_NOTIFICATION.length}
+                                                    </div>
+                                                </div>
+                                                <div className="rounded-[5px] bg-purple-50 text-purple-500 text-[12px] font-medium px-[6px] py-[4px]">
+                                                    Clear all notification
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="max-h-[600px] overflow-y-auto w-full">
+                                            {DUMMY_NOTIFICATION.map((val, index) => {
+                                                return <div className={`p-[16px] ${index!==DUMMY_NOTIFICATION.length-1 && "border-b-[1px] border-[#DCDEE4]"} hover:bg-gray-50`} >
+                                                    <div className="flex flex-row gap-[20px] items-baseline">
+                                                        <div>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                                <circle cx="5" cy="5" r="5" fill="#7F56D9" />
+                                                            </svg>
+                                                        </div>
+                                                        <div className="flex-1 flex flex-col gap-[10px]">
+                                                            <div className="text-sm font-medium text-purple-600">
+                                                                {val.title}
+                                                            </div>
+                                                            <div className="text-sm font-medium text-[#696F8C]">
+                                                                The activity <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.activity_name}</span> scheduled with <br />
+                                                                <span className="block mt-[5px]">
+                                                                    <span>{getContacts(val.contacts.map(val => val.name), true)}</span> <span className="text-sm font-medium text-[#696F8C]"> is due in </span>
+                                                                </span>
+                                                                <span className="text-gray-700">{ }</span>
+                                                            </div>
+                                                            <div className="text-sm text-[#696F8C] font-medium">
+                                                                Just Now
+                                                            </div>
+                                                            <div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-xs text-purple-500 font-medium">
+                                                            Clear
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            })}
+
+                                        </div>
+                                    </div>
+                                    {/* </DropdownMenuItem> */}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+
                         </div>
                         <DropdownMenu onOpenChange={setMenuOpen} open={menuOpen}>
                             <DropdownMenuTrigger asChild>
@@ -621,7 +720,7 @@ export default function DashboardComponent() {
                                 </div>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="min-w-[300px] mr-[20px] p-0" side="bottom" >
-                                <DropdownMenuItem  className="p-0 border-b-[1px] border-gray-200">
+                                <DropdownMenuItem className="p-0 border-b-[1px] border-gray-200">
                                     <div className="flex flex-row gap-[12px] items-center px-[16px] py-[12px] ">
                                         <div className={`${profileCircleClasses}`}>
                                             {getInitials(myDetails?.first_name, myDetails?.last_name)}
@@ -667,7 +766,7 @@ export default function DashboardComponent() {
                 {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} permissions={permissions["Organisation"]} />}
                 {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} permissions={permissions["Contact"]} />}
                 {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]} />}
-                {currentTab === TITLES.MY_ACCOUNT && <MyAccount myDetails={myDetails} parentTitles={TITLES} setCurrentParentTab={updateParentTitle} initialParentTitle={INITIAL_PARENT_TITLE}/>}
+                {currentTab === TITLES.MY_ACCOUNT && <MyAccount myDetails={myDetails} parentTitles={TITLES} setCurrentParentTab={updateParentTitle} initialParentTitle={INITIAL_PARENT_TITLE} />}
 
             </div>
         </div>

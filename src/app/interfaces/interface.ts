@@ -1,12 +1,12 @@
 
 export interface IValueLabel {
-    value: string 
+    value: string
     label: string
     isDefault?: boolean
     icon?: any
     class?: string
     acronym?: string
-    mandatory?:boolean
+    mandatory?: boolean
 }
 
 export interface Client {
@@ -40,7 +40,7 @@ export interface RoleDetails {
 
 export interface LeadInterface {
     id: number;
-    created_by:  {
+    created_by: {
         id: number;
         name: string
     };
@@ -298,7 +298,7 @@ interface ClientContactDetailPostBody {
 
 export interface ProspectsGetResponse {
     id: number;
-    created_by:  {
+    created_by: {
         id: number;
         name: string
     };
@@ -407,7 +407,7 @@ export interface ContactPostBody {
     type: string;
     organisation?: number;
     organisation_name?: string;
-    
+
 }
 
 export interface UsersGetResponse {
@@ -613,7 +613,7 @@ export interface UserPostBody {
     profile: number;
     reporting_to: number;
     region: string;
-    time_zone:string;
+    time_zone: string;
 }
 export interface UserPatchBody {
     first_name: string;
@@ -625,7 +625,11 @@ export interface UserPatchBody {
     reporting_to: number
     active: boolean;
     region: string
-    time_zone:string;
+    time_zone: string;
+}
+export interface PasswordPatchBody {
+    old_password: string,
+    new_password: string
 }
 export interface ContactPatchBody {
     name: string;
@@ -685,9 +689,9 @@ export interface Permission {
     view: boolean;
     add: boolean;
     change: boolean;
-  }
+}
 
-  export interface UserProfile {
+export interface UserProfile {
     id: number;
     email: string;
     mobile: string;
@@ -710,7 +714,7 @@ export interface Permission {
     is_email_verified: boolean;
     is_active: boolean;
     created_at: string;
-    time_zone:string|null;
+    time_zone: string | null;
 }
 export interface Stepper {
     title?: string;
@@ -727,18 +731,18 @@ export interface Stepper {
     assignedTo?: string;
     createdAt?: string;
     type: string;
-    isLastChild?:boolean
-    
-  }
-  
- export interface ActivityPostBody {
+    isLastChild?: boolean
+
+}
+
+export interface ActivityPostBody {
     lead: number;
     type: string;
     contact: number[];
     mode: string;
     due_date: string;
     reminder: number | null;
-    assigned_to:number
+    assigned_to: number
 }
 
 export interface TodoListGetResponse {
@@ -763,20 +767,20 @@ export interface TodoListGetResponse {
     closed_at: string | null;
     lead: number;
     contact: number[];
-    isLastChild?:boolean
+    isLastChild?: boolean
     title?: string
-    assigned_to:{
+    assigned_to: {
         name: string;
         id: number;
     };
-    typeOfEntity?:string
+    typeOfEntity?: string
 
 }
 
 export interface ActivityAccToEntity {
     id: number;
     contacts: {
-        id:number
+        id: number
         name: string;
         email: string;
         std_code: string;
@@ -798,8 +802,8 @@ export interface ActivityAccToEntity {
     closed_at: string | null;
     lead: number;
     contact: number[];
-    isLastChild?:boolean;
-    typeOfEntity?:string
+    isLastChild?: boolean;
+    typeOfEntity?: string
 }
 
 export interface NotesPostBody {
@@ -824,7 +828,7 @@ export interface NotesPostBody {
 }
 
 export interface HistoryDataGetResponse {
-    notes:  NotesHistory[],
+    notes: NotesHistory[],
     activity: ActivityHistory[]
     changelog: ChangeLogHistory[]
     all: HistoryAllMode
@@ -832,7 +836,7 @@ export interface HistoryDataGetResponse {
 
 export type HistoryAllMode = (NotesHistory | ActivityHistory | ChangeLogHistory)[]
 
-export interface ChangeLogHistory{
+export interface ChangeLogHistory {
     id: number;
     changed_by: {
         name: string;
@@ -844,11 +848,11 @@ export interface ChangeLogHistory{
     changed_to: string;
     description: string;
     created_at: string;
-    isLastChild?:boolean
-    typeOfEntity?:string
+    isLastChild?: boolean
+    typeOfEntity?: string
 }
 
-export interface NotesHistory{
+export interface NotesHistory {
     id: number;
     activity_type: string;
     mode: string;
@@ -878,18 +882,18 @@ export interface NotesHistory{
     next_step: string;
     created_at: string;
     activity: number;
-    title:string
+    title: string
     created_by: {
         name: string;
         id: number;
     }
-    isLastChild?:boolean
-    typeOfEntity?:string
+    isLastChild?: boolean
+    typeOfEntity?: string
 }
 
-export interface ActivityHistory{
+export interface ActivityHistory {
     id: number;
-    contacts:  {
+    contacts: {
         name: string;
         email: string;
         std_code: string;
@@ -911,13 +915,13 @@ export interface ActivityHistory{
     closed_at: string | null;
     lead: number;
     contact: number[];
-    isLastChild?:boolean
-    typeOfEntity?:string
+    isLastChild?: boolean
+    typeOfEntity?: string
 
 }
-export interface ActivityPatchBody{
-    reminder:number,
-    due_date:string
+export interface ActivityPatchBody {
+    reminder: number,
+    due_date: string
 }
 export interface MyDetailsGetResponse {
     id: number;
