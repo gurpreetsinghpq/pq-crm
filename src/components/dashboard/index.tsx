@@ -171,7 +171,6 @@ export default function DashboardComponent() {
     // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
 
     const [tokenDashboard, setTokenForDashboard] = useState<string>("")
-    const [isScrollDown, setScrollDown] = useState<boolean>(true)
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [showScrollButton, setShowScrollButton] = useState(true);
     const [permissions, setPermissions] = useState<{ [key: string]: { access: boolean, view: boolean, add: boolean, change: boolean } }>({});
@@ -417,13 +416,13 @@ export default function DashboardComponent() {
     function scrollDown() {
         if (sidebarRef.current) {
             sidebarRef.current.scrollTop = sidebarRef.current.scrollHeight;
-            setScrollDown(false)
+            setShowScrollButton(false)
         };
     }
     function scrollUp() {
         if (sidebarRef.current) {
             sidebarRef.current.scrollTop = 0;
-            setScrollDown(true)
+            setShowScrollButton(true)       
         }
     }
 
@@ -432,7 +431,8 @@ export default function DashboardComponent() {
             const { scrollTop, scrollHeight, clientHeight } = sidebarRef.current;
 
             // Show the "Scroll to Bottom" button when not at the bottom
-            setShowScrollButton(scrollTop + clientHeight < scrollHeight - 1);
+            console.log("scrollTop + clientHeight",scrollTop + clientHeight , "scrollHeight", scrollHeight -20 )
+            setShowScrollButton(scrollTop + clientHeight < scrollHeight - 20 );
         }
     };
 
@@ -452,7 +452,7 @@ export default function DashboardComponent() {
                 sidebarRef?.current?.removeEventListener('scroll', handleScroll);
             };
         }
-    }, []);
+    }, [sidebarRef.current]);
 
     function updateParentTitle(title:string, refreshDashboard:boolean=false){
         if(refreshDashboard){

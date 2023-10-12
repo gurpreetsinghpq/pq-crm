@@ -24,26 +24,31 @@ export function handleOnChangeNumericReturnNull(
   event: React.ChangeEvent<HTMLInputElement>,
   field: any,
   isSeparator: boolean = true,
-  isPhoneMandatory: boolean
+  isPhoneMandatory: boolean,
+  numberOfDigits: number = 13,
 ) {
   const inputElement = event.target;
-  const inputValue = inputElement.value;
+  let inputValue = inputElement.value;
 
   // Remove non-numeric characters except for . and ,
-  const cleanedValue = inputValue.replace(/[^0-9.,]/g, '');
+  inputValue = inputValue.replace(/[^0-9.,]/g, '');
+
+  // Limit the input to the specified number of digits
+  if ( numberOfDigits && inputValue.length > numberOfDigits) {
+    inputValue = inputValue.slice(0, numberOfDigits);
+  }
 
   // If the cleaned value is empty, set it as undefined
-  const formattedValue = cleanedValue === '' ? undefined : formatNumber(cleanedValue, isSeparator);
-  console.log("input value", inputValue, "cleanedValue", cleanedValue, "formattedValue", formattedValue)
+  const formattedValue = inputValue === '' ? undefined : formatNumber(inputValue, isSeparator);
+  console.log("input value", inputValue, "formattedValue", formattedValue);
 
   inputElement.value = formattedValue || ''; // Update the input value (use an empty string if undefined)
   field.onChange(formattedValue); // Update the field value
+
   if (isPhoneMandatory) {
-    // form2.setValue("phone", "", SET_VALUE_CONFIG)
-    field.onChange(formattedValue || "")
+    field.onChange(formattedValue || ""); // Set to an empty string if undefined
   } else {
-    // form2.setValue("phone", null, SET_VALUE_CONFIG)
-    field.onChange(formattedValue || null)
+    field.onChange(formattedValue || null); // Set to null if undefined
   }
 }
 
