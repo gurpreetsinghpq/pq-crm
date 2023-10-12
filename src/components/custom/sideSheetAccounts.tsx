@@ -207,7 +207,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                 setIsPhoneMandatory(isMandatory)
             }
             if (isMandatory) {
-                if (std_code !== "+91") {
+                if (std_code !== "+91" && std_code !== "+1") {
                     updatedSchema = updatedSchema.extend({
                         contacts: FormSchema2Mod
                     })
@@ -217,7 +217,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                     })
                 }
             } else {
-                if (std_code !== "+91") {
+                if (std_code !== "+91" && std_code !== "+1") {
                     updatedSchema = updatedSchema.extend({
                         contacts: FormSchema2ModOptional
                     })
@@ -319,13 +319,13 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         const contacts = form.getValues("contacts")
         let result
         if(isPhoneMandatory){
-            if (contacts?.std_code !== "+91") {
+            if (contacts?.std_code !== "+91" && contacts?.std_code !== "+1") {
                 result = FormSchema2Mod.safeParse(contacts)
             } else {
                 result = FormSchema2.safeParse(contacts)
             }
         }else{
-            if (contacts?.std_code !== "+91") {
+            if (contacts?.std_code !== "+91" && contacts?.std_code !== "+1") {
                 result = FormSchema2ModOptional.safeParse(contacts)
             } else {
                 result = FormSchema2Optional.safeParse(contacts)

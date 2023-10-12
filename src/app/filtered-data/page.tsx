@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { DateRangePicker, getAllTime, getThisMonth } from '@/components/ui/date-range-picker'
-import { fetchUserDataList, getToken, setToken } from '@/components/custom/commonFunctions'
+import { fetchTimeZone, fetchUserDataList, getToken, setToken } from '@/components/custom/commonFunctions'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
@@ -167,6 +167,7 @@ function filteredData() {
     const token = getCookie("token")
     const tokenAsString = String(token)
     setToken(tokenAsString)
+    fetchTimeZone()
 
   }, [])
 

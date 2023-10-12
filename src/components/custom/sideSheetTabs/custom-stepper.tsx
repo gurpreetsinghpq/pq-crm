@@ -37,10 +37,10 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
     return (
         <div className='custom-stepper-parent flex flex-row gap-[16px]'>
             <div className='custom-stepper-child flex flex-col items-center'>
-                <div className='h-[48px] w-[48px] rounded-[10px] border-[1px] border-gray-200 bg-white-900 shadow-xs flex flex-row justify-center items-center'>
-                    {details.typeOfEntity === "changelog" && <IconChangeLog />}
-                    {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <IconActivity />}
-                    {details.typeOfEntity === "notes" && <IconNotes />}
+                <div className='h-[40px] w-[40px] rounded-[10px] border-[1px] border-gray-200 bg-white-900 shadow-xs flex flex-row justify-center items-center'>
+                    {details.typeOfEntity === "changelog" && <IconChangeLog size={20}/>}
+                    {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <IconActivity size={20}/>}
+                    {details.typeOfEntity === "notes" && <IconNotes size={20}/>}
                 </div>
                 {!details?.isLastChild && <div className='custom-stepper-grandchild w-[2px] bg-gray-200 rounded-[2px] flex-1'>
                 </div>}

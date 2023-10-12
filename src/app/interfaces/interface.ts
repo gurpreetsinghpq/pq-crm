@@ -919,3 +919,28 @@ export interface ActivityPatchBody{
     reminder:number,
     due_date:string
 }
+export interface MyDetailsGetResponse {
+    id: number;
+    email: string;
+    mobile: string;
+    first_name: string;
+    last_name: string;
+    profile: {
+        id: number;
+        name: string;
+    };
+    reporting_to: {
+        name: string;
+        id: number;
+    };
+    created_by: {
+        name: string;
+        id: number;
+    };
+    function: string;
+    region: string | null;
+    time_zone: string;
+    is_email_verified: boolean;
+    is_active: boolean;
+    created_at: string;
+}

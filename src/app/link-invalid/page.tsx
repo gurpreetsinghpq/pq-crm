@@ -68,8 +68,8 @@ function LinkInvalid() {
             Hello. you look too late to enable your account or vou have vour account enabled. But lust don't worry, the new link can be requested.
           </div>
         </div>
-        <div className="bg-gray-200 h-[1px] w-full" />
-        <div className="flex flex-row gap-2 justify-end w-full mr-[10px]">
+        {/* <div className="bg-gray-200 h-[1px] w-full" /> */}
+        {/* <div className="flex flex-row gap-2 justify-end w-full mr-[10px]">
           <Button variant={"google"} >Close</Button>
           <Dialog >
             <DialogTrigger asChild>
@@ -97,7 +97,7 @@ function LinkInvalid() {
               </Form>
             </DialogContent>
           </Dialog>
-        </div>
+        </div> */}
       </div>
 
     </div>

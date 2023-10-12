@@ -362,3 +362,10 @@ export function getTimeOffsetFromUTC(utcValue:string) {
   }
   return "Time zone not found";
 }
+export function hasSpecialCharacter(inputString: string) {
+  // Define a regular expression pattern to match special characters
+  const regex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/;
+
+  // Use the .test() method to check if the string contains at least one special character
+  return regex.test(inputString);
+}

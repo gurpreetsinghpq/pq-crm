@@ -349,21 +349,16 @@ const Prospects = ({ form, permissions }: {
                                     </DialogTrigger>
                                     <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
                                         <div className='w-fit'>
-                                            <DialogHeader>
-                                                <div className=' rounded-full w-fit'>
-                                                    <IconArchive2 size={62} />
-                                                </div>
-                                            </DialogHeader>
-                                            <div className='flex flex-col gap-[32px] mt-[16px] min-w-[380px] '>
+                                            <div className='flex flex-col gap-[32px] min-w-[380px] '>
                                                 <div className='flex flex-col gap-[5px]'>
                                                     <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
                                                     <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Prospects" : "Prospect"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
                                                 </div>
                                                 <div className='flex flex-row gap-[12px] w-full'>
                                                     <DialogClose asChild>
-                                                        <Button className='text-md flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
+                                                        <Button type="button" className='text-sm flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
                                                     </DialogClose>
-                                                    <Button onClick={archiveApi} className='flex-1 text-md font-semibold px-[38px] py-[10px]'>{isInbox ? "Archive" : "Confirm"} </Button>
+                                                    <Button type="button" onClick={archiveApi} className='flex-1 text-sm font-semibold px-[38px] py-[10px]'>{isInbox ? "Archive" : "Confirm"} </Button>
                                                 </div>
                                             </div>
                                         </div>

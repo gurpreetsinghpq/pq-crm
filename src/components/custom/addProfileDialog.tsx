@@ -23,6 +23,7 @@ import { labelToValue } from './sideSheet'
 import { IconCheckDone, IconPower, IconUserDeactive } from '../icons/svgIcons'
 import { Checkbox } from '../ui/checkbox'
 import { toast } from '../ui/use-toast'
+import { DialogClose } from '@radix-ui/react-dialog'
 
 
 const FieldSchema = z.object({
@@ -511,7 +512,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
         const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/${id}/`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
         if (dataResp.status === 204) {
             toast({
-                title: `Team Deleted Succesfully!`,
+                title: `Profile Deleted Succesfully!`,
                 variant: "dark"
             })
             yesDiscard()
@@ -520,7 +521,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
             if (result.status == "1") {
                 yesDiscard()
                 toast({
-                    title: `Team Deleted Succesfully!`,
+                    title: `Profile Deleted Succesfully!`,
                     variant: "dark"
                 })
                 console.log(result)
@@ -535,183 +536,208 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
     }
 
 
-return (
-    <div>
-        <Dialog open={open} onOpenChange={setOpen} >
-            <DialogTrigger asChild>
-                <div>
-                    {children}
-                </div>
-            </DialogTrigger>
-            <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
-                if (e.key === "Escape") {
-                    yesDiscard()
-                }
-            }}>
-                <DialogHeader>
-                    <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
-                        <div className='flex flex-row justify-between w-full items-center'>
-                            <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Profile" : "Add Profile"}</div>
-                            {
-                                parentData?.open &&
-                                <Button disabled={!permissions?.change || data?.users.length!==0} variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' onClick={() => deactivateProfile()}>
-                                    {/* <IconUserDeactive size={20} color={"white"} /> */}
-                                    Delete Profile
-                                </Button>
-                                // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
-                                //     <IconPower size={20} />
-                                //     Deactivate User
-                                // </div>
+    return (
+        <div>
+            <Dialog open={open} onOpenChange={setOpen} >
+                <DialogTrigger asChild>
+                    <div>
+                        {children}
+                    </div>
+                </DialogTrigger>
+                <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                        yesDiscard()
+                    }
+                }}>
+                    <DialogHeader>
+                        <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
+                            <div className='flex flex-row justify-between w-full items-center'>
+                                <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Profile" : "Add Profile"}</div>
+                                {
+                                    parentData?.open &&
+                                    <>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button disabled={!permissions?.change || data?.users.length !== 0} variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' >
+                                                    {/* <IconUserDeactive size={20} color={"white"} /> */}
+                                                    Delete Profile
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+                                                <div className='w-fit'>
+                                                    <div className='flex flex-col gap-[32px] min-w-[380px] '>
+                                                        <div className='flex flex-col gap-[5px]'>
+                                                            <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
+                                                            <div className='text-gray-600 font-normal font text-sm'> Profile  <span className="font-bold">  {data?.name} </span> will be Deleted</div>
+                                                        </div>
+                                                        <div className='flex flex-row gap-[12px] w-full'>
+                                                            <DialogClose asChild>
+                                                                <Button className='text-sm flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
+                                                            </DialogClose>
+                                                            <Button onClick={() => deactivateProfile()} className='flex-1 text-sm font-semibold px-[38px] py-[10px]'>Delete Profile </Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </>
 
-                            }
-                        </div>
-                    </DialogTitle>
-                </DialogHeader>
-                <div>
-                    <Form {...form}>
-                        <form>
-                            <div className='w-fit min-w-[650px]  '>
-                                <Separator className="bg-gray-200 h-[1px]  mb-4" />
-                                <div className='px-[24px] flex flex-col '>
-                                    <FormField
-                                        control={form.control}
-                                        name="profileName"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormControl>
-                                                    <Input type="text" className={` ${commonClasses2}`} placeholder="Profile Name" {...field} />
-                                                </FormControl>
-                                            </FormItem>
-                                        )} />
-                                    <div className="flex flex-row gap-[10px] items-center mt-[24px]">
-                                        <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                            <IconCheckDone size="20" />
-                                        </div>
-                                        <span className="text-xs text-gray-700">PERMISSIONS</span>
-                                        <div className="bg-gray-200 h-[1px] flex-1" ></div>
-                                    </div>
-                                    <div className='checkboxes mt-[24px]'>
-                                        <div className='grid grid-cols-8 border border-[1px] border-gray-200 w-full xl:max-h-[200px] 2xl:max-h-fit overflow-y-auto'>
-                                            <div className={tableHeaderClass}>
-                                                <FormField
-                                                    control={form.control}
-                                                    name={"allTheFields"}
-                                                    render={({ field }) => {
-                                                        const value: any = field.value
-                                                        const fieldValue: boolean = value === "NA" ? false : value
-                                                        return <FormItem >
-                                                            <FormControl>
-                                                                <Checkbox
-                                                                    onCheckedChange={(val) => {
-                                                                        handleSuperAllCheckboxChange(!fieldValue)
-                                                                        field.onChange(val)
-                                                                    }}
-                                                                    checked={fieldValue}
-                                                                />
-                                                            </FormControl>
-                                                        </FormItem>
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className={`${tableHeaderClass} col-span-3`}>
-                                                Module
-                                            </div>
-                                            <div className={tableHeaderClass}>
-                                                Access
-                                            </div>
-                                            <div className={tableHeaderClass}>
-                                                Create
-                                            </div>
-                                            <div className={tableHeaderClass}>
-                                                Read
-                                            </div>
-                                            <div className={tableHeaderClass}>
-                                                Update
-                                            </div>
-                                            {
 
-                                                Object.keys(FormSchema.shape)
-                                                    // to be removed 
-                                                    .filter((keyName) => keyName !== "Deals" && keyName !== "Insights" && keyName !== "Dashboard")
-                                                    .map((key: any) => {
-                                                        // const dataOfKey = formDefaultState[obj]
-                                                        if (formDefaultState) {
-                                                            const nestedObj = formDefaultState[key]
-                                                            if (nestedObj) {
-                                                                return Object.keys(nestedObj)
-                                                                    .map((key2, index) => {
-                                                                        let k: any = `${key}.${key2}`
-                                                                        let k2: FormField = k
-                                                                        return <>
-                                                                            {
-                                                                                index === 1 && <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200 text-sm font-medium text-gray-900 col-span-3'>
-                                                                                    <div>{camelCaseToTitleCase(key)}</div>
-                                                                                </div>
-                                                                            }
-                                                                            {<div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200' key={index}>
-                                                                                <FormField
-                                                                                    control={form.control}
-                                                                                    name={k2}
-                                                                                    render={({ field }) => {
-                                                                                        const value: any = field.value
-                                                                                        const fieldValue: boolean = value === "NA" ? false : value
-                                                                                        // console.log(field)
-                                                                                        return <FormItem >
-                                                                                            <FormControl>
-                                                                                                <Checkbox
-                                                                                                    onCheckedChange={(val) => {
-                                                                                                        handleAllCheckboxChange(k2, fieldValue)
-                                                                                                        field.onChange(val)
-                                                                                                    }}
-                                                                                                    checked={fieldValue}
-                                                                                                    disabled={field.value === "NA" || k === "UserManagement.view"}
-                                                                                                />
-                                                                                            </FormControl>
-                                                                                        </FormItem>
-                                                                                    }}
-                                                                                />
-                                                                            </div>}
 
-                                                                        </>
+                                    // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
+                                    //     <IconPower size={20} />
+                                    //     Deactivate User
+                                    // </div>
 
-                                                                    })
-                                                            }
-                                                        }
-                                                    })
-                                            }
-                                            <div></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                }
                             </div>
-
-                            <div>
-                                <Separator className="bg-gray-200 h-[1px]  mt-8" />
-                                <div className={`flex flex-row gap-2 mx-6 my-6`}>
-                                    {
-                                        parentData?.open ?
-                                            <div className='flex flex-row gap-2 w-full justify-end'>
-                                                {beforeCancelDialog(yesDiscard)}
-                                                <Button type='button' disabled={!form.formState.isValid || !permissions?.change} onClick={() => addProfile(true)}>
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div>
+                        <Form {...form}>
+                            <form>
+                                <div className='w-fit min-w-[650px]  '>
+                                    <Separator className="bg-gray-200 h-[1px]  mb-4" />
+                                    <div className='px-[24px] flex flex-col '>
+                                        <FormField
+                                            control={form.control}
+                                            name="profileName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input type="text" className={` ${commonClasses2}`} placeholder="Profile Name" {...field} />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )} />
+                                        <div className="flex flex-row gap-[10px] items-center mt-[24px]">
+                                            <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
+                                                <IconCheckDone size="20" />
+                                            </div>
+                                            <span className="text-xs text-gray-700">PERMISSIONS</span>
+                                            <div className="bg-gray-200 h-[1px] flex-1" ></div>
+                                        </div>
+                                        <div className='checkboxes mt-[24px]'>
+                                            <div className='grid grid-cols-8 border border-[1px] border-gray-200 w-full xl:max-h-[200px] 2xl:max-h-fit overflow-y-auto'>
+                                                <div className={tableHeaderClass}>
+                                                    <FormField
+                                                        control={form.control}
+                                                        name={"allTheFields"}
+                                                        render={({ field }) => {
+                                                            const value: any = field.value
+                                                            const fieldValue: boolean = value === "NA" ? false : value
+                                                            return <FormItem >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        onCheckedChange={(val) => {
+                                                                            handleSuperAllCheckboxChange(!fieldValue)
+                                                                            field.onChange(val)
+                                                                        }}
+                                                                        checked={fieldValue}
+                                                                    />
+                                                                </FormControl>
+                                                            </FormItem>
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className={`${tableHeaderClass} col-span-3`}>
+                                                    Module
+                                                </div>
+                                                <div className={tableHeaderClass}>
+                                                    Access
+                                                </div>
+                                                <div className={tableHeaderClass}>
+                                                    Create
+                                                </div>
+                                                <div className={tableHeaderClass}>
+                                                    Read
+                                                </div>
+                                                <div className={tableHeaderClass}>
                                                     Update
-                                                </Button>
-                                            </div> :
-                                            <div className='flex flex-row flex-row gap-2 w-full justify-end'>
-                                                {beforeCancelDialog(yesDiscard)}
-                                                <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty} onClick={() => addProfile()}>
-                                                    Save & Add
-                                                </Button>
+                                                </div>
+                                                {
+
+                                                    Object.keys(FormSchema.shape)
+                                                        // to be removed 
+                                                        .filter((keyName) => keyName !== "Deals" && keyName !== "Insights" && keyName !== "Dashboard")
+                                                        .map((key: any) => {
+                                                            // const dataOfKey = formDefaultState[obj]
+                                                            if (formDefaultState) {
+                                                                const nestedObj = formDefaultState[key]
+                                                                if (nestedObj) {
+                                                                    return Object.keys(nestedObj)
+                                                                        .map((key2, index) => {
+                                                                            let k: any = `${key}.${key2}`
+                                                                            let k2: FormField = k
+                                                                            return <>
+                                                                                {
+                                                                                    index === 1 && <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200 text-sm font-medium text-gray-900 col-span-3'>
+                                                                                        <div>{camelCaseToTitleCase(key)}</div>
+                                                                                    </div>
+                                                                                }
+                                                                                {<div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200' key={index}>
+                                                                                    <FormField
+                                                                                        control={form.control}
+                                                                                        name={k2}
+                                                                                        render={({ field }) => {
+                                                                                            const value: any = field.value
+                                                                                            const fieldValue: boolean = value === "NA" ? false : value
+                                                                                            // console.log(field)
+                                                                                            return <FormItem >
+                                                                                                <FormControl>
+                                                                                                    <Checkbox
+                                                                                                        onCheckedChange={(val) => {
+                                                                                                            handleAllCheckboxChange(k2, fieldValue)
+                                                                                                            field.onChange(val)
+                                                                                                        }}
+                                                                                                        checked={fieldValue}
+                                                                                                        disabled={field.value === "NA" || k === "UserManagement.view"}
+                                                                                                    />
+                                                                                                </FormControl>
+                                                                                            </FormItem>
+                                                                                        }}
+                                                                                    />
+                                                                                </div>}
+
+                                                                            </>
+
+                                                                        })
+                                                                }
+                                                            }
+                                                        })
+                                                }
+                                                <div></div>
                                             </div>
-                                    }
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
-                    </Form>
-                </div>
-            </DialogContent>
-        </Dialog>
-    </div>
-)
+
+                                <div>
+                                    <Separator className="bg-gray-200 h-[1px]  mt-8" />
+                                    <div className={`flex flex-row gap-2 mx-6 my-6`}>
+                                        {
+                                            parentData?.open ?
+                                                <div className='flex flex-row gap-2 w-full justify-end'>
+                                                    {beforeCancelDialog(yesDiscard)}
+                                                    <Button type='button' disabled={!form.formState.isValid || !permissions?.change} onClick={() => addProfile(true)}>
+                                                        Update
+                                                    </Button>
+                                                </div> :
+                                                <div className='flex flex-row flex-row gap-2 w-full justify-end'>
+                                                    {beforeCancelDialog(yesDiscard)}
+                                                    <Button type='button' disabled={!form.formState.isValid || !form.formState.isDirty} onClick={() => addProfile()}>
+                                                        Save & Add
+                                                    </Button>
+                                                </div>
+                                        }
+                                    </div>
+                                </div>
+                            </form>
+                        </Form>
+                    </div>
+                </DialogContent>
+            </Dialog>
+        </div>
+    )
 }
 
 function removeKeyAndConvertNaToFalse(data: any): any {

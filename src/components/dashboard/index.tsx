@@ -1,11 +1,11 @@
 "use client"
 import Prospects from "@/components/custom/prospects"
-import { IconAccounts, IconAccounts2, IconContacts, IconDashboard, IconDealsHome, IconHome, IconLeads, IconLineChart, IconPq, IconProspects, IconUserManagement } from "@/components/icons/svgIcons"
+import { IconAccounts, IconAccounts2, IconContacts, IconDashboard, IconDealsHome, IconHome, IconLeads, IconLineChart, IconLogout, IconPq, IconProfile, IconProspects, IconUser, IconUserManagement } from "@/components/icons/svgIcons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useRef, useState } from "react"
 import Leads from "../../components/custom/leads"
-import { Permission, PermissionResponse, User } from "@/app/interfaces/interface"
+import { MyDetailsGetResponse, Permission, PermissionResponse, User, UserProfile } from "@/app/interfaces/interface"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 import Accounts from "../custom/accounts"
@@ -16,10 +16,11 @@ import { useForm } from "react-hook-form"
 import { getAllTime, getLast7Days, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "../ui/use-toast"
-import { ArrowDown, ArrowUp } from "lucide-react"
+import { ArrowDown, ArrowUp, User2, UserIcon } from "lucide-react"
 import { fetchMyDetails, fetchProfileDetailsById, fetchTimeZone, setToken } from "../custom/commonFunctions"
-import { disabledSidebarItem } from "@/app/constants/classes"
+import { disabledSidebarItem, profileCircleClasses } from "@/app/constants/classes"
 import { deleteCookie, getCookie } from "cookies-next"
+import MyAccount from "../custom/my-account"
 
 
 const LeadFormSchema = z.object({
@@ -156,8 +157,11 @@ const TITLES = {
     DEALS: "Deals",
     ACCOUNTS: "Accounts",
     CONTACTS: "Contacts",
-    USER_MANAGEMENT: "User Management"
+    USER_MANAGEMENT: "User Management",
+    MY_ACCOUNT: "My Account",
 }
+
+let INITIAL_PARENT_TITLE = '' 
 
 export default function DashboardComponent() {
     const [currentTab, setCurrentTab] = useState("")
@@ -165,18 +169,20 @@ export default function DashboardComponent() {
     // const [currentTab, setCurrentTab] = useState(TITLES.ACCOUNTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.CONTACTS)
     // const [currentTab, setCurrentTab] = useState(TITLES.USER_MANAGEMENT)
-    const [user, setUser] = useState<User>()
+
     const [tokenDashboard, setTokenForDashboard] = useState<string>("")
     const [isScrollDown, setScrollDown] = useState<boolean>(true)
     const sidebarRef = useRef<HTMLDivElement>(null);
     const [showScrollButton, setShowScrollButton] = useState(true);
     const [permissions, setPermissions] = useState<{ [key: string]: { access: boolean, view: boolean, add: boolean, change: boolean } }>({});
     const [noPermissionAllowed, setNoPermissionAllowed] = useState<boolean>(false)
+    const [menuOpen, setMenuOpen] = useState<boolean>(false)
+    const [myDetails, setMyDetails] = useState<UserProfile>()
 
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth <= 1300 : false
     )
-    
+
 
     useEffect(() => {
         const handleResize = (): void => {
@@ -191,13 +197,13 @@ export default function DashboardComponent() {
         }
     }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         const token = getCookie("token")
-        const tokenAsString =String(token) 
-        setToken(tokenAsString )
-        setTokenForDashboard(tokenAsString )
+        const tokenAsString = String(token)
+        setToken(tokenAsString)
+        setTokenForDashboard(tokenAsString)
 
-    },[])
+    }, [])
 
     const router = useRouter();
     const { from, to } = getLast7Days()
@@ -354,35 +360,40 @@ export default function DashboardComponent() {
             });
         }
         setPermissions(permissionsObject)
-        if(permissionsObject["Lead"].access && permissionsObject["Lead"].view){
+        if (permissionsObject["Lead"].access && permissionsObject["Lead"].view) {
+            INITIAL_PARENT_TITLE = TITLES.LEADS
             setCurrentTab(TITLES.LEADS)
-        }else if(permissionsObject["Prospect"].access && permissionsObject["Prospect"].view){
+        } else if (permissionsObject["Prospect"].access && permissionsObject["Prospect"].view) {
+            INITIAL_PARENT_TITLE = TITLES.PROSPECTS
             setCurrentTab(TITLES.PROSPECTS)
-        }else if(permissionsObject["Organisation"].access && permissionsObject["Organisation"].view){
+        } else if (permissionsObject["Organisation"].access && permissionsObject["Organisation"].view) {
+            INITIAL_PARENT_TITLE = TITLES.ACCOUNTS
             setCurrentTab(TITLES.ACCOUNTS)
-        }else if(permissionsObject["Contact"].access && permissionsObject["Contact"].view){
+        } else if (permissionsObject["Contact"].access && permissionsObject["Contact"].view) {
+            INITIAL_PARENT_TITLE = TITLES.CONTACTS
             setCurrentTab(TITLES.CONTACTS)
-        }else if(permissionsObject["User Management"].access && permissionsObject["User Management"].view){
+        } else if (permissionsObject["User Management"].access && permissionsObject["User Management"].view) {
+            INITIAL_PARENT_TITLE = TITLES.USER_MANAGEMENT
             setCurrentTab(TITLES.USER_MANAGEMENT)
-        }else{
+        } else {
             setNoPermissionAllowed(true)
         }
 
         console.log("userPermissions fac", permissionsObject["User Management"])
     }
-    async function getMyDetails(){
+    async function getMyDetails() {
         console.log("inside mydetails")
-        const data = await fetchMyDetails()
-        if(data){
+        const data:UserProfile | undefined= await fetchMyDetails()
+        if (data) {
             const profileId: string = data.profile.id.toString()
             getUserPermissions(profileId)
+            setMyDetails(data)
         }
     }
     useEffect(() => {
         const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
 
         getMyDetails()
-        setUser(userFromLocalstorage)
         fetchTimeZone()
     }, [])
 
@@ -443,7 +454,22 @@ export default function DashboardComponent() {
         }
     }, []);
 
-    return  <>{tokenDashboard ? <div className="flex flex-row h-full ">
+    function updateParentTitle(title:string, refreshDashboard:boolean=false){
+        if(refreshDashboard){
+            getMyDetails()
+            fetchTimeZone()
+        }
+        setCurrentTab(title)
+    }
+
+    // to be reomved just for testing user account
+    // useEffect(() => {
+    //     setInterval(() => {
+    //         setCurrentTab(TITLES.MY_ACCOUNT)
+    //     }, 1000)
+    // }, [])
+
+    return <>{tokenDashboard ? <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left z-[1] flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center  xl:px-1 2xl:px-[0px]">
                 <IconPq size={32} />
@@ -479,7 +505,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem }`}>
+                            <div onClick={() => setCurrentTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}>
                                 <IconLeads size={24} />
                             </div>
                         </TooltipTrigger>
@@ -492,7 +518,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${!(permissions["Prospect"]?.access && permissions["Prospect"]?.view) && disabledSidebarItem }`}>
+                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${!(permissions["Prospect"]?.access && permissions["Prospect"]?.view) && disabledSidebarItem}`}>
                                 <IconProspects size={24} />
                             </div>
                         </TooltipTrigger>
@@ -508,7 +534,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ disabledSidebarItem }`}>
+                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${disabledSidebarItem}`}>
                                 <IconDealsHome size={24} />
                             </div>
                         </TooltipTrigger>
@@ -525,7 +551,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'} ${!(permissions["Organisation"]?.access && permissions["Organisation"]?.view) && disabledSidebarItem }`}>
+                            <div onClick={() => setCurrentTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'} ${!(permissions["Organisation"]?.access && permissions["Organisation"]?.view) && disabledSidebarItem}`}>
                                 <IconAccounts2 size={24} />
                             </div>
                         </TooltipTrigger>
@@ -537,7 +563,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'} ${!(permissions["Contact"]?.access && permissions["Contact"]?.view) && disabledSidebarItem }`}>
+                            <div onClick={() => setCurrentTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'} ${!(permissions["Contact"]?.access && permissions["Contact"]?.view) && disabledSidebarItem}`}>
                                 <IconContacts />
                             </div>
                         </TooltipTrigger>
@@ -551,7 +577,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem }`}>
+                            <div onClick={() => setCurrentTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
                                 {/* <IconUserManagement /> */}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
                                     <g id="users-02">
@@ -575,7 +601,7 @@ export default function DashboardComponent() {
         </div>
         <div className="text-teal-700 bg-teal-50 border-teal-600"></div>
         <div className="right flex flex-col w-full h-full">
-            <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${currentTab !== TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2"}`} >
+            {currentTab !== TITLES.MY_ACCOUNT ? <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${currentTab !== TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2"}`} >
                 <div className="text-xl   ">
                     {currentTab}
                 </div>
@@ -588,32 +614,62 @@ export default function DashboardComponent() {
                                 </g>
                             </svg>
                         </div>
-                        <DropdownMenu>
+                        <DropdownMenu onOpenChange={setMenuOpen} open={menuOpen}>
                             <DropdownMenuTrigger asChild>
-
-                                <div className="w-[40px] h-[40px] p-2 font-semibold cursor-pointer flex flex-row rounded-full justify-center items-center border border-gray-300 bg-gray-100  text-gray-600 text-md">
-                                    {getInitials(user?.first_name, user?.last_name)}
+                                <div className={`${profileCircleClasses} ${menuOpen && "outline outline-[4px] outline-gray-200"}`}>
+                                    {getInitials(myDetails?.first_name, myDetails?.last_name)}
                                 </div>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56">
-                                <DropdownMenuItem onClick={logOut}>
-                                    Logout
+                            <DropdownMenuContent className="min-w-[300px] mr-[20px] p-0" side="bottom" >
+                                <DropdownMenuItem  className="p-0 border-b-[1px] border-gray-200">
+                                    <div className="flex flex-row gap-[12px] items-center px-[16px] py-[12px] ">
+                                        <div className={`${profileCircleClasses}`}>
+                                            {getInitials(myDetails?.first_name, myDetails?.last_name)}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-semibold text-gray-700">
+                                                {`${myDetails?.first_name} ${myDetails?.last_name}`}
+                                            </div>
+                                            <div className="text-gray-600 font-normal text-sm">
+                                                {myDetails?.email}
+                                            </div>
+                                            <div className="text-purple-600 font-medium text-sm">
+                                                {myDetails?.profile.name}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setCurrentTab(TITLES.MY_ACCOUNT)} className="border-b-[1px] border-gray-200">
+                                    <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px] ">
+                                        <IconUser />
+                                        Profile
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={logOut} >
+                                    <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px]">
+                                        <IconLogout size="16" />
+                                        Logout
+                                    </div>
                                 </DropdownMenuItem>
 
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
                 </div>
-            </div>
-            <div className="bottom flex flex-col flex-1">
-                {currentTab === TITLES.LEADS && <Leads form={LeadForm} permissions={permissions["Lead"]}/>}
-                {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm} permissions={permissions["Prospect"]}/>}
-                {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} permissions={permissions["Organisation"]}/>}
-                {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} permissions={permissions["Contact"]}/>}
-                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]}/>}
+            </div> :
+                <div>
 
+                </div>
+            }
+            <div className="bottom flex flex-col flex-1">
+                {currentTab === TITLES.LEADS && <Leads form={LeadForm} permissions={permissions["Lead"]} />}
+                {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm} permissions={permissions["Prospect"]} />}
+                {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} permissions={permissions["Organisation"]} />}
+                {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} permissions={permissions["Contact"]} />}
+                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]} />}
+                {currentTab === TITLES.MY_ACCOUNT && <MyAccount myDetails={myDetails} parentTitles={TITLES} setCurrentParentTab={updateParentTitle} initialParentTitle={INITIAL_PARENT_TITLE}/>}
 
             </div>
         </div>
-    </div>:<div>Loading...</div>}</>
+    </div> : <div>Loading...</div>}</>
 }

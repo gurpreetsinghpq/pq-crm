@@ -353,7 +353,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             setIsPhoneMandatory(isMandatory)
         }
         if (isMandatory) {
-            if (value != "+91") {
+            if (value != "+91" && value!="+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13),
                     std_code: z.string()
@@ -363,7 +363,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                 updatedSchema = FormSchema2
             }
         } else {
-            if (value != "+91") {
+            if (value != "+91" && value!="+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13).optional().nullable(),
                     std_code: z.string().optional()
@@ -869,22 +869,18 @@ export function beforeCancelDialog(yesDiscard: CallableFunction) {
             <Button variant={"google"}>Cancel</Button>
         </DialogTrigger>
         <DialogContent>
-            <div className='w-fit'>
-                <DialogHeader>
-                    <div className='bg-warning-100 border-warning-50 rounded-full w-fit p-[12px]'>
-                        <IconSave size={24} />
-                    </div>
-                </DialogHeader>
-                <div className='flex flex-col gap-[32px] mt-[16px]'>
+            <div className='min-w-[360px]'>
+                
+                <div className='flex flex-col gap-[32px] '>
                     <div className='flex flex-col'>
-                        <div className='text-gray-900 text-lg'>Unsaved changes</div>
-                        <div className='text-gray-600 text-sm'>Do you want to discard changes?</div>
+                        <div className='text-gray-900 text-lg font-semibold'>Unsaved changes</div>
+                        <div className='text-gray-600 text-sm font-normal'>Do you want to discard changes?</div>
                     </div>
-                    <div className='flex flex-row gap-[12px]'>
+                    <div className='flex flex-row gap-[12px] w-full'>
                         <DialogClose asChild>
-                            <Button className='text-md font-semibold  px-[38px] py-[10px]' variant={'google'}>No, go back</Button>
+                            <Button className='text-sm flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>No, go back</Button>
                         </DialogClose>
-                        <Button onClick={() => yesDiscard()} className='text-md font-semibold px-[38px] py-[10px]'>Yes, discard</Button>
+                        <Button onClick={() => yesDiscard()} className='text-sm flex-1 font-semibold px-[38px] py-[10px]'> Yes, discard</Button>
                     </div>
                 </div>
             </div>

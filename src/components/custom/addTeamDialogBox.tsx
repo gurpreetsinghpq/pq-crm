@@ -366,10 +366,32 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit Team" : "Add Team"}</div>
                                 {
                                     parentData?.open &&
-                                    <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' disabled={selectedRows?.length !== 0 || !permissions?.change} onClick={() => deleteTeam()}>
-                                        <IconTrash size={20} color={"white"} />
-                                        Delete Team
-                                    </Button>
+                                    <>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button variant={"default"} className='flex flex-row gap-2 text-md font-medium bg-error-500 text-white-900 hover:bg-error-600' disabled={selectedRows?.length !== 0 || !permissions?.change} >
+                                                    <IconTrash size={20} color={"white"} />
+                                                    Delete Team
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+                                                <div className='w-fit'>
+                                                    <div className='flex flex-col gap-[32px] min-w-[380px] '>
+                                                        <div className='flex flex-col gap-[5px]'>
+                                                            <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
+                                                            <div className='text-gray-600 font-normal font text-sm'> Team  <span className="font-bold">  {form.getValues("teamName")} </span> will be Deleted</div>
+                                                        </div>
+                                                        <div className='flex flex-row gap-[12px] w-full'>
+                                                            <DialogClose asChild>
+                                                                <Button className='text-sm flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
+                                                            </DialogClose>
+                                                            <Button onClick={() => deleteTeam()} className='flex-1 text-sm font-semibold px-[38px] py-[10px]'>Delete Team </Button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </>
                                     // <div className='flex flex-row gap-[8px] text-error-400 text-sm font-medium items-center'>
                                     //     <IconPower size={20} />
                                     //     Deactivate User

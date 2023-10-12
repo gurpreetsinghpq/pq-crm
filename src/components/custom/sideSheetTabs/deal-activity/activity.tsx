@@ -209,7 +209,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
     return (
         <Form {...form}>
-            <form className='w-full' onSubmit={form.handleSubmit(onSubmit)}>
+            <form className='w-full' onSubmit={form.handleSubmit(onSubmit)} >
                 <div className={`flex flex-col rounded-[8px] bg-white-900 ${!editMode.isEditMode && "border-[1px] border-gray-200"}`}>
                     <div className='px-[28px] py-[24px] w-full '>
                         <div className=' flex flex-col gap-[28px]'>

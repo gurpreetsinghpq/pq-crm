@@ -30,6 +30,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
+import { doesTypeIncludesMandatory, handleOnChangeNumericReturnNull } from './commonFunctions'
 
 
 const FormSchema = z.object({
@@ -73,6 +74,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     const [organisationList, setOrganisationList] = useState<ClientCompleteInterface[]>()
     const { childData: { row }, setChildDataHandler } = parentData
     const [rowState, setRowState] = useState<DeepPartial<ClientGetResponse>>()
+    const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
 
     const data: ContactsGetResponse = row.original
     useEffect(() => {
@@ -82,7 +84,9 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             ...prevState,
             name: data.name
         }))
-        changeStdCode()
+        const type = labelToValue(data.type, TYPE)
+        console.log("type", type)
+        changeStdCode(type)
 
     }, [])
 
@@ -293,17 +297,47 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
     console.log(formSchema)
 
-    function changeStdCode() {
+    function changeStdCode(type: string | undefined = undefined) {
         const value = form.getValues("std_code")
         let updatedSchema
+        const isMandatory = type ? doesTypeIncludesMandatory(type) : false
+        if (type) {
+            setIsPhoneMandatory(isMandatory)
+        }
         console.log(value, value != "+91")
-        if (value != "+91") {
-            updatedSchema = FormSchema.extend({
-                phone: z.string().min(4).max(13)
-            })
+        if (isMandatory) {
+            if (value != "+91" && value != "+1") {
+                updatedSchema = FormSchema.extend({
+                    phone: z.string().min(4).max(13),
+                    std_code: z.string()
+                })
+            }
+            else {
+                updatedSchema = FormSchema
+            }
         } else {
-            console.log("neh")
-            updatedSchema = FormSchema
+            if (value != "+91" && value != "+1") {
+                updatedSchema = FormSchema.extend({
+                    phone: z.string().min(4).max(13).optional().nullable(),
+                    std_code: z.string().optional()
+                })
+            }
+            else {
+                updatedSchema = FormSchema.extend({
+                    phone: z.string().min(10).max(10).optional().nullable(),
+                    std_code: z.string().optional()
+                })
+            }
+        }
+        if (type) {
+            const phone = form.getValues("phone")
+            if (!phone) {
+                if (isMandatory) {
+                    form.setValue("phone", '')
+                } else {
+                    form.setValue("phone", null)
+                }
+            }
         }
         setFormSchema(updatedSchema)
         console.log("updatedschema", updatedSchema)
@@ -376,10 +410,10 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                             name="type"
                                             render={({ field }) => (
                                                 <FormItem className='w-full'>
-                                                    <Select onValueChange={(value) => {
-                                                        return field.onChange(value)
-                                                    }
-                                                    } defaultValue={field.value}>
+                                                    <Select onValueChange={(val) => {
+                                                        changeStdCode(val)
+                                                        return field.onChange(val)
+                                                    }} defaultValue={field.value}>
                                                         <FormControl>
                                                             <SelectTrigger className={`border-gray-300 ${commonClasses} ${commonFontClasses}`}>
                                                                 <SelectValue defaultValue={field.value} placeholder="Select Type" />
@@ -642,7 +676,11 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                     render={({ field }) => (
                                                         <FormItem className='flex-1 '>
                                                             <FormControl>
-                                                                <Input type="text" className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Phone No" {...field} />
+                                                                <Input type="text" className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
+                                                                    }} />
                                                             </FormControl>
                                                         </FormItem>
                                                     )}

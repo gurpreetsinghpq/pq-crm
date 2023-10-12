@@ -53,7 +53,7 @@ const FormSchema = z.object({
     profile: z.string({
 
     }).min(1),
-    timeZone: z.string()
+    timeZone: z.string().min(1)
 })
 
 // const allTimezones = getAllTimezones()
@@ -91,7 +91,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
         const value = form.getValues("std_code")
         let updatedSchema
         console.log("std_code", value, value != "+91")
-        if (value != "+91") {
+        if (value != "+91" && value != "+1") {
             updatedSchema = FormSchema.extend({
                 phone: z.string().min(4).max(13).optional()
             })
@@ -168,7 +168,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                 })
                 console.log(result)
                 yesDiscard(true)
-                if(isUpdate){
+                if (isUpdate) {
                     fetchTimeZone()
                 }
             } else {
@@ -350,19 +350,42 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                 <div className='text-lg text-gray-900 font-semibold'>{parentData?.open ? "Edit User" : "Add User"}</div>
                                 {
                                     (parentData?.open && data?.is_email_verified) ?
-                                        (<Button disabled={!permissions?.change || !data.is_email_verified} onClick={() => patchDeactivateUserData()} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
-                                            {
-                                                data.is_active ? <>
-                                                    <IconUserDeactive size={20} color={"white"} />
-                                                    Deactivate User
-                                                </> :
-                                                    <>
-                                                        <IconUserActive size={20} color={"white"} />
-                                                        Activate User
-                                                    </>
-                                            }
+                                        (
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <Button disabled={!permissions?.change || !data.is_email_verified}  variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
+                                                        {
+                                                            data.is_active ? <>
+                                                                <IconUserDeactive size={20} color={"white"} />
+                                                                Deactivate User
+                                                            </> :
+                                                                <>
+                                                                    <IconUserActive size={20} color={"white"} />
+                                                                    Activate User
+                                                                </>
+                                                        }
 
-                                        </Button>) : ( parentData?.open && <Button onClick={() => resendEmail()} className='flex flex-row gap-[5px] items-center'><IconEmail size="20px" color="white"/> Resend Email</Button>)
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+                                                    <div className='w-fit'>
+                                                        <div className='flex flex-col gap-[32px] min-w-[380px] '>
+                                                            <div className='flex flex-col gap-[5px]'>
+                                                                <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
+                                                                <div className='text-gray-600 font-normal font text-sm'> User with email <span className="font-bold">  {data.email} </span> will be {data.is_active ? "Deactivated" : "Activated"}</div>
+                                                            </div>
+                                                            <div className='flex flex-row gap-[12px] w-full'>
+                                                                <DialogClose asChild>
+                                                                    <Button className='text-sm flex-1 font-semibold  px-[38px] py-[10px]' variant={'google'}>Cancel</Button>
+                                                                </DialogClose>
+                                                                <Button onClick={() => patchDeactivateUserData()} className='flex-1 text-sm font-semibold px-[38px] py-[10px]'>{data.is_active ? "Deactivate" : "Activate"} </Button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+
+                                        ) : (parentData?.open && <Button onClick={() => resendEmail()} className='flex flex-row gap-[5px] items-center'><IconEmail size="20px" color="white" /> Resend Email</Button>)
                                 }
                             </div>
                         </DialogTitle>

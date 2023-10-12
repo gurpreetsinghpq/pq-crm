@@ -152,9 +152,9 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
     function getClassAccToPage() {
         switch (page) {
             case "leads":
-                return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[800px]' : 'w-[500px]'}`
+                return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[920px]' : 'w-[500px]'}`
             case "accounts":
-                return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[800px]' : 'w-[500px]'}`
+                return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[920px]' : 'w-[500px]'}`
             case "contacts":
                 return `max-h-[500px] 2xl:max-h-[800px] overflow-y-auto ${isExpanded ? 'w-[600px]' : 'w-[500px]'}`
             default:

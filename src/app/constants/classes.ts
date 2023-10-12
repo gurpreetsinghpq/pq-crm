@@ -26,3 +26,5 @@ export const pdfFontStyle5 = 'text-[20px] leading-[54px]'
 export const pdfbg = 'bg-gradient-to-tr from-[#3B3B3B] via-transparent to-[#0F0F0F]'
 export const pdfInputClasses = 'text-black-900 placeholder:text-black-900 bg-yellow-300 border-yellow-500'
 export const pdfInputClasses2 = ' bg-[transparent] border-yellow-500'
+export const profileCircleClasses = "w-[40px] h-[40px] p-2 font-semibold cursor-pointer flex flex-row rounded-full justify-center items-center border border-gray-300 bg-gray-100  text-gray-600 text-md"
+export const myAccountLabelClasses = "xl:min-w-[200px] 2xl:min-w-[280px] "

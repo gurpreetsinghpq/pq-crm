@@ -1,4 +1,5 @@
 "use client"
+import { hasSpecialCharacter } from '@/components/custom/commonFunctions'
 import { IconCheckCircle, IconLock, IconLock2, IconUserCheck } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -130,13 +131,7 @@ function setPassword() {
 
     }, [watcher.password, watcher.confirm_password])
 
-    function hasSpecialCharacter(inputString: string) {
-        // Define a regular expression pattern to match special characters
-        const regex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/;
-
-        // Use the .test() method to check if the string contains at least one special character
-        return regex.test(inputString);
-    }
+    
 
 
 

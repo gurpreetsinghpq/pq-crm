@@ -77,7 +77,7 @@ export default function Signin() {
                 router.replace('/dashboard')
                 setPostLogin({ message: "Succesfully logged in", status: 1, show: true })
                 toast({
-                    title: "Logged in!",
+                    title: "Login Successful!",
                     variant: "dark"
                 })
             } else {

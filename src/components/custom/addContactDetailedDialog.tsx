@@ -22,6 +22,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { commonFontClassesAddDialog, preFilledClasses } from '@/app/constants/classes'
 import { valueToLabel } from './sideSheet'
 import { doesTypeIncludesMandatory, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { beforeCancelDialog } from './addLeadDetailedDialog'
 
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
@@ -216,7 +217,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
             setIsPhoneMandatory(isMandatory)
         }
         if (isMandatory) {
-            if (value != "+91") {
+            if (value != "+91" && value!="+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13),
                     std_code: z.string()
@@ -226,7 +227,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                 updatedSchema = FormSchema2
             }
         } else {
-            if (value != "+91") {
+            if (value != "+91" && value!="+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13).optional().nullable(),
                     std_code: z.string().optional()
@@ -503,32 +504,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
             <Separator className='mt-10' />
             <div className="flex flex-row gap-2 justify-end mx-6 my-6">
                 {/* <DialogClose asChild> */}
-                <Dialog >
-                    <DialogTrigger asChild>
-                        <Button variant={"google"} >Cancel</Button>
-                    </DialogTrigger>
-                    <DialogContent >
-                        <div className='w-fit'>
-                            <DialogHeader>
-                                <div className='bg-warning-100 border-warning-50 rounded-full w-fit p-[12px]'>
-                                    <IconSave size={24} />
-                                </div>
-                            </DialogHeader>
-                            <div className='flex flex-col gap-[32px] mt-[16px]'>
-                                <div className='flex flex-col'>
-                                    <div className='text-gray-900 text-lg'>Unsaved changes</div>
-                                    <div className='text-gray-600 text-sm'>Do you want to discard changes?</div>
-                                </div>
-                                <div className='flex flex-row gap-[12px]'>
-                                    <DialogClose asChild>
-                                        <Button className='text-md font-semibold  px-[38px] py-[10px]' variant={'google'}>No, go back</Button>
-                                    </DialogClose>
-                                    <Button onClick={() => yesDiscard()} className='text-md font-semibold px-[38px] py-[10px]'>Yes, discard</Button>
-                                </div>
-                            </div>
-                        </div>
-                    </DialogContent>
-                </Dialog>
+                {beforeCancelDialog(yesDiscard)}
                 {/* </DialogClose> */}
                 <Button
                     disabled={!(form.formState.isValid && form2.formState.isValid)}
