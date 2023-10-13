@@ -15,7 +15,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
-import { fetchProfileDataList, fetchTeamDataList, fetchTimeZone, fetchUserDataList, getToken, handleKeyPress, handleOnChangeNumeric } from './commonFunctions'
+import { fetchProfileDataList, fetchTeamDataList, fetchTimeZone, fetchUserDataList, getToken, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
@@ -39,8 +39,7 @@ const FormSchema = z.object({
         // required_error: "Please select budget range"
     }).min(1).optional(),
     phone: z.string({
-        // required_error: "Please select a lead source"
-    }).min(10).max(10).optional(),
+    }).min(10).max(10).optional().nullable(),
     region: z.string({
 
     }).min(1).transform((val) => val === undefined ? undefined : val.trim()),
@@ -63,7 +62,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [teamList, setTeamList] = useState<IValueLabel[]>()
     const [profileList, setProfileList] = useState<IValueLabel[]>()
-    const [formSchema, setFormSchema] = useState(FormSchema)
+    const [formSchema, setFormSchema] = useState<any>(FormSchema)
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -72,7 +71,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             lastName: "",
             email: "",
             std_code: "+91",
-            phone: undefined,
+            phone: null,
             region: undefined,
             function: undefined,
             reportingTo: undefined,
@@ -93,7 +92,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
         console.log("std_code", value, value != "+91")
         if (value != "+91" && value != "+1") {
             updatedSchema = FormSchema.extend({
-                phone: z.string().min(4).max(13).optional()
+                phone: z.string().min(4).max(13).optional().nullable()
             })
         } else {
             console.log("neh")
@@ -288,7 +287,10 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
         // console.log(allTimezones.find((val) => console.log(val.value, form.getValues("timeZone")))?.label)
         const subscription = form.watch(() => {
             form.getValues()
-            // console.log(form.formState.isValid, form.formState.isDirty, form.formState.errors)
+            form.formState.isValid
+            form.formState.isDirty
+            form.formState.errors
+            console.log("form.formState.isValid", form.formState.isValid, "form.formState.isDirty", form.formState.isDirty, "form.formState.errors", form.formState.errors)
             console.log(form.getValues())
         })
         return () => subscription.unsubscribe()
@@ -353,7 +355,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                         (
                                             <Dialog>
                                                 <DialogTrigger asChild>
-                                                    <Button disabled={!permissions?.change || !data.is_email_verified}  variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
+                                                    <Button disabled={!permissions?.change || !data.is_email_verified} variant={"default"} className={`flex flex-row gap-2 text-md font-medium  text-white-900 ${data.is_active ? "bg-error-600 hover:bg-error-700" : "bg-success-600 hover:bg-success-700"} `}>
                                                         {
                                                             data.is_active ? <>
                                                                 <IconUserDeactive size={20} color={"white"} />
@@ -486,14 +488,18 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                     control={form.control}
                                                     name="phone"
                                                     render={({ field }) => (
-                                                        <FormControl>
-                                                            <Input type="text" className={`w-full ${commonClasses2}`} placeholder="Phone No (Optional)" {...field}
-                                                                onKeyPress={handleKeyPress}
-                                                                onChange={event => {
-                                                                    return handleOnChangeNumeric(event, field, false)
-                                                                }}
-                                                            />
-                                                        </FormControl>
+                                                        <FormItem>
+                                                            <FormControl>
+                                                                <Input type="text" className={`w-full ${commonClasses2}`} placeholder="Phone No (Optional)" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        const std_code = form.getValues("std_code")
+                                                                        const is13Digits = std_code != "+91" && std_code != "-1"
+                                                                        return handleOnChangeNumericReturnNull(event, field, false, false, is13Digits ? 13 : 10)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                        </FormItem>
                                                     )} />
                                             </div>
                                         </div>

@@ -486,7 +486,9 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                 <Input type="text" className={` ${commonFontClassesAddDialog} ${commonClasses}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
                                                     onKeyPress={handleKeyPress}
                                                     onChange={event => {
-                                                        return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
+                                                        const std_code = form2.getValues("std_code")
+                                                        const is13Digits = std_code != "+91" && std_code != "-1"
+                                                        return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory, is13Digits ? 13 : 10)
                                                     }}
                                                 />
                                             </FormControl>

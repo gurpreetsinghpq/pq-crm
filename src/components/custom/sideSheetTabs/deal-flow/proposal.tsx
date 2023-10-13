@@ -62,7 +62,7 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
         defaultValues: {
             searchInvestment: [
                 {
-                    field1: "One CTO Search Mandate",
+                    field1: "One Search Mandate",
                     field2: "30% of Cash CTC Budget"
                 }
             ],
@@ -277,7 +277,7 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                         required: true,
                                     })}
                                     className={`w-full h-[100px] focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
-                                    We are excited to present our competitive pricing proposal for executive search services to <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}> <SelectableDiv text="[Client's Company Name]"/>  </span>  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies.
+                                    We are excited to present our competitive pricing proposal for executive search services to <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}> <SelectableDiv text="[Client's Company Name]"/></span>.  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies.
                                 </div>
                                 {/* <div className={`${isDarkMode ? "text-black-900" : "text-white-900"} font-normal`}>
                                     {!isDownloadClicked ? <div>We are excited to present our competitive pricing proposal for executive search services to
@@ -355,7 +355,7 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                     </div>
                                     <div>
                                         {/* due upon signing the agreement */}
-                                        due upon offer rollout to candidate
+                                        due upon offer rollout and acceptance
                                     </div>
                                     <div>Final Retainer Fees</div>
                                     <div>
@@ -363,7 +363,7 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                     </div>
                                     <div>
                                         {/* due upon signing the agreement */}
-                                        due upon successful candidate onboarding
+                                        due upon candidate onboarding
                                     </div>
                                 </div> : <div className='flex grid grid-cols-2 gap-y-[10px] gap-x-[10px] mt-[10px]'>
                                     <div>
@@ -376,14 +376,14 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                         Interim Retainer Fees
                                     </div>
                                     <div className='border-l-[1px] border-gray-700 pl-[10px]'>
-                                        <span className='font-bold'>{getValues("retainerAdvance")}</span> due upon signing the agreement
+                                        <span className='font-bold'>{getValues("retainerAdvance")}</span> due upon offer rollout and acceptance
                                         {/* due upon offer rollout to candidate */}
                                     </div>
                                     <div>
                                         Final Retainer Fees
                                     </div>
                                     <div className='border-l-[1px] border-gray-700 pl-[10px]'>
-                                        <span className='font-bold'>{getValues("finalRetainerFees")}</span> due upon signing the agreement
+                                        <span className='font-bold'>{getValues("finalRetainerFees")}</span> due upon candidate onboarding
                                         {/* due upon successful candidate onboarding */}
                                     </div>
                                 </div>}

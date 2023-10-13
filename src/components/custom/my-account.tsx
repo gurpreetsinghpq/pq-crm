@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form'
 import { Input } from '../ui/input'
 import { commonClasses, commonClasses2, commonFontClassesAddDialog, myAccountLabelClasses } from '@/app/constants/classes'
-import { fetchTimeZone, getToken, handleKeyPress, handleOnChangeNumeric, hasSpecialCharacter } from './commonFunctions'
+import { fetchTimeZone, getToken, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, hasSpecialCharacter } from './commonFunctions'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { ALL_FUNCTIONS, COUNTRY_CODE, FUNCTION, REGION, SET_VALUE_CONFIG, TIME_ZONES } from '@/app/constants/constants'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '../ui/command'
@@ -252,7 +252,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                     })
                 } else {
                     toast({
-                        title:  result?.error?.message ?  result?.error?.message :  "Api Failure!",
+                        title: result?.error?.message ? result?.error?.message : "Api Failure!",
                         variant: "destructive"
                     })
                 }
@@ -438,7 +438,9 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                                             <Input type="text" className={`w-full ${commonClasses2}`} placeholder="Phone No" {...field}
                                                                 onKeyPress={handleKeyPress}
                                                                 onChange={event => {
-                                                                    return handleOnChangeNumeric(event, field, false)
+                                                                    const std_code = form.getValues("std_code")
+                                                                    const is13Digits = std_code != "+91" && std_code != "-1"
+                                                                    return handleOnChangeNumericReturnNull(event, field, false, false, is13Digits ? 13 : 10)
                                                                 }}
                                                             />
                                                         </FormItem>

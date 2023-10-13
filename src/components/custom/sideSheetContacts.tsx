@@ -123,7 +123,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             email: data.email,
             designation: labelToValue(data.designation, DESIGNATION),
             phone: data.phone,
-            std_code: data.std_code,
+            std_code: data.std_code || "+91",
             type: labelToValue(data.type, TYPE)
         },
         mode: "all"
@@ -191,15 +191,25 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
         const contactId = data.id
 
+        let phone = form.getValues("phone")
+        let std_code = form.getValues("std_code") 
+
+        if(!phone || !std_code){
+            phone = ""
+            std_code = ""
+        }
+
         const contactDetails: Partial<ContactPatchBody> = {
             name: form.getValues("name"),
             email: form.getValues("email"),
             designation: valueToLabel(form.getValues("designation") || "", DESIGNATION) || "",
             type: valueToLabel(form.getValues("type") || "", TYPE) || "",
-            phone: form.getValues("phone"),
-            std_code: form.getValues("std_code"),
+            phone: phone,
+            std_code: std_code,
             organisation: Number(form.getValues("organisationName"))
         }
+
+        
 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${contactId}/`, { method: "PATCH", body: JSON.stringify(contactDetails), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -679,7 +689,9 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                                 <Input type="text" className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
                                                                     onKeyPress={handleKeyPress}
                                                                     onChange={event => {
-                                                                        return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
+                                                                        const std_code = form.getValues("std_code")
+                                                                        const is13Digits = std_code != "+91" && std_code != "-1"
+                                                                        return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory, is13Digits ? 13 : 10)
                                                                     }} />
                                                             </FormControl>
                                                         </FormItem>

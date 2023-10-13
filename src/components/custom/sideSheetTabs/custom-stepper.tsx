@@ -49,7 +49,7 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                 {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <div className='flex flex-col gap-[18px]'>
                     <div className='flex flex-row justify-between'>
                         <div className='text-md font-semibold text-gray-700'>
-                            {details?.title}
+                            {details?.title} {details.typeOfEntity === "activity" && "Activity"}
                         </div>
                         <div className='flex flex-row gap-[12px]'>
                             <div className={`flex flex-row items-center gap-[6px] ${status?.class} rounded-[20px]`}>
@@ -151,11 +151,8 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                 {details.typeOfEntity === "notes" && <div className='flex flex-col gap-[18px]'>
                     <div className='flex flex-row justify-between'>
                         <div className='flex flex-row '>
-                            <div>
-                                Note on &nbsp;
-                            </div>
-                            <div className='text-md italic quote font-semibold text-gray-700'>
-                                "{details?.title}"
+                            <div className='text-md  font-semibold text-gray-700'>
+                                {details?.title} Notes
                             </div>
                         </div>
                     </div>

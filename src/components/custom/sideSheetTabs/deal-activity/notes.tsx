@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Check, ChevronDown, Loader2 } from 'lucide-react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
@@ -113,8 +113,10 @@ const FormSchemaWhenNegotiation = z.object({
 
 function Notes({ contactFromParents, entityId}: { contactFromParents: any, entityId: number }) {
 
-    const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
+    const [formSchema, setFormSchema] = useState<any>(FormSchema)
+
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
 
         }
@@ -143,6 +145,83 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
     const isSeventhForm = (form.getValues("activityType")?.toLowerCase() === "inbound lead verification") && (form.getValues("mode")?.toLowerCase() === "email" || form.getValues("mode")?.toLowerCase() === "linkedin")
 
     const isAnyForm = [isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm].some((val) => val === true)
+
+    useEffect(()=>{
+
+        if(isFirstForm){
+            let updatedSchema = FormSchema.extend({
+                roleStatus: z.string({}).min(1),
+                roleUrgency: z.string({}).min(1),
+                openToRetainerModel: z.string({}).min(1),
+                openToMinServiceFeeOrFlatFee: z.string({}).min(1),
+                collateralShared: z.string({}).min(1),
+            })
+            setFormSchema(updatedSchema)
+        }
+        else if(isSecondForm){
+            let updatedSchema = FormSchema.extend({
+                responseReceived: z.string({}).min(1),
+                roleStatus: z.string({}).min(1),
+                collateralShared: z.string({}).min(1),
+                openToEngage: z.string({}).min(1),
+            })
+            setFormSchema(updatedSchema)
+        }
+        else if(isThirdForm){
+            let updatedSchema = FormSchema.extend({
+                roleStatus: z.string({}).min(1),
+                roleClarity: z.string({}).min(1),
+                willingToPayRA: z.string({}).min(1),
+                expectedServiceFeeRange: z.string({}).min(1),
+                proposalShared: z.string({}).min(1),
+            })
+            setFormSchema(updatedSchema)
+        }
+        else if(isFourthForm){
+            let updatedSchema = FormSchema.extend({
+                relatedTo: z.string({}).min(1),
+                roleStatus: z.string({}).min(1),
+                willingToPayRA: z.string({}).min(1),
+                expectedServiceFeeRange: z.string({}).min(1),
+                prospectStatus: z.string({}).min(1),
+            })
+            setFormSchema(updatedSchema)
+        }
+        else if(isFifthForm){
+            let updatedSchema = FormSchema.extend({
+                dealStatus: z.string({}).min(1),
+                negotiationBlocker: z.string({}).min(1),
+                serviceContractDraftShared: z.string({}).min(1),
+            })
+            setFormSchema(updatedSchema)
+        }
+        else if(isSixthForm){
+            let updatedSchema = FormSchema.extend({
+                roleUrgency: z.string({}).min(1),
+                openToRetainerModel: z.string({}).min(1),
+                openToMinServiceFeeOrFlatFee: z.string({}).min(1),
+                collateralShared: z.string({}).min(1),
+            })
+            setFormSchema(updatedSchema)
+        }
+        else if(isSeventhForm){
+            let updatedSchema = FormSchema.extend({
+                responseReceived: z.string({}).min(1),
+                openToRetainerModel: z.string({}).min(1),
+                openToMinServiceFeeOrFlatFee: z.string({}).min(1),
+                collateralShared: z.string({}).min(1),
+            })
+            setFormSchema(updatedSchema)
+        }
+        console.log("formschema ,yeah")
+    },[watcher.activityType])
+
+    useEffect(()=>{
+        form.trigger()
+        console.log("formschema",formSchema)
+    },[formSchema])
+
+
     console.log(isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm)
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
@@ -831,7 +910,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                                     <Button type='button' variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog}}`}>
                                                         {
                                                             field?.value?.length > 0 ? (
-                                                                getContacts(field.value.map(contactId => {
+                                                                getContacts(field.value.map((contactId:any) => {
                                                                     const contact = CONTACTS_FROM_PARENT.find((contact: any) => {
                                                                         console.log("contact", contact.id, contactId, contact.id == contactId)
                                                                         return contact.id == contactId

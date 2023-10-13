@@ -260,7 +260,7 @@ export function columns(setChildDataHandler?: CallableFunction, patchArchiveLead
                                             <div className='flex flex-col gap-[32px]  min-w-[380px] '>
                                                 <div className='flex flex-col gap-[5px]'>
                                                     <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">1 Lead </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
+                                                    <div className='text-gray-600 font-normal font text-sm'> Lead  <span className="font-bold">"{row.original.title}" </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
                                                 </div>
                                                 <div className='flex flex-row gap-[12px] w-full'>
                                                     <DialogClose asChild>

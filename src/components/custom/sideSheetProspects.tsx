@@ -2275,7 +2275,9 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                                     <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
                                                                                         onKeyPress={handleKeyPress}
                                                                                         onChange={event => {
-                                                                                            return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
+                                                                                            const std_code = form.getValues("contacts.std_code")
+                                                                                            const is13Digits = std_code != "+91" && std_code != "-1"
+                                                                                            return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory, is13Digits ? 13 : 10)
                                                                                         }}
                                                                                     />
                                                                                 </FormControl>

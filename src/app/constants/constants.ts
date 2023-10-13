@@ -1803,7 +1803,7 @@ const ACTIVITY_TYPE: IValueLabel[] = [
     },
     {
         value: "followUp",
-        label: "Follow-Up"
+        label: "Follow Up"
     },
     {
         value: "negotiation",

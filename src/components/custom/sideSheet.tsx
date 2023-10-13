@@ -293,13 +293,13 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     function safeparse2() {
         const contacts = form.getValues("contacts")
         let result
-        if(isPhoneMandatory){
+        if (isPhoneMandatory) {
             if (contacts?.std_code !== "+91" && contacts?.std_code !== "+1") {
                 result = FormSchema2Mod.safeParse(contacts)
             } else {
                 result = FormSchema2.safeParse(contacts)
             }
-        }else{
+        } else {
             if (contacts?.std_code !== "+91" && contacts?.std_code !== "+1") {
                 result = FormSchema2ModOptional.safeParse(contacts)
             } else {
@@ -368,12 +368,12 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     }
 
     function resetForm2() {
-        form.setValue("contacts.name","")
-        form.setValue("contacts.phone","")
-        form.setValue("contacts.email","")
-        form.setValue("contacts.std_code","+91")
-        form.setValue("contacts.designation",undefined)
-        form.setValue("contacts.type",undefined)
+        form.setValue("contacts.name", "")
+        form.setValue("contacts.phone", "")
+        form.setValue("contacts.email", "")
+        form.setValue("contacts.std_code", "+91")
+        form.setValue("contacts.designation", undefined)
+        form.setValue("contacts.type", undefined)
     }
     useEffect(() => {
         // console.log(reasonMap[form.getValues("reasons")])
@@ -569,7 +569,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     }
 
     function updateFormSchemaOnStatusChange(value: string, isPromoteToProspect: boolean = false, changeReason: boolean = false, type: string | undefined = undefined) {
-        let updatedSchema 
+        let updatedSchema
         if (value.toLowerCase() !== "unverified") {
             if (value.toLowerCase() === "verified") {
                 updatedSchema = FormSchema.extend({
@@ -620,10 +620,10 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         if (addDialogOpen) {
             const std_code = form.getValues("contacts.std_code")
             const isMandatory = type ? doesTypeIncludesMandatory(type) : false
-            if(type){
+            if (type) {
                 setIsPhoneMandatory(isMandatory)
             }
-            if(isMandatory){
+            if (isMandatory) {
                 if (std_code !== "+91" && std_code !== "+1") {
                     updatedSchema = updatedSchema.extend({
                         contacts: FormSchema2Mod
@@ -633,7 +633,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                         contacts: FormSchema2
                     })
                 }
-            }else{
+            } else {
                 if (std_code !== "+91" && std_code !== "+1") {
                     updatedSchema = updatedSchema.extend({
                         contacts: FormSchema2ModOptional
@@ -2104,7 +2104,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                     <DialogHeader>
                                                         <DialogTitle className='px-[24px] pt-[30px] pb-[10px]'>
                                                             <div className='text-lg text-gray-900 font-semibold'>Add Contact</div>
-                                                        </DialogTitle> 
+                                                        </DialogTitle>
                                                     </DialogHeader>
                                                     <div className='w-fit min-w-[600px] '>
                                                         <Separator className="bg-gray-200 h-[1px]  mb-4" />
@@ -2276,7 +2276,9 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                                     <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
                                                                                         onKeyPress={handleKeyPress}
                                                                                         onChange={event => {
-                                                                                            return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory)
+                                                                                            const std_code = form.getValues("contacts.std_code")
+                                                                                            const is13Digits = std_code != "+91" && std_code != "-1"
+                                                                                            return handleOnChangeNumericReturnNull(event, field, false, isPhoneMandatory, is13Digits ? 13 : 10)
                                                                                         }}
                                                                                     />
                                                                                 </FormControl>
