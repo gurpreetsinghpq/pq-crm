@@ -57,9 +57,10 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
     const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
     const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
     const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
+    const [isUpdated, setIsUpdated] = React.useState<boolean>(false)
     const [childData, setChildData] = React.useState<IChildData>()
     const [tableLeadLength, setTableLength] = React.useState<any>()
-    const [selectedRows, setSelectedRows] = React.useState<UsersGetResponse[]>()
+    const [selectedRows, setSelectedRows] = React.useState<UsersGetResponse[] | null>(null)
     const [selectedOnEditModeRows, setSelectedOnEditModeRows] = React.useState<any[]>()
     const [table, setTable] = React.useState<any>()
     const [valueToSearch, setValueToSearch] = useState<string>()
@@ -77,22 +78,35 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
     })
     const [formSchema, setFormSchema] = useState(FormSchema)
 
-    function setTableLeadRow(data: any, selectedData: any) {
+    function setTableLeadRow(dataLocal: any, selectedData: any) {
         console.log("table", table)
-        // const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
-        const selectedRows = selectedData.rows.filter((val: any) => val.getIsSelected())
+        // const selectedRows = dataLocal.rows.filter((val: any) => val.getIsSelected())
+        const selectedRowsLocal = selectedData.rows.filter((val: any) => val.getIsSelected())
 
-        setIsMultiSelectOn(selectedRows.length !== 0)
-        const ids = selectedRows.map((val: any) => val.original.id)
+        setIsMultiSelectOn(selectedRowsLocal.length !== 0)
+        const ids = selectedRowsLocal.map((val: any) => val.original.id)
         setSelectedRowIds(ids)
-        setTableLength(data.rows.length)
-        setSelectedRows(selectedRows.map((row: any) => row.original))
-        console.log(data)
+        setTableLength(dataLocal.rows.length)
+        setSelectedRows(selectedRowsLocal.map((row: any) => row.original))
+        console.log(dataLocal)
+
+        // if(data){
+            console.log("compare data", table?.getSelectedRowModel())
+            console.log("compare", parentData?.childData.row.original.members.length, selectedRowsLocal)
+        // }
+        // if(parentData?.childData.row.original.members.length != selectedRows?.length){
+        //     if(isUpdated===false){
+        //         setIsUpdated(true)
+        //     }
+        // }
+        
     }
 
     function setTableSelectedRow(data: any) {
 
     }
+
+
 
     console.log(selectedRows)
 
@@ -401,10 +415,10 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                             </div>
                         </DialogTitle>
                     </DialogHeader>
-                    <div className='xl:max-h-[520px] 2xl:max-h-[600px] min-w-[600px] overflow-y-auto'>
+                    <div className='xl:max-h-[520px] 2xl:max-h-[640px] min-w-[770px] overflow-y-auto'>
                         <Form {...form}>
                             <form>
-                                <div className='w-fit min-w-[600px]  px-[24px]'>
+                                <div className='w-fit min-w-[770px]  px-[24px]'>
                                     <Separator className="bg-gray-200 h-[1px]  mb-4" />
                                     <div className='flex flex-row gap-[16px]'>
                                         <FormField
@@ -530,7 +544,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                                                 <div>
                                                     {
                                                         <div className={`${currentTab === TABS.ALL_USERS ? "block" : "hidden"}`}>
-                                                            <DataTableAddTeamDialog setTable={setTable} columns={columnsTeamsDialog} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />
+                                                            {data && <DataTableAddTeamDialog setTable={setTable} columns={columnsTeamsDialog} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} />}
                                                         </div>
                                                     }
                                                     {/* <DataTable columns={columnsTeamsDialog} data={ data } filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"teamsDialog"} /> */}

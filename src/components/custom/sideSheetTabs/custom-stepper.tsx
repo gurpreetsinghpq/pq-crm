@@ -377,8 +377,8 @@ export function getContacts(data: string[], isInline:boolean=false) {
                     <span className='text-purple-700 text-sm font-medium underline cursor-pointer'>+{data.length - 1}</span>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                    <div className='flex flex-col gap-[5px] py-[8px]'>{data.slice(1).map((contact) => {
-                        return <div>
+                    <div className='flex flex-col gap-[5px] py-[8px]'>{data.slice(1).map((contact, index) => {
+                        return <div key={index}>
                             {contact}
                         </div>
                     })}</div>

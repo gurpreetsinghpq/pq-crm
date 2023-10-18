@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useRef, useState } from "react"
 import Leads from "../../components/custom/leads"
-import { MyDetailsGetResponse, Permission, PermissionResponse, User, UserProfile } from "@/app/interfaces/interface"
+import { MyDetailsGetResponse, NotificationGetResponse, Permission, PermissionResponse, User, UserProfile } from "@/app/interfaces/interface"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 import Accounts from "../custom/accounts"
@@ -17,12 +17,14 @@ import { getAllTime, getLast7Days, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "../ui/use-toast"
 import { ArrowDown, ArrowUp, User2, UserIcon } from "lucide-react"
-import { fetchMyDetails, fetchProfileDetailsById, fetchTimeZone, setToken } from "../custom/commonFunctions"
+import { clearNotification, fetchMyDetails, fetchNotifications, fetchProfileDetailsById, fetchTimeZone, patchNotification, setToken, timeSince } from "../custom/commonFunctions"
 import { disabledSidebarItem, profileCircleClasses } from "@/app/constants/classes"
 import { deleteCookie, getCookie } from "cookies-next"
 import MyAccount from "../custom/my-account"
 import { multiLineStyle2 } from "../custom/table/columns"
 import { getContacts } from "../custom/sideSheetTabs/custom-stepper"
+import { valueToAcronym, valueToLabel } from "../custom/sideSheet"
+import { REMINDER } from "@/app/constants/constants"
 
 
 const LeadFormSchema = z.object({
@@ -216,6 +218,7 @@ export default function DashboardComponent() {
     const [noPermissionAllowed, setNoPermissionAllowed] = useState<boolean>(false)
     const [menuOpen, setMenuOpen] = useState<boolean>(false)
     const [notifiactionOpen, setNotificationOpen] = useState<boolean>(false)
+    const [notificationData, setNotificationData] = useState<NotificationGetResponse[] | undefined>()
     const [myDetails, setMyDetails] = useState<UserProfile>()
 
     const [isSmallScreen, setIsSmallScreen] = useState(
@@ -433,8 +436,27 @@ export default function DashboardComponent() {
         const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
 
         getMyDetails()
-        fetchTimeZone()
+        getTimeZone()
     }, [])
+
+    async function getTimeZone() {
+        const data = await fetchTimeZone()
+        if (data) {
+            getNotifications()
+        }
+    }
+    async function getNotifications() {
+        const notificationData = await fetchNotifications()
+        if (notificationData) {
+            setNotificationData(notificationData)
+        }
+    }
+
+    useEffect(() => {
+        const intervalId = setInterval(getNotifications, 600000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     function getInitials(first_name: string | undefined, last_name: string | undefined) {
         if (first_name && last_name) {
@@ -508,6 +530,15 @@ export default function DashboardComponent() {
     //         setCurrentTab(TITLES.MY_ACCOUNT)
     //     }, 1000)
     // }, [])
+
+    async function patchSpecificNotification(id: number, isViewed: boolean) {
+        await patchNotification(id, isViewed)
+        await getNotifications()
+    }
+    async function clearSpecificNotification(id: number) {
+        await clearNotification(id)
+        await getNotifications()
+    }
 
     return <>{tokenDashboard ? <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left z-[1] flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
@@ -650,8 +681,9 @@ export default function DashboardComponent() {
                         <div className="">
                             <DropdownMenu onOpenChange={setNotificationOpen} open={notifiactionOpen}>
                                 <DropdownMenuTrigger asChild >
-                                    <div className="cursor-pointer p-[10px]">
+                                    <div className="relative cursor-pointer p-[10px] rounded-[6px] bg-gray-100">
                                         <IconNotification />
+                                        {!notifiactionOpen && notificationData && <div className="absolute w-[19px] h-[19px] flex flex-row justify-center items-center translate-x-[25%] translate-y-[-25%] top-0 right-0 rounded-[15px] bg-[#0085FF] text-white-900">{notificationData && notificationData.length}</div>}
                                     </div>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="min-w-[479px] mr-[30px] p-0" side="bottom" >
@@ -664,47 +696,76 @@ export default function DashboardComponent() {
                                                         Notifications
                                                     </div>
                                                     <div className="bg-[#0085FF] rounded-[15px] h-[30px] w-[30px] flex flex-row justify-center items-center text-white-900 text-sm font-medium p-[4px]">
-                                                        {DUMMY_NOTIFICATION.length}
+                                                        {notificationData && notificationData?.length}
                                                     </div>
                                                 </div>
-                                                <div className="rounded-[5px] bg-purple-50 text-purple-500 text-[12px] font-medium px-[6px] py-[4px]">
+                                                <div className="cursor-pointer rounded-[5px] bg-purple-50 text-purple-500 hover:bg-purple-100 text-[12px] font-medium px-[6px] py-[4px]">
                                                     Clear all notification
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="max-h-[600px] overflow-y-auto w-full">
-                                            {DUMMY_NOTIFICATION.map((val, index) => {
-                                                return <div className={`p-[16px] ${index!==DUMMY_NOTIFICATION.length-1 && "border-b-[1px] border-[#DCDEE4]"} hover:bg-gray-50`} >
+                                            {(notificationData && notificationData.length > 0) ? notificationData.map((val, index) => {
+                                                return <div key={val.id} className={`p-[16px] ${index !== notificationData.length - 1 && "border-b-[1px] border-[#DCDEE4]"} hover:bg-gray-50`} >
                                                     <div className="flex flex-row gap-[20px] items-baseline">
                                                         <div>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                                                <circle cx="5" cy="5" r="5" fill="#7F56D9" />
-                                                            </svg>
+                                                            {val.is_viewed ?
+                                                                <div className="cursor-pointer" onClick={() => patchSpecificNotification(val.id, false)}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                                        <circle cx="5" cy="5" r="5" fill="#7F56D9" />
+                                                                    </svg>
+                                                                </div>
+                                                                :
+                                                                <div className="cursor-pointer" onClick={() => patchSpecificNotification(val.id, true)}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                                                        <circle cx="5" cy="5" r="5" fill="#D9D9D9" />
+                                                                    </svg>
+                                                                </div>
+                                                            }
                                                         </div>
                                                         <div className="flex-1 flex flex-col gap-[10px]">
                                                             <div className="text-sm font-medium text-purple-600">
-                                                                {val.title}
+                                                                {val.data.organisation.name}
                                                             </div>
-                                                            <div className="text-sm font-medium text-[#696F8C]">
-                                                                The activity <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.activity_name}</span> scheduled with <br />
-                                                                <span className="block mt-[5px]">
-                                                                    <span>{getContacts(val.contacts.map(val => val.name), true)}</span> <span className="text-sm font-medium text-[#696F8C]"> is due in </span>
-                                                                </span>
-                                                                <span className="text-gray-700">{ }</span>
-                                                            </div>
-                                                            <div className="text-sm text-[#696F8C] font-medium">
-                                                                Just Now
-                                                            </div>
+                                                            {val.type.toLowerCase() === "activity reminder" &&
+                                                                <>
+                                                                    <div className="text-sm font-medium text-[#696F8C]">
+                                                                        The activity <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.data.title}</span> scheduled with
+                                                                        <span className="block mt-[5px]">
+                                                                            <span>{getContacts(val.data.contacts.map(val => val.name), true)}</span> <span className="text-sm font-medium text-[#696F8C]"> is due in </span>
+                                                                            <span className="text-gray-700 font-semibold ">{valueToAcronym(val.data.reminder.toString(), REMINDER)}</span>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-sm text-[#696F8C] font-medium">
+                                                                        {timeSince(val.created_at)}
+                                                                    </div>
+                                                                </>
+                                                            }
+                                                            {
+                                                                val.type.toLowerCase() === "activity assigned" &&
+                                                                <>
+                                                                    <div className="text-sm font-medium text-[#696F8C]">
+                                                                        <span className="text-gray-600 font-semibold">{val.data.created_by.name}</span> assigned <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.data.title}</span> activity to
+                                                                        <span className="block mt-[5px]">
+                                                                            <span className="text-gray-600 font-semibold">{val.data.assigned_to.name}</span> <span className="text-sm font-medium text-[#696F8C]"> scheduled on </span>
+                                                                            <span className="text-gray-700 font-semibold">{multiLineStyle2(val.data.due_date, true)}</span> with <span className="text-gray-600 font-semibold">{getContacts(val.data.contacts.map(val => val.name), true)}</span>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-sm text-[#696F8C] font-medium">
+                                                                        {timeSince(val.data.created_at)}
+                                                                    </div>
+                                                                </>
+                                                            }
                                                             <div>
 
                                                             </div>
                                                         </div>
-                                                        <div className="text-xs text-purple-500 font-medium">
+                                                        <div onClick={() => clearSpecificNotification(val.id)} className="text-xs text-purple-500 font-medium cursor-pointer">
                                                             Clear
                                                         </div>
                                                     </div>
                                                 </div>
-                                            })}
+                                            }) : <div className="p-[16px] flex flex-row justify-center">No data</div>}
 
                                         </div>
                                     </div>

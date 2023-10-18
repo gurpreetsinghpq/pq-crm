@@ -1,5 +1,5 @@
 import { TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, IValueLabel, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 
 export function handleOnChangeNumeric(
@@ -373,4 +373,90 @@ export function hasSpecialCharacter(inputString: string) {
 
   // Use the .test() method to check if the string contains at least one special character
   return regex.test(inputString);
+}
+
+export async function fetchNotifications():Promise<NotificationGetResponse[] | undefined>{
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/notification/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if (result.data) {
+      return result.data
+    }
+    return undefined
+  }
+  catch (err: any) {
+    return err
+  }
+}
+
+export async function patchNotification(id:number, isViewed:boolean){
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/notification/${id}/`, { method: "PATCH", body: JSON.stringify({is_viewed:isViewed}), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if (result.data) {
+      return result.data
+    }
+    return undefined
+  }
+  catch (err: any) {
+    return err
+  }
+}
+export async function clearNotification(id:number){
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/notification/${id}/`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if (result.data) {
+      return result.data
+    }
+    return undefined
+  }
+  catch (err: any) {
+    return err
+  }
+}
+
+
+export function timeSince(date:string) {
+
+  var seconds = Math.floor((+new Date() - +new Date(date)) / 1000);
+
+  var interval = seconds / 31536000;
+
+  if (interval > 1) {
+    return Math.floor(interval) + " years ago";
+  }
+  interval = seconds / 2592000;
+  if (interval > 1) {
+    return Math.floor(interval) + " months ago";
+  }
+  interval = seconds / 86400;
+  if (interval > 1) {
+    return Math.floor(interval) + " days ago";
+  }
+  interval = seconds / 3600;
+  if (interval > 1) {
+    return Math.floor(interval) + " hours ago";
+  }
+  interval = seconds / 60;
+  if (interval > 1) {
+    return Math.floor(interval) + " minutes ago";
+  }
+  return Math.floor(seconds) + " seconds ago";
+}
+
+export function calculateMinuteDifference(
+  currentHour: number,
+  dueHour: number,
+  currentMinute: number,
+  dueMinute: number
+): number {
+  // Calculate the total minutes for each time
+  const currentTotalMinutes = currentHour * 60 + currentMinute;
+  const dueTotalMinutes = dueHour * 60 + dueMinute;
+
+  // Calculate the minute difference
+  const minuteDifference = dueTotalMinutes - currentTotalMinutes;
+
+  return minuteDifference;
 }

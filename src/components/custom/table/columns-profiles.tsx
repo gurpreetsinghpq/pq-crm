@@ -55,7 +55,7 @@ function getIcon(segmentName: string) {
 }
 
 
-export const columnsProfiles: ColumnDef<ProfileGetResponse>[] = [
+export function columnsProfiles(setChildDataHandler:CallableFunction): ColumnDef<ProfileGetResponse>[] { return [
     {
         id: "select",
         header: ({ table }) => (
@@ -184,7 +184,7 @@ export const columnsProfiles: ColumnDef<ProfileGetResponse>[] = [
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => { console.log(cell) }}>
+                        <DropdownMenuItem onClick={() => { setChildDataHandler('row', row) }}>
                             <div className="flex flex-row gap-2 items-center" >
                                 <IconEdit size={16} />
                                 Edit
@@ -197,7 +197,7 @@ export const columnsProfiles: ColumnDef<ProfileGetResponse>[] = [
         },
     },
 
-]
+]}
 
 const getTextMultiLine = (text: any) => {
     const [name, email] = text.split("{}");

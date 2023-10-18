@@ -2079,23 +2079,28 @@ const ACTIVITY_STATUS: IValueLabel[] = [
 const REMINDER: IValueLabel[] = [
     {
         value: "-1",
-        label: "No Reminder"
+        label: "No Reminder",
+        acronym: "no"
     },
     {
         value: "15",
-        label: "15 mins before the due date and time"
+        label: "15 mins before the due date and time",
+        acronym: "15min"
     },
     {
         value: "30",
-        label: "30 mins before the due date and time"
+        label: "30 mins before the due date and time",
+        acronym:"30min"
     },
     {
         value: "60",
-        label: "1hr before the due date and time"
+        label: "1hr before the due date and time",
+        acronym:"1hr"
     },
     {
         value: "180",
-        label: "3hr before the due date and time"
+        label: "3hr before the due date and time",
+        acronym:"3hr"
     },
     
 ];

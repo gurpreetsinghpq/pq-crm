@@ -1,6 +1,6 @@
 import { activeDarkToggleClasses, disabledSidebarItem, pdfFontStyle1, pdfFontStyle2, pdfFontStyle3, pdfFontStyle4, pdfFontStyle5, pdfInputClasses, pdfInputClasses2, pdfbg } from '@/app/constants/classes'
 import { IconAward, IconDarkToggle, IconDownload, IconExclusitivity, IconLightToggle, IconPq2, IconPq2Light, IconPqName, IconPqNameLight, IconShield } from '@/components/icons/svgIcons'
-import { ZoomIn, ZoomOut } from 'lucide-react'
+import { ListRestart, ZoomIn, ZoomOut } from 'lucide-react'
 import { Manrope } from 'next/font/google'
 import React, { useEffect, useRef, useState } from 'react'
 import { jsPDF } from "jspdf";
@@ -9,6 +9,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import SelectableDiv from '../../selectable-div'
+import { useToast } from '@/components/ui/use-toast'
 const manrope = Manrope({ subsets: ['latin'] })
 
 type SearchInvestment = {
@@ -36,9 +37,26 @@ type FormSchema = {
 
 declare let html2pdf: any;
 
-function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
+interface ProposalPdfData {
+    formValues: FormSchema;
+    executiveSummary: string | undefined;
+    serviceFeeInclusions: string | undefined;
+    additionalServices: string | undefined;
+    exclusivity: string | undefined;
+    guarantee: string | undefined;
+}
+
+const SEARCH_INVESTEMENT_DEFAULTS = [
+    {
+        field1: "One Search Mandate",
+        field2: "30% of Cash CTC Budget"
+    }
+]
+
+function Proposal({ isDisabled = false, entityId }: { isDisabled?: boolean, entityId: number }) {
     const [isDarkMode, setDarkMode] = useState(true)
     const [isDownloadClicked, setIsDownloadClicked] = useState(false)
+    const [isEditMode, setIsEditMode] = useState(false)
     const [zoomLevel, setZoomLevel] = useState(100); // Initial zoom level is 100%
 
     const pdf1 = useRef<HTMLDivElement | null>(null)
@@ -48,6 +66,14 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
     const dateRef = useRef<HTMLDivElement | null>(null)
     const zoomContainer = useRef<HTMLDivElement | null>(null)
     const minimap = useRef<HTMLDivElement | null>(null)
+    const exRef = useRef<HTMLDivElement | null>(null)
+    const sfRef = useRef<HTMLDivElement | null>(null)
+    const asRef = useRef<HTMLDivElement | null>(null)
+    const elRef = useRef<HTMLDivElement | null>(null)
+    const grRef = useRef<HTMLDivElement | null>(null)
+
+    const [keyToReset, setKeyToReset] = useState(0)
+
 
     const {
         register,
@@ -57,19 +83,17 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
         control,
         setValue,
         getValues,
+        reset,
+
 
     } = useForm<FormSchema>({
         defaultValues: {
-            searchInvestment: [
-                {
-                    field1: "One Search Mandate",
-                    field2: "30% of Cash CTC Budget"
-                }
-            ],
+            searchInvestment: SEARCH_INVESTEMENT_DEFAULTS,
+
         },
 
     })
-
+    const { toast } = useToast()
     const { fields, append, remove } = useFieldArray({
         control,
         name: "searchInvestment"
@@ -78,6 +102,55 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
     useEffect(() => {
         // addSearchInvestment()
         createMinimap()
+        const entity = entityId.toString()
+        const pdfData = localStorage.getItem(entity)
+
+        if (pdfData && pdfData?.length > 0) {
+            setIsEditMode(true)
+            const pdfDataParsed: ProposalPdfData = JSON.parse(pdfData)
+            const pdfFormDataParsed: FormSchema = pdfDataParsed.formValues
+            const executiveSummary = pdfDataParsed.executiveSummary
+            const executiveSummaryRef = exRef.current
+            const serviceFeeInclusions = pdfDataParsed.serviceFeeInclusions
+            const serviceFeeInclusionsRef = sfRef.current
+            const additionalServices = pdfDataParsed.additionalServices
+            const additionalServicesRef = asRef.current
+            const exclusivity = pdfDataParsed.exclusivity
+            const exclusivityRef = elRef.current
+            const guarantee = pdfDataParsed.guarantee
+            const guaranteeRef = grRef.current
+
+            if (executiveSummaryRef && executiveSummary) {
+                console.log("executiveSummary", executiveSummary)
+                executiveSummaryRef.innerHTML = executiveSummary
+            }
+            if (serviceFeeInclusionsRef && serviceFeeInclusions) {
+                serviceFeeInclusionsRef.innerHTML = serviceFeeInclusions
+            }
+            if (additionalServicesRef && additionalServices) {
+                additionalServicesRef.innerHTML = additionalServices
+            }
+            if (exclusivityRef && exclusivity) {
+                exclusivityRef.innerHTML = exclusivity
+            }
+            if (guaranteeRef && guarantee) {
+                guaranteeRef.innerHTML = guarantee
+            }
+            if (typeof (pdfFormDataParsed) === "object" && Object.keys(pdfFormDataParsed).length > 0) {
+                setValue("organisationName", pdfFormDataParsed.organisationName)
+                setValue("roleHiringFor", pdfFormDataParsed.roleHiringFor)
+                setValue("numberOfRoles", pdfFormDataParsed.numberOfRoles)
+                setValue("roleBudget", pdfFormDataParsed.roleBudget)
+                setValue("roleLocation", pdfFormDataParsed.roleLocation)
+                setValue("searchInvestment", pdfFormDataParsed.searchInvestment)
+                setValue("retainerAdvance", pdfFormDataParsed.retainerAdvance)
+                setValue("interimRetainerFees", pdfFormDataParsed.interimRetainerFees)
+                setValue("finalRetainerFees", pdfFormDataParsed.finalRetainerFees)
+
+            }
+        }else{
+            setIsEditMode(false)
+        }
     }, [])
 
     const addSearchInvestment = () => {
@@ -93,6 +166,34 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
         }
     }, [isDownloadClicked])
 
+
+    function resetPdf() {
+        reset({
+            organisationName: "",
+            additionalServices: "",
+            clientName: "",
+            exclusivityTimePeriod: "",
+            finalRetainerFees: "",
+            guaranteeTimePeriod: "",
+            interimRetainerFees: "",
+            numberOfRoles: "",
+            retainerAdvance: "",
+            roleBudget: "",
+            roleHiringFor: "",
+            roleLocation: "",
+            searchInvestment: SEARCH_INVESTEMENT_DEFAULTS,
+            serviceFeeInclusions: ""
+
+        })
+        console.log("reset")
+        localStorage.removeItem(entityId.toString())
+        toast({
+            title: "PDF data reset Successfully!",
+            variant: "dark"
+        })
+        setKeyToReset((prev)=>prev+1)
+        setIsEditMode(false)
+    }
 
 
     function makePdf() {
@@ -203,6 +304,23 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
         };
         // Choose the element and save the PDF for your user.
         html2pdf().set(opt).from(element).save();
+        const formValues = getValues()
+        const executiveSummary =exRef.current?.innerHTML
+        const serviceFeeInclusions = sfRef.current?.innerHTML
+        const additionalServices = asRef.current?.innerHTML
+        const exclusivity = elRef.current?.innerHTML
+        const guarantee = grRef.current?.innerHTML
+
+        const dataToSet: ProposalPdfData = {
+            formValues,
+            executiveSummary,
+            serviceFeeInclusions,
+            additionalServices,
+            exclusivity,
+            guarantee
+        }
+        localStorage.setItem(entityId.toString(), JSON.stringify(dataToSet))
+
         setIsDownloadClicked(false)
 
     }
@@ -232,8 +350,8 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                     </div>
                 </div>
             </div>
-            <div className={`pdf-container max-h-[70vh] overflow-y-scroll manrope items-center ${manrope.className}`} >
-                <div id="doc" ref={zoomContainer} className={`flex flex-col justify-center items-center ${!isDownloadClicked ? "gap-[60px]" : ""}`}  style={zoomStyle} >
+            <div key={keyToReset} className={`pdf-container max-h-[70vh] overflow-y-scroll manrope items-center ${manrope.className}`} >
+                <div id="doc" ref={zoomContainer} className={`flex flex-col justify-center items-center ${!isDownloadClicked ? "gap-[60px]" : ""}`} style={zoomStyle} >
                     <div ref={pdf1} className={`pdf-1 flex flex-col pdf-size  ${isDarkMode ? "pdf-bg-dark" : "pdf-bg-light"}`}>
                         <div className={`${isDarkMode ? "pdf-gradient-strip" : "pdf-gradient-strip-light"} to-opacity-40 h-[10px] w-full`}>
 
@@ -269,15 +387,20 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                         <div className={` w-full `}>
                             <div className={` w-full pt-[20px] py-[40px] px-[44px] flex flex-col gap-[10px] ${isDarkMode ? "bg-[#E8DFD6]" : "bg-[#964437]"} relative `}>
                                 <div className={`font-bold text-[28px] ${isDarkMode ? "text-black-900" : "text-white-900"}`}>Executive Summary</div>
-                                <div contentEditable={true}
+                                <div 
+                                    contentEditable={true}
                                     onInput={(e) => {
                                         setValue('clientName', e.currentTarget.textContent || "", { shouldValidate: true });
                                     }}
                                     {...register('clientName', {
                                         required: true,
                                     })}
+                                    ref={(ref) => {
+                                        exRef.current = ref
+                                    }}
+                                    suppressContentEditableWarning={true}
                                     className={`w-full h-[100px] focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
-                                    We are excited to present our competitive pricing proposal for executive search services to <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}> <SelectableDiv text="[Client's Company Name]"/></span>.  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies.
+                                    We are excited to present our competitive pricing proposal for executive search services to <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}> <SelectableDiv text="[Client's Company Name]" /></span>.  At Purple Quarter, we understand the importance of finding the right leaders to drive your organization's success. This proposal outlines our transparent pricing structure and terms to ensure a seamless partnership between our companies.
                                 </div>
                                 {/* <div className={`${isDarkMode ? "text-black-900" : "text-white-900"} font-normal`}>
                                     {!isDownloadClicked ? <div>We are excited to present our competitive pricing proposal for executive search services to
@@ -432,10 +555,16 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                     <li className='list-item ' >Onboarding Assistance</li>
                                 </ul> */}
 
-                                {<div contentEditable={true}
+                                {<div
+                                    id="serviceFeeInclusions"
+                                    contentEditable={true}
                                     onInput={(e) => {
                                         setValue('serviceFeeInclusions', e.currentTarget.textContent || "", { shouldValidate: true });
                                     }}
+                                    ref={(ref) => {
+                                        sfRef.current = ref
+                                    }}
+                                    suppressContentEditableWarning={true}
                                     className={`w-full mt-[10px] text-gray-200 focus:border-dotted-[1px] ${isDarkMode ? "text-black-900" : "text-white-900"}`} style={{ background: "none", resize: "none", color: `${isDarkMode ? "black" : "white"}`, outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
                                     <li className='list-item ' >Candidate Sourcing and Pipeline Development</li>
                                     <li className='list-item ' >In-depth Candidate Assessments</li>
@@ -459,10 +588,16 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                         <li>Leadership assessment and development</li>
                                     </ul> */}
 
-                                    {<div contentEditable={true}
+                                    {<div
+                                        id="additionalServices"
+                                        contentEditable={true}
                                         onInput={(e) => {
                                             setValue('additionalServices', e.currentTarget.textContent || "", { shouldValidate: true });
                                         }}
+                                        ref={(ref) => {
+                                            asRef.current = ref
+                                        }}
+                                        suppressContentEditableWarning={true}
                                         className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
                                         <div className='text-[16px] font-medium'>We also offer optional add-on services to enhance your executive search experience:</div>
                                         <ul className='list-disc list-inside text-[16px] font-medium'>
@@ -479,13 +614,19 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                 </div>
                                 <div className={`flex flex-col gap-[10px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
                                     <div className={`text-[28px] font-medium`}>Exclusivity</div>
-                                    {<div contentEditable={true}
+                                    {<div
+                                        id="exclusivity"
+                                        contentEditable={true}
                                         onInput={(e) => {
                                             setValue('exclusivityTimePeriod', e.currentTarget.textContent || "", { shouldValidate: true });
                                         }}
                                         {...register('exclusivityTimePeriod', {
                                             required: true,
                                         })}
+                                        ref={(ref) => {
+                                            elRef.current = ref
+                                        }}
+                                        suppressContentEditableWarning={true}
                                         className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
                                         <div className='text-[16px] font-medium'>
                                             We are committed to delivering results. To ensure your success, we work on an exclusivity arrangement for a period of <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}><SelectableDiv text="[Time Period]" /></span> business days from the date of detailed role requirement finalization.
@@ -502,13 +643,19 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                                     <div className='text-[16px] font-medium'>
 
                                     </div>
-                                    {<div contentEditable={true}
+                                    {<div
+                                        id="guarantee"
+                                        contentEditable={true}
                                         onInput={(e) => {
                                             setValue('exclusivityTimePeriod', e.currentTarget.textContent || "", { shouldValidate: true });
                                         }}
                                         {...register('exclusivityTimePeriod', {
                                             required: true,
                                         })}
+                                        ref={(ref) => {
+                                            grRef.current = ref
+                                        }}
+                                        suppressContentEditableWarning={true}
                                         className={`w-full mt-[10px] focus:border-dotted-[1px] ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} style={{ background: "none", resize: "none", outline: `${isDarkMode ? "2px dashed #98A2B3" : "white"}`, outlineOffset: "5px" }}>
                                         <div className='text-[16px] font-medium'>
                                             We are confident in our ability to deliver exceptional candidates, which is why we offer a unique guarantee. If a placed candidate leaves within  <span className={`${!isDownloadClicked ? pdfInputClasses : "font-bold"}`}><SelectableDiv text="[Time Period]" /></span> of their start date, we offer a replacement search at no additional cost.
@@ -585,14 +732,20 @@ function Proposal({ isDisabled = false }: { isDisabled?: boolean }) {
                         <div onClick={() => {
                             setZoomLevel(100)
                             setIsDownloadClicked(true)
-                        }} className={`rounded-[8px] bg-gray-200 py-[12px] px-[20px] flex flex-row items-center gap-[8px] 
-                        ${!formState.isValid && disabledSidebarItem}
+                        }} className={`cursor-pointer  rounded-[8px] bg-gray-200 py-[12px] px-[20px] flex flex-row items-center gap-[8px] 
+                        ${(  !isEditMode && !formState.isValid && disabledSidebarItem)}
                         `}
                         >
 
                             <IconDownload />
-                            <div className={`cursor-pointer flex flex-row gap-[8px] text-purple-700 text-md font-semibold `}>
+                            <div className={`flex flex-row gap-[8px] text-purple-700 text-md font-semibold `}>
                                 Download
+                            </div>
+                        </div>
+                        <div className='cursor-pointer  rounded-[8px] bg-gray-200 py-[12px] px-[20px] flex flex-row items-center gap-[8px] ' onClick={resetPdf}>
+                            <ListRestart className='text-purple-600' />
+                            <div className={`flex flex-row gap-[8px] text-purple-700 text-md font-semibold `}>
+                                Reset PDF
                             </div>
                         </div>
                     </div>

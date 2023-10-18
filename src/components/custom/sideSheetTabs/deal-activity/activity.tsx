@@ -10,14 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PopoverClose } from '@radix-ui/react-popover'
-import { format } from 'date-fns'
+import { format, min } from 'date-fns'
 import { Check, ChevronDown } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
 import { ActivityPatchBody, ActivityPostBody, IValueLabel, Permission } from '@/app/interfaces/interface'
-import { TIMEZONE, compareTimeStrings, fetchTimeZone, fetchUserDataList, getCurrentDateTime, getTimeOffsetFromUTC, getToken, replaceTimeZone } from '../../commonFunctions'
+import { TIMEZONE, calculateMinuteDifference, compareTimeStrings, fetchTimeZone, fetchUserDataList, getCurrentDateTime, getTimeOffsetFromUTC, getToken, replaceTimeZone } from '../../commonFunctions'
 import { toast } from '@/components/ui/use-toast'
 import { labelToValue, valueToLabel } from '../../sideSheet'
 import { beforeCancelDialog } from '../../addLeadDetailedDialog'
@@ -128,7 +128,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         dueDate.setMilliseconds(0)
         const timezoneOffSet = getTimeOffsetFromUTC(TIMEZONE)
         const dueDateFinal = replaceTimeZone(dueDate.toString(), timezoneOffSet)
-        
+
         const utcDate = new Date(dueDateFinal).toISOString()
         const formattedDueDate = utcDate.replace('T', ' ').replace('Z', '')
         if (iso) {
@@ -464,8 +464,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                         onSelect={field.onChange}
                                                                         disabled={(date) => {
                                                                             const today = getDateAccToTimezone()
-                                                                            today.setHours(0, 0, 0, 0);
-                                                                            return date < today
+                                                                            const tempToday = structuredClone(today)
+                                                                            tempToday.setHours(0, 0, 0, 0);
+                                                                            return date < tempToday || ((date.toDateString() === today.toDateString()) && (today.getHours() >= 23 && today.getMinutes() >= 45))
                                                                         }
                                                                         }
 
@@ -559,11 +560,18 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                         <FormField
                                             control={form.control}
                                             name="reminder"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Select onValueChange={(value) => {
-                                                        return field.onChange(value)
-                                                    }} defaultValue={field.value} key={field.value} >
+                                            render={({ field }) => 
+                                                {
+                                                    return <FormItem>
+                                                    <Select
+                                                        disabled={(() => {
+                                                            const dueDate = form.getValues("dueDate")
+                                                            const dueTime = form.getValues("dueTime")
+                                                            return !dueTime
+                                                        })()}
+                                                        onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value} key={field.value} >
                                                         <FormControl>
                                                             <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
                                                                 <SelectValue placeholder="Select Reminder" />
@@ -572,7 +580,8 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                         <SelectContent>
                                                             {
                                                                 REMINDER.map((reminder, index) => {
-                                                                    return <SelectItem key={index} value={reminder.value}>
+                                                                    let shouldDisable = disableReminderOnInvalidDateAndTime(reminder.value)
+                                                                    return <SelectItem disabled={shouldDisable} key={index} value={reminder.value}>
                                                                         {reminder.label}
                                                                     </SelectItem>
                                                                 })
@@ -583,8 +592,8 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
                                                     {/* <FormMessage /> */}
-                                                </FormItem>
-                                            )}
+                                                </FormItem>}
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -686,22 +695,10 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                             {editMode?.rescheduleActivity && <Button onClick={() => reschedule()} type='button'
                                 disabled={(() => {
                                     // return false
-                                    const today = structuredClone(getDateAccToTimezone())
-                                    const dueDate = structuredClone(form.getValues("dueDate"))
-                                    const dueTime = structuredClone(form.getValues("dueTime"))
-                                    if (dueDate && dueTime) {
-                                        const [hours, minutes] = dueTime.split(":").map(Number)
-                                        console.log("duedate pre", dueDate)
-                                        dueDate.setHours(hours)
-                                        dueDate.setMinutes(minutes)
-                                        dueDate.setSeconds(0)
-                                        dueDate.setMilliseconds(0)
-                                    }
-
-                                    const disableDueDate = !form.getValues("dueDate") || (dueDate < today)
-
-                                    const disable = !form.formState.isDirty || disableDueDate
-
+                                    const { disableDueDate, dueDate, today } = disableDueToInvalidDate()
+                                    const reminder = form.getValues("reminder")
+                                    let shouldDisableDueToReminder = disableReminderOnInvalidDateAndTime(reminder)
+                                    const disable = !form.formState.isDirty || disableDueDate || shouldDisableDueToReminder
                                     console.log("disable due date", dueDate < today, "due date: ", dueDate, " today: ", today)
                                     return disable
 
@@ -718,6 +715,42 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             </form>
         </Form>
     )
+
+    function disableReminderOnInvalidDateAndTime(reminder: string) {
+        let shouldDisable = false
+        const dueDate = form.getValues("dueDate")
+        const dueTime = form.getValues("dueTime")
+        const currentDate = getDateAccToTimezone()
+        if (Number(reminder) != -1 && dueDate && dueTime && dueDate.getDate() === currentDate.getDate()) {
+            const [dueHour, dueMinute] = dueTime.split(":")
+            const currentHour = currentDate.getHours()
+            const currentMinute = currentDate.getMinutes()
+            const minuteDiff = calculateMinuteDifference(currentHour, Number(dueHour), currentMinute, Number(dueMinute))
+            console.log("time difference", currentDate.getHours(), dueHour, currentDate.getMinutes(), dueMinute)
+            console.log("time difference minutes", minuteDiff)
+            shouldDisable = !(Number(reminder) < minuteDiff)
+        } else {
+            shouldDisable = false
+        }
+        return shouldDisable
+    }
+
+    function disableDueToInvalidDate() {
+        const today = structuredClone(getDateAccToTimezone())
+        const dueDate = structuredClone(form.getValues("dueDate"))
+        const dueTime = structuredClone(form.getValues("dueTime"))
+        if (dueDate && dueTime) {
+            const [hours, minutes] = dueTime.split(":").map(Number)
+            console.log("duedate pre", dueDate)
+            dueDate.setHours(hours)
+            dueDate.setMinutes(minutes)
+            dueDate.setSeconds(0)
+            dueDate.setMilliseconds(0)
+        }
+
+        const disableDueDate = !form.getValues("dueDate") || (dueDate < today)
+        return { disableDueDate, dueDate, today }
+    }
 
     function getDateAccToTimezone(date: string = "") {
         if (date) {

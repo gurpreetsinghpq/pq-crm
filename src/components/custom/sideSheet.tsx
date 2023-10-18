@@ -2517,5 +2517,8 @@ export function labelToValue(lookup: string, arr: IValueLabel[]) {
 export function valueToLabel(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.value === lookup)?.label
 }
+export function valueToAcronym(lookup: string, arr: IValueLabel[]) {
+    return arr.find((item) => item.value === lookup)?.acronym
+}
 
 export default SideSheet

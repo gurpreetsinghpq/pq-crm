@@ -291,11 +291,11 @@ export const multiLine = (dateStr: any) => {
         <div className="text-gray-600 text-xs font-normal">{time}</div>
     </>
 }
-export const multiLineStyle2 = (dateStr: any) => {
+export const multiLineStyle2 = (dateStr: any, displayInline:boolean=false) => {
     const formattedDate = formatUtcDateToLocal(dateStr);
     const [date, time] = formattedDate.split("@");
     return <>
-        <div className="">{date}, {time}</div>
+        <div className={`${displayInline ? "inline" :"block"}`}>{date}, {time}</div>
     </>
 }
 

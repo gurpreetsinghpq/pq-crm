@@ -570,7 +570,7 @@ const Prospects = ({ form, permissions }: {
                                                                     {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                                    {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Owners', [{ value: "allOwners", label: "All Owners" }, ...userList])}
+                                                                    {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && userList?.length > 0 && formatData(field.value, 'Owners', [{ value: "allOwners", label: "All Owners" }, ...userList])}
                                                                     <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
@@ -581,7 +581,7 @@ const Prospects = ({ form, permissions }: {
                                                                 <CommandEmpty>No Owner found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {userList && [{ value: "allOwners", label: "All Owners" }, ...userList].map((owner) => (
+                                                                        {userList && userList?.length > 0 && [{ value: "allOwners", label: "All Owners" }, ...userList].map((owner) => (
                                                                             <CommandItem
                                                                                 value={owner.value}
                                                                                 key={owner.value}

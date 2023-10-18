@@ -948,3 +948,49 @@ export interface MyDetailsGetResponse {
     is_active: boolean;
     created_at: string;
 }
+
+export interface NotificationGetResponse {
+    id: number;
+    data: {
+        id: number;
+        contacts: {
+            id: number;
+            name: string;
+            email: string;
+            std_code: string;
+            phone: string;
+            designation: string;
+        }[];
+        created_by: {
+            name: string;
+            id: number;
+        };
+        assigned_to: {
+            name: string;
+            id: number;
+        };
+        organisation: {
+            name: string,
+            id: number
+        };
+        status: string | null;
+        title: string;
+        type: string;
+        mode: string;
+        due_date: string;
+        reminder: number;
+        rescheduled: number;
+        created_at: string;
+        closed_at: string | null;
+        lead: number;
+        contact: number[];
+    };
+    type: string;
+    is_viewed: boolean;
+    archived: boolean;
+    description: string;
+    model_name: string;
+    object_id: number;
+    created_at: string;
+    user: number;
+}

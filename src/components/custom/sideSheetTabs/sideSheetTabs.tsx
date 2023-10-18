@@ -252,7 +252,7 @@ console.log("isloading", isLoading)
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
-            <Proposal isDisabled={disable.proposal}  />
+            <Proposal isDisabled={disable.proposal} entityId={entityId}/>
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 

@@ -30,7 +30,7 @@ const FormSchema = z.object({
     mode: z.string({
     }),
     nextStep: z.string({
-    }).optional(),
+    }),
     roleStatus: z.string().optional(),
     roleUrgency: z.string({
     }).optional(),
