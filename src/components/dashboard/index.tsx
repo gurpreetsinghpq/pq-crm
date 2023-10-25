@@ -706,24 +706,24 @@ export default function DashboardComponent() {
                                                         {notificationData && notificationData?.length}
                                                     </div>
                                                 </div>
-                                                <div className={`cursor-pointer rounded-[5px] bg-purple-50 text-purple-500 hover:bg-purple-100 text-[12px] font-medium px-[6px] py-[4px] ${notificationData && notificationData.length===0 ? disabledSidebarItem : ""}`} onClick={clearAllNotificationLocal}>
+                                                <div className={`cursor-pointer rounded-[5px] bg-purple-50 text-purple-500 hover:bg-purple-100 text-[12px] font-medium px-[6px] py-[4px] ${notificationData && notificationData.length === 0 ? disabledSidebarItem : ""}`} onClick={clearAllNotificationLocal}>
                                                     Clear all notification
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="max-h-[600px] overflow-y-auto w-full">
+                                        <div className="xl:max-h-[400px] 2xl:max-h-[600px] overflow-y-auto w-full">
                                             {(notificationData && notificationData.length > 0) ? notificationData.map((val, index) => {
                                                 return <div key={val.id} className={`p-[16px] ${index !== notificationData.length - 1 && "border-b-[1px] border-[#DCDEE4]"} hover:bg-gray-50`} >
-                                                    <div className="flex flex-row gap-[20px] items-baseline">
+                                                    <div className="flex flex-row gap-[20px] items-baseline" onClick={() => patchSpecificNotification(val.id, !val.is_viewed)}>
                                                         <div>
                                                             {val.is_viewed ?
-                                                                <div className="cursor-pointer" onClick={() => patchSpecificNotification(val.id, false)}>
+                                                                <div className="cursor-pointer" >
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
                                                                         <circle cx="5" cy="5" r="5" fill="#D9D9D9" />
                                                                     </svg>
                                                                 </div>
                                                                 :
-                                                                <div className="cursor-pointer" onClick={() => patchSpecificNotification(val.id, true)}>
+                                                                <div className="cursor-pointer" >
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
                                                                         <circle cx="5" cy="5" r="5" fill="#7F56D9" />
                                                                     </svg>
@@ -772,7 +772,16 @@ export default function DashboardComponent() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            }) : <div className="p-[16px] flex flex-row justify-center">No data</div>}
+                                            }) : <div className="p-[16px] min-h-[400px] bg-purple-50 flex flex-row justify-center">
+                                                <div className="flex flex-col gap-[22px] items-center justify-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+                                                        <path d="M38.376 48.0398C39.5195 52.3075 36.9868 56.6942 32.7191 57.8377C28.4514 58.9813 24.0647 56.4486 22.9212 52.1809M29.0441 15.3093C29.8553 13.8498 30.1225 12.0858 29.6562 10.3455C28.7033 6.7891 25.0477 4.67855 21.4912 5.6315C17.9348 6.58444 15.8242 10.24 16.7772 13.7965C17.2435 15.5367 18.3569 16.9308 19.7892 17.7891M43.2957 25.1878C42.3439 21.6354 39.8028 18.6648 36.2314 16.9296C32.66 15.1943 28.3508 14.8364 24.252 15.9347C20.1531 17.033 16.6002 19.4975 14.3749 22.786C12.1497 26.0745 11.4343 29.9176 12.3861 33.47C13.961 39.3475 13.6552 44.0365 12.6606 47.5995C11.5271 51.6605 10.9604 53.6909 11.1135 54.0986C11.2887 54.5651 11.4154 54.6932 11.88 54.8732C12.2861 55.0305 13.9922 54.5734 17.4043 53.6591L49.0445 45.1812C52.4566 44.2669 54.1626 43.8097 54.4356 43.4704C54.748 43.0822 54.7937 42.908 54.7122 42.4164C54.6409 41.9868 53.1349 40.5117 50.1228 37.5616C47.4799 34.9731 44.8706 31.0652 43.2957 25.1878Z" stroke="#7F56D9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                    </svg>
+                                                    <div className="text-[24px] text-gray-700 font-medium">
+                                                        No notification yet!
+                                                    </div>
+                                                </div>
+                                            </div>}
 
                                         </div>
                                     </div>
