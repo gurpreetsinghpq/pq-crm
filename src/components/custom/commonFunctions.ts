@@ -415,6 +415,19 @@ export async function clearNotification(id:number){
     return err
   }
 }
+export async function clearAllNotification(){
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/notification/bulk_delete`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if (result.data) {
+      return result.data
+    }
+    return undefined
+  }
+  catch (err: any) {
+    return err
+  }
+}
 
 
 export function timeSince(date:string) {
@@ -424,23 +437,23 @@ export function timeSince(date:string) {
   var interval = seconds / 31536000;
 
   if (interval > 1) {
-    return Math.floor(interval) + " years ago";
+    return Math.floor(interval) + " year(s) ago";
   }
   interval = seconds / 2592000;
   if (interval > 1) {
-    return Math.floor(interval) + " months ago";
+    return Math.floor(interval) + " month(s) ago";
   }
   interval = seconds / 86400;
   if (interval > 1) {
-    return Math.floor(interval) + " days ago";
+    return Math.floor(interval) + " day(s) ago";
   }
   interval = seconds / 3600;
   if (interval > 1) {
-    return Math.floor(interval) + " hours ago";
+    return Math.floor(interval) + " hour(s) ago";
   }
   interval = seconds / 60;
   if (interval > 1) {
-    return Math.floor(interval) + " minutes ago";
+    return Math.floor(interval) + " minute(s) ago";
   }
   return Math.floor(seconds) + " seconds ago";
 }

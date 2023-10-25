@@ -17,7 +17,7 @@ import { getAllTime, getLast7Days, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "../ui/use-toast"
 import { ArrowDown, ArrowUp, User2, UserIcon } from "lucide-react"
-import { clearNotification, fetchMyDetails, fetchNotifications, fetchProfileDetailsById, fetchTimeZone, patchNotification, setToken, timeSince } from "../custom/commonFunctions"
+import { clearAllNotification, clearNotification, fetchMyDetails, fetchNotifications, fetchProfileDetailsById, fetchTimeZone, patchNotification, setToken, timeSince } from "../custom/commonFunctions"
 import { disabledSidebarItem, profileCircleClasses } from "@/app/constants/classes"
 import { deleteCookie, getCookie } from "cookies-next"
 import MyAccount from "../custom/my-account"
@@ -540,6 +540,11 @@ export default function DashboardComponent() {
         await getNotifications()
     }
 
+    async function clearAllNotificationLocal() {
+        await clearAllNotification()
+        await getNotifications()
+    }
+
     return <>{tokenDashboard ? <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left z-[1] flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center  xl:px-1 2xl:px-[0px]">
@@ -683,7 +688,9 @@ export default function DashboardComponent() {
                                 <DropdownMenuTrigger asChild >
                                     <div className="relative cursor-pointer p-[10px] rounded-[6px] bg-gray-100">
                                         <IconNotification />
-                                        {!notifiactionOpen && notificationData && <div className="absolute w-[19px] h-[19px] flex flex-row justify-center items-center translate-x-[25%] translate-y-[-25%] top-0 right-0 rounded-[15px] bg-[#0085FF] text-white-900">{notificationData && notificationData.length}</div>}
+                                        {!notifiactionOpen && notificationData &&
+                                            <div className="absolute w-[25px] h-[25px] flex flex-row justify-center items-center translate-x-[35%] translate-y-[-35%] top-0 right-0 rounded-[15px] bg-[#0085FF] text-white-900">{notificationData && notificationData.length}</div>
+                                        }
                                     </div>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="min-w-[479px] mr-[30px] p-0" side="bottom" >
@@ -699,7 +706,7 @@ export default function DashboardComponent() {
                                                         {notificationData && notificationData?.length}
                                                     </div>
                                                 </div>
-                                                <div className="cursor-pointer rounded-[5px] bg-purple-50 text-purple-500 hover:bg-purple-100 text-[12px] font-medium px-[6px] py-[4px]">
+                                                <div className={`cursor-pointer rounded-[5px] bg-purple-50 text-purple-500 hover:bg-purple-100 text-[12px] font-medium px-[6px] py-[4px] ${notificationData && notificationData.length===0 ? disabledSidebarItem : ""}`} onClick={clearAllNotificationLocal}>
                                                     Clear all notification
                                                 </div>
                                             </div>
@@ -712,13 +719,13 @@ export default function DashboardComponent() {
                                                             {val.is_viewed ?
                                                                 <div className="cursor-pointer" onClick={() => patchSpecificNotification(val.id, false)}>
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                                                        <circle cx="5" cy="5" r="5" fill="#7F56D9" />
+                                                                        <circle cx="5" cy="5" r="5" fill="#D9D9D9" />
                                                                     </svg>
                                                                 </div>
                                                                 :
                                                                 <div className="cursor-pointer" onClick={() => patchSpecificNotification(val.id, true)}>
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                                                        <circle cx="5" cy="5" r="5" fill="#D9D9D9" />
+                                                                        <circle cx="5" cy="5" r="5" fill="#7F56D9" />
                                                                     </svg>
                                                                 </div>
                                                             }
