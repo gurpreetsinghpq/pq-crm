@@ -702,7 +702,7 @@ export default function DashboardComponent() {
                                                     <div className="text-header-100 text-md font-medium">
                                                         Notifications
                                                     </div>
-                                                    <div className="bg-[#0085FF] rounded-[15px] h-[30px] w-[30px] flex flex-row justify-center items-center text-white-900 text-sm font-medium p-[4px]">
+                                                    <div className="bg-[#0085FF] rounded-[15px] h-[30px] w-[30px] flex flex-row justify-center items-center text-white-900 text-xs font-medium p-[4px]">
                                                         {notificationData && notificationData?.length}
                                                     </div>
                                                 </div>
@@ -743,7 +743,7 @@ export default function DashboardComponent() {
                                                                             <span className="text-gray-700 font-semibold ">{valueToAcronym(val.data.reminder.toString(), REMINDER)}</span>
                                                                         </span>
                                                                     </div>
-                                                                    <div className="text-sm text-[#696F8C] font-medium">
+                                                                    <div className="text-xs text-[#696F8C] font-medium">
                                                                         {timeSince(val.created_at)}
                                                                     </div>
                                                                 </>
@@ -758,7 +758,7 @@ export default function DashboardComponent() {
                                                                             <span className="text-gray-700 font-semibold">{multiLineStyle2(val.data.due_date, true)}</span> with <span className="text-gray-600 font-semibold">{getContacts(val.data.contacts.map(val => val.name), true)}</span>
                                                                         </span>
                                                                     </div>
-                                                                    <div className="text-sm text-[#696F8C] font-medium">
+                                                                    <div className="text-xs text-[#696F8C] font-medium">
                                                                         {timeSince(val.data.created_at)}
                                                                     </div>
                                                                 </>
