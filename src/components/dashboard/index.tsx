@@ -689,7 +689,7 @@ export default function DashboardComponent() {
                                     <div className="relative cursor-pointer p-[10px] rounded-[6px] bg-gray-100">
                                         <IconNotification />
                                         {!notifiactionOpen && notificationData &&
-                                            <div className="absolute w-[25px] h-[25px] flex flex-row justify-center items-center translate-x-[35%] translate-y-[-35%] top-0 right-0 rounded-[15px] bg-[#0085FF] text-white-900">{notificationData && notificationData.length}</div>
+                                            <div className="absolute w-[25px] h-[25px] flex flex-row justify-center items-center translate-x-[35%] translate-y-[-35%] top-0 right-0 rounded-[15px] bg-[#0085FF] text-white-900 text-[11px]">{notificationData && notificationData.length}</div>
                                         }
                                     </div>
                                 </DropdownMenuTrigger>
@@ -702,7 +702,7 @@ export default function DashboardComponent() {
                                                     <div className="text-header-100 text-md font-medium">
                                                         Notifications
                                                     </div>
-                                                    <div className="bg-[#0085FF] rounded-[15px] h-[30px] w-[30px] flex flex-row justify-center items-center text-white-900 text-xs font-medium p-[4px]">
+                                                    <div className="bg-[#0085FF] rounded-[15px] h-[30px] w-[30px] flex flex-row justify-center items-center text-white-900 text-sm font-medium p-[4px]">
                                                         {notificationData && notificationData?.length}
                                                     </div>
                                                 </div>
