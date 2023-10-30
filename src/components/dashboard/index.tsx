@@ -689,7 +689,7 @@ export default function DashboardComponent() {
                                     <div className="relative cursor-pointer p-[10px] rounded-[6px] bg-gray-100">
                                         <IconNotification />
                                         {!notifiactionOpen && notificationData &&
-                                            <div className="absolute w-[25px] h-[25px] flex flex-row justify-center items-center translate-x-[35%] translate-y-[-35%] top-0 right-0 rounded-[15px] bg-[#0085FF] text-white-900">{notificationData && notificationData.length}</div>
+                                            <div className="absolute w-[25px] h-[25px] flex flex-row justify-center items-center translate-x-[35%] translate-y-[-35%] top-0 right-0 rounded-[15px] bg-[#0085FF] text-white-900 text-[11px]">{notificationData && notificationData.length}</div>
                                         }
                                     </div>
                                 </DropdownMenuTrigger>
@@ -743,7 +743,7 @@ export default function DashboardComponent() {
                                                                             <span className="text-gray-700 font-semibold ">{valueToAcronym(val.data.reminder.toString(), REMINDER)}</span>
                                                                         </span>
                                                                     </div>
-                                                                    <div className="text-sm text-[#696F8C] font-medium">
+                                                                    <div className="text-xs text-[#696F8C] font-medium">
                                                                         {timeSince(val.created_at)}
                                                                     </div>
                                                                 </>
@@ -758,7 +758,7 @@ export default function DashboardComponent() {
                                                                             <span className="text-gray-700 font-semibold">{multiLineStyle2(val.data.due_date, true)}</span> with <span className="text-gray-600 font-semibold">{getContacts(val.data.contacts.map(val => val.name), true)}</span>
                                                                         </span>
                                                                     </div>
-                                                                    <div className="text-sm text-[#696F8C] font-medium">
+                                                                    <div className="text-xs text-[#696F8C] font-medium">
                                                                         {timeSince(val.data.created_at)}
                                                                     </div>
                                                                 </>
