@@ -499,7 +499,7 @@ function Proposal({ isDisabled = false, entityId }: { isDisabled?: boolean, enti
                                         Interim Retainer Fees
                                     </div>
                                     <div className='border-l-[1px] border-gray-700 pl-[10px]'>
-                                        <span className='font-bold'>{getValues("retainerAdvance")}</span> due upon offer rollout and acceptance
+                                        <span className='font-bold'>{getValues("interimRetainerFees")}</span> due upon offer rollout and acceptance
                                         {/* due upon offer rollout to candidate */}
                                     </div>
                                     <div>
