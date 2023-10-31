@@ -230,7 +230,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         form.setValue("size", labelToValue(data.lead.organisation.size || "", SIZE_OF_COMPANY))
         form.setValue("lastFundingStage", labelToValue(data.lead.organisation.last_funding_stage || "", LAST_FUNDING_STAGE))
         form.setValue("lastFundingAmount", labelToValue(data.lead.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
-        form.setValue("owners", data.owner.id.toString())
+        form.setValue("owners", data?.owner?.id?.toString() || "")
         getUserList()
     }, [])
 

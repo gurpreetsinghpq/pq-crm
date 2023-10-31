@@ -228,7 +228,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         form.setValue("size", labelToValue(data.organisation.size || "", SIZE_OF_COMPANY))
         form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE))
         form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
-        form.setValue("owners", data.owner.id.toString())
+        form.setValue("owners", data?.owner?.id?.toString() || "")
         getUserList()
         // form.unregister(["fixedBudgetUl"])
 

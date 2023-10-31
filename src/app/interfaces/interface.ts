@@ -47,7 +47,8 @@ export interface LeadInterface {
     updated_by: string;
     owner: {
         id: number;
-        name: string
+        name: string;
+        is_active: boolean;
     };
     role: {
         id: number;
@@ -308,7 +309,8 @@ export interface ProspectsGetResponse {
     };
     owner: {
         id: number;
-        name: string
+        name: string;
+        is_active: boolean;
     };
     lead: {
         id: number;
