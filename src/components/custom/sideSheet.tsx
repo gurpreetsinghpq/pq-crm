@@ -574,6 +574,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             if (value.toLowerCase() === "verified") {
                 updatedSchema = FormSchema.extend({
                     reasons: z.string().optional(),
+                    owners: z.string(required_error).min(1, { message: required_error.required_error }),
                     locations: z.string(required_error).min(1, { message: required_error.required_error }),
                     fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
                     industry: z.string(required_error).min(1, { message: required_error.required_error }),
@@ -596,6 +597,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             } else {
                 updatedSchema = FormSchema.extend({
                     reasons: z.string(required_error).min(1, { message: required_error.required_error }),
+                    owners: z.string(required_error).min(1, { message: required_error.required_error }),
                     locations: z.string(required_error).min(1, { message: required_error.required_error }),
                     fixedCtcBudget: z.string(required_error).min(1, { message: required_error.required_error }),
                     industry: z.string(required_error).min(1, { message: required_error.required_error }),
