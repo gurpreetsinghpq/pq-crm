@@ -102,12 +102,13 @@ export function camelCaseToTitleCase(input: string) {
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 let token_superuser = "";
-export async function fetchUserDataList() {
+export async function fetchUserDataList(ownerList:boolean=false) {
   try {
     const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
     let data: UsersGetResponse[] = structuredClone(result.data)
     let activeUsers = data.filter((val) => val.is_active === true)
+    console.log("activeUsers", activeUsers)
     let dataToReturn = activeUsers.map((val) => {
       const final: IValueLabel = {
         label: `${val.first_name} ${val.last_name}`,
@@ -212,11 +213,15 @@ export async function fetchMyDetails(): Promise<UserProfile | undefined> {
 export function getLength(data: any) {
   return data.length
 }
-export function getName(data: any) {
+export function getName(data: any, customMessage?:string) {
   if (data) {
     return data.name
   }
-  return "—"
+  if(customMessage){
+    return customMessage
+  }else{
+    return "—"
+  }
 }
 
 export function getFullName(data: any) {
