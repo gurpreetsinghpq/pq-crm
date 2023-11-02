@@ -141,7 +141,7 @@ function forgotPassword() {
                     </div>
                     <div className='flex flex-col gap-[12px] w-full items-center' >
                         <div className='text-2xl text-gray-900 text-center'>Check your email</div>
-                        <div className='text-md text-gray-600 text-center'>We sent a password reset link to <br /> <span className='font-medium'> {form.getValues("email")}</span></div>
+                        <div className='text-md text-gray-600 text-center'>We have sent a password reset link to <br /> <span className='font-medium'> {form.getValues("email")}</span></div>
                     </div>
                 </div>
                 <div className='text-sm font-normal text-gray-600'>
