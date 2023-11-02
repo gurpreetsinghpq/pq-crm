@@ -447,7 +447,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             service_fee_range: valueToLabel(form.getValues("serviceFeeRange") || "", SERVICE_FEE_RANGE),
             status: statusToSend,
             reason: reasonToSend,
-            owner: Number(form.getValues("owners"))
+            owner: Number(form.getValues("owners")) || null
         }
         const orgData: Partial<PatchOrganisation> = {
             name: form.getValues("orgnaisationName"),

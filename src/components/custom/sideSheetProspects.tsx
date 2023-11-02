@@ -462,7 +462,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         const prospectData: Partial<PatchProspect> = {
             reason: reasonToSend || null,
             status: statusToSend,
-            owner: Number(form.getValues("owners"))
+            owner: Number(form.getValues("owners")) || null
             // lead: leadData
             // owner: valueToLabel(form.getValues("owners"), OWNERS)
         }

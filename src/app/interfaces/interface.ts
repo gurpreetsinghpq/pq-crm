@@ -146,7 +146,7 @@ export interface PatchLead {
     readOnly: true;
     created_by: string;
     updated_by: string;
-    owner: number;
+    owner: number | null;
     role: string;
     organisation: string;
     title?: string | null;
@@ -396,7 +396,7 @@ export interface PatchProspect {
     reason: string,
     is_converted_to_deal: boolean,
     archived: boolean
-    owner: number
+    owner: number | null
     lead: Partial<PatchLead>
 }
 
