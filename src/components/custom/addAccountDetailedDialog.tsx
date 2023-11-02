@@ -25,7 +25,7 @@ import { Tooltip } from '@radix-ui/react-tooltip'
 import { commonFontClassesAddDialog, contactListClasses, disabledClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
-import { doesTypeIncludesMandatory, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { doesTypeIncludesMandatory, getIsContactDuplicate, getToken, handleKeyPress, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 
 
@@ -186,7 +186,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     // console.log(dummyContactData)
 
 
-    function addContact() {
+    async function addContact() {
         console.log(form2.getValues())
         const finalData = form2.getValues()
         const ftype = type.find((role) => role.value === finalData.type)?.label
@@ -198,12 +198,18 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             phone = ""
             std_code = ""
         }
-        setDummyContactData((prevValues: any) => {
-            const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
-            return list
-        })
-        setShowContactForm(false)
-        resetForm2()
+
+        const res = await getIsContactDuplicate(finalData.email, phone + std_code)
+        if (res === false) {
+            setDummyContactData((prevValues: any) => {
+                const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
+                return list
+            })
+            setShowContactForm(false)
+            resetForm2()
+        }else{
+            toastContactAlreadyExists()
+        }
     }
     function discardContact() {
         setShowContactForm(false)
@@ -358,7 +364,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         setShowContactForm(true)
     }
 
-    function updateContact(): void {
+    async function updateContact() {
         const currentContactId = form2.getValues("contactId")
         console.debug(currentContactId, form2.getValues())
         if (currentContactId) {
@@ -379,11 +385,16 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             }
             data.std_code = std_code
             data.phone = phone
-            setDummyContactData(newData)
+            const res = await getIsContactDuplicate(data.email, data.std_code + data.phone)
+            if(res===false){
+                setDummyContactData(newData)
+                resetForm2()
+                setFormInUpdateState(false)
+                setShowContactForm(false)
+            }else{
+                toastContactAlreadyExists()
+            }
         }
-        resetForm2()
-        setFormInUpdateState(false)
-        setShowContactForm(false)
 
     }
 

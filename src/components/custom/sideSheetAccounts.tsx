@@ -29,7 +29,7 @@ import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, d
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
-import { doesTypeIncludesMandatory, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { doesTypeIncludesMandatory, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { getCookie } from 'cookies-next'
 
 const FormSchema2 = z.object({
@@ -571,32 +571,41 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         const dataToSend: ContactPostBody = {
             ...finalData, type: ftype, designation: fDesignation, organisation: orgId, phone, std_code
         }
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            console.log(result)
 
-            if (result.status == "1") {
-                setAddDialogOpen(false)
-                resetForm2()
-                toast({
-                    title: "Contact Added Successfully!",
-                    variant: "dark"
-                })
-                setDummyContactData((prevValues: any) => {
-                    const list = [{ ...result.data }, ...prevValues]
-                    return list
-                })
-            } else {
-                toast({
-                    title: "Api Error!",
-                    variant: "destructive"
-                })
+        const res = await getIsContactDuplicate(finalData.email, std_code + phone )
+
+        if(res===false){
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                console.log(result)
+    
+                if (result.status == "1") {
+                    setAddDialogOpen(false)
+                    resetForm2()
+                    toast({
+                        title: "Contact Added Successfully!",
+                        variant: "dark"
+                    })
+                    setDummyContactData((prevValues: any) => {
+                        const list = [{ ...result.data }, ...prevValues]
+                        return list
+                    })
+                } else {
+                    toast({
+                        title: "Api Error!",
+                        variant: "destructive"
+                    })
+                }
+    
+            } catch (err) {
+                console.log(err)
             }
-
-        } catch (err) {
-            console.log(err)
+        }else{
+            toastContactAlreadyExists()
         }
+
+
 
 
         console.log("finalData", dataToSend)

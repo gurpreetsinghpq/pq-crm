@@ -23,7 +23,7 @@ import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 import { commonClasses, commonFontClassesAddDialog, contactListClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
-import { doesTypeIncludesMandatory, getMandatoryFromType, getToken, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { doesTypeIncludesMandatory, getIsContactDuplicate, getMandatoryFromType, getToken, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import Link from 'next/link'
 
 
@@ -145,7 +145,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     console.log(dummyContactData)
 
 
-    function addContact() {
+    async function addContact() {
         console.log(form2.getValues())
         const finalData = form2.getValues()
         const ftype = type.find((role) => role.value === finalData.type)?.label
@@ -157,13 +157,23 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             phone = ""
             std_code = ""
         }
-        setDummyContactData((prevValues: any) => {
-            const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
-            return list
-        })
-        setShowContactForm(false)
-        resetForm2()
+
+
+        const res = await getIsContactDuplicate(finalData.email, phone + std_code)
+        if (res === false) {
+            setDummyContactData((prevValues: any) => {
+                const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
+                return list
+            })
+            setShowContactForm(false)
+            resetForm2()
+        }else{
+            toastContactAlreadyExists()
+        }
+
     }
+
+
     function discardContact() {
         setShowContactForm(false)
         setFormInUpdateState(false)
@@ -310,7 +320,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         setShowContactForm(true)
     }
 
-    function updateContact(): void {
+    async function updateContact(){
         const currentContactId = form2.getValues("contactId")
         console.debug(currentContactId, form2.getValues())
         if (currentContactId) {
@@ -331,11 +341,17 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             }
             data.std_code = std_code
             data.phone = phone
-            setDummyContactData(newData)
+
+            const res = await getIsContactDuplicate(data.email, data.std_code + data.phone)
+            if(res===false){
+                setDummyContactData(newData)
+                resetForm2()
+                setFormInUpdateState(false)
+                setShowContactForm(false)
+            }else{
+                toastContactAlreadyExists()
+            }
         }
-        resetForm2()
-        setFormInUpdateState(false)
-        setShowContactForm(false)
 
     }
 
@@ -349,11 +365,11 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         const value = form2.getValues("std_code")
         let updatedSchema
         const isMandatory = type ? doesTypeIncludesMandatory(type) : false
-        if(type){
+        if (type) {
             setIsPhoneMandatory(isMandatory)
         }
         if (isMandatory) {
-            if (value != "+91" && value!="+1") {
+            if (value != "+91" && value != "+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13),
                     std_code: z.string()
@@ -363,7 +379,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                 updatedSchema = FormSchema2
             }
         } else {
-            if (value != "+91" && value!="+1") {
+            if (value != "+91" && value != "+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13).optional().nullable(),
                     std_code: z.string().optional()
@@ -379,9 +395,9 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         if (type) {
             const phone = form2.getValues("phone")
             if (!phone) {
-                if(isMandatory){
+                if (isMandatory) {
                     form2.setValue("phone", '')
-                }else{
+                } else {
                     form2.setValue("phone", null)
                 }
             }
@@ -872,7 +888,7 @@ export function beforeCancelDialog(yesDiscard: CallableFunction) {
         </DialogTrigger>
         <DialogContent>
             <div className='min-w-[360px]'>
-                
+
                 <div className='flex flex-col gap-[32px] '>
                     <div className='flex flex-col'>
                         <div className='text-gray-900 text-lg font-semibold'>Unsaved changes</div>

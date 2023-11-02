@@ -28,7 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
-import { doesTypeIncludesMandatory, fetchUserDataList, handleOnChangeNumeric, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { doesTypeIncludesMandatory, fetchUserDataList, getIsContactDuplicate, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { toast, useToast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
@@ -325,32 +325,41 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         const dataToSend: ContactPostBody = {
             ...finalData, type: ftype, designation: fDesignation, organisation: orgId, phone, std_code
         }
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            console.log(result)
 
-            if (result.status == "1") {
-                setAddDialogOpen(false)
-                resetForm2()
-                toast({
-                    title: "Contact Added Successfully!",
-                    variant: "dark"
-                })
-                setDummyContactData((prevValues: any) => {
-                    const list = [{ ...result.data }, ...prevValues]
-                    return list
-                })
-            } else {
-                toast({
-                    title: "Api Error!",
-                    variant: "destructive"
-                })
+        const res = await getIsContactDuplicate(finalData.email,  std_code + phone)
+
+        if(res===false){
+
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                console.log(result)
+    
+                if (result.status == "1") {
+                    setAddDialogOpen(false)
+                    resetForm2()
+                    toast({
+                        title: "Contact Added Successfully!",
+                        variant: "dark"
+                    })
+                    setDummyContactData((prevValues: any) => {
+                        const list = [{ ...result.data }, ...prevValues]
+                        return list
+                    })
+                } else {
+                    toast({
+                        title: "Api Error!",
+                        variant: "destructive"
+                    })
+                }
+    
+            } catch (err) {
+                console.log(err)
             }
-
-        } catch (err) {
-            console.log(err)
+        }else{
+            toastContactAlreadyExists()
         }
+
 
 
         console.log("finalData", dataToSend)

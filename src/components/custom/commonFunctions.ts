@@ -1,6 +1,7 @@
 import { TIME_ZONES, TYPE } from "@/app/constants/constants";
 import { ActivityAccToEntity, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
+import { toast } from "../ui/use-toast";
 
 export function handleOnChangeNumeric(
   event: React.ChangeEvent<HTMLInputElement>,
@@ -34,7 +35,7 @@ export function handleOnChangeNumericReturnNull(
   inputValue = inputValue.replace(/[^0-9.,]/g, '');
 
   // Limit the input to the specified number of digits
-  if ( numberOfDigits && inputValue.length > numberOfDigits) {
+  if (numberOfDigits && inputValue.length > numberOfDigits) {
     inputValue = inputValue.slice(0, numberOfDigits);
   }
 
@@ -102,7 +103,7 @@ export function camelCaseToTitleCase(input: string) {
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
 let token_superuser = "";
-export async function fetchUserDataList(ownerList:boolean=false) {
+export async function fetchUserDataList(ownerList: boolean = false) {
   try {
     const dataResp = await fetch(`${baseUrl}/v1/api/users/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
@@ -213,13 +214,13 @@ export async function fetchMyDetails(): Promise<UserProfile | undefined> {
 export function getLength(data: any) {
   return data.length
 }
-export function getName(data: any, customMessage?:string) {
+export function getName(data: any, customMessage?: string) {
   if (data) {
     return data.name
   }
-  if(customMessage){
+  if (customMessage) {
     return customMessage
-  }else{
+  } else {
     return "—"
   }
 }
@@ -354,16 +355,16 @@ export function doesTypeIncludesMandatory(value: string) {
   return TYPE.filter((val) => val.mandatory).map(val => val.value).includes(value)
 }
 
-export function replaceTimeZone(inputDate:string, replacementString:string) {
+export function replaceTimeZone(inputDate: string, replacementString: string) {
   // Use regular expressions to replace the timezone part
   const regex = /\+\d{4}\s\(.+?\)/;
   const updatedDate = inputDate.replace(regex, replacementString);
-  console.log("timezoneOffSet replaced", inputDate,replacementString)
+  console.log("timezoneOffSet replaced", inputDate, replacementString)
   return updatedDate;
 }
 
 
-export function getTimeOffsetFromUTC(utcValue:string) {
+export function getTimeOffsetFromUTC(utcValue: string) {
   const timeZone = TIME_ZONES.find(zone => zone.utc.includes(utcValue));
   if (timeZone) {
     const match = timeZone.text.match(/\(([^)]+)\)/);
@@ -380,7 +381,7 @@ export function hasSpecialCharacter(inputString: string) {
   return regex.test(inputString);
 }
 
-export async function fetchNotifications():Promise<NotificationGetResponse[] | undefined>{
+export async function fetchNotifications(): Promise<NotificationGetResponse[] | undefined> {
   try {
     const dataResp = await fetch(`${baseUrl}/v1/api/notification/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
@@ -394,9 +395,9 @@ export async function fetchNotifications():Promise<NotificationGetResponse[] | u
   }
 }
 
-export async function patchNotification(id:number, isViewed:boolean){
+export async function patchNotification(id: number, isViewed: boolean) {
   try {
-    const dataResp = await fetch(`${baseUrl}/v1/api/notification/${id}/`, { method: "PATCH", body: JSON.stringify({is_viewed:isViewed}), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const dataResp = await fetch(`${baseUrl}/v1/api/notification/${id}/`, { method: "PATCH", body: JSON.stringify({ is_viewed: isViewed }), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
     if (result.data) {
       return result.data
@@ -407,7 +408,7 @@ export async function patchNotification(id:number, isViewed:boolean){
     return err
   }
 }
-export async function clearNotification(id:number){
+export async function clearNotification(id: number) {
   try {
     const dataResp = await fetch(`${baseUrl}/v1/api/notification/${id}/`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
@@ -420,7 +421,7 @@ export async function clearNotification(id:number){
     return err
   }
 }
-export async function clearAllNotification(){
+export async function clearAllNotification() {
   try {
     const dataResp = await fetch(`${baseUrl}/v1/api/notification/bulk_delete`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
@@ -435,7 +436,7 @@ export async function clearAllNotification(){
 }
 
 
-export function timeSince(date:string) {
+export function timeSince(date: string) {
 
   var seconds = Math.floor((+new Date() - +new Date(date)) / 1000);
 
@@ -477,4 +478,31 @@ export function calculateMinuteDifference(
   const minuteDifference = dueTotalMinutes - currentTotalMinutes;
 
   return minuteDifference;
+}
+
+export async function getIsContactDuplicate(emailId: string, mobile: string) {
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/is_duplicate/?email=${emailId}${mobile? `&phone=${mobile}` : "" }`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if (result.data) {
+      return result.data.is_duplicate
+    }
+    return undefined
+  }
+  catch (err: any) {
+    console.log("err", err)
+    return err
+  }
+}
+export function toastContactAlreadyExists() {
+  toast({
+    title: "Contact already exists!",
+    variant: "destructive"
+  })
+}
+export function toastOtherError(e:string) {
+  toast({
+    title: e,
+    variant: "destructive"
+  })
 }

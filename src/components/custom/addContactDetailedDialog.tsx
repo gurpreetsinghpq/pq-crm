@@ -21,7 +21,7 @@ import { Client, ClientCompleteInterface, ContactDetail, ContactPostBody, IValue
 import { PopoverClose } from '@radix-ui/react-popover'
 import { commonFontClassesAddDialog, preFilledClasses } from '@/app/constants/classes'
 import { valueToLabel } from './sideSheet'
-import { doesTypeIncludesMandatory, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { doesTypeIncludesMandatory, getIsContactDuplicate, getToken, handleKeyPress, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 
 
@@ -173,28 +173,36 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         } else {
             dataToSend["organisation_name"] = form.getValues("organisationName")
         }
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            console.log(result)
-            if (result.status == "1") {
-                dataFromChild()
-                form.reset()
-                resetForm2()
-                toast({
-                    title: "Contact Created Successfully!",
-                    variant: "dark"
-                })
-            } else {
-                toast({
-                    title: "Api Error!",
-                    variant: "destructive"
-                })
-            }
+        
+        const res = await getIsContactDuplicate(dataToSend.email, dataToSend.std_code + dataToSend.phone)
 
-        } catch (err) {
-            console.log(err)
+        if(res===false){
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                console.log(result)
+                if (result.status == "1") {
+                    dataFromChild()
+                    form.reset()
+                    resetForm2()
+                    toast({
+                        title: "Contact Created Successfully!",
+                        variant: "dark"
+                    })
+                } else {
+                    toast({
+                        title: "Api Error!",
+                        variant: "destructive"
+                    })
+                }
+    
+            } catch (err) {
+                console.log(err)
+            }
+        }else{
+            toastContactAlreadyExists()
         }
+            
 
     }
 
