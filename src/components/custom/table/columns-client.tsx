@@ -218,7 +218,7 @@ export function columnsClient(setChildDataHandler:CallableFunction): ColumnDef<C
                     Created By
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("created_by")) || "—"}</div>,
+        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("created_by"), "API") || "API"}</div>,
         filterFn: (row, id, value) => {
             const rowData:any = row.getValue(id)
             return value.includes(rowData?.id?.toString())
