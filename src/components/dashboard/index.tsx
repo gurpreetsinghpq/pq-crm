@@ -433,8 +433,6 @@ export default function DashboardComponent() {
         }
     }
     useEffect(() => {
-        const userFromLocalstorage = JSON.parse(localStorage.getItem("user") || "")
-
         getMyDetails()
         getTimeZone()
     }, [])
