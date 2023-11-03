@@ -225,6 +225,12 @@ export function getName(data: any, customMessage?: string) {
   }
 }
 
+export function getActive(data:any){
+  if(data){
+    return data?.is_active
+  }
+}
+
 export function getFullName(data: any) {
   if (data) {
     return `${data.first_name} ${data.last_name}`
@@ -505,4 +511,11 @@ export function toastOtherError(e:string) {
     title: e,
     variant: "destructive"
   })
+}
+export function formatNumberToTwoDigits(num: number): string {
+  if (num < 10) {
+    return `0${num}`;
+  } else {
+    return num.toString();
+  }
 }
