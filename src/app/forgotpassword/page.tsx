@@ -1,4 +1,5 @@
 "use client"
+import { formatNumberToTwoDigits } from '@/components/custom/commonFunctions'
 import { IconCheckCircle, IconEmail, IconKey } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
@@ -24,7 +25,7 @@ function forgotPassword() {
 
     const [started, setStarted] = useState(false); // Track whether the countdown has started
 
-    const [seconds, setSeconds] = useState<number>(5)
+    const [seconds, setSeconds] = useState<number>(30)
 
     const [errorMessage, setErrorMessage] = useState("")
     const { toast } = useToast()
@@ -39,7 +40,7 @@ function forgotPassword() {
 
 
     useEffect(() => {
-        let timer:any 
+        let timer: any
         if (started) {
             timer = setInterval(() => {
                 if (seconds > 1) {
@@ -59,21 +60,21 @@ function forgotPassword() {
         console.log("hu")
         setIsLoading(true)
 
-        
+
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-        
-        
+
+
 
         try {
-            
+
             const dataResp = await fetch(`${baseUrl}/v1/api/password_reset/`, { method: "POST", body: JSON.stringify(form.getValues()), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             console.log(result)
             setIsLoading(false)
-            if(result.status==1){
+            if (result.status == 1) {
                 setIsForgotMail(true)
                 setStarted(true)
-            }else{
+            } else {
                 setErrorMessage(result?.error?.email)
                 toast({
                     title: result?.error?.email
@@ -88,7 +89,7 @@ function forgotPassword() {
     }
 
     function resend() {
-        if(seconds===1){
+        if (seconds === 1) {
             forgotMailApi()
             setStarted(false)
             setSeconds(5)
@@ -144,15 +145,20 @@ function forgotPassword() {
                         <div className='text-md text-gray-600 text-center'>We have sent a password reset link to <br /> <span className='font-medium'> {form.getValues("email")}</span></div>
                     </div>
                 </div>
-                <div className='text-sm font-normal text-gray-600'>
-                    Didn’t receive the email?
-                    <span className={`text-purple-700 font-semibold  ${seconds===1? "opacity-[1] cursor-pointer": "opacity-[0.30] cursor-not-allowed"}`} onClick={resend}> Click to resend</span>
+                <div className='flex flex-col items-center gap-[5px]'>
+                    {seconds != 1 && <div className='text-sm text-gray-500 font-medium'>
+                        00:{formatNumberToTwoDigits(seconds)}
+                    </div>}
+                    <div className='text-sm font-normal text-gray-600'>
+                        Didn’t receive the email?
+                        <span className={`text-purple-700 font-semibold  ${seconds === 1 ? "opacity-[1] cursor-pointer" : "opacity-[0.30] cursor-not-allowed"}`} onClick={resend}> Click to resend</span>
+                    </div>
                 </div>
                 <div className='flex flex-row gap-[5px] justify-center items-center'>
                     <ArrowLeft className='h-[20px] w-[20px] text-gray-600' />
                     <Link href={"/signin"} className='text-gray-600 text-sm font-semibold cursor-pointer'>Back to log in</Link>
                 </div>
-                
+
             </div>
         </div>}</>
     )
