@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
-import { getLength, getName } from "../commonFunctions"
+import { getActive, getLength, getName } from "../commonFunctions"
 import { multiLine } from "./columns"
 
 
@@ -120,7 +120,7 @@ export function columnsProfiles(setChildDataHandler:CallableFunction): ColumnDef
                     Created By
                 </div>
             )
-        }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{ getName(row.getValue("created_by")) || "—"}</div>,
+        }, cell: ({ row }) => <div className={`${ getActive(row.getValue("created_by")) ? "text-gray-600": "text-gray-400"}  text-sm font-normal`}>{ getName(row.getValue("created_by")) || "—"}</div>,
         filterFn: (row, id, value) => {
             const rowData:any = row.getValue(id)
             return value.includes(rowData?.id?.toString())

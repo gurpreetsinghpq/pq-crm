@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
-import { getName } from "../commonFunctions"
+import { getActive, getName } from "../commonFunctions"
 import { multiLine } from "./columns"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { DialogClose } from "@radix-ui/react-dialog"
@@ -194,7 +194,7 @@ export function columnsProspects(setChildDataHandler: CallableFunction, patchArc
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{getName(row.getValue("owner")) || "—"}</div>,
+            cell: ({ row }) => <div className={`${ getActive(row.getValue("owner")) ? "text-gray-600": "text-gray-400"}  text-sm font-normal`}>{getName(row.getValue("owner")) || "—"}</div>,
             filterFn: (row, id, value) => {
                 const rowData: any = row.getValue(id)
                 return value.includes(rowData?.id?.toString())
@@ -210,7 +210,7 @@ export function columnsProspects(setChildDataHandler: CallableFunction, patchArc
                         Created By
                     </div>
                 )
-            }, cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{getName(row.getValue("created_by"), "API") || "API"}</div>,
+            }, cell: ({ row }) => <div className={`${ getActive(row.getValue("created_by")) ? "text-gray-600": "text-gray-400"}  text-sm font-normal`}>{getName(row.getValue("created_by"), "API") || "API"}</div>,
             filterFn: (row, id, value) => {
                 const rowData: any = row.getValue(id)
                 return value.includes(rowData?.id?.toString())
