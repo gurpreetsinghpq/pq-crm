@@ -429,7 +429,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY) || "",
             last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE) || "",
             last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT) || "",
-            segment: valueToLabel(form.getValues("segment") || "", SEGMENT) || LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || "",
+            segment: LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || "",
             billing_address: form.getValues("billingAddress") || "",
             shipping_address: form.getValues("shippingAddress") || "",
             govt_id: form.getValues("gstinVatGstNo") || "",
@@ -680,7 +680,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                     }
                                                     } defaultValue={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className={`border-gray-300 ${commonClasses}`}>
+                                                            <SelectTrigger disabled className={`border-gray-300 ${commonClasses}`}>
                                                                 <SelectValue defaultValue={field.value} placeholder="Select a Segment" />
                                                             </SelectTrigger>
                                                         </FormControl>
