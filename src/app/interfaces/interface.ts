@@ -13,7 +13,7 @@ export interface Client {
     organisation: Organisation;
     role_details: RoleDetails;
     source: string;
-    title: string;
+    title: string | null;
 }
 
 export interface Organisation {
@@ -162,6 +162,14 @@ export interface PatchLead {
     created_at: string;
     updated_at: string;
     reason: string
+    closed_by?: number | null,
+    fullfilled_by?: number | null
+}
+
+export interface PatchDeal {
+    id: number;
+    status: string; 
+    deal_value: string
 }
 
 export interface PatchOrganisation {
@@ -996,3 +1004,169 @@ export interface NotificationGetResponse {
     created_at: string;
     user: number;
 }
+
+export interface DuplicateError{
+    phone: boolean,
+    email: boolean
+}
+
+export interface DealsGetResponse {
+    id: number;
+    created_by: {
+      name: string;
+      id: number;
+      is_active: boolean;
+    };
+    updated_by: {
+      name: string;
+      id: number;
+      is_active: boolean;
+    };
+    owner: {
+      name: string;
+      id: number;
+      is_active: boolean;
+    };
+    prospect: {
+      id: number;
+      created_by: {
+        name: string;
+        id: number;
+        is_active: boolean;
+      };
+      updated_by: {
+        name: string;
+        id: number;
+        is_active: boolean;
+      };
+      owner: {
+        name: string;
+        id: number;
+        is_active: boolean;
+      };
+      lead: {
+        id: number;
+        created_by: {
+          name: string;
+          id: number;
+          is_active: boolean;
+        };
+        updated_by: {
+          name: string;
+          id: number;
+          is_active: boolean;
+        };
+        owner: {
+          name: string;
+          id: number;
+          is_active: boolean;
+        };
+        role: {
+          id: number;
+          role_type: string;
+          budget_range: string;
+          fixed_budget: string;
+          fixed_budget_ul: string;
+          esop_rsu: string;
+          region: string;
+          location: string;
+          time_To_fill: string;
+          archived: boolean;
+        };
+        organisation: {
+          id: number;
+          contacts: {
+            id: number;
+            created_by: {
+              name: string;
+              id: number;
+              is_active: boolean;
+            };
+            updated_by: {
+              name: string;
+              id: number;
+              is_active: boolean;
+            };
+            organisation: {
+              name: string;
+              id: number;
+            };
+            name: string;
+            email: string;
+            std_code: string;
+            phone: string;
+            designation: string;
+            type: string;
+            archived: boolean;
+            created_at: string;
+            updated_at: string;
+          }[];
+          created_by: {
+            name: string;
+            id: number;
+            is_active: boolean;
+          };
+          updated_by: {
+            name: string;
+            id: number;
+            is_active: boolean;
+          };
+          lead_count: number;
+          name: string;
+          registered_name: string;
+          govt_id: string;
+          billing_address: string;
+          shipping_address: string;
+          industry: string;
+          domain: string;
+          size: string;
+          last_funding_stage: string;
+          last_funding_amount: string;
+          funding_currency: string | null;
+          segment: string;
+          archived: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        title: string;
+        currency: string | null;
+        service_fee: string;
+        service_fee_range: string;
+        retainer_advance: boolean;
+        exclusivity: boolean;
+        source: string;
+        status: string;
+        reason: string;
+        is_converted_to_prospect: boolean;
+        archived: boolean;
+        created_at: string;
+        updated_at: string;
+        verification_time: string;
+        closure_time: string;
+        fullfilled_by: any; // You might want to specify the correct type
+        closed_by: any; // You might want to specify the correct type
+      };
+      status: string;
+      reason: string | null;
+      is_converted_to_deal: boolean;
+      archived: boolean;
+      created_at: string;
+    };
+    deal_value: string;
+    status: string;
+    reason: string | null;
+    archived: boolean;
+    created_at: string;
+  }
+  export interface UploadedFile {
+    id: number;
+    uploaded_by: {
+      name: string;
+      id: number;
+      is_active: boolean;
+    };
+    file: string;
+    uploaded_at: string;
+    sent_on: string | null;
+    prospect: number;
+  }

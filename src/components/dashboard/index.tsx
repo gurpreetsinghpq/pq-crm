@@ -25,6 +25,7 @@ import { multiLineStyle2 } from "../custom/table/columns"
 import { getContacts } from "../custom/sideSheetTabs/custom-stepper"
 import { valueToAcronym, valueToLabel } from "../custom/sideSheet"
 import { REMINDER } from "@/app/constants/constants"
+import Deals from "../custom/deals"
 
 
 const LeadFormSchema = z.object({
@@ -60,6 +61,27 @@ const ProspectFormSchema = z.object({
     regions: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one region.",
     }),
+    sources: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one source.",
+    }),
+    statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
+const DealsFormSchema = z.object({
+    owners: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Owner.",
+    }),
+    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    // regions: z.array(z.string()).refine((value) => value.some((item) => item), {
+    //     message: "You have to select at least one region.",
+    // }),
     sources: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one source.",
     }),
@@ -274,6 +296,26 @@ export default function DashboardComponent() {
         resolver: zodResolver(ProspectFormSchema),
         defaultValues: {
             regions: ["allRegions"],
+            sources: ["allSources"],
+            statuses: ["allStatuses"],
+            owners: ['allOwners'],
+            creators: ['allCreators'],
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": from,
+                    "to": to
+                },
+                rangeCompare: undefined
+            }
+        }
+    })
+    
+    const DealsForm = useForm<z.infer<typeof DealsFormSchema>>({
+        resolver: zodResolver(DealsFormSchema),
+        defaultValues: {
+            // regions: ["allRegions"],
             sources: ["allSources"],
             statuses: ["allStatuses"],
             owners: ['allOwners'],
@@ -608,7 +650,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${disabledSidebarItem}`}>
+                            <div onClick={() => setCurrentTab(TITLES.DEALS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ !(permissions["Deal"]?.access && permissions["Deal"]?.view) && disabledSidebarItem}`}>
                                 <IconDealsHome size={24} />
                             </div>
                         </TooltipTrigger>
@@ -838,6 +880,7 @@ export default function DashboardComponent() {
             <div className="bottom flex flex-col flex-1">
                 {currentTab === TITLES.LEADS && <Leads form={LeadForm} permissions={permissions["Lead"]} />}
                 {currentTab === TITLES.PROSPECTS && <Prospects form={ProspectForm} permissions={permissions["Prospect"]} />}
+                {currentTab === TITLES.DEALS && <Deals form={DealsForm} permissions={permissions["Deal"]} />}
                 {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} permissions={permissions["Organisation"]} />}
                 {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} permissions={permissions["Contact"]} />}
                 {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]} />}

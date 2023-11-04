@@ -13,6 +13,7 @@ import HistoryActivity from './history/history-activity';
 import { getToken } from '../commonFunctions';
 import HistoryAll from './history/history-all';
 import HistoryChangelog from './history/history-changelog';
+import RequirementDeck from './deal-flow/requirementDeck';
 
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
@@ -65,10 +66,10 @@ const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
 
 interface DisabledProps{
   proposal?:boolean
-
+  requirementDeck?:boolean
 }
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = {proposal:false} }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps}) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = {proposal:false, requirementDeck:false} }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps}) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
@@ -244,7 +245,7 @@ console.log("isloading", isLoading)
             {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft} /></div>}
             <TabsList className={`${commonTabListClasses} overflow-hidden `} ref={containerRef}>
               {dealFlowTab.map((tab) => {
-                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal"} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal" && (tab.value==="Requirement Deck" ? disable.requirementDeck : true)} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
               })}
             </TabsList>
             {isRightVisible && <div><ChevronRight className='cursor-pointer' onClick={scrollRight} /></div>}
@@ -253,6 +254,9 @@ console.log("isloading", isLoading)
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
             <Proposal isDisabled={disable.proposal} entityId={entityId}/>
+          </TabsContent>
+          <TabsContent value={DEAL_FLOW_TABS.REQUIREMENT_DECK} className="flex flex-col flex-1">
+            <RequirementDeck entityId={entityId}/>
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 

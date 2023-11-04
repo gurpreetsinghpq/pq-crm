@@ -531,3 +531,29 @@ export function formatBytes(bytes:any, decimals = 2) {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
+
+export function convertLocalStringToNumber(localString: string): number | null {
+  try {
+      // Remove any commas from the input string
+      const numberStr = localString.replace(/,/g, '');
+
+      // Convert the string to a number
+      const number = parseFloat(numberStr);
+
+      if (!isNaN(number)) {
+          return number;
+      } else {
+          return null;
+      }
+  } catch (error) {
+      // Handle any errors, e.g., invalid input
+      return null;
+  }
+}
+export function extractFileNameFromUrl(url: string): string | null {
+  const segments = url.split('/');
+  if (segments.length > 0) {
+    return segments[segments.length - 1];
+  }
+  return null;
+}

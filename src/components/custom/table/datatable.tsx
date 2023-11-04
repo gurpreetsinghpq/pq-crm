@@ -25,7 +25,7 @@ import {
 import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
-import { ALL_DESIGNATIONS, ALL_FUNCTIONS, ALL_LAST_FUNDING_STAGE, ALL_PROFILES, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DOMAINS, INDUSTRIES, OWNERS, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
+import { ALL_DESIGNATIONS, ALL_FUNCTIONS, ALL_LAST_FUNDING_STAGE, ALL_PROFILES, ALL_PROSPECT_STATUSES, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DEAL_STATUSES, DOMAINS, INDUSTRIES, OWNERS, PROSPECT_STATUSES, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
 import { ContactsGetResponse, IValueLabel } from "@/app/interfaces/interface"
 import { TableContext } from "@/app/helper/context"
 
@@ -41,6 +41,17 @@ interface LeadInterfaceFilter {
 }
 interface ProspectInterfaceFilter {
   regions?: string[]
+  sources?: string[]
+  statuses?: string[]
+  creators?: string[]
+  owners?: string[],
+  search?: string,
+  dateRange?: any,
+  queryParamString?: string
+}
+
+interface DealsInterfaceFilter {
+  // regions?: string[]
   sources?: string[]
   statuses?: string[]
   creators?: string[]
@@ -87,7 +98,7 @@ interface TeamsInterfaceFilter {
   queryParamString?: string
 }
 
-type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter & TeamsInterfaceFilter
+type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & DealsInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter & TeamsInterfaceFilter
 
 interface HiddenIf{
   threeDots?:boolean
@@ -170,6 +181,9 @@ export default function DataTable<TData, TValue>({
         break;
       case "prospects":
         setProspectFilter()
+        break;
+      case "deals":
+        setDealsFilter()
         break;
       case "accounts":
         setAccountFilter()
@@ -285,7 +299,54 @@ export default function DataTable<TData, TValue>({
       table.getColumn("status")?.setFilterValue("")
     }
     else {
-      const statusFilter = valueToLabel("statuses", STATUSES)
+      const statusFilter = valueToLabel("statuses", PROSPECT_STATUSES)
+      table.getColumn("status")?.setFilterValue(statusFilter)
+    }
+
+    if (filterObj?.owners && filterObj.owners.includes("allOwners")) {
+      table.getColumn("owner")?.setFilterValue("")
+    }
+    else {
+      const ownerFilter = filterObj.owners
+      table.getColumn("owner")?.setFilterValue(ownerFilter)
+    }
+
+    if (filterObj.creators && filterObj.creators.includes("allCreators")) {
+      table.getColumn("created_by")?.setFilterValue("")
+    }
+    else {
+      const creatorFilter = filterObj.creators
+      table.getColumn("created_by")?.setFilterValue(creatorFilter)
+    }
+
+
+    // table.getColumn("id")?.setFilterValue(filterObj.ids)
+    table.getColumn("title")?.setFilterValue(filterObj.search)
+    table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+  }
+
+  function setDealsFilter() {
+    // if (filterObj?.regions && filterObj.regions.includes("allRegions")) {
+    //   table.getColumn("region")?.setFilterValue("")
+    // }
+    // else {
+    //   const regionsFilter = valueToLabel("regions", REGIONS)
+    //   table.getColumn("region")?.setFilterValue(regionsFilter)
+    // }
+
+    if (filterObj?.sources && filterObj.sources.includes("allSources")) {
+      table.getColumn("source")?.setFilterValue("")
+    }
+    else {
+      const sourcesFilter = valueToLabel("sources", SOURCES)
+      table.getColumn("source")?.setFilterValue(sourcesFilter)
+    }
+
+    if (filterObj?.statuses && filterObj.statuses.includes("allStatuses")) {
+      table.getColumn("status")?.setFilterValue("")
+    }
+    else {
+      const statusFilter = valueToLabel("statuses", DEAL_STATUSES)
       table.getColumn("status")?.setFilterValue(statusFilter)
     }
 

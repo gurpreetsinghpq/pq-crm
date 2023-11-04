@@ -1,6 +1,7 @@
 // IconSVGs.js
 import { ArrowRightSquare, Award, CloudRain, PercentIcon, Wallet } from 'lucide-react';
 import React from 'react';
+import { number } from 'zod';
 
 const UnverifiedIcon = ({ size = "10" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 10 10" fill="none">
@@ -227,6 +228,12 @@ const LockIcon2 = ({ size = "10", color = "#7F56D9" }) => (
 const GlobeIcon = ({ size = "10", color = "#98A2B3" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none">
     <path d="M2.68675 15.6451L4.59494 14.5435C4.6983 14.4839 4.8196 14.4631 4.9369 14.4851L8.6914 15.1878C8.99995 15.2455 9.28478 15.008 9.28338 14.6941L9.26876 11.4045C9.26836 11.3151 9.29193 11.2272 9.33701 11.15L11.2317 7.90621C11.3303 7.73739 11.3215 7.52658 11.2091 7.3666L8.01892 2.82568M19.0002 4.85905C13.5002 7.50004 16.5 11 17.5002 11.5C19.3773 12.4384 21.9876 12.5 21.9876 12.5C21.9958 12.3344 22 12.1677 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C12.1677 22 12.3344 21.9959 12.5 21.9877M16.7578 21.9398L13.591 13.591L21.9398 16.7578L18.2376 18.2376L16.7578 21.9398Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
+const PencilIcon2 = ({ size = "20", color = "white" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={Number(size)+1} height={size} viewBox="0 0 21 20" fill="none">
+    <path d="M18 15L17.1666 15.9117C16.7245 16.3951 16.1251 16.6667 15.5001 16.6667C14.8751 16.6667 14.2757 16.3951 13.8337 15.9117C13.391 15.4293 12.7916 15.1584 12.1668 15.1584C11.542 15.1584 10.9426 15.4293 10.5 15.9117M3 16.6667H4.39545C4.8031 16.6667 5.00693 16.6667 5.19874 16.6206C5.3688 16.5798 5.53138 16.5124 5.6805 16.4211C5.84869 16.318 5.99282 16.1739 6.28107 15.8856L16.75 5.41665C17.4404 4.7263 17.4404 3.60701 16.75 2.91665C16.0597 2.2263 14.9404 2.2263 14.25 2.91665L3.78105 13.3856C3.4928 13.6739 3.34867 13.818 3.2456 13.9862C3.15422 14.1353 3.08688 14.2979 3.04605 14.4679C3 14.6597 3 14.8636 3 15.2712V16.6667Z" stroke={color} stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 )
 
@@ -941,5 +948,6 @@ export const IconUser = (props) => <UserIcon {...props} />;
 export const IconLockUnblocked = (props) => <LockUnblockedIcon {...props} />;
 export const IconHomeLine = (props) => <HomeLineIcon {...props} />;
 export const IconNotification = (props) => <NotificationIcon {...props} />;
+export const IconPencil2 = (props) => <PencilIcon2 {...props} />;
 
 
