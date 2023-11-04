@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, SET_VALUE_CONFIG } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, SET_VALUE_CONFIG, DUPLICATE_ERROR_MESSAGE_DEFAULT } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -17,7 +17,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { IconAccounts, IconAccounts2, IconContacts, IconSave, IconTick } from '../icons/svgIcons'
-import { Client, ClientCompleteInterface, ContactDetail, ContactPostBody, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
+import { Client, ClientCompleteInterface, ContactDetail, ContactPostBody, DuplicateError, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { commonFontClassesAddDialog, preFilledClasses } from '@/app/constants/classes'
 import { valueToLabel } from './sideSheet'
@@ -81,6 +81,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
     const [formSchema2, setFormSchema2] = useState<any>(FormSchema2)
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const { toast } = useToast()
+    const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
 
@@ -173,10 +174,19 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         } else {
             dataToSend["organisation_name"] = form.getValues("organisationName")
         }
-        
-        const res = await getIsContactDuplicate(dataToSend.email, dataToSend.std_code + dataToSend.phone)
 
-        if(res===false){
+        const res = await getIsContactDuplicate(dataToSend.email, `${std_code}-${phone}`)
+        if (res?.phone || res?.email) {
+            setDuplicateErrorMessage({
+                email: res.email,
+                phone: res.phone
+            })
+        } else {
+            setDuplicateErrorMessage({
+                email: false,
+                phone: false
+            })
+
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
@@ -195,14 +205,12 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                         variant: "destructive"
                     })
                 }
-    
+
             } catch (err) {
                 console.log(err)
             }
-        }else{
-            toastContactAlreadyExists()
         }
-            
+
 
     }
 
@@ -221,11 +229,11 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
         const value = form2.getValues("std_code")
         let updatedSchema
         const isMandatory = type ? doesTypeIncludesMandatory(type) : false
-        if(type){
+        if (type) {
             setIsPhoneMandatory(isMandatory)
         }
         if (isMandatory) {
-            if (value != "+91" && value!="+1") {
+            if (value != "+91" && value != "+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13),
                     std_code: z.string()
@@ -235,7 +243,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                 updatedSchema = FormSchema2
             }
         } else {
-            if (value != "+91" && value!="+1") {
+            if (value != "+91" && value != "+1") {
                 updatedSchema = FormSchema2.extend({
                     phone: z.string().min(4).max(13).optional().nullable(),
                     std_code: z.string().optional()
@@ -431,6 +439,10 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                     </FormItem>
                                 )}
                             />
+                            {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
+                                Email ID is linked to another contact already.
+                            </div>}
+
                             <div className='flex flex-row gap-2 items-center'>
                                 <FormField
                                     control={form2.control}
@@ -504,6 +516,9 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                     )}
                                 />
                             </div>
+                            {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
+                                Phone number is linked to another contact already.
+                            </div>}
                         </div>}
 
                     </form>

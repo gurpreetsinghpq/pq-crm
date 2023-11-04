@@ -5,13 +5,13 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG, SIDE_SHEET_TABS } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG, SIDE_SHEET_TABS, DUPLICATE_ERROR_MESSAGE_DEFAULT } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Contact, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, PatchProspect, ProspectsGetResponse, RoleDetails, User, Permission, IErrors, DeepPartial, ContactPostBody } from '@/app/interfaces/interface'
+import { Contact, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, PatchProspect, ProspectsGetResponse, RoleDetails, User, Permission, IErrors, DeepPartial, ContactPostBody, DuplicateError } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -152,8 +152,8 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     })
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [areContactFieldValid, setContactFieldValid] = useState<boolean>(false)
-    const [isPromoteToProspectClicked, setPromoteToProspectClicked] = useState<boolean>(false)
-    const [isPromoteToProspectErrors, setPromoteToProspectErrors] = useState<boolean>(false)
+    const [isPromoteToDealClicked, setPromoteToDealClicked] = useState<boolean>(false)
+    const [isPromoteToDealErorrs, setPromoteToDealErrors] = useState<boolean>(false)
     const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const [showContactForm, setShowContactForm] = useState(true)
     const [dummyContactData, setDummyContactData] = useState<any[]>([])
@@ -167,6 +167,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     const [rowState, setRowState] = useState<DeepPartial<ProspectsGetResponse>>()
     const { childData: { row }, setChildDataHandler } = parentData
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
+    const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
     const data: ProspectsGetResponse = row.original
 
     const { toast } = useToast()
@@ -326,15 +327,24 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             ...finalData, type: ftype, designation: fDesignation, organisation: orgId, phone, std_code
         }
 
-        const res = await getIsContactDuplicate(finalData.email,  std_code + phone)
+        const res = await getIsContactDuplicate(finalData.email, `${std_code}-${phone}`)
 
-        if(res===false){
 
+        if (res?.phone || res?.email) {
+            setDuplicateErrorMessage({
+                email: res.email,
+                phone: res.phone
+            })
+        } else {
+            setDuplicateErrorMessage({
+                email: false,
+                phone: false
+            })
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
                 console.log(result)
-    
+
                 if (result.status == "1") {
                     setAddDialogOpen(false)
                     resetForm2()
@@ -352,13 +362,12 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                         variant: "destructive"
                     })
                 }
-    
+
             } catch (err) {
                 console.log(err)
             }
-        }else{
-            toastContactAlreadyExists()
         }
+
 
 
 
@@ -402,8 +411,8 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getCookie("token")
 
-    async function promoteToProspect() {
-        setPromoteToProspectClicked(true)
+    async function promoteToDeal() {
+        setPromoteToDealClicked(true)
         setShowErrors(true)
         console.log("showErrors setter", true)
         const status = rowState?.status
@@ -545,11 +554,12 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
 
     }
 
-    function safeprs(isPromoteToProspect: boolean = false) {
+    function safeprs(isPromoteToDeal: boolean = false) {
         const result = formSchema.safeParse(form.getValues())
-        if (isPromoteToProspect) {
-            setPromoteToProspectClicked(false)
+        if (isPromoteToDeal) {
+            setPromoteToDealClicked(false)
         }
+        console.log("error", result)
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
             console.log("errormap", errorMap)
@@ -575,16 +585,16 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             };
 
             setNumberOfErrors(errorState)
-            if (isPromoteToProspect) {
-                console.log("isPromoteToProspect if", isPromoteToProspect)
-                setPromoteToProspectErrors(true)
+            if (isPromoteToDeal) {
+                console.log("isPromoteToDeal if", isPromoteToDeal)
+                setPromoteToDealErrors(true)
             } else {
-                console.log("isPromoteToProspect else", isPromoteToProspect)
-                setPromoteToProspectErrors(false)
+                console.log("isPromoteToDeal else", isPromoteToDeal)
+                setPromoteToDealErrors(false)
             }
         } else {
-            if (isPromoteToProspect) {
-                postPromoteToProspectSafeParse()
+            if (isPromoteToDeal) {
+                postPromoteToDealSafeParse()
 
             }
         }
@@ -603,18 +613,30 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
 
 
     }
-    function updateFormSchemaOnStatusChange(value: string, isPromoteToProspect: boolean = false, changeReason: boolean = false, type: string | undefined = undefined) {
+    function updateFormSchemaOnStatusChange(value: string, isPromoteToDeal: boolean = false, changeReason: boolean = false, type: string | undefined = undefined) {
         let updatedSchema
         if (value.toLowerCase() !== "qualified") {
             console.log("else")
             updatedSchema = FormSchema.extend({
                 reasons: z.string(required_error).min(1, { message: required_error.required_error }),
             })
+
         } else {
             console.log("aualified")
             updatedSchema = FormSchema.extend({
                 reasons: z.string().optional()
             })
+
+            if (isPromoteToDeal) {
+                updatedSchema = updatedSchema.extend({
+                    registeredName: z.string(required_error).min(1, { message: required_error.required_error }),
+                    shippingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
+                    billingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
+                    gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
+                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                    esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
+                })
+            }
         }
 
         if (form.getValues("industry") === "vc_pe") {
@@ -624,7 +646,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                 lastFundingStage: z.string().optional(),
                 lastFundingAmount: z.string().optional(),
             })
-        }else{
+        } else {
             updatedSchema = updatedSchema.extend({
                 domain: z.string(required_error).min(1, { message: required_error.required_error }),
                 size: z.string(required_error).min(1, { message: required_error.required_error }),
@@ -636,7 +658,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         if (addDialogOpen) {
             const std_code = form.getValues("contacts.std_code")
             const isMandatory = type ? doesTypeIncludesMandatory(type) : false
-            if(type){
+            if (type) {
                 setIsPhoneMandatory(isMandatory)
             }
             if (isMandatory) {
@@ -821,11 +843,11 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         }
     }, [watcher.contacts?.std_code])
 
-    // console.log("isPromoteToProspectClicked",isPromoteToProspectClicked)
-    console.log("isPromoteToProspectErrors", isPromoteToProspectErrors)
+    // console.log("isPromoteToDealClicked",isPromoteToDealClicked)
+    console.log("isPromoteToDealErorrs", isPromoteToDealErorrs)
     useEffect(() => {
-        // console.log(formSchema, isPromoteToProspectClicked)
-        if (isPromoteToProspectClicked) {
+        // console.log(formSchema, isPromoteToDealClicked)
+        if (isPromoteToDealClicked) {
             console.log("promote to prospect clickeed")
             safeprs(true)
             form.trigger()
@@ -839,16 +861,16 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     }, [formSchema])
 
 
-    async function postPromoteToProspectSafeParse() {
-        setPromoteToProspectClicked(false)
-
+    async function postPromoteToDealSafeParse() {
+        patchData()
+        setPromoteToDealClicked(false)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             if (result.message === "success") {
                 closeSideSheet()
                 toast({
-                    title: "Promoted to Prospect!",
+                    title: "Promoted to Deal!",
                     variant: "dark"
                 })
             }
@@ -2221,6 +2243,9 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                             </FormControl>
                                                                         </FormItem>
                                                                     )} />
+                                                                {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
+                                                                    Email ID is linked to another contact already.
+                                                                </div>}
                                                                 <div className='flex flex-row gap-2 items-center'>
                                                                     <div className=''>
                                                                         <FormField
@@ -2293,6 +2318,9 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                             )} />
                                                                     </div>
                                                                 </div>
+                                                                {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
+                                                                    Phone number is linked to another contact already.
+                                                                </div>}
                                                             </div>
 
                                                         </div>
@@ -2348,7 +2376,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                         </div>
                                     </div>
                                     <div className='w-full px-[24px] py-[16px] border border-gray-200 flex flex-row justify-between items-center'>
-                                        {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && !isPromoteToProspectErrors && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
+                                        {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && !isPromoteToDealErorrs && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
                                             <IconRequiredError size={16} />
                                             <div className="flex flex-row text-xs text-error-700 gap-[3px] font-normal">
                                                 {(numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && <span className='font-bold'>Field(s)</span>}
@@ -2389,51 +2417,29 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                 }
                             </div>
                             <div className='flex flex-row gap-[20px]'>
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        {/* <Button disabled={rowState?.status ? rowState?.status.toLowerCase() !== "qualified" : false} variant={'default'} className='flex flex-row gap-2' type='button' onClick={() => promoteToProspect()}>
-                                            <span >Promote to Deal</span> <IconArrowSquareRight size={20} />
-                                        </Button> */}
-                                        <Button disabled={true || permissions?.change}>
-                                            <span >Promote to Deal</span> <IconArrowSquareRight size={20} />
-                                        </Button>
-                                    </DialogTrigger>
-                                    {beforePromoteToProspectDivsArray.length > 0 && <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle className="pt-[20px] pb-[10px]">
-                                                <div className="flex flex-row gap-4 items-center">
-                                                    <IconRequiredError size={32} />
-                                                    <span className="text-xl font-semibold">Missing Information</span>
-                                                </div>
-
-                                            </DialogTitle>
-                                        </DialogHeader>
-                                        <div className="w-[600px]">
-                                            <div className='flex flex-col'>
-                                                <div className='text-gray-900 font-medium text-lg'>
-                                                    To proceed with the promotion, please make sure to fill in the following required fields:
-                                                </div>
-                                                <div className="mt-4 flex flex-col gap-[5px]">
-                                                    {beforePromoteToProspectDivsArray}
-                                                </div>
-                                            </div>
-                                            <div className="bg-gray-200 h-[1px]  mt-8" ></div>
-                                            <div className='flex flex-row gap-[12px] mt-6 '>
-                                                <DialogClose asChild>
-                                                    <div className="flex flex-row justify-end w-full">
-                                                        <Button className='text-md font-medium px-[38px] py-[10px]'>I'll Fill It</Button>
-                                                    </div>
-                                                </DialogClose>
-                                            </div>
-                                        </div>
-                                    </DialogContent>}
-                                </Dialog>
+                                {showErrors && (numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && isPromoteToDealErorrs && <div className='flex flex-row gap-[8px] text-error-500 font-medium text-xs items-center'>
+                                    <IconRequiredError size={16} />
+                                    <div className="flex flex-row text-xs text-error-700 gap-[3px] font-normal">
+                                        {(numberOfErrors.requiredErrors > 0 || numberOfErrors.invalidErrors > 0) && <span className='font-bold'>Field(s)</span>}
+                                        {numberOfErrors.requiredErrors > 0 && <span>
+                                            Missing:
+                                            <span className='font-bold'> {numberOfErrors.requiredErrors} </span>
+                                        </span>}
+                                        {numberOfErrors.requiredErrors > 0 && numberOfErrors.invalidErrors > 0 && ";"}
+                                        {numberOfErrors.invalidErrors > 0 && <span>
+                                            Invalid: <span className='font-bold'>{numberOfErrors.invalidErrors}</span>
+                                        </span>}
+                                    </div>
+                                </div>}
+                                <Button className='flex flex-row gap-2' disabled={!permissions?.change || (rowState?.status ? (rowState?.status?.toLowerCase() !== "qualified" || form.getValues("statuses")?.toLowerCase() !== "qualified") : false)} variant={'default'} type='button' onClick={() => promoteToDeal()}>
+                                    <span >Promote to Deal</span> <IconArrowSquareRight size={20} />
+                                </Button>
                             </div>
 
 
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.lead.id} permissions={permissions} />
+                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.lead.id} permissions={permissions} disable={{ requirementDeck: true }} />
                         </div>
                     </div>
                 </div>

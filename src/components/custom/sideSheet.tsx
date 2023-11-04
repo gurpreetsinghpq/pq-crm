@@ -4,13 +4,13 @@ import { IChildData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIDE_SHEET_TABS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, DUPLICATE_ERROR_MESSAGE_DEFAULT, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIDE_SHEET_TABS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ZodObject, z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Contact, ContactPostBody, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
+import { Contact, ContactPostBody, DeepPartial, DuplicateError, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -166,6 +166,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     const [rowState, setRowState] = useState<DeepPartial<LeadInterface>>()
     const { childData: { row }, setChildDataHandler } = parentData
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
+    const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
 
     const data: LeadInterface = row.original
 
@@ -330,14 +331,23 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             ...finalData, type: ftype, designation: fDesignation, organisation: orgId, phone, std_code
         }
 
-        const res = await getIsContactDuplicate(finalData.email, std_code + phone )
+        const res = await getIsContactDuplicate(finalData.email, `${std_code}-${phone}`)
 
-        if(res===false){
+        if (res?.phone || res?.email) {
+            setDuplicateErrorMessage({
+                email: res.email,
+                phone: res.phone
+            })
+        } else {
+            setDuplicateErrorMessage({
+                email: false,
+                phone: false
+            })
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
                 console.log(result)
-    
+
                 if (result.status == "1") {
                     setAddDialogOpen(false)
                     resetForm2()
@@ -355,14 +365,13 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                         variant: "destructive"
                     })
                 }
-    
+
             } catch (err) {
                 console.log(err)
             }
-        }else{
-            toastContactAlreadyExists()
         }
-        
+
+
     }
 
     function yesDiscard(): void {
@@ -818,28 +827,8 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 
 
     async function postPromoteToProspectSafeParse() {
+        patchData()
         setPromoteToProspectClicked(false)
-        // const fieldsNeccessary = [
-        //     { name: "esopRsusUl", label: "ESOP RSUS UL" },
-        //     { name: "esopRsusUlCurrency", label: "ESOP RSUS UL Currency" },
-        //     { name: "fixedBudgetUl", label: "Fixed Budget UL" },
-        //     { name: "fixedBudgetUlCurrency", label: "Fixed Budget UL Currency" },
-        //     { name: "timeToFill", label: "Time to Fill" },
-        //     { name: "industry", label: "Industry" },
-        //     { name: "domain", label: "Domain" },
-        //     { name: "size", label: "Size" },
-        //     { name: "lastFundingStage", label: "Last Funding Round" },
-        //     { name: "lastFundingAmount", label: "Last Funding Amount" },
-        //     { name: "retainerAdvance", label: "Retainer Advance" },
-        //     { name: "exclusivity", label: "Exclusivity" },
-        //     { name: "serviceFeeRange", label: "Service Fee Range" },
-        // ];
-
-        // const missingFields = fieldsNeccessary.filter((field) => {
-        //     const value = form.getValues(field.name);
-        //     return !value;
-        // });
-        // if (missingFields.length === 0) {
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
@@ -854,8 +843,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         catch (err) {
             console.log("error", err)
         }
-        //     }
-
     }
 
 
@@ -2218,6 +2205,9 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                             </FormControl>
                                                                         </FormItem>
                                                                     )} />
+                                                                {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
+                                                                    Email ID is linked to another contact already.
+                                                                </div>}
                                                                 <div className='flex flex-row gap-2 items-center'>
                                                                     <div className=''>
                                                                         <FormField
@@ -2290,6 +2280,9 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                             )} />
                                                                     </div>
                                                                 </div>
+                                                                {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
+                                                                    Phone number is linked to another contact already.
+                                                                </div>}
                                                             </div>
 
                                                         </div>
@@ -2407,7 +2400,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                             </div>
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions} disable={{ proposal: true }} />
+                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions} disable={{ proposal: true, requirementDeck: true }} />
                         </div>
                     </div>
                 </div>

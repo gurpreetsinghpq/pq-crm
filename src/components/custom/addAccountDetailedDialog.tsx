@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, INDUSTRIES, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, LAST_FUNDING_AMOUNT, SET_VALUE_CONFIG } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, INDUSTRIES, INDUSTRY, DOMAINS, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, LAST_FUNDING_AMOUNT, SET_VALUE_CONFIG, DUPLICATE_ERROR_MESSAGE_DEFAULT } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -18,7 +18,7 @@ import { toast, useToast } from '../ui/use-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
 import { IconAccounts, IconAccounts2, IconContacts, IconCross, IconPencil, IconRoles, IconSave, IconTick } from '../icons/svgIcons'
-import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, IErrors, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
+import { Client, ClientCompleteInterface, ClientPostBody, ContactDetail, DuplicateError, IErrors, IValueLabel, LeadInterface } from '@/app/interfaces/interface'
 // import { setData } from '@/app/dummy/dummydata'
 import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
@@ -104,6 +104,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     })
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const [formSchema, setFormSchema] = useState<any>(FormSchema);
+    const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
 
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -194,22 +195,32 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         const fDesignation = designation.find((des) => des.value === finalData.designation)?.label
         let phone = form2.getValues("phone")
         let std_code = form2.getValues("std_code")
+        let name = finalData.name
+        let email = finalData.email
         if (!isPhoneMandatory && !phone) {
             phone = ""
             std_code = ""
         }
 
-        const res = await getIsContactDuplicate(finalData.email, phone + std_code)
-        if (res === false) {
+        const res = await getIsContactDuplicate(email, `${std_code}-${phone}`)
+        if (res?.phone || res?.email) {
+            setDuplicateErrorMessage({
+                email: res.email,
+                phone: res.phone
+            })
+        } else {
+            setDuplicateErrorMessage({
+                email: false,
+                phone: false
+            })
             setDummyContactData((prevValues: any) => {
-                const list = [{ ...form2.getValues(), type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
+                const list = [{ name, email, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
                 return list
             })
             setShowContactForm(false)
             resetForm2()
-        }else{
-            toastContactAlreadyExists()
         }
+
     }
     function discardContact() {
         setShowContactForm(false)
@@ -385,15 +396,25 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
             }
             data.std_code = std_code
             data.phone = phone
-            const res = await getIsContactDuplicate(data.email, data.std_code + data.phone)
-            if(res===false){
+
+            const res = await getIsContactDuplicate(data.email, `${std_code}-${phone}`)
+
+            if (res?.phone || res?.email) {
+                setDuplicateErrorMessage({
+                    email: res.email,
+                    phone: res.phone
+                })
+            }else{
+                setDuplicateErrorMessage({
+                    email: false,
+                    phone: false
+                })
                 setDummyContactData(newData)
                 resetForm2()
                 setFormInUpdateState(false)
                 setShowContactForm(false)
-            }else{
-                toastContactAlreadyExists()
             }
+
         }
 
     }
@@ -935,6 +956,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     </FormItem>
                                 )}
                             />
+                            {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
+                                Email ID is linked to another contact already.
+                            </div>}
                             <div className='flex flex-row gap-2 items-center'>
                                 <FormField
                                     control={form2.control}
@@ -1008,6 +1032,9 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     )}
                                 />
                             </div>
+                            {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
+                                Phone number is linked to another contact already.
+                            </div>}
                             <div className='flex flex-row justify-end mt-2 items-center gap-2 '>
                                 {dummyContactData.length > 0 && <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] cursor-pointer`} onClick={() => discardContact()}>
                                     <IconCross size={20} />

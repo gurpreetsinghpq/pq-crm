@@ -488,10 +488,10 @@ export function calculateMinuteDifference(
 
 export async function getIsContactDuplicate(emailId: string, mobile: string) {
   try {
-    const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/is_duplicate/?email=${emailId}${mobile? `&phone=${mobile}` : "" }`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/is_duplicate/?email=${emailId}${mobile && mobile!="-"? `&phone=${mobile}` : "" }`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
     if (result.data) {
-      return result.data.is_duplicate
+      return result.data
     }
     return undefined
   }
@@ -518,4 +518,16 @@ export function formatNumberToTwoDigits(num: number): string {
   } else {
     return num.toString();
   }
+}
+
+export function formatBytes(bytes:any, decimals = 2) {
+  if (!+bytes) return '0 Bytes'
+
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }

@@ -5,13 +5,13 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, DUPLICATE_ERROR_MESSAGE_DEFAULT, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientGetResponse, Contact, ContactPostBody, DeepPartial, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientGetResponse, Contact, ContactPostBody, DeepPartial, DuplicateError, IErrors, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -127,6 +127,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     const [isVcIndustrySelected, setIsVcIndustrySelected] = useState<boolean>(false)
     const { childData: { row }, setChildDataHandler } = parentData
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
+    const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
     const data: ClientGetResponse = row.original
 
 
@@ -572,14 +573,23 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             ...finalData, type: ftype, designation: fDesignation, organisation: orgId, phone, std_code
         }
 
-        const res = await getIsContactDuplicate(finalData.email, std_code + phone )
+        const res = await getIsContactDuplicate(finalData.email, `${std_code}-${phone}`)
 
-        if(res===false){
+        if (res?.phone || res?.email) {
+            setDuplicateErrorMessage({
+                email: res.email,
+                phone: res.phone
+            })
+        } else {
+            setDuplicateErrorMessage({
+                email: false,
+                phone: false
+            })
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
                 console.log(result)
-    
+
                 if (result.status == "1") {
                     setAddDialogOpen(false)
                     resetForm2()
@@ -597,13 +607,12 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                         variant: "destructive"
                     })
                 }
-    
+
             } catch (err) {
                 console.log(err)
             }
-        }else{
-            toastContactAlreadyExists()
         }
+
 
 
 
@@ -1220,6 +1229,9 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                     </FormControl>
                                                                 </FormItem>
                                                             )} />
+                                                        {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
+                                                            Email ID is linked to another contact already.
+                                                        </div>}
                                                         <div className='flex flex-row gap-2 items-center'>
                                                             <div className=''>
                                                                 <FormField
@@ -1292,6 +1304,9 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                     )} />
                                                             </div>
                                                         </div>
+                                                        {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
+                                                            Phone number is linked to another contact already.
+                                                        </div>}
                                                     </div>
 
                                                 </div>
