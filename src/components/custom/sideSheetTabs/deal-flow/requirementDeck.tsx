@@ -2,7 +2,7 @@ import { IconAlert, IconPencil2 } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, Eye, Loader2, Trash2Icon, XCircle } from 'lucide-react'
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { extractFileNameFromUrl, formatBytes } from '../../commonFunctions'
+import { extractFileNameFromUrl, fetchMyDetails, formatBytes } from '../../commonFunctions'
 import { getCookie } from 'cookies-next'
 import { useToast } from '@/components/ui/use-toast'
 import { UploadedFile } from '@/app/interfaces/interface'
@@ -37,7 +37,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
             const result = await dataResp.json()
 
             if (result.status == "1") {
-                setData(result.data)
+                setData(result.data.reverse())
                 if (result.data.length === 0) {
                     setIsAnyDocument(false)
                 } else {
@@ -45,7 +45,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                 }
             } else {
                 toast({
-                    title: "File uploaded Succesfully!",
+                    title: "Sorry some error have occured!",
                     variant: "destructive"
                 })
             }
@@ -82,6 +82,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                             title: "File uploaded Succesfully!",
                             variant: "dark"
                         })
+                        getAllPdf()
 
                     } else {
                         toast({
@@ -158,7 +159,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
 
             </div>
             <div className='flex flex-col flex-1'>
-                {!selectedFile.name ? <div id="file-upload-div" onClick={handleDivClick} className='px-[24px] py-[16px] rounded-[12px] bg-white-900 border border-gray-200 border-[1px] h-fit flex flex-col gap-[12px] items-center w-full cursor-pointer' >
+                <div id="file-upload-div" onClick={handleDivClick} className='px-[24px] py-[16px] rounded-[12px] bg-white-900 border border-gray-200 border-[1px] h-fit flex flex-col gap-[12px] items-center w-full cursor-pointer' >
                     <div className='rounded-[8px] p-[10px] border border-[1px] border-gray-200'>
                         <AlertCircle color="black" />
                     </div>
@@ -170,20 +171,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                             Only PDF document
                         </div>
                     </div>
-                </div> : <div className='relative px-[24px] py-[16px] rounded-[12px] bg-white-900 border border-gray-200 border-[1px] h-fit gap-[12px] items-center w-full ' >
-                    <div className='flex flex-row items-center gap-[12px]'>
-                        <img src="images/pdf-icon.png" />
-                        <div className='flex flex-col text-sm'>
-                            <div className='text-gray-700 font-medium'>
-                                {selectedFile.name}
-                            </div>
-                            <div className='text-gray-600 font-normal'>
-                                {formatBytes(selectedFile.size || 0, 2)}
-                            </div>
-                        </div>
-                    </div>
-                    <div className='absolute top-4 right-4 cursor-pointer' onClick={() => removeSelectedFile()}><XCircle color='red' /></div>
-                </div>}
+                </div> 
                 <input
                     type="file"
                     ref={fileInputRef}

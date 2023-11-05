@@ -69,7 +69,7 @@ interface DisabledProps{
   requirementDeck?:boolean
 }
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = {proposal:false, requirementDeck:false} }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps}) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = {proposal:false, requirementDeck:false}, dealId }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps, dealId?:number}) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
@@ -256,7 +256,7 @@ console.log("isloading", isLoading)
             <Proposal isDisabled={disable.proposal} entityId={entityId}/>
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.REQUIREMENT_DECK} className="flex flex-col flex-1">
-            <RequirementDeck entityId={entityId}/>
+            {dealId && <RequirementDeck entityId={dealId}/>}
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 

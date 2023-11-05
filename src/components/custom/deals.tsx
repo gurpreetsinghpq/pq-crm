@@ -30,7 +30,7 @@ import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES, PROSPECT_STATUSES, ALL_DEAL_STATUSES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
+import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconDeal, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
@@ -92,7 +92,7 @@ const Deals = ({ form, permissions }: {
             return { ...prev, [key]: data }
         })
         if (!data) {
-            fetchProspectData()
+            fetchDealData()
         }
     }
 
@@ -125,16 +125,16 @@ const Deals = ({ form, permissions }: {
                 },
                 rangeCompare: undefined
             })
-            await fetchProspectData(true)
+            await fetchDealData(true)
         } else {
-            fetchProspectData()
+            fetchDealData()
         }
     }
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
-    async function fetchProspectData(noArchiveFilter: boolean = false) {
+    async function fetchDealData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/deal/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -208,7 +208,7 @@ const Deals = ({ form, permissions }: {
 
     async function patchArchiveProspectData(ids: number[]) {
 
-        const url = `${baseUrl}/v1/api/prospect/bulk_archive/`;
+        const url = `${baseUrl}/v1/api/deal/bulk_archive/`;
 
         try {
             const dataResp = await fetch(url, {
@@ -224,14 +224,18 @@ const Deals = ({ form, permissions }: {
             const result = await dataResp.json();
 
             if (result.message === "success") {
-                fetchProspectData()
+                fetchDealData()
                 toast({
-                    title: `${ids.length} ${ids.length > 1 ? "Prospects" : "Prospect"} moved to ${isInbox ? "Archive" : "Inbox"} Succesfully!`,
+                    title: `${ids.length} ${ids.length > 1 ? "Deals" : "Deal"} moved to ${isInbox ? "Archive" : "Inbox"} Succesfully!`,
                     variant: "dark"
                 })
                 return result;
             } else {
-                throw new Error("Failed to patch prospect data");
+                // throw new Error("Failed to patch deal data");
+                toast({
+                    title: `${result?.error?.deal}` || "Failed to patch deal data",
+                    variant: "destructive"
+                })
             }
         } catch (err) {
             console.error("Error during patching:", err);
@@ -254,7 +258,7 @@ const Deals = ({ form, permissions }: {
                 // All patching operations are complete
                 // You can run your code here
                 console.log("All patching operations are done");
-                fetchProspectData()
+                fetchDealData()
 
             })
             .catch((error) => {
@@ -314,7 +318,7 @@ const Deals = ({ form, permissions }: {
                     </div>
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
-                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length === 0 ? "No Prospects" : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Prospects" : "Prospect"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Prospects" : "Prospect"}` : "No Prospects"}</span>
+                            <span className="text-sm ">{isLoading ? "Loading..." : data?.length === 0 ? "No Deals" : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Deals" : "Deal"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Deals" : "Deal"}` : "No Deals"}</span>
                             {/* {form.getValues("queryParamString") && <div
                                 onClick={() => {
                                     window.history.replaceState(null, '', '/dashboard')
@@ -328,7 +332,7 @@ const Deals = ({ form, permissions }: {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Button variant={"google"} className="p-[8px]" type="button" onClick={() => {
-                                            fetchProspectData()
+                                            fetchDealData()
 
                                         }}>
                                             <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} />
@@ -354,7 +358,7 @@ const Deals = ({ form, permissions }: {
                                             <div className='flex flex-col gap-[32px] min-w-[380px] '>
                                                 <div className='flex flex-col gap-[5px]'>
                                                     <div className='text-gray-900 text-lg'>Are you sure you want to continue?</div>
-                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Prospects" : "Prospect"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
+                                                    <div className='text-gray-600 font-normal font text-sm'> <span className="font-bold">{selectedRowIds?.length} {selectedRowIds && selectedRowIds?.length > 1 ? "Deals" : "Deal"} </span> will be {isInbox ? "Archived" : "moved to Inbox"}</div>
                                                 </div>
                                                 <div className='flex flex-row gap-[12px] w-full'>
                                                     <DialogClose asChild>
@@ -707,10 +711,10 @@ const Deals = ({ form, permissions }: {
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                        <IconProspects size="20" />
+                        <IconDeal size="20" />
                     </div>
                         <div>
-                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Prospects" : "No Archived Prospects"}</p>
+                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Deals" : "No Archived Deals"}</p>
 
                         </div>
                     </>}
