@@ -213,7 +213,7 @@ const Deals = ({ form, permissions }: {
         try {
             const dataResp = await fetch(url, {
                 method: "PATCH",
-                body: JSON.stringify({ prospects: ids, archive: isInbox }),
+                body: JSON.stringify({ deal: ids, archive: isInbox }),
                 headers: {
                     "Authorization": `Token ${token_superuser}`,
                     "Accept": "application/json",
