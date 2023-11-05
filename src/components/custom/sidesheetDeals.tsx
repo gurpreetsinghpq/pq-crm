@@ -550,7 +550,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             const results = await Promise.all(apiPromises);
             console.log("All API requests completed:", results);
             toast({
-                title: "Prospect Updated Successfully!",
+                title: "Deal Updated Successfully!",
                 variant: "dark"
             })
             // closeSideSheet()

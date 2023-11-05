@@ -334,7 +334,7 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                                     {details.description}
                                     {/* </div>:<div >{details.description} </div>} */}
                                 </div>
-                                {!(details.field_name === "is_created" || details.field_name === "is_converted_to_prospect") && <div className='font-semibold flex flex-row gap-[5px] items-center'>
+                                {!(details.field_name === "is_created" || details.field_name === "is_converted_to_prospect" || details.field_name === "is_converted_to_deal") && <div className='font-semibold flex flex-row gap-[5px] items-center'>
                                     :
                                     <div className='flex flex-row'>
                                         {fetchStatusOrDescription(details.changed_from, details.field_name?.toLowerCase() === "status")}
