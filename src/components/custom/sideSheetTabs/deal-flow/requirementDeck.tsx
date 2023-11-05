@@ -114,7 +114,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                         Click the Open Editor button to begin creating a requirement deck.
                     </div>
                     <div className='flex flex-row justify-center'>
-                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open('https://pq-capsule-rajgopaljakhmola1-gmailcom.vercel.app/')}>
+                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open('https://capsule.purplequarter.co/')}>
                             <IconPencil2 />
                             Open Editor
                         </Button>
