@@ -76,8 +76,8 @@ const DealsFormSchema = z.object({
     owners: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one Owner.",
     }),
-    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
-        message: "You have to select at least one Creator.",
+    fulfilledBy: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Fulfiller.",
     }),
     // regions: z.array(z.string()).refine((value) => value.some((item) => item), {
     //     message: "You have to select at least one region.",
@@ -319,7 +319,7 @@ export default function DashboardComponent() {
             sources: ["allSources"],
             statuses: ["allStatuses"],
             owners: ['allOwners'],
-            creators: ['allCreators'],
+            fulfilledBy: ['allFulfillers'],
             search: "",
             queryParamString: undefined,
             dateRange: {

@@ -165,7 +165,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
 
         const res = await getIsContactDuplicate(email, `${std_code}-${phone}`)
-        
+
         if (res?.phone || res?.email) {
             setDuplicateErrorMessage({
                 email: res.email,
@@ -812,7 +812,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 )}
                             />
                             {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
-                                Email ID is linked to another contact already.
+                                Email ID is linked to another contact
+
                             </div>}
 
                             <div className='flex flex-row gap-2 items-center'>
@@ -889,7 +890,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 />
                             </div>
                             {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
-                                Phone number is linked to another contact already.
+                                Phone Number is linked to another contact
+
                             </div>}
                             <div className='flex flex-row justify-end mt-2 items-center gap-2 '>
                                 {dummyContactData.length > 0 && <div className={`flex flex-row gap-2 hover:bg-accent hover:text-accent-foreground items-center px-3 py-2 rounded-[6px] cursor-pointer`} onClick={() => discardContact()}>

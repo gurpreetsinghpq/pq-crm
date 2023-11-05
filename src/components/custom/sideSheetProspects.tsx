@@ -867,8 +867,8 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         try {
             const dealValue = Number(convertLocalStringToNumber(form.getValues("fixedCtcBudget"))) * Number(form.getValues("serviceFee")) / 100
             const dealValueToSend = `${form.getValues("fixedCtcBudgetCurrency")} ${dealValue.toLocaleString("en-US")}`
-            console.log("dealValueToSend",dealValueToSend)
-            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/${data.id}/promote/`, { method: "PATCH", body: JSON.stringify({deal_value: dealValueToSend}), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            console.log("dealValueToSend", dealValueToSend)
+            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/${data.id}/promote/`, { method: "PATCH", body: JSON.stringify({ deal_value: dealValueToSend }), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             if (result.message === "success") {
                 closeSideSheet()
@@ -2247,7 +2247,8 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                         </FormItem>
                                                                     )} />
                                                                 {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
-                                                                    Email ID is linked to another contact already.
+                                                                    Email ID is linked to another contact
+
                                                                 </div>}
                                                                 <div className='flex flex-row gap-2 items-center'>
                                                                     <div className=''>
@@ -2322,7 +2323,8 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                     </div>
                                                                 </div>
                                                                 {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
-                                                                    Phone number is linked to another contact already.
+                                                                    Phone Number is linked to another contact
+
                                                                 </div>}
                                                             </div>
 

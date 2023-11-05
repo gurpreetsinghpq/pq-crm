@@ -58,7 +58,7 @@ let dataFromApi: DealsGetResponse[] = []
 const Deals = ({ form, permissions }: {
     form: UseFormReturn<{
         owners: string[];
-        creators: string[];
+        fulfilledBy: string[];
         // regions: string[];
         sources: string[];
         statuses: string[];
@@ -634,7 +634,7 @@ const Deals = ({ form, permissions }: {
                                     <div className='flex flex-col  '>
                                         <FormField
                                             control={form.control}
-                                            name="creators"
+                                            name="fulfilledBy"
                                             render={({ field }) => (
                                                 <FormItem>
                                                     <Popover>
@@ -644,42 +644,42 @@ const Deals = ({ form, permissions }: {
                                                                     {/* {
                                                                 field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
                                                             } */}
-                                                                    {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Creators', [{ value: "allCreators", label: "All Creators" }, ...userList])}
+                                                                    {isUserDataLoading ? <> <Loader2 className="mr-2 h-4 w-4 animate-spin" />  </> : userList && formatData(field.value, 'Fulfillers', [{ value: "allFulfillers", label: "All Fulfillers" }, ...userList])}
                                                                     <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-[230px] p-0">
                                                             <Command>
-                                                                <CommandInput placeholder="Search Creator" />
-                                                                <CommandEmpty>No Creator found.</CommandEmpty>
+                                                                <CommandInput placeholder="Search Fulfiller" />
+                                                                <CommandEmpty>No Fulfiller found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {userList && [{ value: "allCreators", label: "All Creators" }, ...userList].map((creator) => (
+                                                                        {userList && [{ value: "allFulfillers", label: "All Fulfillers" }, ...userList].map((fulfiller) => (
                                                                             <CommandItem
-                                                                                value={creator.value}
-                                                                                key={creator.value}
+                                                                                value={fulfiller.value}
+                                                                                key={fulfiller.value}
                                                                                 onSelect={() => {
-                                                                                    if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
-                                                                                        form.setValue("creators", [...field.value.filter((value: string) => value !== 'allCreators'), creator.value])
+                                                                                    if (field.value.length > 0 && field.value.includes("allFulfillers") && fulfiller.value !== 'allFulfillers') {
+                                                                                        form.setValue("fulfilledBy", [...field.value.filter((value: string) => value !== 'allFulfillers'), fulfiller.value])
                                                                                     }
-                                                                                    else if ((field.value?.length === 1 && field.value?.includes(creator.value) || creator.value == 'allCreators')) {
-                                                                                        form.setValue("creators", ["allCreators"])
+                                                                                    else if ((field.value?.length === 1 && field.value?.includes(fulfiller.value) || fulfiller.value == 'allFulfillers')) {
+                                                                                        form.setValue("fulfilledBy", ["allFulfillers"])
 
                                                                                     }
-                                                                                    else if (field.value?.includes(creator.value)) {
-                                                                                        form.setValue("creators", field.value?.filter((val: string) => val !== creator.value))
+                                                                                    else if (field.value?.includes(fulfiller.value)) {
+                                                                                        form.setValue("fulfilledBy", field.value?.filter((val: string) => val !== fulfiller.value))
                                                                                     } else {
-                                                                                        form.setValue("creators", [...field.value, creator.value])
+                                                                                        form.setValue("fulfilledBy", [...field.value, fulfiller.value])
                                                                                     }
                                                                                 }}
                                                                             >
                                                                                 <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {creator.label}
+                                                                                    {fulfiller.label}
                                                                                     <Check
                                                                                         className={cn(
                                                                                             "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value?.includes(creator.value)
+                                                                                            field.value?.includes(fulfiller.value)
                                                                                                 ? "opacity-100"
                                                                                                 : "opacity-0"
                                                                                         )}

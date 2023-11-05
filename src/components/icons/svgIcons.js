@@ -31,6 +31,11 @@ const InProgressIcon = ({ size = "10" }) => (
     <circle cx="4" cy="4" r="3" fill="#9E77ED" />
   </svg>
 );
+const InProgressIcon2 = ({ size = "10" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 10 10" fill="none">
+    <circle cx="5" cy="5" r="4" fill="#9E77ED" />
+  </svg>
+);
 
 const JunkIcon = ({ size = "10" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 10 10" fill="none">
@@ -855,6 +860,7 @@ export const Verified = (props) => <VerifiedIcon {...props} />;
 export const Deferred = (props) => <DeferredIcon {...props} />;
 export const Lost = (props) => <LostIcon {...props} />;
 export const InProgress = (props) => <InProgressIcon {...props} />;
+export const InProgress2 = (props) => <InProgressIcon2 {...props} />;
 export const Junk = (props) => <JunkIcon {...props} />;
 export const IconLeads = (props) => <LeadsIcon {...props} />;
 export const IconProspects = (props) => <ProspectIcon {...props} />;

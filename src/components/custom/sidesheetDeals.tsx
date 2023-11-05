@@ -235,8 +235,8 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         form.setValue("lastFundingStage", labelToValue(data.prospect.lead.organisation.last_funding_stage || "", LAST_FUNDING_STAGE))
         form.setValue("lastFundingAmount", labelToValue(data.prospect.lead.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
         form.setValue("owners", data?.owner?.id?.toString() || "")
-        form.setValue("closedBy", data?.prospect.lead.closed_by?.toString() || "")
-        form.setValue("fulfilledBy", data?.prospect.lead.fullfilled_by?.toString() || "")
+        form.setValue("closedBy", data?.prospect.lead.closed_by?.id?.toString() || "")
+        form.setValue("fulfilledBy", data?.prospect.lead.fullfilled_by?.id?.toString() || "")
         getUserList()
     }, [])
 
@@ -273,11 +273,11 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
 
     }, [watcher])
 
-    const reasonMap: any = {
-        "disqualified": ["Cash Component Reduced", "No Retainer Advance", "Service Fee Reduced", "No Exclusivity"],
-        "lost": ["Lost to Competition", "Internal Hiring"],
-        "deferred": ["On Interim Hold", "Requirements Changed"]
-    }
+    // const reasonMap: any = {
+    //     "disqualified": ["Cash Component Reduced", "No Retainer Advance", "Service Fee Reduced", "No Exclusivity"],
+    //     "lost": ["Lost to Competition", "Internal Hiring"],
+    //     "deferred": ["On Interim Hold", "Requirements Changed"]
+    // }
 
     const tabs: IValueLabel[] = [
         { label: "Proposal", value: "proposal" },
@@ -471,7 +471,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         })
 
         const statusToSend = valueToLabel(form.getValues("statuses"), DEAL_STATUSES)
-        const reasonToSend = ["deferred", "lost", "disqualified"].includes(form.getValues("statuses")) ? form.getValues("reasons") : ""
+        // const reasonToSend = ["deferred", "lost", "disqualified"].includes(form.getValues("statuses")) ? form.getValues("reasons") : ""
 
 
         const leadData: Partial<PatchLead> = {
@@ -488,7 +488,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         const dealValueToSend = `${form.getValues("fixedCtcBudgetCurrency")} ${dealValue.toLocaleString("en-US")}`
 
         const dealData: Partial<PatchDeal> = {
-            status : statusToSend,
+            status: statusToSend,
             deal_value: dealValueToSend
         }
 
@@ -958,7 +958,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 />
 
                                             </div>
-                                            {reasonMap[form.getValues("statuses")]?.length > 0 && (<div className="px-[16px] mt-[16px] mb-[6px] text-md font-medium w-full flex flex-row ">
+                                            {/* {reasonMap[form.getValues("statuses")]?.length > 0 && (<div className="px-[16px] mt-[16px] mb-[6px] text-md font-medium w-full flex flex-row ">
                                                 <FormField
                                                     control={form.control}
                                                     name="reasons"
@@ -985,7 +985,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                     )}
                                                 />
 
-                                            </div>)}
+                                            </div>)} */}
                                         </div>
                                         <span className='px-[16px] my-[12px] text-gray-700 text-sm font-medium'>
                                             Details
@@ -2348,7 +2348,8 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                         </FormItem>
                                                                     )} />
                                                                 {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
-                                                                    Email ID is linked to another contact already.
+                                                                    Email ID is linked to another contact
+
                                                                 </div>}
                                                                 <div className='flex flex-row gap-2 items-center'>
                                                                     <div className=''>
@@ -2423,7 +2424,8 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                     </div>
                                                                 </div>
                                                                 {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
-                                                                    Phone number is linked to another contact already.
+                                                                    Phone Number is linked to another contact
+
                                                                 </div>}
                                                             </div>
 
@@ -2609,8 +2611,8 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             console.log("error", err)
         }
     }
-    
-    async function patchDealData(dealId:number, dealData: Partial<PatchDeal>) {
+
+    async function patchDealData(dealId: number, dealData: Partial<PatchDeal>) {
 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/deal/${dealId}/`, { method: "PATCH", body: JSON.stringify(dealData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })

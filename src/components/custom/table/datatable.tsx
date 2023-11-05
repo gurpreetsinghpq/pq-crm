@@ -54,7 +54,7 @@ interface DealsInterfaceFilter {
   // regions?: string[]
   sources?: string[]
   statuses?: string[]
-  creators?: string[]
+  fulfilledBy?: string[]
   owners?: string[],
   search?: string,
   dateRange?: any,
@@ -358,12 +358,12 @@ export default function DataTable<TData, TValue>({
       table.getColumn("owner")?.setFilterValue(ownerFilter)
     }
 
-    if (filterObj.creators && filterObj.creators.includes("allCreators")) {
-      table.getColumn("created_by")?.setFilterValue("")
+    if (filterObj.fulfilledBy && filterObj.fulfilledBy.includes("allFulfillers")) {
+      table.getColumn("fulfilled_by")?.setFilterValue("")
     }
     else {
-      const creatorFilter = filterObj.creators
-      table.getColumn("created_by")?.setFilterValue(creatorFilter)
+      const fulfilledByFilter = filterObj.fulfilledBy
+      table.getColumn("fulfilled_by")?.setFilterValue(fulfilledByFilter)
     }
 
 

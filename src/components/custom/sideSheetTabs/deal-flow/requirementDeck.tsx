@@ -33,7 +33,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
     }, [])
     async function getAllPdf() {
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/rdcapsule/?prospect=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/rdcapsule/?deal=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
 
             if (result.status == "1") {
@@ -71,7 +71,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
 
                 const formData = new FormData()
                 formData.append('file', selectedFile)
-                formData.append('prospect', entityId.toString())
+                formData.append('deal', entityId.toString())
                 setIsUploading(true)
                 try {
                     const dataResp = await fetch(`${baseUrl}/v1/api/rdcapsule/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
@@ -110,7 +110,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                     <div className='text-md font-semibold flex flex-row justify-center'>
                         Open document editor
                     </div>
-                    <div className='my-[16px] font-medium text-gray-700 flex flex-row justify-center text-center'>
+                    <div className='my-[16px] text-sm font-medium text-gray-700 flex flex-row justify-center text-center'>
                         Click the Open Editor button to begin creating a requirement deck.
                     </div>
                     <div className='flex flex-row justify-center'>
@@ -125,7 +125,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                         {
                             <div className='flex flex-col gap-[12px] items-center'>
                                 <div>
-                                    <img src="images/pdf-front.png"/>
+                                    <img src="images/pdf-front.png" />
 
                                 </div>
                                 <div className='text-gray-700 text-lg font-medium'>
@@ -171,7 +171,7 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                             Only PDF document
                         </div>
                     </div>
-                </div> 
+                </div>
                 <input
                     type="file"
                     ref={fileInputRef}
@@ -181,10 +181,10 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                 />
                 <div className='text-gray-600 text-xs font-normal mt-[8px] px-[16px]'>
                     <div className='underline font-medium'>
-                        Notes:
+                        Note:
                     </div>
                     <div>
-                        A document that has been uploaded cannot be modified/open in document editor.
+                        A document once uploaded can not be modified
                     </div>
                 </div>
                 <div className='mt-[33px]'>

@@ -2206,7 +2206,8 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                         </FormItem>
                                                                     )} />
                                                                 {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
-                                                                    Email ID is linked to another contact already.
+                                                                    Email ID is linked to another contact
+
                                                                 </div>}
                                                                 <div className='flex flex-row gap-2 items-center'>
                                                                     <div className=''>
@@ -2281,7 +2282,8 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                     </div>
                                                                 </div>
                                                                 {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
-                                                                    Phone number is linked to another contact already.
+                                                                    Phone Number is linked to another contact
+
                                                                 </div>}
                                                             </div>
 

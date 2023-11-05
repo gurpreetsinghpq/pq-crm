@@ -201,16 +201,17 @@ export function columnsDeals(setChildDataHandler: CallableFunction, patchArchive
             },
         },
         {
-            accessorKey: "created_by",
+            accessorKey: "fulfilled_by",
+            accessorFn: (originalRow, index) => originalRow.prospect.lead.fullfilled_by,
             header: ({ column }) => {
                 return (
                     <div
                         className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                     >
-                        Created By
+                        Fulfilled By
                     </div>
                 )
-            }, cell: ({ row }) => <div className={`${ getActive(row.getValue("created_by")) ? "text-gray-600": "text-gray-400"}  text-sm font-normal`}>{getName(row.getValue("created_by"), "API") || "API"}</div>,
+            }, cell: ({ row }) => <div className={`${ row.getValue("fulfilled_by") ? "text-gray-600": "text-gray-400"}  text-sm font-normal`}>{getName(row.getValue("fulfilled_by"), "—") || "—"}</div>,
             filterFn: (row, id, value) => {
                 const rowData: any = row.getValue(id)
                 return value.includes(rowData?.id?.toString())

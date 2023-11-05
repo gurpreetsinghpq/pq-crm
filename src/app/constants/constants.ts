@@ -1,4 +1,4 @@
-import { Deferred, InProgress, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
+import { Deferred, InProgress, InProgress2, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
 import { IValueLabel } from "../interfaces/interface"
 import { GODFATHER_CLASS, GodfatherIcon, HUSTLER_CLASS, HustlerIcon, ROCKSTAR_CLASS, RockstarIcon, SEGEMENT_COMMON_CLASS } from "../../components/icons/labels"
 import timezones from "./timezones.json"
@@ -540,7 +540,7 @@ const DEAL_STATUSES: IValueLabel[] = [
     {
         value: "in-progress",
         label: "In Progress",
-        icon: InProgress,
+        icon: InProgress2,
         class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-purple-700 bg-primary-50 text-purple-700"
     },
     {

@@ -440,7 +440,8 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                 )}
                             />
                             {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal'>
-                                Email ID is linked to another contact already.
+                                Email ID is linked to another contact
+
                             </div>}
 
                             <div className='flex flex-row gap-2 items-center'>
@@ -517,7 +518,8 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                 />
                             </div>
                             {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal'>
-                                Phone number is linked to another contact already.
+                                Phone Number is linked to another contact
+
                             </div>}
                         </div>}
 

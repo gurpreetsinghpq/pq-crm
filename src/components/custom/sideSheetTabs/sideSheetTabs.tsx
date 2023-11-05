@@ -266,7 +266,7 @@ console.log("isloading", isLoading)
           </TabsContent>
         </div>
       </Tabs>}
-      {parentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY && <Tabs defaultValue={DEAL_ACTIVITY_TABS.NOTES} className="flex flex-col flex-1  ">
+      {parentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY && <Tabs defaultValue={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1  ">
         <div className="flex flex-row  py-[24px] border-gray-100">
           <TabsList className={commonTabListClasses} >
             {dealActivityTab.map((tab) => {
