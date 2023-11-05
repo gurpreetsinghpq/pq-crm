@@ -169,7 +169,8 @@ export interface PatchLead {
 export interface PatchDeal {
     id: number;
     status: string; 
-    deal_value: string
+    deal_value: string;
+    owner: number | null;
 }
 
 export interface PatchOrganisation {

@@ -489,7 +489,8 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
 
         const dealData: Partial<PatchDeal> = {
             status: statusToSend,
-            deal_value: dealValueToSend
+            deal_value: dealValueToSend,
+            owner: Number(form.getValues("owners")) || null
         }
 
         // const prospectData: Partial<PatchProspect> = {
