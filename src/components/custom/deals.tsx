@@ -30,7 +30,7 @@ import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES, PROSPECT_STATUSES, ALL_DEAL_STATUSES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
-import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconDeal, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
+import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconDeal, IconDealsHome, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
@@ -711,7 +711,7 @@ const Deals = ({ form, permissions }: {
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
-                        <IconDeal size="20" />
+                        <IconDealsHome size="20" />
                     </div>
                         <div>
                             <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Deals" : "No Archived Deals"}</p>
