@@ -176,21 +176,23 @@ export default function Signin() {
     }
 
     return <div className="signin-container flex min-h-screen relative">
-        <div className="left flex flex-col w-7/12 bg-purple-600 justify-center py-[6rem] 2xl:py-[10rem]">
-            <div className="flex flex-row mb-8 absolute top-[44px] left-[44px]">
-                <Image src={"/images/purple-quarter-logo.png"} alt="purple search logo" width={167} height={44} />
+        <div className="relative left flex flex-col w-7/12 bg-signin-page justify-center py-[6rem] 2xl:py-[10rem] ">
+            <div className="absolute top-0 right-0 h-[647px] w-[647px] ">
+                <img src="/images/bg-signin-img.png"/>
             </div>
-            <div className="flex flex-col h-full justify-between gap-[50px]">
+            <div className="flex flex-row mb-8 absolute top-[44px] left-[44px] ">
+                <Image src={"/images/purple-quarter-logo-2.png"} alt="purple search logo" width={167} height={44} />
+            </div>
+            <div className="relative flex flex-col h-full justify-between gap-[50px]">
                 <div className="flex flex-row justify-center">
-                    <div className="max-w-[596px]">
-                        <Image src={"/images/carousel-1.png"} alt="carousel first" width={0} height={0} sizes="100vw"
-                            style={{ width: '100%', height: 'auto' }}
+                    <div className="lg:max-w-[280px] xl:max-w-[400px] min-[1536px]:max-w-[450px] min-w-[1700px]:max-w-[596px]">
+                        <img src={"/images/carousel-2.png"} alt="carousel first" 
                         />
                     </div>
                 </div>
                 <div className="flex flex-col justify-center align-middle">
-                    <h2 className="text-white-900 text-2xl text-center mb-1 font-semibold">Automate your workflow in 3..2..1</h2>
-                    <h3 className="text-purple-200 text-center text-base py-1">This is the description text here. This could be a <br /> two liner as well, and little longer if needed.</h3>
+                    <h2 className="text-[#353260] text-2xl text-center mb-1 font-semibold">Automate your workflow in 3..2..1</h2>
+                    <h3 className="text-[#121212] text-center text-base py-1">This is the description text here. This could be a <br /> two liner as well, and little longer if needed.</h3>
                 </div>
             </div>
         </div>

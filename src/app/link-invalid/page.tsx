@@ -50,12 +50,12 @@ function LinkInvalid() {
   }
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    resendEmail(data)
+    // resendEmail(data)
 
   }
   return (
     <div className="flex flex-col justify-center items-center h-full  bg-[url('/images/link-invalid-bg.jpg')] bg-cover bg-no-repeat bg-center	">
-      <div className='flex flex-col min-w-[552px] rounded-[12px] gap-[24px] bg-white-900 p-[16px] justify-center items-center min-h-[376px]'>
+      <div className='flex flex-col min-w-[552px] rounded-[12px] gap-[24px] bg-[#E8DFD6] p-[16px] justify-center items-center min-h-[276px] box-shadow-custom1'>
         <div className='flex flex-row gap-[16px] justify-center items-center'>
           <IconPq2 size={57} />
           <IconPqName height={42} width={141} />
@@ -64,8 +64,8 @@ function LinkInvalid() {
           <div className='flex flex-col text-[30px] font-normal'>
             link expired
           </div>
-          <div className='max-w-[472px] text-center text-md font-normal'>
-            Hello. you look too late to enable your account or vou have vour account enabled. But lust don't worry, the new link can be requested.
+          <div className='max-w-[472px] text-center text-md font-normal text-gray-600'>
+            Either the provided activation token is invalid or this account has already been activated.
           </div>
         </div>
         {/* <div className="bg-gray-200 h-[1px] w-full" /> */}

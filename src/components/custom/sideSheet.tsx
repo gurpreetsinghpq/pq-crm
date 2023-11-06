@@ -991,7 +991,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                     </TooltipProvider>
                                                                     <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                         <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                            {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owner</span>}
+                                                                            {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className={`text-muted-foreground `} >Owned By</span>}
                                                                         </div>
                                                                         <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                                     </div>
