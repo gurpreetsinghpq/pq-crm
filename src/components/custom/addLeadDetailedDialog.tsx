@@ -730,7 +730,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[200px] p-0 ml-[32px]">
+                                                    <PopoverContent className="w-[200px] p-0 ">
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Designation" />
                                                             <CommandEmpty>Designation not found.</CommandEmpty>

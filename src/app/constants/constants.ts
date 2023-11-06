@@ -197,6 +197,14 @@ const DESIGNATION = [
         value: "executive",
         label: "Executive",
     },
+    {
+        value: "principal",
+        label: "Principal",
+    },
+    {
+        value: "partner",
+        label: "Partner",
+    },
 ]
 
 const ALL_DESIGNATIONS:IValueLabel[] = [
