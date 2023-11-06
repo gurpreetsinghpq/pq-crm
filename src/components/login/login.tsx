@@ -192,7 +192,7 @@ export default function Signin() {
                 </div>
                 <div className="flex flex-col justify-center align-middle">
                     <h2 className="text-[#353260] text-2xl text-center mb-1 font-semibold">Automate your workflow in 3..2..1</h2>
-                    <h3 className="text-[#121212] text-center text-base py-1">This is the description text here. This could be a <br /> two liner as well, and little longer if needed.</h3>
+                    <h3 className="text-[#121212] text-center text-base py-1">Empowering Executive Search Excellence: <br /> Your Path to Purple Productivity</h3>
                 </div>
             </div>
         </div>
