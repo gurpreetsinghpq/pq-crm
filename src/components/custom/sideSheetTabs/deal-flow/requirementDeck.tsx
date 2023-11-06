@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { UploadedFile } from '@/app/interfaces/interface'
 import { multiLineStyle2 } from '../../table/columns'
 
-function RequirementDeck({ entityId }: { entityId: number }) {
+function RequirementDeck({ entityId, title }: { entityId: number, title:string }) {
 
     const [isAnyDocument, setIsAnyDocument] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<{ name: string | null, size: number | null }>({ name: null, size: null });
@@ -68,9 +68,23 @@ function RequirementDeck({ entityId }: { entityId: number }) {
                 // Handle the selected PDF file here
                 console.log('Selected file:', selectedFile.name);
                 setSelectedFile({ name: selectedFile.name, size: selectedFile.size });
-
                 const formData = new FormData()
-                formData.append('file', selectedFile)
+                let maxVersion = 0;
+
+                data.map((pdf)=>{
+                    const name = extractFileNameFromUrl(pdf.file)
+                    if(name){
+                        const match = name.match(/V(\d+)/);
+                        if (match) {
+                            const version = parseInt(match[1], 10);
+                            maxVersion = Math.max(maxVersion, version);
+                          }
+                    }
+                })
+                const newVersion = maxVersion + 1;
+                const newTitle = `${title.replace(/\s/g, '')}_Capsule_V${newVersion}.pdf`
+
+                formData.append('file', selectedFile, newTitle)
                 formData.append('deal', entityId.toString())
                 setIsUploading(true)
                 try {

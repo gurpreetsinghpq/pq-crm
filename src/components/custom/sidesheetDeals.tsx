@@ -2546,7 +2546,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
 
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} dealId={data.id} entityId={data.prospect.lead.id} permissions={permissions} disable={{ requirementDeck: false }} />
+                            <SideSheetTabs title={data.prospect.lead.title} currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} dealId={data.id} entityId={data.prospect.lead.id} permissions={permissions} disable={{ requirementDeck: false }} />
                         </div>
                     </div>
                 </div>
