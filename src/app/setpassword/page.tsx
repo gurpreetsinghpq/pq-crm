@@ -90,7 +90,7 @@ function setPassword() {
             }
 
             try {
-                const dataResp = await fetch(`${baseUrl}/v1/api/users/set_password/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Accept": "application/json", "Content-Type": "application/json", "Authorization": `Token e08e9b0a4c7f0e9e64b14259b40e0a0874a7587b` } })
+                const dataResp = await fetch(`${baseUrl}/v1/api/users/set_password/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
                 console.log(result)
                 setIsLoading(false)
