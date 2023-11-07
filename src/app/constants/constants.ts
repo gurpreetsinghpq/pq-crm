@@ -162,6 +162,10 @@ const DESIGNATION = [
         label: "COO",
     },
     {
+        value: "cdo",
+        label: "CDO",
+    },
+    {
         value: "chro",
         label: "CHRO",
     },

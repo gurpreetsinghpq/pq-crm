@@ -207,8 +207,7 @@ export default function DataTable<TData, TValue>({
     }
 
 
-    console.log(filterObj)
-
+    
   }, [filterObj])
   useEffect(() => {
     setTableLeadRow(table.getFilteredRowModel())
@@ -517,7 +516,6 @@ export default function DataTable<TData, TValue>({
   }
 
   function setTeamsDialogFilter() {
-    console.log(filterObj.search)
     table.getColumn("name")?.setFilterValue(filterObj.search)
   }
 
@@ -527,14 +525,14 @@ export default function DataTable<TData, TValue>({
   }
 
   function handleTableChange() {
-    console.log("hey")
+    
   }
 
   function valueToLabel(key: Exclude<keyof FilterObject, "search" | "dateRange" | "queryParamString">, arr: IValueLabel[]) {
     return filterObj[key]?.map((val) => arr.find((item) => item.value === val)?.label)
   }
 
-  console.log("table", table.getCoreRowModel().rows)
+  
 
   return (
     <div className="flex flex-col flex-1">
@@ -571,7 +569,6 @@ export default function DataTable<TData, TValue>({
                   >
                     {row.getVisibleCells().map((cell) => {
                       return (<TableCell key={cell.id} onClick={() => {
-                        console.log("from datatable ", cell)
                         cell.column.id !== 'select' && cell.column.id !== 'actions' && setChildDataHandler('row', row)
                       }}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}

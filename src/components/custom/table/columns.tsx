@@ -98,7 +98,6 @@ export function columns(setChildDataHandler?: CallableFunction, patchArchiveLead
             },
             cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>,
             filterFn: (row, id, value) => {
-                console.log("region filter users", row.getValue(id), value)
                 return value.includes(row.getValue(id))
             },
         },
@@ -185,7 +184,6 @@ export function columns(setChildDataHandler?: CallableFunction, patchArchiveLead
             accessorKey: "created_at",
 
             header: ({ column }) => {
-                console.log(column.getIsSorted(), column.getFirstSortDir())
                 return (
                     <div
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}

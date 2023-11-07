@@ -463,10 +463,8 @@ export default function DashboardComponent() {
             setNoPermissionAllowed(true)
         }
 
-        console.log("userPermissions fac", permissionsObject["User Management"])
     }
     async function getMyDetails() {
-        console.log("inside mydetails")
         const data: UserProfile | undefined = await fetchMyDetails()
         if (data) {
             const profileId: string = data.profile.id.toString()
@@ -533,7 +531,6 @@ export default function DashboardComponent() {
             const { scrollTop, scrollHeight, clientHeight } = sidebarRef.current;
 
             // Show the "Scroll to Bottom" button when not at the bottom
-            console.log("scrollTop + clientHeight", scrollTop + clientHeight, "scrollHeight", scrollHeight - 20)
             setShowScrollButton(scrollTop + clientHeight < scrollHeight - 20);
         }
     };

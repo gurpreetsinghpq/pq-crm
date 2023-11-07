@@ -41,7 +41,7 @@ export function handleOnChangeNumericReturnNull(
 
   // If the cleaned value is empty, set it as undefined
   const formattedValue = inputValue === '' ? undefined : formatNumber(inputValue, isSeparator);
-  console.log("input value", inputValue, "formattedValue", formattedValue);
+  
 
   inputElement.value = formattedValue || ''; // Update the input value (use an empty string if undefined)
   field.onChange(formattedValue); // Update the field value
@@ -72,7 +72,7 @@ function addSeparator(value: number): string {
 export const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
   const keyValue = event.key;
   const validCharacters = /^[0-9.,\b]+$/; // Allow numbers, comma, period, and backspace (\b)
-  console.log(keyValue)
+  
   if (!validCharacters.test(keyValue)) {
     event.preventDefault();
   }
@@ -109,7 +109,7 @@ export async function fetchUserDataList(ownerList: boolean = false) {
     const result = await dataResp.json()
     let data: UsersGetResponse[] = structuredClone(result.data)
     let activeUsers = data.filter((val) => val.is_active === true)
-    console.log("activeUsers", activeUsers)
+    
     let dataToReturn = activeUsers.map((val) => {
       const final: IValueLabel = {
         label: `${val.first_name} ${val.last_name}`,
@@ -182,8 +182,7 @@ export async function fetchProfileDetailsById(id: string): Promise<PermissionRes
     const result = await dataResp.json()
     if (result.data.permissions) {
       const data: PermissionResponse[] = structuredClone(result?.data?.permissions)
-      console.log("userPermissions", data)
-
+      
       return data
     }
     return []
@@ -365,7 +364,6 @@ export function replaceTimeZone(inputDate: string, replacementString: string) {
   // Use regular expressions to replace the timezone part
   const regex = /\+\d{4}\s\(.+?\)/;
   const updatedDate = inputDate.replace(regex, replacementString);
-  console.log("timezoneOffSet replaced", inputDate, replacementString)
   return updatedDate;
 }
 

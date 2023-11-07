@@ -589,7 +589,7 @@ const Deals = ({ form, permissions }: {
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {userList && userList?.length > 0 && [{ value: "allOwners", label: "All Owners" }, ...userList].map((owner) => (
                                                                             <CommandItem
-                                                                                value={owner.value}
+                                                                                value={owner.label}
                                                                                 key={owner.value}
                                                                                 onSelect={() => {
                                                                                     if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
@@ -657,7 +657,7 @@ const Deals = ({ form, permissions }: {
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {userList && [{ value: "allFulfillers", label: "All Fulfillers" }, ...userList].map((fulfiller) => (
                                                                             <CommandItem
-                                                                                value={fulfiller.value}
+                                                                                value={fulfiller.label}
                                                                                 key={fulfiller.value}
                                                                                 onSelect={() => {
                                                                                     if (field.value.length > 0 && field.value.includes("allFulfillers") && fulfiller.value !== 'allFulfillers') {

@@ -98,7 +98,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         if (queryParamIds && queryParamIds?.length > 0) {
             queryParam = queryParamIds
         }
-        console.log(initialCompareFrom, initialCompareTo)
         const [range, setRange] = useState<DateRange>({
             from: new Date((new Date(initialDateFrom)).setHours(0, 0, 0, 0)),
             to: initialDateTo ? new Date((new Date(initialDateTo)).setHours(0, 0, 0, 0)) : new Date((new Date(initialDateFrom)).setHours(0, 0, 0, 0))
@@ -232,7 +231,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
 
         const setPreset = (preset: string): void => {
             const range = getPresetRange(preset)
-            console.log(preset, range)
             setRange(range)
             if (rangeCompare) {
                 const rangeCompare = {

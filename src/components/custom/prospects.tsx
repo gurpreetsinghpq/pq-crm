@@ -96,7 +96,7 @@ const Prospects = ({ form, permissions }: {
 
 
     React.useEffect(() => {
-        console.log(childData)
+        
     }, [childData?.row])
     function setTableLeadRow(data: any) {
         const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
@@ -182,7 +182,7 @@ const Prospects = ({ form, permissions }: {
     }
 
     React.useEffect(() => {
-        console.log(watcher)
+        
     }, [watcher])
 
     React.useEffect(() => {
@@ -238,7 +238,7 @@ const Prospects = ({ form, permissions }: {
     }
 
     function archiveApi() {
-        console.log(selectedRowIds)
+        
         if (!selectedRowIds) {
             // Handle the case where selectedRowIds is undefined or empty
             console.log("No rows selected for archiving.");
@@ -583,7 +583,7 @@ const Prospects = ({ form, permissions }: {
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {userList && userList?.length > 0 && [{ value: "allOwners", label: "All Owners" }, ...userList].map((owner) => (
                                                                             <CommandItem
-                                                                                value={owner.value}
+                                                                                value={owner.label}
                                                                                 key={owner.value}
                                                                                 onSelect={() => {
                                                                                     if (field.value.length > 0 && field.value.includes("allOwners") && owner.value !== 'allOwners') {
@@ -651,7 +651,7 @@ const Prospects = ({ form, permissions }: {
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {userList && [{ value: "allCreators", label: "All Creators" }, ...userList].map((creator) => (
                                                                             <CommandItem
-                                                                                value={creator.value}
+                                                                                value={creator.label}
                                                                                 key={creator.value}
                                                                                 onSelect={() => {
                                                                                     if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
