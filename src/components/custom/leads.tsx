@@ -236,7 +236,7 @@ const Leads = ({ form, permissions }: {
     }
 
     const addLeadDialogButton = () => <AddLeadDialog fetchLeadData={fetchLeadData} page={"leads"}>
-        <Button disabled={!permissions?.add} className="flex flex-row gap-2">
+        <Button disabled={!permissions?.add || isLoading} className="flex flex-row gap-2">
             <Image src="/images/plus.svg" alt="plus lead" height={20} width={20} />
             Add Lead
         </Button>
