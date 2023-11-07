@@ -396,7 +396,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {userList && userList?.length > 0 && userList.map((reportingManager) => (
                                                                             <CommandItem
-                                                                                value={reportingManager.value}
+                                                                                value={reportingManager.label}
                                                                                 key={reportingManager.value}
                                                                                 onSelect={() => {
                                                                                     form.setValue("assignedTo", reportingManager.value, SET_VALUE_CONFIG)
