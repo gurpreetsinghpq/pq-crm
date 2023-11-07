@@ -632,10 +632,12 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
     }
     function updateFormSchemaOnStatusChange(value: string, isPromoteToDeal: boolean = false, changeReason: boolean = false, type: string | undefined = undefined) {
         let updatedSchema
-        if (value.toLowerCase() !== "qualified") {
+        if (value.toLowerCase() !== "in-progress") {
             console.log("else")
             updatedSchema = FormSchema.extend({
                 // reasons: z.string(required_error).min(1, { message: required_error.required_error }),
+                closedBy: z.string(required_error).min(1, { message: required_error.required_error }),
+                fulfilledBy: z.string(required_error).min(1, { message: required_error.required_error }),
             })
 
         } else {

@@ -166,6 +166,14 @@ const DESIGNATION = [
         label: "CDO",
     },
     {
+        value: "cpo",
+        label: "CPO",
+    },
+    {
+        value: "productHead",
+        label: "Product Head",
+    },
+    {
         value: "chro",
         label: "CHRO",
     },
