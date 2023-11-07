@@ -1043,7 +1043,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                         <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                             {userList && userList?.length > 0 && userList.map((owner) => (
                                                                                 <CommandItem
-                                                                                    value={owner.value}
+                                                                                    value={owner.label}
                                                                                     key={owner.value}
                                                                                     onSelect={() => {
                                                                                         form.setValue("owners", owner.value, SET_VALUE_CONFIG)

@@ -527,7 +527,7 @@ function Users({ form, permissions }: {
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {profileList && [{ value: "allProfiles", label: "All Profiles" }, ...profileList].map((profile) => (
                                                                             <CommandItem
-                                                                                value={profile.value}
+                                                                                value={profile.label}
                                                                                 key={profile.value}
                                                                                 onSelect={() => {
                                                                                     if (field.value.length > 0 && field.value.includes("allProfiles") && profile.value !== 'allProfiles') {

@@ -527,7 +527,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {userList && userList.map((reportingManager) => (
                                                                             <CommandItem
-                                                                                value={reportingManager.value}
+                                                                                value={reportingManager.label}
                                                                                 key={reportingManager.value}
                                                                                 onSelect={() => {
                                                                                     form.setValue("reportingTo", reportingManager.value, SET_VALUE_CONFIG)

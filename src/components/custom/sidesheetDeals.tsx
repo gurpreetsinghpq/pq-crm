@@ -1057,7 +1057,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                         <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                             {userList && userList?.length > 0 && userList.map((owner) => (
                                                                                 <CommandItem
-                                                                                    value={owner.value}
+                                                                                    value={owner.label}
                                                                                     key={owner.value}
                                                                                     onSelect={() => {
                                                                                         form.setValue("owners", owner.value, SET_VALUE_CONFIG)
@@ -1129,7 +1129,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                         <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                             {userList && userList?.length > 0 && userList.map((user) => (
                                                                                 <CommandItem
-                                                                                    value={user.value}
+                                                                                    value={user.label}
                                                                                     key={user.value}
                                                                                     onSelect={() => {
                                                                                         form.setValue("closedBy", user.value, SET_VALUE_CONFIG)
@@ -1200,7 +1200,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                         <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                             {userList && userList?.length > 0 && userList.map((user) => (
                                                                                 <CommandItem
-                                                                                    value={user.value}
+                                                                                    value={user.label}
                                                                                     key={user.value}
                                                                                     onSelect={() => {
                                                                                         form.setValue("fulfilledBy", user.value, SET_VALUE_CONFIG)

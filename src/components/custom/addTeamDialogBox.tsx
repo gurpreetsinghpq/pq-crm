@@ -455,7 +455,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                                                                     <div className='flex flex-col max-h-[200px]  overflow-y-auto'>
                                                                         {userList && userList.map((teamLeader) => (
                                                                             <CommandItem
-                                                                                value={teamLeader.value}
+                                                                                value={teamLeader.label}
                                                                                 key={teamLeader.value}
                                                                                 onSelect={() => {
                                                                                     form.setValue("teamLeader", teamLeader.value, { shouldDirty: true, shouldValidate: true })

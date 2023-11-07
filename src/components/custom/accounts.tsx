@@ -552,7 +552,7 @@ const Accounts = ({ form, permissions }: {
                                                                 <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                     {userList && [{ value: "allCreators", label: "All Creators" }, ...userList].map((creator) => (
                                                                         <CommandItem
-                                                                            value={creator.value}
+                                                                            value={creator.label}
                                                                             key={creator.value}
                                                                             onSelect={() => {
                                                                                 if (field.value.length > 0 && field.value.includes("allCreators") && creator.value !== 'allCreators') {
