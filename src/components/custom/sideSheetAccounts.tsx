@@ -681,7 +681,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                     } defaultValue={field.value}>
                                                         <FormControl>
                                                             <SelectTrigger disabled className={`border-gray-300 ${commonClasses}`}>
-                                                                <SelectValue defaultValue={field.value} placeholder="Select a Segment" />
+                                                                <SelectValue defaultValue={field.value} placeholder="Segment" />
                                                             </SelectTrigger>
                                                         </FormControl>
                                                         <SelectContent>

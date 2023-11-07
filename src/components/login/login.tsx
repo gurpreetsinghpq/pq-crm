@@ -28,15 +28,9 @@ const FormSchema = z.object({
 
 const commonClasses = "text-md font-normal text-gray-900 focus:shadow-custom1 focus:border-[1px] focus:border-purple-300"
 
-interface PostLogin {
-    message: string,
-    status: number,
-    show: boolean
-}
 
 export default function Signin() {
     const router = useRouter();
-    const [postLogin, setPostLogin] = useState<PostLogin>()
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth < 1300 : false
     )
@@ -75,7 +69,6 @@ export default function Signin() {
                 setCookie("token", data.token)
                 setToken(data.token)
                 router.replace('/dashboard')
-                setPostLogin({ message: "Succesfully logged in", status: 1, show: true })
                 toast({
                     title: "Login Successful!",
                     variant: "dark"
@@ -134,18 +127,17 @@ export default function Signin() {
             const dataResp = await fetch(`${baseUrl}/v1/api/users/gauth/`, { method: "POST", body: JSON.stringify(jwt), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             setIsLoading(false)
-            const { data } = result
-            const {
-                token,
-                ...objWithoutToken
-            } = data
             console.log(result)
             if (result.status == 1) {
+                const { data } = result
+                const {
+                    token,
+                    ...objWithoutToken
+                } = data
                 localStorage.setItem("user", JSON.stringify(objWithoutToken))
                 setCookie("token", data.token)
                 setToken(data.token)
                 router.replace('/dashboard')
-                setPostLogin({ message: "Succesfully logged in", status: 1, show: true })
                 toast({
                     title: "Logged in!",
                     variant: "dark"
@@ -159,7 +151,7 @@ export default function Signin() {
                     })
                 } else {
                     toast({
-                        title: "Sorry some error have occured",
+                        title: result?.error?.message || "Sorry some error have occured",
                         variant: "destructive"
                     })
                 }
