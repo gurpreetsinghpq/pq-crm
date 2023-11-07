@@ -170,6 +170,10 @@ const DESIGNATION = [
         label: "CPO",
     },
     {
+        value: "hrHead",
+        label: "HR Head",
+    },
+    {
         value: "productHead",
         label: "Product Head",
     },
