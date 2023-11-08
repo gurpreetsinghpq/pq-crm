@@ -520,7 +520,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                                     return !shouldDisable
                                                                                 }).map((timeOption) => {
                                                                                     return (<CommandItem
-                                                                                        value={timeOption.value}
+                                                                                        value={timeOption.label}
                                                                                         key={timeOption.value}
                                                                                         onSelect={() => {
                                                                                             form.setValue("dueTime", timeOption.value, SET_VALUE_CONFIG)
