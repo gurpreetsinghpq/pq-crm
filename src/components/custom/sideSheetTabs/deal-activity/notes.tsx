@@ -847,7 +847,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                         {(activityList && activityList?.length > 0) ? activityList?.map((activity) => (
                                                                             <CommandItem
-                                                                                value={activity.id.toString()}
+                                                                                value={activity.title}
                                                                                 key={activity.id}
                                                                                 onSelect={() => {
                                                                                     form.setValue("activity", activity.id.toString(), SET_VALUE_CONFIG)
