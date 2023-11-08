@@ -174,8 +174,8 @@ export default function Signin() {
     }
 
     return <div className="signin-container flex min-h-screen relative">
-        <div className="relative left flex flex-col w-7/12 bg-signin-page justify-center xl:py-[3rem] 2xl:py-[10rem] ">
-            <div className="absolute top-0 right-0 h-[647px] w-[647px] ">
+        <div className="relative left flex flex-col w-7/12 bg-signin-page justify-center lg:py-[4rem] xl:py-[3rem] min-[1536px]:py-[4rem] 2xl:py-[10rem] ">
+            <div className="absolute top-0 right-0 lg:h-[400px] lg:w-[400px] xl:h-[500px] xl:w-[500px] 2xl:h-[647px] 2xl:w-[647px] ">
                 <img src="/images/bg-signin-img.png" />
             </div>
             <div className="flex flex-row mb-8 absolute top-[44px] left-[44px] ">
@@ -183,7 +183,7 @@ export default function Signin() {
             </div>
             <div className="relative flex flex-col h-full justify-between gap-[50px]">
                 <div className="flex flex-row justify-center">
-                    <div className="lg:max-w-[280px] xl:max-w-[400px] min-[1536px]:max-w-[450px] min-w-[1700px]:max-w-[596px]">
+                    <div className="lg:max-w-[320px] xl:max-w-[480px] min-[1536px]:max-w-[600px] min-w-[1700px]:max-w-[596px]">
                         <img src={"/images/carousel-2.png"} alt="carousel first"
                         />
                     </div>
