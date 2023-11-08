@@ -1,6 +1,6 @@
 import { ALL_STATUS_MERGED, SIDESHEET_TAB_TYPE, STATUSES, STEPPER_STATUS } from '@/app/constants/constants'
 import { ActivityAccToEntity, ActivityHistory, ActivityPatchBody, ChangeLogHistory, NotesHistory, Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
-import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconNotes, IconReschedule, IconUserEdit, IconUserRight } from '@/components/icons/svgIcons'
+import { IconActivity, IconCalendar, IconChangeLog, IconCheckCircle, IconClock, IconContacts, IconEmail, IconMode2, IconNotes, IconReschedule, IconUserEdit, IconUserEdit2, IconUserRight } from '@/components/icons/svgIcons'
 import React from 'react'
 import { valueToLabel } from '../sideSheet'
 import { multiLine, multiLineStyle2 } from '../table/columns'
@@ -103,7 +103,7 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                         {details?.mode && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
                                 {/* <IconEmail size="20px" color="#98A2B3" /> */}
-                                <IconUserRight color="#98A2B3" />
+                                <IconMode2 color="#98A2B3" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
                                 {details?.mode}
@@ -168,7 +168,7 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                         {details?.mode && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
                                 {/* <IconEmail size="20px" color="#98A2B3" /> */}
-                                <IconUserRight color="#98A2B3" />
+                                <IconMode2 color="#98A2B3" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
                                 {details?.mode}
@@ -186,138 +186,138 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                     <div className="bg-gray-200 h-[1px] w-full" ></div>
                     <div className='grid grid-cols-2 gap-y-[16px]'>
                         {(isSecondForm || isSeventhForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Response Received
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {changeBooleanToYesOrNo(details?.is_response_shared)}
                             </div>
                         </div>}
                         {(isFirstForm || isSecondForm || isThirdForm || isFourthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Role Status
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.role_status || "—"}
                             </div>
                         </div>}
                         {(isFifthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Deal Status
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.deal_status || "—"}
                             </div>
                         </div>}
                         {(isFirstForm || isSixthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Role Urgency
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.role_urgency || "—"}
                             </div>
                         </div>}
                         {(isThirdForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Role Clarity
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {changeBooleanToYesOrNo(details?.is_role_clear)}
                             </div>
                         </div>}
                         {(isFifthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Negotiation Blocker
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.negotiation_broker || "—"}
                             </div>
                         </div>}
                         {(isThirdForm || isFourthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Willing to Pay Retainer Advance
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.is_willing_pay_ra || "—"}
                             </div>
                         </div>}
                         {(isThirdForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Proposal Shared
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {changeBooleanToYesOrNo(details?.is_proposal_shared)}
                             </div>
                         </div>}
                         {(isFifthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Service Contract Draft Shared
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {changeBooleanToYesOrNo(details?.is_contract_draft_shared)}
                             </div>
                         </div>}
                         {(isThirdForm || isFourthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Expected Service Fee Range
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.exp_service_fee || "—"}
                             </div>
                         </div>}
                         {(isFourthForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Prospect Status
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.prospect_status || "—"}
                             </div>
                         </div>}
                         {(isFirstForm || isSixthForm || isSeventhForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Open to Retainer Model
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.is_retainer_model || "—"}
                             </div>
                         </div>}
                         {(isFirstForm || isSixthForm || isSeventhForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Open to Min Service Fee or Flat Fee
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.is_min_flat_Service || "—"}
                             </div>
                         </div>}
                         {(isFirstForm || isSecondForm || isSixthForm || isSeventhForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Collateral Shared
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {changeBooleanToYesOrNo(details?.is_collateral_shared)}
                             </div>
                         </div>}
                         {(isSecondForm) && <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Open to Engage
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.is_open_engange || "—"}
                             </div>
                         </div>}
                         {<div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Next Step
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.next_step || "—"}
                             </div>
                         </div>}
                         <div className='flex flex-col gap-[2px]'>
-                            <div className='text-gray-600 text-sm font-normal'>
+                            <div className='text-gray-600 text-xs font-normal'>
                                 Created By
                             </div>
-                            <div className='text-gray-700 text-sm font-medium'>
+                            <div className='text-gray-700 text-xs font-medium'>
                                 {details?.created_by?.name}
                             </div>
                         </div>
@@ -351,7 +351,7 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                                     <div className='text-gray-700 text-sm font-normal'>{multiLineStyle2(details.created_at)}</div>
                                 </div>
                                 <div className='flex flex-row gap-[5px]'>
-                                    <IconUserEdit size="20px" color="#98A2B3" />
+                                    <IconUserEdit2 size="20px" color="#98A2B3" />
                                     <div className='text-gray-700 text-sm font-normal'>{details.changed_by?.name}</div>
                                 </div>
                             </div>

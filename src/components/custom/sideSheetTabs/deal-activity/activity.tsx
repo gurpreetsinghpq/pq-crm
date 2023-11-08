@@ -1,6 +1,6 @@
 import { commonClasses, commonFontClassesAddDialog, commonNumericIconClasses } from '@/app/constants/classes'
 import { ACTIVITY_STATUS, ACTIVITY_TYPE, COLLATERAL_SHARED, DEAL_STATUS, ENTITY_TYPE, EXPECTED_SERVICE_FEE_RANGE, MODE, NEGOTIATION_BLOCKER, NEXT_STEP, OPEN_TO_ENGAGE, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, OPEN_TO_RETAINER_MODEL, PROPOSAL_SHARED, PROSPECT_STATUS_NOTES, REMINDER, RESPONSE_RECEIVED, ROLE_CLARITY, ROLE_STATUS, ROLE_URGENCY, SERVICE_CONTRACT_DRAFT_SHARED, SET_VALUE_CONFIG, TIME_OPTIONS, WILLING_TO_PAY } from '@/app/constants/constants'
-import { IconActivityType, IconAssignedTo, IconCalendar, IconClock, IconContacts, IconDueDateAndTime, IconMode, IconNextStep, IconReminder } from '@/components/icons/svgIcons'
+import { IconActivityType, IconAssignedTo, IconCalendar, IconClock, IconContacts, IconDueDateAndTime, IconMode, IconMode2, IconNextStep, IconReminder } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command'
@@ -330,7 +330,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                 </div>
                                 <div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconMode size="24" color="#98A2B3" />
+                                        <IconMode2 size="24" color="#98A2B3" />
                                         <div className='text-md text-gray-500 font-normal'>Mode</div>
                                     </div>
                                     <div className='flex-1 w-[60%]'>
