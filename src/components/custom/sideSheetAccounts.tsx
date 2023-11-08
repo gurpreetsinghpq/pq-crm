@@ -708,7 +708,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                 </div>
 
                                 <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
-                                    <span>Account Details</span>
+                                    <span className='font-bold'>Account Details</span>
                                 </span>
 
                                 <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
@@ -1108,7 +1108,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                 </div>
 
                                 <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
-                                    <span>Contact Details</span>
+                                    <span className='font-bold'>Contact Details</span>
                                     <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
                                         <DialogTrigger>
                                             <span className={`text-sm text-purple-700 opacity-[1] cursor-pointer`} >

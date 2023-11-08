@@ -82,7 +82,7 @@ export default function Signin() {
                     //     title: errormsg,
                     //     variant: "destructive"
                     // })
-                    setErrorMessage(errormsg)
+                    setErrorMessage("Incorrect Email or Password. Try Again")
                     // setPostLogin({ message: errormsg, status: 0, show: true })
                 } else {
                     // setPostLogin({ message: "Sorry some error have occured", status: 0, show: true })
@@ -153,7 +153,7 @@ export default function Signin() {
                     //     title: errormsg,
                     //     variant: "destructive"
                     // })
-                    setErrorMessage(errormsg)
+                    setErrorMessage("Incorrect Email or Password. Try Again")
                 } else {
                     setErrorMessage(result?.error?.message || "Sorry some error have occured")
                     // toast({
@@ -183,7 +183,7 @@ export default function Signin() {
             </div>
             <div className="relative flex flex-col h-full justify-between gap-[50px]">
                 <div className="flex flex-row justify-center">
-                    <div className="lg:max-w-[320px] xl:max-w-[480px] min-[1536px]:max-w-[600px] min-w-[1700px]:max-w-[596px]">
+                    <div className="lg:max-w-[320px] xl:max-w-[480px] min-[1536px]:max-w-[530px] min-w-[1700px]:max-w-[596px]">
                         <img src={"/images/carousel-2.png"} alt="carousel first"
                         />
                     </div>
@@ -207,8 +207,8 @@ export default function Signin() {
                 <form className="flex flex-col" onSubmit={form.handleSubmit(onSubmit)} >
 
                     <div className="text-2xl my-2 text-gray-900 font-bold">Sign in</div>
-                    <div className="text-gray-600 mb-[32px] text-md font-normal">Welcome back! Please enter your details.</div>
-                    {errorMessage && <div className="text-error-700 mb-[32px] text-sm border border-error-400 bg-error-100 rounded-[12px] px-[20px] py-[10px] flex flex-row justify-center gap-[8px] items-center ">
+                    <div className="text-gray-600 mb-[32px] text-md font-normal">Welcome back!</div>
+                    {errorMessage && <div className="text-error-700 mb-[32px] text-sm border border-error-400 bg-error-100 rounded-[8px] px-[20px] py-[10px] flex flex-row justify-center gap-[8px] items-center ">
                         <AlertTriangle color="#D92D20" size={20} />
                         {errorMessage}
                     </div>}

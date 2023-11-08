@@ -937,7 +937,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 
                                             </div>)}
                                         </div>
-                                        <span className='px-[16px] my-[12px] text-gray-700 text-sm font-medium'>
+                                        <span className='px-[16px] my-[12px] text-gray-700 text-sm font-bold'>
                                             Details
                                         </span>
                                         <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
@@ -1120,7 +1120,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                 )}
                                             />
                                         </div>
-                                        <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium'>
+                                        <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-bold'>
                                             Role Details
                                         </span>
                                         <div className="px-[18px] py-[8px] gap-2 items-center w-full flex flex-row border-b-[1px] border-gray-200 bg-gray-100">
@@ -1489,7 +1489,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                             />
                                         </div>
                                         <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
-                                            <span>Account Details</span>
+                                            <span className='font-bold'>Account Details</span>
                                             <div> {data.organisation.segment && <LabelIcon />} </div>
                                         </span>
                                         <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
@@ -1913,7 +1913,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                 )}
                                             />
                                         </div>
-                                        <span className='px-[16px] mb-[12px] mt-[24px] text-gray-700 text-sm font-medium'>
+                                        <span className='px-[16px] mb-[12px] mt-[24px] text-gray-700 text-sm font-bold'>
                                             Engagement Model
                                         </span>
                                         <div className="px-[6px] pt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
@@ -2085,7 +2085,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                             />
                                         </div>
                                         <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
-                                            <span>Contact Details</span>
+                                            <span className='font-bold'>Contact Details</span>
                                             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
                                                 <DialogTrigger asChild>
                                                     <span className={`text-sm text-purple-700   opacity-[1] cursor-pointer`} >
