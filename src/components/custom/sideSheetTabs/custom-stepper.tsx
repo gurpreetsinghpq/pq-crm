@@ -121,27 +121,27 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                     <div className="bg-gray-200 h-[1px] w-full" ></div>
                     <div className='flex flex-row justify-between'>
                         <div className='flex flex-col flex-1'>
-                            <div className='text-sm text-gray-600 font-normal'>
+                            <div className='text-xs text-gray-600 font-normal'>
                                 Assigned to
                             </div>
-                            <div className='text-sm text-gray-700 font-medium'>
+                            <div className='text-xs text-gray-700 font-medium'>
                                 {details?.assigned_to?.name}
 
                             </div>
                         </div>
                         <div className='flex flex-col flex-1'>
-                            <div className='text-sm text-gray-600 font-normal'>
+                            <div className='text-xs text-gray-600 font-normal'>
                                 Created by
                             </div>
-                            <div className='text-sm text-gray-700 font-medium'>
+                            <div className='text-xs text-gray-700 font-medium'>
                                 {details?.created_by?.name}
                             </div>
                         </div>
                         <div className='flex flex-col flex-1'>
-                            <div className='text-sm text-gray-600 font-normal'>
+                            <div className='text-xs text-gray-600 font-normal'>
                                 Created at
                             </div>
-                            <div className='text-sm text-gray-700 font-medium'>
+                            <div className='text-xs text-gray-700 font-medium'>
                                 {multiLineStyle2(details?.created_at)}
                             </div>
                         </div>

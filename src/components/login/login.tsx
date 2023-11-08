@@ -4,7 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Input } from "@/components/ui/input"
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader } from "lucide-react"
+import { AlertTriangle, Loader } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -14,13 +14,14 @@ import { z } from "zod"
 import { toast } from "../ui/use-toast"
 import { parseJwt, setToken } from "../custom/commonFunctions";
 import { GoogleUserInfo } from "@/app/interfaces/interface";
-import { setCookie} from "cookies-next"
+import { setCookie } from "cookies-next"
+import { IconAlert } from "../icons/svgIcons";
 
 
 const FormSchema = z.object({
     email: z.string({
         required_error: "Please enter email.",
-    }).email(),
+    }).email({ message: "Please enter valid email" }),
     password: z.string({
         required_error: "Please enter password.",
     }),
@@ -34,9 +35,10 @@ export default function Signin() {
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth < 1300 : false
     )
-    
+
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [googleWidth, setGoogleWidth] = useState<string>("")
+    const [errorMessage, setErrorMessage] = useState<string>("")
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -76,17 +78,19 @@ export default function Signin() {
             } else {
                 const errormsg = "User Not Active | Unable to login with given credentials!"
                 if (result?.error?.non_field_errors?.includes(errormsg)) {
-                    toast({
-                        title: errormsg,
-                        variant: "destructive"
-                    })
+                    // toast({
+                    //     title: errormsg,
+                    //     variant: "destructive"
+                    // })
+                    setErrorMessage(errormsg)
                     // setPostLogin({ message: errormsg, status: 0, show: true })
                 } else {
                     // setPostLogin({ message: "Sorry some error have occured", status: 0, show: true })
-                    toast({
-                        title: "Sorry some error have occured",
-                        variant: "destructive"
-                    })
+                    setErrorMessage(result?.error?.message || "Sorry some error have occured")
+                    // toast({
+                    //     title: "Sorry some error have occured",
+                    //     variant: "destructive"
+                    // })
                 }
             }
 
@@ -145,18 +149,20 @@ export default function Signin() {
             } else {
                 const errormsg = "User Not Active | Unable to login with given credentials!"
                 if (result?.error?.non_field_errors?.includes(errormsg)) {
-                    toast({
-                        title: errormsg,
-                        variant: "destructive"
-                    })
+                    // toast({
+                    //     title: errormsg,
+                    //     variant: "destructive"
+                    // })
+                    setErrorMessage(errormsg)
                 } else {
-                    toast({
-                        title: result?.error?.message || "Sorry some error have occured",
-                        variant: "destructive"
-                    })
+                    setErrorMessage(result?.error?.message || "Sorry some error have occured")
+                    // toast({
+                    //     title: result?.error?.message || "Sorry some error have occured",
+                    //     variant: "destructive"
+                    // })
                 }
             }
-            
+
 
         }
         catch (err) {
@@ -168,23 +174,30 @@ export default function Signin() {
     }
 
     return <div className="signin-container flex min-h-screen relative">
-        <div className="relative left flex flex-col w-7/12 bg-signin-page justify-center py-[6rem] 2xl:py-[10rem] ">
+        <div className="relative left flex flex-col w-7/12 bg-signin-page justify-center xl:py-[3rem] 2xl:py-[10rem] ">
             <div className="absolute top-0 right-0 h-[647px] w-[647px] ">
-                <img src="/images/bg-signin-img.png"/>
+                <img src="/images/bg-signin-img.png" />
             </div>
             <div className="flex flex-row mb-8 absolute top-[44px] left-[44px] ">
-                <Image src={"/images/purple-quarter-logo-2.png"} alt="purple search logo" width={167} height={44} />
+                <Image src={"/images/purple-quarter-logo-4.png"} alt="purple search logo" width={157} height={90} />
             </div>
             <div className="relative flex flex-col h-full justify-between gap-[50px]">
                 <div className="flex flex-row justify-center">
                     <div className="lg:max-w-[280px] xl:max-w-[400px] min-[1536px]:max-w-[450px] min-w-[1700px]:max-w-[596px]">
-                        <img src={"/images/carousel-2.png"} alt="carousel first" 
+                        <img src={"/images/carousel-2.png"} alt="carousel first"
                         />
                     </div>
                 </div>
                 <div className="flex flex-col justify-center align-middle">
                     <h2 className="text-[#353260] text-2xl text-center mb-1 font-semibold">Automate your workflow in 3..2..1</h2>
-                    <h3 className="text-[#121212] text-center text-base py-1">Empowering Executive Search Excellence: <br /> Your Path to Purple Productivity</h3>
+                    <h3 className="text-[#121212] text-center text-base py-1 flex flex-col gap-[6px]">
+                        <span>
+                            Empowering Executive Search Excellence:
+                        </span>
+                        <span>
+                            Your Path to Purple Productivity
+                        </span>
+                    </h3>
                 </div>
             </div>
         </div>
@@ -192,9 +205,13 @@ export default function Signin() {
 
             <Form {...form} >
                 <form className="flex flex-col" onSubmit={form.handleSubmit(onSubmit)} >
-                    <Image alt="pq search" src={"/images/pq-search.png"} width={40} height={40} className="mb-5" />
+
                     <div className="text-2xl my-2 text-gray-900 font-bold">Sign in</div>
-                    <div className="text-gray-600 mb-6 text-sm">Welcome back! Please enter your details.</div>
+                    <div className="text-gray-600 mb-[32px] text-md font-normal">Welcome back! Please enter your details.</div>
+                    {errorMessage && <div className="text-error-700 mb-[32px] text-sm border border-error-400 bg-error-100 rounded-[12px] px-[20px] py-[10px] flex flex-row justify-center gap-[8px] items-center ">
+                        <AlertTriangle color="#D92D20" size={20} />
+                        {errorMessage}
+                    </div>}
                     <span className="text-gray-700 text-sm mb-1">Email</span>
                     <FormField
                         control={form.control}
