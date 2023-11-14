@@ -1467,7 +1467,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                         </div>
                                                     </TooltipTrigger>
                                                     <TooltipContent side="top">
-                                                        Cash CTC Budget UL
+                                                        Cash CTC Budget Upper Limit
                                                     </TooltipContent>
                                                 </Tooltip>
                                             </TooltipProvider>
@@ -1528,7 +1528,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                         </div>
                                                     </TooltipTrigger>
                                                     <TooltipContent side="top">
-                                                        ESOPs/RSUs Budget UL
+                                                        ESOPs/RSUs Budget Upper Limit
                                                     </TooltipContent>
                                                 </Tooltip>
                                             </TooltipProvider>

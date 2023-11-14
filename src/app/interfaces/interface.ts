@@ -1171,3 +1171,5 @@ export interface DealsGetResponse {
     sent_on: string | null;
     prospect: number;
   }
+  
+  export type FilterQuery = { filterFieldName: string, value: string | null }

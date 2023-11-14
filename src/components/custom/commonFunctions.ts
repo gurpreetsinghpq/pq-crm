@@ -555,3 +555,7 @@ export function extractFileNameFromUrl(url: string): string | null {
   }
   return null;
 }
+
+export function arrayToCsvString(arr: (number | string | null | undefined)[]): string {
+  return arr.map(item => item !== null ? item : '').join(',');
+}

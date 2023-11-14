@@ -4,6 +4,7 @@ import {
   Cell,
   ColumnDef,
   ColumnFiltersState,
+  PaginationState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -22,12 +23,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react"
+import { use, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { DataTablePagination } from "./data-table-pagination"
 import { ALL_DESIGNATIONS, ALL_FUNCTIONS, ALL_LAST_FUNDING_STAGE, ALL_PROFILES, ALL_PROSPECT_STATUSES, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_TYPES, CREATORS, DEAL_STATUSES, DOMAINS, INDUSTRIES, OWNERS, PROSPECT_STATUSES, REGIONS, SIZE_OF_COMPANY, SOURCES, STATUSES } from "@/app/constants/constants"
-import { ContactsGetResponse, IValueLabel } from "@/app/interfaces/interface"
+import { ContactsGetResponse, FilterQuery, IValueLabel } from "@/app/interfaces/interface"
 import { TableContext } from "@/app/helper/context"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useDebounce } from "@/hooks/useDebounce"
+import { arrayToCsvString } from "../commonFunctions"
 
 interface LeadInterfaceFilter {
   regions?: string[]
@@ -100,9 +104,11 @@ interface TeamsInterfaceFilter {
 
 type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & DealsInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter & TeamsInterfaceFilter
 
-interface HiddenIf{
-  threeDots?:boolean
+interface HiddenIf {
+  threeDots?: boolean
 }
+
+const emptyFilterQuery: FilterQuery = { filterFieldName: '', value: null }
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -112,9 +118,11 @@ interface DataTableProps<TData, TValue> {
   setChildDataHandler: CallableFunction,
   setIsMultiSelectOn: CallableFunction,
   page: string,
-  hidden?: HiddenIf
+  hidden?: HiddenIf,
+  pageCount?: number
 }
-
+let accountFilteredData: FilterQuery[] = []
+  
 export default function DataTable<TData, TValue>({
   columns,
   data,
@@ -123,15 +131,112 @@ export default function DataTable<TData, TValue>({
   setChildDataHandler,
   setIsMultiSelectOn,
   page,
-  hidden={
-    threeDots:false
-  }
+  hidden = {
+    threeDots: false
+  },
+  pageCount
 }: DataTableProps<TData, TValue>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   )
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Search params
+  const pg = searchParams?.get("page") ?? "1"
+  const pageAsNumber = Number(pg)
+  const fallbackPage =
+    isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
+  const per_page = searchParams?.get("limit") ?? "10"
+  const perPageAsNumber = Number(per_page)
+  const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
+  const sort = searchParams?.get("sort")
+  const [column, order] = sort?.split(".") ?? []
+
+
+  // Create query string
+  const createQueryString = useCallback(
+    (params: Record<string, string | number | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams?.toString())
+
+      for (const [key, value] of Object.entries(params)) {
+        if (value === null) {
+          newSearchParams.delete(key)
+        } else {
+          newSearchParams.set(key, String(value))
+        }
+      }
+
+      return newSearchParams.toString()
+    },
+    [searchParams]
+  )
+
+  function createFilterQueryString(data: FilterQuery[]) {
+
+    const queryParamData: Record<string, string | number | null> = {};
+
+    data.forEach((query) => {
+      queryParamData[query.filterFieldName] = query.value;
+    });
+
+    router.push(
+      `${pathname}?${createQueryString({
+        page: 1,
+        ...queryParamData
+      })}`
+    )
+  }
+
+  // Handle server-side pagination
+  const [{ pageIndex, pageSize }, setPagination] =
+    useState<PaginationState>({
+      pageIndex: fallbackPage - 1,
+      pageSize: fallbackPerPage,
+    })
+
+  const pagination = useMemo(
+    () => ({
+      pageIndex,
+      pageSize,
+    }),
+    [pageIndex, pageSize]
+  )
+
+  useEffect(() => {
+    setPagination({
+      pageIndex: fallbackPage - 1,
+      pageSize: fallbackPerPage,
+    })
+  }, [fallbackPage, fallbackPerPage])
+
+  useEffect(() => {
+    router.push(
+      `${pathname}?${createQueryString({
+        page: pageIndex + 1,
+        limit: pageSize,
+      })}`,
+      {
+        scroll: false,
+      }
+    )
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageIndex, pageSize])
+
+  // Handle server-side sorting
+  //  const [sorting, setSorting] = useState<SortingState>([
+  //   {
+  //     id: column ?? "",
+  //     desc: order === "desc",
+  //   },
+  // ])
+
+
+
 
 
   const tbl: any = useRef(null)
@@ -155,21 +260,26 @@ export default function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+    pageCount: pageCount ?? -1,
+    manualPagination: true,
+    manualFiltering: true,
     state: {
+      pagination,
       sorting,
       columnFilters,
       columnVisibility,
     },
-    initialState:{
+    initialState: {
       sorting: [
         {
           id: 'created_at',
-          desc:true
+          desc: true
         }
       ],
     },
-    
-    
+
+
     getRowId,
   })
 
@@ -207,29 +317,33 @@ export default function DataTable<TData, TValue>({
     }
 
 
-    
-  }, [filterObj])
-  useEffect(() => {
-    setTableLeadRow(table.getFilteredRowModel())
-  }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
 
-  useEffect(()=>{
-    setSorting(()=>{
+  }, [filterObj])
+  // useEffect(() => {
+  //   setTableLeadRow(table.getFilteredRowModel())
+  // }, [table.getFilteredRowModel().rows.length, table.getSelectedRowModel()])
+
+  // useEffect(() => {
+  //   console.log(table.getFilteredRowModel())
+  // }, [table.getFilteredRowModel()])
+
+  useEffect(() => {
+    setSorting(() => {
       return [
         {
           id: "created_at",
-          desc:true
+          desc: true
         }
       ]
     })
-    if(hidden?.threeDots){
-      setColumnVisibility(()=>{
+    if (hidden?.threeDots) {
+      setColumnVisibility(() => {
         return {
-          "actions":false
+          "actions": false
         }
       })
     }
-  },[])
+  }, [])
 
   function setLeadFilter() {
     if (filterObj?.regions && filterObj.regions.includes("allRegions")) {
@@ -371,60 +485,141 @@ export default function DataTable<TData, TValue>({
     table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
   }
 
+ 
+  
   function setAccountFilter() {
+    let industryQueryParam: FilterQuery = emptyFilterQuery
+    let segmentQueryParam: FilterQuery = emptyFilterQuery
+    let domainQueryParam: FilterQuery = emptyFilterQuery
+    let sizeQueryParam: FilterQuery = emptyFilterQuery
+    let fundingStageQueryParam: FilterQuery = emptyFilterQuery
+    let createdByQueryParam: FilterQuery = emptyFilterQuery
+
     if (filterObj?.industries && filterObj.industries.includes("allIndustries")) {
       table.getColumn("industry")?.setFilterValue("")
+      industryQueryParam = {
+        filterFieldName: "industry",
+        value: null
+      }
     }
     else {
       const industryFilter = valueToLabel("industries", INDUSTRIES)
       table.getColumn("industry")?.setFilterValue(industryFilter)
+      if (industryFilter) {
+        industryQueryParam = {
+          filterFieldName: "industry",
+          value: arrayToCsvString(industryFilter)
+        }
+      }
     }
 
     if (filterObj?.domains && filterObj.domains.includes("allDomains")) {
       table.getColumn("domain")?.setFilterValue("")
+      domainQueryParam = {
+        filterFieldName: "domain",
+        value: null
+      }
     }
     else {
       const domainsFilter = valueToLabel("domains", DOMAINS)
       table.getColumn("domain")?.setFilterValue(domainsFilter)
+      if (domainsFilter) {
+        domainQueryParam = {
+          filterFieldName: "domain",
+          value: arrayToCsvString(domainsFilter)
+        }
+      }
     }
 
     if (filterObj?.segments && filterObj.segments.includes("allSegments")) {
       table.getColumn("segment")?.setFilterValue("")
+      segmentQueryParam = {
+        filterFieldName: "segment",
+        value: null
+      }
     }
     else {
       const segmentFilter = valueToLabel("segments", ALL_SEGMENTS)
       table.getColumn("segment")?.setFilterValue(segmentFilter)
+      if (segmentFilter) {
+        segmentQueryParam = {
+          filterFieldName: "segment",
+          value: arrayToCsvString(segmentFilter)
+        }
+      }
     }
 
     if (filterObj?.sizes && filterObj.sizes.includes("allSizes")) {
       table.getColumn("size")?.setFilterValue("")
+      sizeQueryParam = {
+        filterFieldName: "size",
+        value: null
+      }
+
     }
     else {
       const sizeFilter = valueToLabel("sizes", SIZE_OF_COMPANY)
       table.getColumn("size")?.setFilterValue(sizeFilter)
+      if (sizeFilter) {
+        sizeQueryParam = {
+          filterFieldName: "size",
+          value: arrayToCsvString(sizeFilter)
+        }
+      }
     }
 
     if (filterObj?.fundingStages && filterObj.fundingStages.includes("allFundingStages")) {
       table.getColumn("last_funding_stage")?.setFilterValue("")
+      fundingStageQueryParam = {
+        filterFieldName: "last_funding_stage",
+        value: null
+      }
     }
     else {
       const fundingStageFilter = valueToLabel("fundingStages", ALL_LAST_FUNDING_STAGE)
       table.getColumn("last_funding_stage")?.setFilterValue(fundingStageFilter)
+      if (fundingStageFilter) {
+        fundingStageQueryParam = {
+          filterFieldName: "last_funding_stage",
+          value: arrayToCsvString(fundingStageFilter)
+        }
+      }
     }
 
     if (filterObj.creators && filterObj.creators.includes("allCreators")) {
       table.getColumn("created_by")?.setFilterValue("")
+      createdByQueryParam = {
+        filterFieldName: "created_by",
+        value: null
+      }
+      
     }
     else {
       const creatorFilter = filterObj.creators
       table.getColumn("created_by")?.setFilterValue(creatorFilter)
+      if (creatorFilter) {
+        createdByQueryParam = {
+          filterFieldName: "created_by",
+          value: arrayToCsvString(creatorFilter)
+        }
+      }
     }
 
 
     // table.getColumn("id")?.setFilterValue(filterObj.ids)
     table.getColumn("name")?.setFilterValue(filterObj.search)
     table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+    if (filterObj.dateRange) {
+      // createFilterQueryString("created_at", filterObj.dateRange)
+    }
+
+    accountFilteredData = [industryQueryParam, segmentQueryParam, domainQueryParam, sizeQueryParam, fundingStageQueryParam, createdByQueryParam]
   }
+
+  useEffect(()=>{
+    // createFilterQueryString(accountFilteredData)
+  },[JSON.stringify(accountFilteredData)])
+
   function setContactFilter() {
     if (filterObj?.designations && filterObj.designations.includes("allDesignations")) {
       table.getColumn("designation")?.setFilterValue("")
@@ -520,19 +715,19 @@ export default function DataTable<TData, TValue>({
   }
 
   function setProfilesFilter() {
-    
+
     table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
   }
 
   function handleTableChange() {
-    
+
   }
 
   function valueToLabel(key: Exclude<keyof FilterObject, "search" | "dateRange" | "queryParamString">, arr: IValueLabel[]) {
     return filterObj[key]?.map((val) => arr.find((item) => item.value === val)?.label)
   }
 
-  
+
 
   return (
     <div className="flex flex-col flex-1">

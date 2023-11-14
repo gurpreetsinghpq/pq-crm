@@ -14,7 +14,7 @@ import {
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 
-import * as React from "react"
+import { useCallback, useEffect, useState } from "react"
 import { DropdownMenuCheckboxItemProps, RadioGroup } from "@radix-ui/react-dropdown-menu"
 import DataTable from "./table/datatable"
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "../ui/dialog"
@@ -28,24 +28,25 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE } from "@/app/constants/constants"
+import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, EMPTY_FILTER_QUERY } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconAccounts2, IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, User } from "@/app/interfaces/interface"
+import { ClientGetResponse, FilterQuery, IValueLabel, LeadInterface, PatchLead, Permission, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
-import SideSheet from "./sideSheet"
-import { useRouter, useSearchParams } from "next/navigation"
+import SideSheet, { valueToLabel } from "./sideSheet"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import SideSheetAccounts from "./sideSheetAccounts"
-import { fetchUserDataList, getToken } from "./commonFunctions"
+import { arrayToCsvString, fetchUserDataList, getToken } from "./commonFunctions"
+import { useDebounce } from "@/hooks/useDebounce"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -59,6 +60,7 @@ export interface IChildData {
     row: any
 }
 let dataFromApi: LeadInterface[] = []
+let totalPageCount: number
 
 const Accounts = ({ form, permissions }: {
     form: UseFormReturn<{
@@ -79,18 +81,35 @@ const Accounts = ({ form, permissions }: {
 
     const router = useRouter();
 
-    const [data, setClientData] = React.useState<ClientGetResponse[]>([])
+    const [data, setClientData] = useState<ClientGetResponse[]>([])
 
-    const [isLoading, setIsLoading] = React.useState<boolean>(true)
-    const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
-    const [isInbox, setIsInbox] = React.useState<boolean>(true)
-    const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
-    const [tableLeadLength, setTableLength] = React.useState<any>()
-    const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isMultiSelectOn, setIsMultiSelectOn] = useState<boolean>(false)
+    const [isInbox, setIsInbox] = useState<boolean>(true)
+    const [isNetworkError, setIsNetworkError] = useState<boolean>(false)
+    const [tableLeadLength, setTableLength] = useState<any>()
+    const [selectedRowIds, setSelectedRowIds] = useState<[]>()
 
-    const [childData, setChildData] = React.useState<IChildData>()
-    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
-    const [userList, setUserList] = React.useState<IValueLabel[]>()
+    const [childData, setChildData] = useState<IChildData>()
+    const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
+    const [userList, setUserList] = useState<IValueLabel[]>()
+    
+    
+    
+    // server side data fetching
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const pg = searchParams?.get("page") ?? "1"
+    const pageAsNumber = Number(pg)
+    const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
+    const per_page = searchParams?.get("limit") ?? "10"
+    const perPageAsNumber = Number(per_page)
+    const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
+    const industry = searchParams?.get("industry") ?? null
+    const segment = searchParams?.get("segment") ?? null
+    const fundingStage = searchParams?.get("last_funding_stage") ?? null
+    const createdBy = searchParams?.get("created_by") ?? null
+    const searchString = searchParams?.get("name") ?? null
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
@@ -98,14 +117,11 @@ const Accounts = ({ form, permissions }: {
             return { ...prev, [key]: data }
         })
         if (!data) {
-            fetchLeadData()
+            fetchData()
         }
     }
 
 
-    React.useEffect(() => {
-        console.log(childData)
-    }, [childData?.row])
     function setTableLeadRow(data: any) {
         const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
         setIsMultiSelectOn(selectedRows.length !== 0)
@@ -113,56 +129,35 @@ const Accounts = ({ form, permissions }: {
         setSelectedRowIds(ids)
         setTableLength(data.rows.length)
     }
-    const searchParams = useSearchParams()
 
 
 
-    async function checkQueryParam() {
-        const queryParamIds = searchParams.get("ids")
-        if (queryParamIds && queryParamIds?.length > 0) {
-            form.setValue("search", queryParamIds)
-            form.setValue("queryParamString", queryParamIds)
-
-            const { from, to } = getThisMonth(queryParamIds)
-            form.setValue("dateRange", {
-                "range": {
-                    "from": from,
-                    "to": to
-                },
-                rangeCompare: undefined
-            })
-            await fetchLeadData(true)
-        } else {
-            fetchLeadData()
-        }
-    }
 
 
 
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    async function fetchLeadData(noArchiveFilter: boolean = false) {
+    async function fetchData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "GET", headers: { "Authorization": `Token ${getToken()}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const industryQueryParam = industry ? `&industry=${encodeURIComponent(industry)}` : '';
+            const segmentQueryParam = segment ? `&segment=${encodeURIComponent(segment)}` : '';
+            const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
+            const nameQueryParam = searchString ? `&name=${encodeURIComponent(searchString)}` : '';
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=${pageAsNumber}&limit=${perPageAsNumber}${industryQueryParam}${segmentQueryParam}${createdByQueryParam}${nameQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${getToken()}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: ClientGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
+            totalPageCount = result.total_pages
             setClientData(dataFromApi)
             setIsLoading(false)
-            // if (filteredData.length == 0) {
-            //     setTableLength(0)
-            //     setIsMultiSelectOn(false)
-            //     setSelectedRowIds([])
-            // }
         }
         catch (err) {
             setIsLoading(false)
             setIsNetworkError(true)
             console.log("error", err)
         }
-        getUserList()
     }
 
     async function getUserList() {
@@ -178,20 +173,186 @@ const Accounts = ({ form, permissions }: {
 
     }
 
-    React.useEffect(() => {
-        (async () => {
-            await checkQueryParam()
-        })()
+    useEffect(() => {
+        fetchData()
+    }, [pageAsNumber, per_page, industry, segment, fundingStage, createdBy, searchString])
+
+    useEffect(() => {
+        getUserList()
     }, [])
 
-    const watcher = form.watch()
+    // Create query string
+  const createQueryString = useCallback(
+    (params: Record<string, string | number | null>) => {
+      const newSearchParams = new URLSearchParams(searchParams?.toString())
 
+      for (const [key, value] of Object.entries(params)) {
+        if (value === null) {
+          newSearchParams.delete(key)
+        } else {
+          newSearchParams.set(key, String(value))
+        }
+      }
 
-    React.useEffect(() => {
-        console.log(watcher)
-    }, [watcher])
+      return newSearchParams.toString()
+    },
+    [searchParams]
+  )
 
-    // React.useEffect(() => {
+  function createFilterQueryString(data: FilterQuery[]) {
+
+    const queryParamData: Record<string, string | number | null> = {};
+
+    data.forEach((query) => {
+      queryParamData[query.filterFieldName] = query.value;
+    });
+
+    router.push(
+      `${pathname}?${createQueryString({
+        page: 1,
+        ...queryParamData
+      })}`
+    )
+  }
+
+    const watch = form.watch()
+    useEffect(()=>{
+        setAccountFilter()
+    },[watch.industries, watch.segments, watch.creators, watch.domains, watch.sizes, watch.fundingStages])
+
+    function setAccountFilter() {
+        let industryQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let segmentQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let domainQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let sizeQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let fundingStageQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdByQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+    
+        if (watch.industries && watch.industries.includes("allIndustries")) {
+          industryQueryParam = {
+            filterFieldName: "industry",
+            value: null
+          }
+        }
+        else {
+          const industryFilter = watch.industries
+          if (industryFilter) {
+            industryQueryParam = {
+              filterFieldName: "industry",
+              value: arrayToCsvString(industryFilter)
+            }
+          }
+        }
+    
+        if (watch.domains && watch.domains.includes("allDomains")) {
+          domainQueryParam = {
+            filterFieldName: "domain",
+            value: null
+          }
+        }
+        else {
+          const domainsFilter = watch.domains
+          if (domainsFilter) {
+            domainQueryParam = {
+              filterFieldName: "domain",
+              value: arrayToCsvString(domainsFilter)
+            }
+          }
+        }
+    
+        if (watch.segments && watch.segments.includes("allSegments")) {
+          segmentQueryParam = {
+            filterFieldName: "segment",
+            value: null
+          }
+        }
+        else {
+          const segmentFilter = watch.segments
+          if (segmentFilter) {
+            segmentQueryParam = {
+              filterFieldName: "segment",
+              value: arrayToCsvString(segmentFilter)
+            }
+          }
+        }
+    
+        if (watch.sizes && watch.sizes.includes("allSizes")) {
+          sizeQueryParam = {
+            filterFieldName: "size",
+            value: null
+          }
+    
+        }
+        else {
+          const sizeFilter = watch.sizes
+          if (sizeFilter) {
+            sizeQueryParam = {
+              filterFieldName: "size",
+              value: arrayToCsvString(sizeFilter)
+            }
+          }
+        }
+    
+        if (watch.fundingStages && watch.fundingStages.includes("allFundingStages")) {
+          fundingStageQueryParam = {
+            filterFieldName: "last_funding_stage",
+            value: null
+          }
+        }
+        else {
+          const fundingStageFilter = watch.fundingStages
+          if (fundingStageFilter) {
+            fundingStageQueryParam = {
+              filterFieldName: "last_funding_stage",
+              value: arrayToCsvString(fundingStageFilter)
+            }
+          }
+        }
+    
+        if (watch.creators && watch.creators.includes("allCreators")) {
+          createdByQueryParam = {
+            filterFieldName: "created_by",
+            value: null
+          }
+          
+        }
+        else {
+          const creatorFilter = watch.creators
+          if (creatorFilter) {
+            createdByQueryParam = {
+              filterFieldName: "created_by",
+              value: arrayToCsvString(creatorFilter)
+            }
+          }
+        }
+    
+    
+        // table.getColumn("id")?.setFilterValue(filterObj.ids)
+        // table.getColumn("name")?.setFilterValue(filterObj.search)
+        // table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+        // if (filterObj.dateRange) {
+        //   // createFilterQueryString("created_at", filterObj.dateRange)
+        // }
+    
+        let accountFilteredData = [industryQueryParam, segmentQueryParam, domainQueryParam, sizeQueryParam, fundingStageQueryParam, createdByQueryParam]
+        createFilterQueryString(accountFilteredData )
+      }
+
+      
+      
+      const debouncedSearchableFilters = useDebounce(watch.search,500)
+      
+      useEffect(()=>{
+        const data:FilterQuery[] = [{filterFieldName:"name", value:debouncedSearchableFilters||null}]
+        createFilterQueryString(data)
+      },[debouncedSearchableFilters])
+    
+
+    // useEffect(() => {
+        
+    // }, [form.watch])
+
+    // useEffect(() => {
     //     setClientData(filterInboxOrArchive(dataFromApi, isInbox))
     // }, [isInbox])
     // console.log(tableLeadLength)
@@ -253,7 +414,7 @@ const Accounts = ({ form, permissions }: {
                 // All patching operations are complete
                 // You can run your code here
                 console.log("All patching operations are done");
-                fetchLeadData()
+                fetchData()
 
             })
             .catch((error) => {
@@ -262,7 +423,7 @@ const Accounts = ({ form, permissions }: {
             });
     }
 
-    const addAccountDialogButton = () => <AddLeadDialog page={"accounts"} fetchLeadData={fetchLeadData} >
+    const addAccountDialogButton = () => <AddLeadDialog page={"accounts"} fetchLeadData={fetchData} >
         <Button disabled={!permissions?.add} className="flex flex-row gap-2">
             <Image src="/images/plus.svg" alt="plus lead" height={20} width={20} />
             Add Account
@@ -335,7 +496,7 @@ const Accounts = ({ form, permissions }: {
                             <TooltipProvider>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchLeadData()}>
+                                        <Button variant={"google"} className="p-[8px]" type="button" onClick={() => fetchData()}>
                                             <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} />
                                         </Button>
                                     </TooltipTrigger>
@@ -601,7 +762,7 @@ const Accounts = ({ form, permissions }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsClient(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} />
+                    <DataTable columns={columnsClient(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} pageCount={totalPageCount} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconAccounts2 size="24" />
@@ -613,7 +774,7 @@ const Accounts = ({ form, permissions }: {
                         {isInbox && addAccountDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <SideSheetAccounts parentData={{ childData, setChildDataHandler }} permissions={permissions}/>}
+            {childData?.row && <SideSheetAccounts parentData={{ childData, setChildDataHandler }} permissions={permissions} />}
         </div>
 
 
