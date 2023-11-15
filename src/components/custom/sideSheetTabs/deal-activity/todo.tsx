@@ -8,7 +8,7 @@ import { toast } from '@/components/ui/use-toast'
 
 let dataFromApi: TodoListGetResponse[] = []
 
-function Todo({ entityId}: { entityId: number}) {
+function Todo({ entityId, isAccounts=false}: { entityId: number, isAccounts?:boolean}) {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [todoList, setTodoList] = useState<TodoListGetResponse[]>()
     // const randomDetails: Stepper[] = []
@@ -21,7 +21,7 @@ function Todo({ entityId}: { entityId: number}) {
     async function fetchTodoList(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/activity/to_do/?lead=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/activity/to_do/?${isAccounts ? `organisation=${entityId}` : `lead=${entityId}`}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: TodoListGetResponse[] = structuredClone(result.data)
             // dataFromApi = addTitleToTodoList(data)

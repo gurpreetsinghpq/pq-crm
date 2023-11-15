@@ -50,7 +50,7 @@ const FormSchema = z.object({
 
 
 
-function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null } }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction } }) {
+function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null }, isAccounts = false }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction }, isAccounts?: boolean }) {
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
@@ -94,23 +94,35 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         const dataToSend: ActivityPostBody = {
             contact: data.contact,
             due_date: formattedDueDate,
-            lead: entityId,
             mode: valueToLabel(data.mode, MODE) || "",
             reminder: Number(data.reminder) === -1 ? null : Number(data.reminder),
             type: valueToLabel(data.type, ACTIVITY_TYPE) || "",
             assigned_to: Number(form.getValues("assignedTo"))
+        }
+        if (isAccounts) {
+            dataToSend["organisation"] = entityId
+        } else {
+            dataToSend["lead"] = entityId
+            
         }
 
 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/activity/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            toast({
-                title: "Activity Created Succesfully!",
-                variant: "dark"
-            })
-            console.log(result)
-            form.reset()
+            if (result?.status == 1) {
+                toast({
+                    title: "Activity Created Succesfully!",
+                    variant: "dark"
+                })
+                form.reset()
+                console.log(result)
+            } else {
+                toast({
+                    title: result?.error?.message || "Failed to create activity",
+                    variant: "destructive"
+                })
+            }
 
         } catch (err) {
             console.log(err)
@@ -187,6 +199,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
         }
 
+        if (isAccounts) {
+            form.setValue("type", "coldOutreach")
+        }
     }, [])
     console.log(form.getValues())
     const CONTACTS_FROM_PARENT: any = contactFromParents
@@ -235,9 +250,14 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                         </FormControl>
                                                         <SelectContent>
                                                             {
-                                                                ACTIVITY_TYPE.map((region, index) => {
-                                                                    return <SelectItem key={index} value={region.value}>
-                                                                        {region.label}
+                                                                ACTIVITY_TYPE.map((activityType, index) => {
+                                                                    if (isAccounts) {
+                                                                        if (activityType.value != "coldOutreach") {
+                                                                            return
+                                                                        }
+                                                                    }
+                                                                    return <SelectItem key={index} value={activityType.value}>
+                                                                        {activityType.label}
                                                                     </SelectItem>
                                                                 })
                                                             }
@@ -281,7 +301,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[430px] p-0">
+                                                        <PopoverContent className="w-[360px] xl:w-[430px] 2xl:w-[465px] p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Account Contact" />
                                                                 <CommandEmpty>No Contact found.</CommandEmpty>
@@ -388,7 +408,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[350px] p-0">
+                                                        <PopoverContent className="w-[360px] xl:w-[430px] 2xl:w-[465px] p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search User" />
                                                                 <CommandEmpty>User not found.</CommandEmpty>
@@ -560,9 +580,8 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                         <FormField
                                             control={form.control}
                                             name="reminder"
-                                            render={({ field }) => 
-                                                {
-                                                    return <FormItem>
+                                            render={({ field }) => {
+                                                return <FormItem>
                                                     <Select
                                                         disabled={(() => {
                                                             const dueDate = form.getValues("dueDate")
@@ -592,7 +611,8 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
                                                     {/* <FormMessage /> */}
-                                                </FormItem>}
+                                                </FormItem>
+                                            }
                                             }
                                         />
                                     </div>

@@ -477,7 +477,7 @@ const Accounts = ({ form, permissions }: {
     return <div className="flex flex-col flex-1">
         <div className="bottom flex-1 flex flex-col">
             <Form {...form}>
-                <form>
+                <form onSubmit={(e)=>e.preventDefault()}>
                     <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
                         <div className="w-1/2 flex flex-row gap-4 items-center">
                             <FormField
@@ -486,7 +486,7 @@ const Accounts = ({ form, permissions }: {
                                 render={({ field }) => (
                                     <FormItem className="w-2/3">
                                         <FormControl>
-                                            <Input placeholder="Search" className="text-md border" {...field} />
+                                            <Input onKeyDown={(event)=>{return (event.keyCode!=13)}} placeholder="Search" className="text-md border" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}

@@ -14,10 +14,11 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
 import { ActivityAccToEntity, IValueLabel, NotesPostBody, Permission } from '@/app/interfaces/interface'
-import { fetchActivityListAccToEntity, getToken } from '../../commonFunctions'
+import { fetchActivityListAccToEntity, fetchActivityListAccToEntityOrganisation, getToken } from '../../commonFunctions'
 import { Input } from '@/components/ui/input'
 import { labelToValue, valueToLabel } from '../../sideSheet'
 import { toast } from '@/components/ui/use-toast'
+import { Textarea } from '@/components/ui/textarea'
 
 
 
@@ -49,6 +50,7 @@ const FormSchema = z.object({
     dealStatus: z.string({}).optional(),
     negotiationBlocker: z.string({}).optional(),
     serviceContractDraftShared: z.string({}).optional(),
+    remarks: z.string().optional()
 })
 
 const FormSchemaWhenColdOutreachAndInbound = z.object({
@@ -111,7 +113,7 @@ const FormSchemaWhenNegotiation = z.object({
     }),
 })
 
-function Notes({ contactFromParents, entityId}: { contactFromParents: any, entityId: number }) {
+function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFromParents: any, entityId: number, isAccounts?: boolean }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema)
 
@@ -146,9 +148,9 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
 
     const isAnyForm = [isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm].some((val) => val === true)
 
-    useEffect(()=>{
+    useEffect(() => {
 
-        if(isFirstForm){
+        if (isFirstForm) {
             let updatedSchema = FormSchema.extend({
                 roleStatus: z.string({}).min(1),
                 roleUrgency: z.string({}).min(1),
@@ -158,7 +160,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
             })
             setFormSchema(updatedSchema)
         }
-        else if(isSecondForm){
+        else if (isSecondForm) {
             let updatedSchema = FormSchema.extend({
                 responseReceived: z.string({}).min(1),
                 roleStatus: z.string({}).min(1),
@@ -167,7 +169,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
             })
             setFormSchema(updatedSchema)
         }
-        else if(isThirdForm){
+        else if (isThirdForm) {
             let updatedSchema = FormSchema.extend({
                 roleStatus: z.string({}).min(1),
                 roleClarity: z.string({}).min(1),
@@ -177,7 +179,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
             })
             setFormSchema(updatedSchema)
         }
-        else if(isFourthForm){
+        else if (isFourthForm) {
             let updatedSchema = FormSchema.extend({
                 relatedTo: z.string({}).min(1),
                 roleStatus: z.string({}).min(1),
@@ -187,7 +189,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
             })
             setFormSchema(updatedSchema)
         }
-        else if(isFifthForm){
+        else if (isFifthForm) {
             let updatedSchema = FormSchema.extend({
                 dealStatus: z.string({}).min(1),
                 negotiationBlocker: z.string({}).min(1),
@@ -195,7 +197,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
             })
             setFormSchema(updatedSchema)
         }
-        else if(isSixthForm){
+        else if (isSixthForm) {
             let updatedSchema = FormSchema.extend({
                 roleUrgency: z.string({}).min(1),
                 openToRetainerModel: z.string({}).min(1),
@@ -204,7 +206,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
             })
             setFormSchema(updatedSchema)
         }
-        else if(isSeventhForm){
+        else if (isSeventhForm) {
             let updatedSchema = FormSchema.extend({
                 responseReceived: z.string({}).min(1),
                 openToRetainerModel: z.string({}).min(1),
@@ -214,12 +216,12 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
             setFormSchema(updatedSchema)
         }
         console.log("formschema ,yeah")
-    },[watcher.activityType])
+    }, [watcher.activityType])
 
-    useEffect(()=>{
+    useEffect(() => {
         form.trigger()
-        console.log("formschema",formSchema)
-    },[formSchema])
+        console.log("formschema", formSchema)
+    }, [formSchema])
 
 
     console.log(isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm)
@@ -229,25 +231,29 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
     async function onSubmit(data: z.infer<typeof FormSchema>) {
         console.log(data)
 
-        const dataToSend:Partial<NotesPostBody> = {
+        const dataToSend: Partial<NotesPostBody> = {
             activity: Number(data.activity),
             deal_status: valueToLabel(form.getValues("dealStatus") || "", DEAL_STATUS) || null,
             exp_service_fee: valueToLabel(form.getValues("expectedServiceFeeRange") || "", EXPECTED_SERVICE_FEE_RANGE) || null,
-            is_collateral_shared: form.getValues("collateralShared")?.toLowerCase() === "yes" ? true :form.getValues("collateralShared")?.toLowerCase() === "no"?false:null,
-            is_contract_draft_shared: form.getValues("serviceContractDraftShared")?.toLowerCase() === "yes" ? true :form.getValues("serviceContractDraftShared")?.toLowerCase() === "no"?false:null,
+            is_collateral_shared: form.getValues("collateralShared")?.toLowerCase() === "yes" ? true : form.getValues("collateralShared")?.toLowerCase() === "no" ? false : null,
+            is_contract_draft_shared: form.getValues("serviceContractDraftShared")?.toLowerCase() === "yes" ? true : form.getValues("serviceContractDraftShared")?.toLowerCase() === "no" ? false : null,
             is_min_flat_Service: valueToLabel(form.getValues("openToMinServiceFeeOrFlatFee") || "", OPEN_TO_MIN_SERVICE_OR_FLAT_FEE) || null,
             is_open_engange: valueToLabel(form.getValues("openToEngage") || "", OPEN_TO_ENGAGE) || null,
-            is_proposal_shared: form.getValues("proposalShared")?.toLowerCase() === "yes" ? true :form.getValues("proposalShared")?.toLowerCase() === "no"?false:null,
+            is_proposal_shared: form.getValues("proposalShared")?.toLowerCase() === "yes" ? true : form.getValues("proposalShared")?.toLowerCase() === "no" ? false : null,
             is_response_shared: valueToLabel(form.getValues("responseReceived") || "", RESPONSE_RECEIVED) || null,
             is_retainer_model: valueToLabel(form.getValues("openToRetainerModel") || "", OPEN_TO_RETAINER_MODEL) || null,
-            is_role_clear: form.getValues("roleClarity")?.toLowerCase() === "yes" ? true :form.getValues("roleClarity")?.toLowerCase() === "no"?false:null,
+            is_role_clear: form.getValues("roleClarity")?.toLowerCase() === "yes" ? true : form.getValues("roleClarity")?.toLowerCase() === "no" ? false : null,
             is_willing_pay_ra: valueToLabel(form.getValues("willingToPayRA") || "", WILLING_TO_PAY) || null,
             negotiation_broker: valueToLabel(form.getValues("negotiationBlocker") || "", NEGOTIATION_BLOCKER) || null,
             next_step: valueToLabel(form.getValues("nextStep") || "", NEXT_STEP) || null,
             prospect_status: valueToLabel(form.getValues("prospectStatus") || "", PROSPECT_STATUS_NOTES) || null,
             role_status: valueToLabel(form.getValues("roleStatus") || "", ROLE_STATUS) || null,
             role_urgency: valueToLabel(form.getValues("roleUrgency") || "", ROLE_URGENCY) || null,
-            related_to : valueToLabel(form.getValues("relatedTo") || "", RELATED_TO) || null,
+            related_to: valueToLabel(form.getValues("relatedTo") || "", RELATED_TO) || null,
+        }
+
+        if(isAccounts){
+            dataToSend["remarks"] = form.getValues("remarks")
         }
 
         try {
@@ -274,14 +280,16 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
 
     console.log("contactFromParents", contactFromParents)
 
-    async function fetchAllActivities() {
-
-    }
-
+    
     async function getActivityList() {
         setIsActivityDataLoading(true)
         try {
-            const acttivityList: any = await fetchActivityListAccToEntity(entityId)
+            let acttivityList:any
+            if(isAccounts){
+                acttivityList = await fetchActivityListAccToEntityOrganisation(entityId)
+            }else{
+                acttivityList = await fetchActivityListAccToEntity(entityId)
+            }
             setIsActivityDataLoading(false)
             setActivityList(acttivityList)
         } catch (err) {
@@ -290,9 +298,6 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
         }
 
     }
-    useEffect(() => {
-        fetchAllActivities()
-    }, [])
 
     // formfields components
     const RoleStatus = () => <FormField
@@ -768,24 +773,41 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
         )}
     />
 
-    function clearExistingValues(){
-        form.setValue("collateralShared",undefined)
-        form.setValue("dealStatus",undefined)
-        form.setValue("expectedServiceFeeRange",undefined)
-        form.setValue("negotiationBlocker",undefined)
-        form.setValue("nextStep",undefined)
-        form.setValue("openToEngage",undefined)
-        form.setValue("openToMinServiceFeeOrFlatFee",undefined)
-        form.setValue("openToRetainerModel",undefined)
-        form.setValue("proposalShared",undefined)
-        form.setValue("prospectStatus",undefined)
-        form.setValue("relatedTo",undefined)
-        form.setValue("responseReceived",undefined)
-        form.setValue("roleClarity",undefined)
-        form.setValue("roleStatus",undefined)
-        form.setValue("roleUrgency",undefined)
-        form.setValue("serviceContractDraftShared",undefined)
-        form.setValue("willingToPayRA",undefined)
+    const Remarks = () => <FormField
+        control={form.control}
+        name="remarks"
+        render={({ field }) => (
+            <FormItem key={"remarks"}>
+                <FormControl>
+                    <Textarea
+                        placeholder="Remarks?"
+                        maxLength={500}
+                        className={`${commonFontClassesAddDialog} ${commonClasses} resize-none outline-none `}
+                        {...field}
+                    />
+                </FormControl>
+            </FormItem>
+        )}
+    />
+
+    function clearExistingValues() {
+        form.setValue("collateralShared", undefined)
+        form.setValue("dealStatus", undefined)
+        form.setValue("expectedServiceFeeRange", undefined)
+        form.setValue("negotiationBlocker", undefined)
+        form.setValue("nextStep", undefined)
+        form.setValue("openToEngage", undefined)
+        form.setValue("openToMinServiceFeeOrFlatFee", undefined)
+        form.setValue("openToRetainerModel", undefined)
+        form.setValue("proposalShared", undefined)
+        form.setValue("prospectStatus", undefined)
+        form.setValue("relatedTo", undefined)
+        form.setValue("responseReceived", undefined)
+        form.setValue("roleClarity", undefined)
+        form.setValue("roleStatus", undefined)
+        form.setValue("roleUrgency", undefined)
+        form.setValue("serviceContractDraftShared", undefined)
+        form.setValue("willingToPayRA", undefined)
 
     }
 
@@ -866,7 +888,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                                                                     />
                                                                                 </div>
                                                                             </CommandItem>
-                                                                        )) : <div className="flex flex-row items-center justify-center w-full py-2"> No activity has been created related to this entity.</div> }
+                                                                        )) : <div className="flex flex-row items-center justify-center w-full py-2"> No activity has been created related to this entity.</div>}
                                                                     </div>
                                                                 </CommandGroup>
                                                             </Command>
@@ -894,39 +916,39 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                         />
                                     </div>
                                 </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconContacts size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Contact</div>
-                                    </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <FormField
-                                            control={form.control}
-                                            name="contact"
-                                            render={({ field }) => (
-                                                <FormItem>
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconContacts size="24" color="#98A2B3" />
+                                            <div className='text-md text-gray-500 font-normal'>Contact</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="contact"
+                                                render={({ field }) => (
+                                                    <FormItem>
 
-                                                    {/* <Input disabled type="text" className={` ${commonFontClassesAddDialog} ${commonClasses} ${preFilledClasses}`} placeholder="Account Contact" {...field} /> */}
-                                                    <Button type='button' variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog}}`}>
-                                                        {
-                                                            field?.value?.length > 0 ? (
-                                                                getContacts(field.value.map((contactId:any) => {
-                                                                    const contact = CONTACTS_FROM_PARENT.find((contact: any) => {
-                                                                        console.log("contact", contact.id, contactId, contact.id == contactId)
-                                                                        return contact.id == contactId
-                                                                    });
-                                                                    return contact ? contact.name : null;
-                                                                }))
-                                                            ) : (
-                                                                <span className='text-muted-foreground'>Account Contact</span>
-                                                            )
-                                                        }
-                                                    </Button>
-                                                </FormItem>
+                                                        {/* <Input disabled type="text" className={` ${commonFontClassesAddDialog} ${commonClasses} ${preFilledClasses}`} placeholder="Account Contact" {...field} /> */}
+                                                        <Button type='button' variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog}}`}>
+                                                            {
+                                                                field?.value?.length > 0 ? (
+                                                                    getContacts(field.value.map((contactId: any) => {
+                                                                        const contact = CONTACTS_FROM_PARENT.find((contact: any) => {
+                                                                            console.log("contact", contact.id, contactId, contact.id == contactId)
+                                                                            return contact.id == contactId
+                                                                        });
+                                                                        return contact ? contact.name : null;
+                                                                    }))
+                                                                ) : (
+                                                                    <span className='text-muted-foreground'>Account Contact</span>
+                                                                )
+                                                            }
+                                                        </Button>
+                                                    </FormItem>
 
-                                            )}
-                                        />
-                                        {/* <FormField
+                                                )}
+                                            />
+                                            {/* <FormField
                                             control={form.control}
                                             name="contact"
                                             render={({ field }) => (
@@ -997,25 +1019,25 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                                 </FormItem>
                                             )}
                                         /> */}
+                                        </div>
                                     </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconMode size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Mode</div>
-                                    </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <FormField
-                                            control={form.control}
-                                            name="mode"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Input disabled type="text" className={` ${commonFontClassesAddDialog} ${commonClasses} ${preFilledClasses}`} placeholder="Mode" {...field} />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div> </>}
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconMode size="24" color="#98A2B3" />
+                                            <div className='text-md text-gray-500 font-normal'>Mode</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="mode"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Input disabled type="text" className={` ${commonFontClassesAddDialog} ${commonClasses} ${preFilledClasses}`} placeholder="Mode" {...field} />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div> </>}
                             </div>
                             {isAnyForm && <div className='flex flex-col gap-[24px]'>
                                 <div className='flex flex-row gap-[10px] items-center'>
@@ -1068,6 +1090,16 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                             <CollateralShared />
                                         </div>
                                     </div>
+                                    {/* add here remarks */}
+                                    {isAccounts && <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>6</div>
+                                            <div className='text-md text-gray-500 font-normal'>Remarks</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                        {Remarks()}
+                                        </div>
+                                    </div>}
                                 </div>}
                                 {
                                     isSecondForm && <div className='flex flex-col gap-[16px] w-full max-w-[800px]'>
@@ -1107,7 +1139,18 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                                 <OpenToEngage />
                                             </div>
                                         </div>
+                                        {/* add here remarks */}
+                                        {isAccounts && <div className='flex flex-row gap-[16px]'>
+                                            <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                                <div className={commonNumericIconClasses}>5</div>
+                                                <div className='text-md text-gray-500 font-normal'>Remarks</div>
+                                            </div>
+                                            <div className='flex-1 w-[60%]'>
+                                                {Remarks()}
+                                            </div>
+                                        </div>}
                                     </div>
+
                                 }
                                 {
                                     isThirdForm && <div className='flex flex-col gap-[16px] w-full max-w-[800px]'>
@@ -1316,6 +1359,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                     </div>
                                 </div>}
                             </div>}
+
                             <div className='flex flex-col gap-[24px]'>
                                 <div className='flex flex-row gap-[10px] items-center'>
                                     <div className='text-purple-700 text-sm font-bold'>Next Step</div>
@@ -1344,6 +1388,11 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
                                                             <SelectContent>
                                                                 {
                                                                     NEXT_STEP.map((nextStep, index) => {
+                                                                        if(isAccounts){
+                                                                            if(nextStep.value!="noAction"&&nextStep.value!="coldOutreach"){
+                                                                                return
+                                                                            }
+                                                                        }
                                                                         return <SelectItem key={index} value={nextStep.value}>
                                                                             {nextStep.label}
                                                                         </SelectItem>
@@ -1365,6 +1414,7 @@ function Notes({ contactFromParents, entityId}: { contactFromParents: any, entit
 
                         </div>
                     </div>
+
                     <div className="bg-gray-200 h-[1px]  mt-8" />
                     <div className="flex flex-row gap-2 justify-end p-[16px]">
                         {/* <Button variant={"google"} >Cancel</Button> */}

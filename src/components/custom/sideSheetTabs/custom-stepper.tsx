@@ -15,7 +15,7 @@ import RescheduleActivity from './deal-activity/reschedule-activity'
 type DetailsType = Partial<TodoListGetResponse> & Partial<ActivityHistory> & Partial<NotesHistory> & Partial<ChangeLogHistory>;
 
 
-function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permissions }: {
+function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, permissions }: {
     details: DetailsType,
     markStatusOfActivity?: (entityId: number, status: string) => Promise<void>,
     rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>,
@@ -38,14 +38,14 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
         <div className='custom-stepper-parent flex flex-row gap-[16px]'>
             <div className='custom-stepper-child flex flex-col items-center'>
                 <div className='h-[40px] w-[40px] rounded-[10px] border-[1px] border-gray-200 bg-white-900 shadow-xs flex flex-row justify-center items-center'>
-                    {details.typeOfEntity === "changelog" && <IconChangeLog size={20}/>}
-                    {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <IconActivity size={20}/>}
-                    {details.typeOfEntity === "notes" && <IconNotes size={20}/>}
+                    {details.typeOfEntity === "changelog" && <IconChangeLog size={20} />}
+                    {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <IconActivity size={20} />}
+                    {details.typeOfEntity === "notes" && <IconNotes size={20} />}
                 </div>
                 {!details?.isLastChild && <div className='custom-stepper-grandchild w-[2px] bg-gray-200 rounded-[2px] flex-1'>
                 </div>}
             </div>
-            <div className={`mb-[20px] p-[16px] rounded-[10px] xl:min-w-[650px]  2xl:min-w-[800px] ${details.typeOfEntity != "changelog" && "border-[1px] border-gray-200 bg-white-900 shadow-xs"}`}>
+            <div className={`mb-[20px] p-[16px] rounded-[10px] xl:min-w-[650px]  2xl:min-w-[800px] max-w-[800px] ${details.typeOfEntity != "changelog" && "border-[1px] border-gray-200 bg-white-900 shadow-xs"}`}>
                 {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <div className='flex flex-col gap-[18px]'>
                     <div className='flex flex-row justify-between'>
                         <div className='text-md font-semibold text-gray-700'>
@@ -322,6 +322,17 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
                             </div>
                         </div>
 
+                        {
+                            ((isFirstForm || isSecondForm) && (details?.remarks)) && <div className='flex flex-col gap-[2px] col-span-2'>
+                                <div className='text-gray-600 text-xs font-normal'>
+                                    Remarks
+                                </div>
+                                <div className='text-gray-700 text-xs font-medium fit-content'>
+                                    {details?.remarks}
+                                </div>
+                            </div>
+                        }
+
                     </div>
                 </div>}
                 {
@@ -366,8 +377,8 @@ function CustomStepper({ details, markStatusOfActivity,rescheduleActivity, permi
         </div>
     )
 }
-export function getContacts(data: string[], isInline:boolean=false) {
-    return <div className='flex flex-row gap-[8px] items-center' style={{display:isInline?"inline":"block"}}>
+export function getContacts(data: string[], isInline: boolean = false) {
+    return <div className='flex flex-row gap-[8px] items-center' style={{ display: isInline ? "inline" : "block" }}>
         <span className='text-gray-700'>
             {data[0]} {data.length > 1 && <>,</>}
         </span>

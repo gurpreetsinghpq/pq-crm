@@ -1,5 +1,5 @@
 import { TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 
@@ -129,6 +129,20 @@ export async function fetchActivityListAccToEntity(entityId: number) {
     const dataResp = await fetch(`${baseUrl}/v1/api/activity/activity_wo_notes/?lead=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
     let data: ActivityAccToEntity[] = structuredClone(result.data)
+    let filteredData = data.filter((val) => val.status !== null)
+    return filteredData
+  }
+  catch (err) {
+    console.log("error", err)
+    return err
+  }
+}
+
+export async function fetchActivityListAccToEntityOrganisation(entityId: number) {
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/activity/activity_wo_notes/?organisation=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    let data: ActivityAccToEntityOrganisation[] = structuredClone(result.data)
     let filteredData = data.filter((val) => val.status !== null)
     return filteredData
   }
@@ -287,8 +301,9 @@ export async function getCurrentDateTime() {
 export function compareTimeStrings(timeVlaue: string, currentTime: string, dueDate: Date | undefined, currentDate: Date): boolean {
   // Create Date objects for the current date and the two time strings
   if (dueDate) {
-    if (dueDate.getDay() === currentDate.getDay() && dueDate.getMonth() === currentDate.getMonth() && dueDate.getFullYear() === currentDate.getFullYear()) {
+    if (dueDate.toDateString() === currentDate.toDateString() ) {
 
+      console.log("disbaled", dueDate, currentDate)
       const timeParts1: string[] = timeVlaue.split(":");
       const timeParts2: string[] = currentTime.split(":");
       const time1: Date = new Date(

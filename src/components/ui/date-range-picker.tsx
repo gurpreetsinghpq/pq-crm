@@ -341,7 +341,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         return (
             <Popover modal={true} open={isOpen} onOpenChange={(open: boolean) => {
                 if (!open) {
-                    resetValues()
+                    // resetValues()
                 }
                 setIsOpen(open)
             }}>

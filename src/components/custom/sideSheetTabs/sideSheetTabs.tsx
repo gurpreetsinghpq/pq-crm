@@ -1,7 +1,7 @@
-import { ActivityHistory, HistoryAllMode, HistoryDataGetResponse, IValueLabel, NotesHistory, Permission } from '@/app/interfaces/interface';
+import { ActivityHistory, HistoryAllMode, HistoryDataGetResponse, IValueLabel, NotesHistory, Permission, RelatedEntitiesGetResponse } from '@/app/interfaces/interface';
 import React, { useEffect, useRef, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
-import { SIDE_SHEET_TABS } from '@/app/constants/constants';
+import { SIDE_SHEET_TABS, SIDE_SHEET_TABS_ACCOUNTS } from '@/app/constants/constants';
 import { commonTabListClasses, commonTabTriggerClasses } from '@/app/constants/classes';
 import Notes from './deal-activity/notes';
 import Activity from './deal-activity/activity';
@@ -14,6 +14,9 @@ import { getToken } from '../commonFunctions';
 import HistoryAll from './history/history-all';
 import HistoryChangelog from './history/history-changelog';
 import RequirementDeck from './deal-flow/requirementDeck';
+import RelatedEntityLeads from './related-entities/components/related-entity-leads';
+import RelatedEntityProspects from './related-entities/components/related-entity-prospects';
+import RelatedEntityDeal from './related-entities/components/related-entity-deal';
 
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
@@ -30,6 +33,14 @@ const HISTORY_TABS: {
   NOTES: "Notes",
   ACTIVITY: "Activities",
   CHANGE_LOG: "Changelog"
+}
+
+const RELATED_ENTITIES_TAB: {
+  [key: string]: string
+} = {
+  LEADS: "Leads",
+  PROSPECTS: "Prospects",
+  DEALS: "Deals"
 }
 
 const DEAL_FLOW_TABS: {
@@ -58,39 +69,61 @@ const historyTab: IValueLabel[] = Object.keys(HISTORY_TABS).map((tab) => ({
 
 }));
 
+const relatedEntitiesTab: IValueLabel[] = Object.keys(RELATED_ENTITIES_TAB).map((tab) => ({
+  value: RELATED_ENTITIES_TAB[tab] as string, // Specify the type as string
+  label: RELATED_ENTITIES_TAB[tab] as string, // Specify the type as string,
+
+}));
+
 const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
   value: DEAL_FLOW_TABS[tab] as string, // Specify the type as string
   label: DEAL_FLOW_TABS[tab] as string, // Specify the type as string
 
 }));
 
-interface DisabledProps{
-  proposal?:boolean
-  requirementDeck?:boolean
+interface DisabledProps {
+  proposal?: boolean
+  requirementDeck?: boolean
 }
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = {proposal:false, requirementDeck:false}, dealId, title }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps, dealId?:number, title?:string}) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = { proposal: false, requirementDeck: false }, dealId, title, isAccounts = false }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps, dealId?: number, title?: string, isAccounts?: boolean }) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
   const [isRightVisible, setIsRightVisible] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isRelatedEntitiiesLoading, setIsRelatedEntitiesLoading] = useState<boolean>(true)
   const [historyList, setHistoryList] = useState<HistoryDataGetResponse>()
+  const [relatedEntitiesList, setRelatedEntitiesList] = useState<RelatedEntitiesGetResponse>()
   useEffect(() => {
     let currentTab = getCurrentActiveTab()
     setCurrentActiveTab(currentTab)
     setCurrentParentTab(currentParentTab)
     // console.log("getCurrentActiveTab",currentActiveTab )
     function getCurrentActiveTab() {
-      if (currentParentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY) {
-        return DEAL_ACTIVITY_TABS.TODO;
-      } else if (currentParentTab === SIDE_SHEET_TABS.DEAL_FLOW) {
-        return DEAL_FLOW_TABS.PROPOSAL;
-      } else if (currentParentTab === SIDE_SHEET_TABS.HISTORY) {
-        fetchHistoryList()
-        return HISTORY_TABS.ALL;
+      if (isAccounts) {
+        if (currentParentTab === SIDE_SHEET_TABS_ACCOUNTS.ACCOUNT_ACTIVITY) {
+          return DEAL_ACTIVITY_TABS.TODO;
+        } else if (currentParentTab === SIDE_SHEET_TABS_ACCOUNTS.RELATED_ENTITIES) {
+          fetchRelatedEntitiesList()
+          return DEAL_FLOW_TABS.PROPOSAL;
+        } else if (currentParentTab === SIDE_SHEET_TABS_ACCOUNTS.HISTORY) {
+          fetchHistoryList()
+          return HISTORY_TABS.ALL;
+        } else {
+          return "";
+        }
       } else {
-        return "";
+        if (currentParentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY) {
+          return DEAL_ACTIVITY_TABS.TODO;
+        } else if (currentParentTab === SIDE_SHEET_TABS.DEAL_FLOW) {
+          return DEAL_FLOW_TABS.PROPOSAL;
+        } else if (currentParentTab === SIDE_SHEET_TABS.HISTORY) {
+          fetchHistoryList()
+          return HISTORY_TABS.ALL;
+        } else {
+          return "";
+        }
       }
     }
 
@@ -103,7 +136,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permiss
   async function fetchHistoryList() {
     setIsLoading(true)
     try {
-      const dataResp = await fetch(`${baseUrl}/v1/api/history/activity/?lead=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+      const dataResp = await fetch(`${baseUrl}/v1/api/history/activity/?${isAccounts ? `organisation=${entityId}` : `lead=${entityId}`}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
       const result = await dataResp.json()
 
       let data: HistoryDataGetResponse = structuredClone(result.data)
@@ -118,9 +151,9 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permiss
       let changeLogData = data.changelog.map((val) => {
         val.typeOfEntity = "changelog"
         return val
-      }) 
+      })
 
-      const flattenedData: HistoryAllMode  = [
+      const flattenedData: HistoryAllMode = [
         ...data.notes,
         ...data.activity,
         ...data.changelog
@@ -144,8 +177,26 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permiss
       console.log("error", err)
     }
   }
+  async function fetchRelatedEntitiesList() {
+    setIsRelatedEntitiesLoading(true)
+    try {
+      const dataResp = await fetch(`${baseUrl}/v1/api/client/${entityId}/related_entities/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+      const result = await dataResp.json()
+
+      let data: RelatedEntitiesGetResponse = structuredClone(result.data)
+      console.log("related entities list", data)
+
+      setRelatedEntitiesList(data)
+      setIsRelatedEntitiesLoading(false)
+
+    }
+    catch (err) {
+      setIsRelatedEntitiesLoading(false)
+      console.log("error", err)
+    }
+  }
   const containerRef = useRef<HTMLDivElement | null>(null);
-console.log("isloading", isLoading)
+  console.log("isloading", isLoading)
 
 
   const scrollLeft = () => {
@@ -214,26 +265,35 @@ console.log("isloading", isLoading)
 
     requestAnimationFrame(animateScroll);
   };
-  function getFormattedLabel(text:string){
-    const activityLength = historyList?.activity.length 
-    const notesLength = historyList?.notes.length 
-    const changelogLength = historyList?.changelog.length 
+  function getFormattedLabel(text: string) {
+    const activityLength = historyList?.activity.length
+    const notesLength = historyList?.notes.length
+    const changelogLength = historyList?.changelog.length
     const allLength = Number(activityLength || 0) + Number(notesLength || 0) + Number(changelogLength || 0)
-    if(text==="Activities"){
+    const leadLength = relatedEntitiesList?.leads?.length
+    const prospectLength = relatedEntitiesList?.prospects?.length
+    const dealLength = relatedEntitiesList?.deal?.length
+    if (text === "Activities") {
       return `${text} (${activityLength})`
     }
-    else if(text==="Changelog"){
+    else if (text === "Changelog") {
       return `${text} (${changelogLength})`
     }
-    else if(text==="Notes"){
+    else if (text === "Notes") {
       return `${text} (${notesLength})`
-    }else if(text==="All"){
+    } else if (text === "All") {
       return `${text} (${allLength})`
     }
-    // else if(text==="Change log"){
-    //   return `${text} (${historyList?.notes.length})`
-    // }
-    else{
+    else if (text === "Leads") {
+      return `${text} (${leadLength})`
+    }
+    else if (text === "Prospects") {
+      return `${text} (${prospectLength})`
+    }
+    else if (text === "Deals") {
+      return `${text} (${dealLength})`
+    }
+    else {
       return text
     }
   }
@@ -245,7 +305,7 @@ console.log("isloading", isLoading)
             {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft} /></div>}
             <TabsList className={`${commonTabListClasses} overflow-hidden `} ref={containerRef}>
               {dealFlowTab.map((tab) => {
-                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal" && (tab.value==="Requirement Deck" ? disable.requirementDeck : true)} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal" && (tab.value === "Requirement Deck" ? disable.requirementDeck : true)} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
               })}
             </TabsList>
             {isRightVisible && <div><ChevronRight className='cursor-pointer' onClick={scrollRight} /></div>}
@@ -253,10 +313,10 @@ console.log("isloading", isLoading)
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
-            <Proposal isDisabled={disable.proposal} entityId={entityId}/>
+            <Proposal isDisabled={disable.proposal} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.REQUIREMENT_DECK} className="flex flex-col flex-1">
-            {dealId && title && <RequirementDeck entityId={dealId} title={title}/>}
+            {dealId && title && <RequirementDeck entityId={dealId} title={title} />}
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 
@@ -266,7 +326,7 @@ console.log("isloading", isLoading)
           </TabsContent>
         </div>
       </Tabs>}
-      {parentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY && <Tabs defaultValue={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1  ">
+      {(parentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY || parentTab === SIDE_SHEET_TABS_ACCOUNTS.ACCOUNT_ACTIVITY) && <Tabs defaultValue={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1  ">
         <div className="flex flex-row  py-[24px] border-gray-100">
           <TabsList className={commonTabListClasses} >
             {dealActivityTab.map((tab) => {
@@ -276,13 +336,13 @@ console.log("isloading", isLoading)
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_ACTIVITY_TABS.NOTES} className="flex flex-col flex-1">
-            <Notes contactFromParents={contactFromParents} entityId={entityId} />
+            <Notes contactFromParents={contactFromParents} entityId={entityId} isAccounts={isAccounts} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.ACTIVITY} className="flex flex-col flex-1">
-            <Activity contactFromParents={contactFromParents} entityId={entityId} />
+            <Activity isAccounts={isAccounts} contactFromParents={contactFromParents} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1">
-            <Todo entityId={entityId} />
+            <Todo entityId={entityId} isAccounts={isAccounts} />
           </TabsContent>
         </div>
       </Tabs>}
@@ -302,10 +362,57 @@ console.log("isloading", isLoading)
             <HistoryActivity data={historyList?.activity} entityId={entityId} />
           </TabsContent>
           <TabsContent value={HISTORY_TABS.CHANGE_LOG} className="flex flex-col flex-1">
-            {!isLoading ? <HistoryChangelog data={historyList?.changelog} entityId={entityId} /> :<Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {!isLoading ? <HistoryChangelog data={historyList?.changelog} entityId={entityId} /> : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           </TabsContent>
           <TabsContent value={HISTORY_TABS.ALL} className="flex flex-col flex-1">
             {!isLoading ? <HistoryAll data={historyList?.all} entityId={entityId} /> : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          </TabsContent>
+        </div>
+      </Tabs>}
+      {parentTab === SIDE_SHEET_TABS_ACCOUNTS.RELATED_ENTITIES && <Tabs defaultValue={RELATED_ENTITIES_TAB.LEADS} className="flex flex-col flex-1">
+        <div className="flex flex-row  py-[24px] border-gray-100">
+          <TabsList className={commonTabListClasses}>
+            {relatedEntitiesTab.map((tab) => {
+              return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{getFormattedLabel(tab.label)}</div></TabsTrigger>
+            })}
+          </TabsList>
+        </div>
+        <div className="bottom flex-1 flex flex-col  ">
+          <TabsContent value={RELATED_ENTITIES_TAB.LEADS} className="flex flex-col flex-1">
+            {!isRelatedEntitiiesLoading ?
+              <>
+                {
+                  relatedEntitiesList?.leads ?
+                    <RelatedEntityLeads data={relatedEntitiesList?.leads} />
+                    :
+                    <div>No Data</div>
+                }
+              </>
+              : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          </TabsContent>
+          <TabsContent value={RELATED_ENTITIES_TAB.PROSPECTS} className="flex flex-col flex-1">
+            {!isRelatedEntitiiesLoading ?
+              <>
+                {
+                  relatedEntitiesList?.prospects ?
+                    <RelatedEntityProspects data={relatedEntitiesList?.prospects} />
+                    :
+                    <div>No Data</div>
+                }
+              </>
+              : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          </TabsContent>
+          <TabsContent value={RELATED_ENTITIES_TAB.DEALS} className="flex flex-col flex-1">
+            {!isRelatedEntitiiesLoading ?
+              <>
+                {
+                  relatedEntitiesList?.deal ?
+                    <RelatedEntityDeal data={relatedEntitiesList?.deal} />
+                    :
+                    <div>No Data</div>
+                }
+              </>
+              : <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           </TabsContent>
         </div>
       </Tabs>}

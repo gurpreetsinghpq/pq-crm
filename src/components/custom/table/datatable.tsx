@@ -101,7 +101,8 @@ interface TeamsInterfaceFilter {
 type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & DealsInterfaceFilter & AccountInterfaceFilter & ContactInterfaceFilter & UsersInterfaceFilter & TeamsInterfaceFilter
 
 interface HiddenIf{
-  threeDots?:boolean
+  threeDots?:boolean,
+  multiCheckBoxes?:boolean
 }
 
 interface DataTableProps<TData, TValue> {
@@ -124,7 +125,8 @@ export default function DataTable<TData, TValue>({
   setIsMultiSelectOn,
   page,
   hidden={
-    threeDots:false
+    threeDots:false,
+    multiCheckBoxes:false
   }
 }: DataTableProps<TData, TValue>) {
 
@@ -203,6 +205,8 @@ export default function DataTable<TData, TValue>({
       case "profiles":
         setProfilesFilter()
         break;
+      case "other":
+        break;
 
     }
 
@@ -226,6 +230,13 @@ export default function DataTable<TData, TValue>({
       setColumnVisibility(()=>{
         return {
           "actions":false
+        }
+      })
+    }
+    if(hidden?.multiCheckBoxes){
+      setColumnVisibility(()=>{
+        return {
+          "select":false
         }
       })
     }

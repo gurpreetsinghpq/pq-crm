@@ -28,7 +28,7 @@ function HistoryNotes({ entityId, data }: { entityId: number, data: NotesHistory
             {
                 historyNotesList && historyNotesList.length>0? historyNotesList.map((val, index) => {
                     return <div className='custom-stepper'>
-                        <CustomStepper details={{ ...val, isLastChild: index === historyNotesList.length - 1 ? true : false }} />
+                        <CustomStepper key={val.id} details={{ ...val, isLastChild: index === historyNotesList.length - 1 ? true : false }} />
                     </div>
                 }) : <> No data found </> 
             }

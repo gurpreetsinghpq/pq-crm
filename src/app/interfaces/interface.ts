@@ -747,7 +747,8 @@ export interface Stepper {
 }
 
 export interface ActivityPostBody {
-    lead: number;
+    organisation?: number;
+    lead?: number;
     type: string;
     contact: number[];
     mode: string;
@@ -817,6 +818,35 @@ export interface ActivityAccToEntity {
     typeOfEntity?: string
 }
 
+export interface ActivityAccToEntityOrganisation {
+    id: number;
+    contacts: {
+        id: number
+        name: string;
+        email: string;
+        std_code: string;
+        phone: string;
+        designation: string;
+    }[];
+    created_by: {
+        name: string;
+        id: number;
+    };
+    assigned_to: null;
+    status: null;
+    title: string;
+    type: string;
+    mode: string;
+    due_date: string;
+    reminder: number;
+    created_at: string;
+    closed_at: string | null;
+    organisation: number;
+    contact: number[];
+    isLastChild?: boolean;
+    typeOfEntity?: string
+}
+
 export interface NotesPostBody {
     activity: number;
     role_status: string | null;
@@ -836,6 +866,7 @@ export interface NotesPostBody {
     negotiation_broker: string | null;
     is_contract_draft_shared: boolean | null;
     next_step: string | null;
+    remarks?: string | null;
 }
 
 export interface HistoryDataGetResponse {
@@ -900,6 +931,7 @@ export interface NotesHistory {
     }
     isLastChild?: boolean
     typeOfEntity?: string
+    remarks?:string|null
 }
 
 export interface ActivityHistory {
@@ -1173,3 +1205,9 @@ export interface DealsGetResponse {
   }
   
   export type FilterQuery = { filterFieldName: string, value: string | null }
+
+  export interface RelatedEntitiesGetResponse {
+    leads: LeadInterface[],
+    prospects: ProspectsGetResponse[],
+    deal: DealsGetResponse[] 
+  }

@@ -55,8 +55,15 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
     }
 
     const debouncedSearchableFilters = useDebounce(inputAccount, 500)
+    
     useEffect(() => {
+        console.log("fetchclientdata", debouncedSearchableFilters)
+        if(inputAccount.length===0){
+            setAccountData([])
+        }
+
         fetchClientData(debouncedSearchableFilters)
+
     }, [debouncedSearchableFilters])
 
 
@@ -67,6 +74,8 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
         fetchLeadData()
         setDetails(undefined)
         setFilteredLeadData([])
+        setAccountData([])
+        console.log("datafromchild")
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -75,7 +84,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
         const nameQueryParam = textToSearch ? `&name=${encodeURIComponent(textToSearch)}` : '';
         setLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=1&limit=15${nameQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=1&limit=15${nameQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" },cache:"no-store" })
             const result = await dataResp.json()
             setLoading(false)
             let data: ClientCompleteInterface[] = structuredClone(result.data)
@@ -104,7 +113,6 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
 
     useEffect(() => {
         if (open) {
-            // fetchClientData()
         }
     }, [open])
 
@@ -270,7 +278,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                         {!isExpanded && <><Separator className="bg-gray-200 h-[1px]  mt-8" />
                             <div className="flex flex-row gap-2 justify-end mx-6 my-6">
                                 <DialogClose asChild>
-                                    <Button variant={"google"} >Cancel</Button>
+                                    <Button variant={"google"} onClick={dataFromChild}>Cancel</Button>
                                 </DialogClose>
                                 <Button disabled>Save & Add</Button>
                             </div></>}
