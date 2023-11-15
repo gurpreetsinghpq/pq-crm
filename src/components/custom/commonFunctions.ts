@@ -559,3 +559,13 @@ export function extractFileNameFromUrl(url: string): string | null {
 export function arrayToCsvString(arr: (number | string | null | undefined)[]): string {
   return arr.map(item => item !== null ? item : '').join(',');
 }
+export function csvStringToArray(text: string): string[] {
+  return text.split(",");
+}
+export function removeUndefinedFromArray(arr: (string | undefined)[]): string[] {
+  // Use filter to create a new array without undefined values
+  const filteredArray: string[] = arr.filter((item): item is string => item !== undefined);
+  return filteredArray;
+}
+
+

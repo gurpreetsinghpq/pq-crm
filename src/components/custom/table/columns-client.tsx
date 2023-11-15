@@ -262,10 +262,7 @@ export function columnsClient(setChildDataHandler:CallableFunction): ColumnDef<C
                 return true
             }
             return true
-        },
-        sortingFn: (a,b)=>{
-            return +new Date(a.getValue("created_at")) - +new Date(b.getValue("created_at"));
-        },
+        }
     },
     {
         id: "actions",

@@ -5,34 +5,40 @@ import { IconBuildings } from '../icons/svgIcons'
 import { Loader2 } from 'lucide-react'
 import { doesInputOrgExists } from './addLeadDialog'
 
-function SearchableInput({ data, loading, page, checkPageAndLink, onChangeHandler, setIsExpanded, inputAccount }: { data: ClientCompleteInterface[], loading: boolean, page: string, checkPageAndLink: (details: ClientCompleteInterface) => void, onChangeHandler: (data: string) => void ,setIsExpanded:CallableFunction ,inputAccount:string}) {
+function SearchableInput({ data, loading, page, checkPageAndLink, onChangeHandler, setIsExpanded, inputAccount }: { data: ClientCompleteInterface[], loading: boolean, page: string, checkPageAndLink: (details: ClientCompleteInterface) => void, onChangeHandler: (data: string) => void, setIsExpanded: CallableFunction, inputAccount: string }) {
     return (
         <div className='flex flex-col relative h-fit'>
-            <Input onChange={(e) => { onChangeHandler(e.currentTarget.value) }} />
-            {inputAccount.length>0 && <div className='relative mt-[5px] z-[100] flex flex-col left-0 w-full bg-white-900 px-[0px] py-[0px] flex h-fit max-h-[200px] overflow-y-scroll w-full rounded-[8px] border border-[1px] border-gray-300 border-solid shadow-xs bg-background p-[14px] text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:placeholder:text-gray-400'>
+            <Input className='hover:border-purple-300 hover:shadow-custom1 focus:shadow-custom1' onChange={(e) => { onChangeHandler(e.currentTarget.value) }} />
+            {inputAccount.length > 0 && <div className=' relative mt-[5px] z-[100] flex flex-col left-0 w-full bg-white-900 px-[0px] py-[0px] flex h-fit w-full rounded-[8px] border border-[1px] border-gray-300 border-solid shadow-xs bg-background p-[14px] text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:placeholder:text-gray-400'>
                 {
                     loading ?
-                        <div className='p-[16px] flex flex-row justify-center items-center min-h-[200px]'>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <div className='p-[16px] flex flex-row justify-center items-center min-h-[150px]'>
+                            <Loader2 className="mr-2 h-10 w-10 animate-spin" />
                         </div> :
-                         inputAccount.length>0 && data.length > 0 ? data.map((item: ClientCompleteInterface, index) => (
-                            <div key={index} className="flex flex-row  justify-between px-0 py-0" >
-                                <div className={`flex flex-row justify-between w-full items-center pointer px-4 py-4 ${page === 'leads' && 'cursor-pointer'}`} onClick={() => checkPageAndLink(item)}>
-                                    <div className="flex flex-row gap-2">
-                                        <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
-                                            <IconBuildings size="20" />
+                        <div className='max-h-[150px] overflow-y-scroll '>
+                            {
+                            inputAccount.length > 0 && data.length > 0 ? data.map((item: ClientCompleteInterface, index) => (
+                                <div key={index} className="flex flex-row  justify-between px-0 py-0" >
+                                    <div className={`flex flex-row justify-between w-full items-center pointer px-4 py-4 hover:bg-gray-100 ${page === 'leads' && 'cursor-pointer'}`} onClick={() => checkPageAndLink(item)}>
+                                        <div className="flex flex-row gap-2">
+                                            <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
+                                                <IconBuildings size="20" />
+                                            </div>
+                                            <span>{item?.name}</span>
                                         </div>
-                                        <span>{item?.name}</span>
+                                        {page !== "accounts" && <span className='text-lg text-gray-700'>🡵</span>}
                                     </div>
-                                    {page !== "accounts" && <span className='text-lg text-gray-700'>🡵</span>}
                                 </div>
-                            </div>
-                        )) : <><div className='p-[16px] flex flex-row justify-center items-center'>No results found.</div></>
+                            ))
+                             : 
+                            <><div className='p-[16px] flex flex-row justify-center items-center'>No results found.</div></>
+                            }
+                        </div>
                 }
                 {
-                    !loading && 
-                    doesInputOrgExists(inputAccount) && inputAccount.length>0 &&
-                    <div onClick={() => setIsExpanded(true)} className='sticky bottom-0 z-[100] bg-white-900 border-t-[1px] border-gray-200 h-fit'>
+                    !loading &&
+                    doesInputOrgExists(inputAccount) && inputAccount.length > 0 &&
+                    <div onClick={() => setIsExpanded(true)} className=' rounded-[8px] bg-white-900 border-t-[1px] border-gray-200 h-fit'>
                         <div className='flex flex-row order-last justify-between gap-2 px-4 py-4 items-center cursor-pointer'>
                             <div className="flex flex-row gap-2 items-center">
                                 <div className="h-[20px] w-[20px] text-gray-500 rounded flex flex-row justify-center">
@@ -50,6 +56,9 @@ function SearchableInput({ data, loading, page, checkPageAndLink, onChangeHandle
                         </div>
                     </div>
                 }
+            </div>}
+            {page === "accounts" && inputAccount && !doesInputOrgExists(inputAccount) && <div className='mt-5 text-center text-error-500 text-sm font-normal'>
+                Account with this name already exists.
             </div>}
         </div>
     )

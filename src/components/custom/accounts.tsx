@@ -28,7 +28,7 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, EMPTY_FILTER_QUERY } from "@/app/constants/constants"
+import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, EMPTY_FILTER_QUERY, DOMAINS, SEGMENT, SIZE_OF_COMPANY, LAST_FUNDING_STAGE, CREATORS } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconAccounts2, IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
@@ -38,15 +38,16 @@ import { ClientGetResponse, FilterQuery, IValueLabel, LeadInterface, PatchLead, 
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
-import SideSheet, { valueToLabel } from "./sideSheet"
+import SideSheet, { labelToValueArray, valueToLabel, valueToLabelArray } from "./sideSheet"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import SideSheetAccounts from "./sideSheetAccounts"
-import { arrayToCsvString, fetchUserDataList, getToken } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray } from "./commonFunctions"
 import { useDebounce } from "@/hooks/useDebounce"
+import DataTableServer from "./table/datatable-server"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -110,6 +111,9 @@ const Accounts = ({ form, permissions }: {
     const fundingStage = searchParams?.get("last_funding_stage") ?? null
     const createdBy = searchParams?.get("created_by") ?? null
     const searchString = searchParams?.get("name") ?? null
+    const createdAtFrom = searchParams?.get("created_at_from") ?? null
+    const createdAtTo = searchParams?.get("created_at_to") ?? null
+    const createdAtSort = searchParams?.get("created_at") ?? null
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
@@ -144,8 +148,12 @@ const Accounts = ({ form, permissions }: {
             const industryQueryParam = industry ? `&industry=${encodeURIComponent(industry)}` : '';
             const segmentQueryParam = segment ? `&segment=${encodeURIComponent(segment)}` : '';
             const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
+            const lastFundingStageQueryParam = fundingStage ? `&last_funding_stage=${encodeURIComponent(fundingStage)}` : '';
             const nameQueryParam = searchString ? `&name=${encodeURIComponent(searchString)}` : '';
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=${pageAsNumber}&limit=${perPageAsNumber}${industryQueryParam}${segmentQueryParam}${createdByQueryParam}${nameQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${getToken()}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const createdAtFromQueryParam = createdAtFrom ? `&created_at_from=${encodeURIComponent(createdAtFrom)}` : '';
+            const createdAtToQueryParam = createdAtTo ? `&created_at_to=${encodeURIComponent(createdAtTo)}` : '';
+            const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=${pageAsNumber}&limit=${perPageAsNumber}${industryQueryParam}${segmentQueryParam}${createdByQueryParam}${nameQueryParam}${lastFundingStageQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${getToken()}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: ClientGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
@@ -175,10 +183,37 @@ const Accounts = ({ form, permissions }: {
 
     useEffect(() => {
         fetchData()
-    }, [pageAsNumber, per_page, industry, segment, fundingStage, createdBy, searchString])
+    }, [pageAsNumber, per_page, industry, segment, fundingStage, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
     useEffect(() => {
         getUserList()
+        if(searchString){
+            form.setValue("search", searchString)
+        }
+        if(industry){
+            const data = labelToValueArray(csvStringToArray(industry), INDUSTRIES)
+            if( data.length>0){
+                form.setValue("industries",  removeUndefinedFromArray(data) )
+            }
+        }
+        if(segment){
+            const data = labelToValueArray(csvStringToArray(segment), SEGMENT)
+            if( data.length>0){
+                form.setValue("segments",  removeUndefinedFromArray(data) )
+            }
+        }
+        if(fundingStage){
+            const data = labelToValueArray(csvStringToArray(fundingStage), LAST_FUNDING_STAGE)
+            if( data.length>0){
+                form.setValue("fundingStages",  removeUndefinedFromArray(data) )
+            }
+        }
+        if(createdBy){
+            const data = csvStringToArray(createdBy)
+            if( data.length>0){
+                form.setValue("creators",  removeUndefinedFromArray(data) )
+            }
+        }
     }, [])
 
     // Create query string
@@ -217,8 +252,9 @@ const Accounts = ({ form, permissions }: {
 
     const watch = form.watch()
     useEffect(()=>{
+        console.log("daterange", watch.dateRange.range.from)
         setAccountFilter()
-    },[watch.industries, watch.segments, watch.creators, watch.domains, watch.sizes, watch.fundingStages])
+    },[watch.industries, watch.segments, watch.creators, watch.domains, watch.sizes, watch.fundingStages, JSON.stringify(watch.dateRange)])
 
     function setAccountFilter() {
         let industryQueryParam: FilterQuery = EMPTY_FILTER_QUERY
@@ -227,6 +263,8 @@ const Accounts = ({ form, permissions }: {
         let sizeQueryParam: FilterQuery = EMPTY_FILTER_QUERY
         let fundingStageQueryParam: FilterQuery = EMPTY_FILTER_QUERY
         let createdByQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtFromQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtToQueryParam: FilterQuery = EMPTY_FILTER_QUERY
     
         if (watch.industries && watch.industries.includes("allIndustries")) {
           industryQueryParam = {
@@ -235,7 +273,7 @@ const Accounts = ({ form, permissions }: {
           }
         }
         else {
-          const industryFilter = watch.industries
+          const industryFilter = valueToLabelArray(watch.industries, INDUSTRIES)
           if (industryFilter) {
             industryQueryParam = {
               filterFieldName: "industry",
@@ -251,7 +289,7 @@ const Accounts = ({ form, permissions }: {
           }
         }
         else {
-          const domainsFilter = watch.domains
+          const domainsFilter = valueToLabelArray(watch.domains,DOMAINS)
           if (domainsFilter) {
             domainQueryParam = {
               filterFieldName: "domain",
@@ -267,7 +305,7 @@ const Accounts = ({ form, permissions }: {
           }
         }
         else {
-          const segmentFilter = watch.segments
+          const segmentFilter = valueToLabelArray(watch.segments, SEGMENT)
           if (segmentFilter) {
             segmentQueryParam = {
               filterFieldName: "segment",
@@ -284,7 +322,7 @@ const Accounts = ({ form, permissions }: {
     
         }
         else {
-          const sizeFilter = watch.sizes
+          const sizeFilter = valueToLabelArray(watch.sizes, SIZE_OF_COMPANY)
           if (sizeFilter) {
             sizeQueryParam = {
               filterFieldName: "size",
@@ -300,7 +338,7 @@ const Accounts = ({ form, permissions }: {
           }
         }
         else {
-          const fundingStageFilter = watch.fundingStages
+          const fundingStageFilter = valueToLabelArray(watch.fundingStages, LAST_FUNDING_STAGE)
           if (fundingStageFilter) {
             fundingStageQueryParam = {
               filterFieldName: "last_funding_stage",
@@ -328,14 +366,20 @@ const Accounts = ({ form, permissions }: {
     
     
         // table.getColumn("id")?.setFilterValue(filterObj.ids)
-        // table.getColumn("name")?.setFilterValue(filterObj.search)
-        // table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
-        // if (filterObj.dateRange) {
-        //   // createFilterQueryString("created_at", filterObj.dateRange)
-        // }
+        
+        if (watch.dateRange) {
+          createdAtFromQueryParam = {
+            filterFieldName: "created_at_from",
+            value: new Date(watch.dateRange.range.from.setHours(0,0,0,0)).toISOString()
+          }
+          createdAtToQueryParam = {
+            filterFieldName: "created_at_to",
+            value: new Date(watch.dateRange.range.to.setHours(23,59,0,0)).toISOString()
+          }
+        }
     
-        let accountFilteredData = [industryQueryParam, segmentQueryParam, domainQueryParam, sizeQueryParam, fundingStageQueryParam, createdByQueryParam]
-        createFilterQueryString(accountFilteredData )
+        let accountFilteredData = [industryQueryParam, segmentQueryParam, domainQueryParam, sizeQueryParam, fundingStageQueryParam, createdByQueryParam, createdAtFromQueryParam, createdAtToQueryParam]
+        createFilterQueryString(accountFilteredData)
       }
 
       
@@ -762,7 +806,7 @@ const Accounts = ({ form, permissions }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsClient(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} pageCount={totalPageCount} />
+                    <DataTableServer columns={columnsClient(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} pageCount={totalPageCount} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconAccounts2 size="24" />

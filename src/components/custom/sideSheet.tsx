@@ -2514,8 +2514,14 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 export function labelToValue(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.label === lookup)?.value
 }
+export function labelToValueArray(lookup: string[], arr: IValueLabel[]) {
+    return lookup.map((lp)=>arr.find((item) => item.label === lp)?.value)
+}
 export function valueToLabel(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.value === lookup)?.label
+}
+export function valueToLabelArray(lookup: string[], arr: IValueLabel[]) {
+    return lookup.map((lp)=>arr.find((item) => item.value === lp)?.label)
 }
 export function valueToAcronym(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.value === lookup)?.acronym
