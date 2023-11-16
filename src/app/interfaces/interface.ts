@@ -932,6 +932,7 @@ export interface NotesHistory {
     isLastChild?: boolean
     typeOfEntity?: string
     remarks?:string|null
+    due_date:string
 }
 
 export interface ActivityHistory {

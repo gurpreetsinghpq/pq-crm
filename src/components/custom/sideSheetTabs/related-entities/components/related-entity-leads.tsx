@@ -37,7 +37,7 @@ function RelatedEntityLeads({ data }: { data: LeadInterface[] }) {
 
     return (
         <div className='flex flex-col min-h-[75vh]'>
-            <DataTable setTableLeadRow={setTableLeadRow} setIsMultiSelectOn={setIsMultiSelectOn} setChildDataHandler={setChildDataHandler} data={data} columns={columnsLeadRelatedEntities()} hidden={{ threeDots: true, multiCheckBoxes: true }} page='other' filterObj={form.getValues()} />
+            <DataTable setTableLeadRow={setTableLeadRow} setIsMultiSelectOn={setIsMultiSelectOn} setChildDataHandler={setChildDataHandler} data={data} columns={columnsLeadRelatedEntities()} hidden={{ threeDots: true, multiCheckBoxes: true, paginationSelectedCount: true }} page='other' filterObj={form.getValues()} />
         </div>
     )
 }

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react"
 import Leads from "../../components/custom/leads"
 import { MyDetailsGetResponse, NotificationGetResponse, Permission, PermissionResponse, User, UserProfile } from "@/app/interfaces/interface"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import Accounts from "../custom/accounts"
 import Contacts from "../custom/contacts"
 import UserManagement from "../custom/userManagement"
@@ -187,44 +187,55 @@ const TITLES = {
     MY_ACCOUNT: "My Account",
 }
 
+const TITLE_MAP_W_PERMISSION_KEY = new Map([
+    [TITLES.LEADS, "Lead"],
+    [TITLES.PROSPECTS, "Prospect"],
+    [TITLES.DEALS, "Deal"],
+    [TITLES.ACCOUNTS, "Organisation"],
+    [TITLES.CONTACTS, "Contact"],
+    [TITLES.USER_MANAGEMENT, "User Management"],
+    
+])
+
 let INITIAL_PARENT_TITLE = ''
 
-const DUMMY_NOTIFICATION = [
-    {
-        title: "Ola Cabs",
-        activity_name: "Inbound Lead Verification 2",
-        contacts: [
-            {
-                id: 1,
-                name: "Raj"
-            },
-            {
-                id: 2,
-                name: "Suganth"
-            },
-        ],
-        dueDate: new Date().setMinutes(new Date().getMinutes() + 10),
-        createdAt: new Date()
+// to be removed
+// const DUMMY_NOTIFICATION = [
+//     {
+//         title: "Ola Cabs",
+//         activity_name: "Inbound Lead Verification 2",
+//         contacts: [
+//             {
+//                 id: 1,
+//                 name: "Raj"
+//             },
+//             {
+//                 id: 2,
+//                 name: "Suganth"
+//             },
+//         ],
+//         dueDate: new Date().setMinutes(new Date().getMinutes() + 10),
+//         createdAt: new Date()
 
-    },
-    {
-        title: "CRED",
-        activity_name: "Inbound Lead Verification 2",
-        contacts: [
-            {
-                id: 1,
-                name: "Raj"
-            },
-            {
-                id: 2,
-                name: "Suganth"
-            },
-        ],
-        dueDate: new Date().setMinutes(new Date().getMinutes() + 10),
-        createdAt: new Date()
+//     },
+//     {
+//         title: "CRED",
+//         activity_name: "Inbound Lead Verification 2",
+//         contacts: [
+//             {
+//                 id: 1,
+//                 name: "Raj"
+//             },
+//             {
+//                 id: 2,
+//                 name: "Suganth"
+//             },
+//         ],
+//         dueDate: new Date().setMinutes(new Date().getMinutes() + 10),
+//         createdAt: new Date()
 
-    }
-]
+//     }
+// ]
 
 export default function DashboardComponent() {
     const [currentTab, setCurrentTab] = useState("")
@@ -242,6 +253,9 @@ export default function DashboardComponent() {
     const [notifiactionOpen, setNotificationOpen] = useState<boolean>(false)
     const [notificationData, setNotificationData] = useState<NotificationGetResponse[] | undefined>()
     const [myDetails, setMyDetails] = useState<UserProfile>()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const router = useRouter();
 
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth <= 1300 : false
@@ -269,7 +283,6 @@ export default function DashboardComponent() {
 
     }, [])
 
-    const router = useRouter();
     const { from, to } = getLast7Days()
     const { fromAllTime, toAllTime } = getAllTime()
     const LeadForm = useForm<z.infer<typeof LeadFormSchema>>({
@@ -444,23 +457,31 @@ export default function DashboardComponent() {
             });
         }
         setPermissions(permissionsObject)
-        if (permissionsObject["Lead"].access && permissionsObject["Lead"].view) {
-            INITIAL_PARENT_TITLE = TITLES.LEADS
-            setCurrentTab(TITLES.LEADS)
-        } else if (permissionsObject["Prospect"].access && permissionsObject["Prospect"].view) {
-            INITIAL_PARENT_TITLE = TITLES.PROSPECTS
-            setCurrentTab(TITLES.PROSPECTS)
-        } else if (permissionsObject["Organisation"].access && permissionsObject["Organisation"].view) {
-            INITIAL_PARENT_TITLE = TITLES.ACCOUNTS
-            setCurrentTab(TITLES.ACCOUNTS)
-        } else if (permissionsObject["Contact"].access && permissionsObject["Contact"].view) {
-            INITIAL_PARENT_TITLE = TITLES.CONTACTS
-            setCurrentTab(TITLES.CONTACTS)
-        } else if (permissionsObject["User Management"].access && permissionsObject["User Management"].view) {
-            INITIAL_PARENT_TITLE = TITLES.USER_MANAGEMENT
-            setCurrentTab(TITLES.USER_MANAGEMENT)
-        } else {
-            setNoPermissionAllowed(true)
+        const tabNameQueryParam = searchParams?.get("tab") ?? ""
+        const tabNameAsPerPermissionObject = TITLE_MAP_W_PERMISSION_KEY.get(tabNameQueryParam)
+        if(tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view){
+            INITIAL_PARENT_TITLE = tabNameQueryParam
+            setTab(tabNameQueryParam)
+        }
+        else{
+            if (permissionsObject["Lead"].access && permissionsObject["Lead"].view) {
+                INITIAL_PARENT_TITLE = TITLES.LEADS
+                setTab(TITLES.LEADS)
+            } else if (permissionsObject["Prospect"].access && permissionsObject["Prospect"].view) {
+                INITIAL_PARENT_TITLE = TITLES.PROSPECTS
+                setTab(TITLES.PROSPECTS)
+            } else if (permissionsObject["Organisation"].access && permissionsObject["Organisation"].view) {
+                INITIAL_PARENT_TITLE = TITLES.ACCOUNTS
+                setTab(TITLES.ACCOUNTS)
+            } else if (permissionsObject["Contact"].access && permissionsObject["Contact"].view) {
+                INITIAL_PARENT_TITLE = TITLES.CONTACTS
+                setTab(TITLES.CONTACTS)
+            } else if (permissionsObject["User Management"].access && permissionsObject["User Management"].view) {
+                INITIAL_PARENT_TITLE = TITLES.USER_MANAGEMENT
+                setTab(TITLES.USER_MANAGEMENT)
+            } else {
+                setNoPermissionAllowed(true)
+            }
         }
 
     }
@@ -582,9 +603,11 @@ export default function DashboardComponent() {
         await getNotifications()
     }
 
-    function setTab(tabName:string){
+    function setTab(tabName:string, removeQueryParams?:boolean){
         setCurrentTab(tabName)
-        router.replace("/dashboard", undefined)
+        if(removeQueryParams){
+            router.replace(`/dashboard`, undefined)
+        }
     }
 
     return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full ">
@@ -623,7 +646,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.LEADS, true)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}>
                                 <IconLeads size={24} />
                             </div>
                         </TooltipTrigger>
@@ -636,7 +659,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${!(permissions["Prospect"]?.access && permissions["Prospect"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.PROSPECTS, true)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${!(permissions["Prospect"]?.access && permissions["Prospect"]?.view) && disabledSidebarItem}`}>
                                 <IconProspects size={24} />
                             </div>
                         </TooltipTrigger>
@@ -652,7 +675,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.DEALS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ !(permissions["Deal"]?.access && permissions["Deal"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.DEALS, true)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ !(permissions["Deal"]?.access && permissions["Deal"]?.view) && disabledSidebarItem}`}>
                                 <IconDealsHome size={24} />
                             </div>
                         </TooltipTrigger>
@@ -669,7 +692,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'} ${!(permissions["Organisation"]?.access && permissions["Organisation"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.ACCOUNTS, true)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'} ${!(permissions["Organisation"]?.access && permissions["Organisation"]?.view) && disabledSidebarItem}`}>
                                 <IconAccounts2 size={24} />
                             </div>
                         </TooltipTrigger>
@@ -681,7 +704,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'} ${!(permissions["Contact"]?.access && permissions["Contact"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.CONTACTS, true)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'} ${!(permissions["Contact"]?.access && permissions["Contact"]?.view) && disabledSidebarItem}`}>
                                 <IconContacts />
                             </div>
                         </TooltipTrigger>
@@ -695,7 +718,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.USER_MANAGEMENT, true)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
                                 {/* <IconUserManagement /> */}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
                                     <g id="users-02">
@@ -811,7 +834,7 @@ export default function DashboardComponent() {
                                                                     <div className="text-sm font-medium text-[#696F8C]">
                                                                         <span className="text-gray-600 font-semibold">{extractName(val.description)}</span> assigned ownership for {val.model_name} <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.data.title}</span> 
                                                                         <span className="block mt-[5px]">
-                                                                            to <span className="text-gray-600 font-semibold">{val.data.owner?.name}</span>
+                                                                            to <span className="text-gray-600 font-semibold">{val.data.owner?.name}</span> on <span className="text-gray-700 font-semibold">{multiLineStyle2(val.created_at, true)}</span>
                                                                             
                                                                         </span>
                                                                     </div>
@@ -872,7 +895,7 @@ export default function DashboardComponent() {
                                         </div>
                                     </div>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTab(TITLES.MY_ACCOUNT)} className="border-b-[1px] border-gray-200">
+                                <DropdownMenuItem onClick={() => setTab(TITLES.MY_ACCOUNT, true)} className="border-b-[1px] border-gray-200">
                                     <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px] ">
                                         <IconUser />
                                         Profile

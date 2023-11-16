@@ -77,7 +77,8 @@ function forgotPassword() {
             } else {
                 setErrorMessage(result?.error?.email)
                 toast({
-                    title: result?.error?.email
+                    title: result?.error?.email,
+                    variant: "destructive"
                 })
             }
         }

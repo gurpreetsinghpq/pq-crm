@@ -102,7 +102,8 @@ type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & DealsInterfa
 
 interface HiddenIf{
   threeDots?:boolean,
-  multiCheckBoxes?:boolean
+  multiCheckBoxes?:boolean,
+  paginationSelectedCount?:boolean
 }
 
 interface DataTableProps<TData, TValue> {
@@ -623,7 +624,7 @@ export default function DataTable<TData, TValue>({
         </div>
       </div> */}
       {page !== "teamsDialog" && <div className="pl-[16px] pr-[16px] py-4">
-        <DataTablePagination table={table} />
+        <DataTablePagination table={table} hidden={{paginationSelectedCount:hidden.paginationSelectedCount}}/>
       </div>}
     </div>
   )

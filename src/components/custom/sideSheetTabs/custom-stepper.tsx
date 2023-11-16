@@ -174,12 +174,12 @@ function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, perm
                                 {details?.mode}
                             </div>
                         </div>}
-                        {details?.created_at && <div className='flex flex-row gap-[4px]'>
+                        {details?.due_date && <div className='flex flex-row gap-[4px]'>
                             <div className='flex flex-row gap-[4px]'>
-                                <IconClock size="20px" color="#98A2B3" />
+                                <IconCalendar size="20px" color="#98A2B3" />
                             </div>
                             <div className='text-sm font-medium text-gray-700'>
-                                {multiLineStyle2(details?.created_at)}
+                                {multiLineStyle2(details?.due_date)}
                             </div>
                         </div>}
                     </div>
@@ -319,6 +319,14 @@ function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, perm
                             </div>
                             <div className='text-gray-700 text-xs font-medium'>
                                 {details?.created_by?.name}
+                            </div>
+                        </div>
+                        <div className='flex flex-col flex-1'>
+                            <div className='text-xs text-gray-600 font-normal'>
+                                Created at
+                            </div>
+                            <div className='text-xs text-gray-700 font-medium'>
+                                {multiLineStyle2(details?.created_at)}
                             </div>
                         </div>
 

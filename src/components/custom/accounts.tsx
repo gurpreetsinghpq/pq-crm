@@ -150,8 +150,8 @@ const Accounts = ({ form, permissions }: {
             const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
             const lastFundingStageQueryParam = fundingStage ? `&last_funding_stage=${encodeURIComponent(fundingStage)}` : '';
             const nameQueryParam = searchString ? `&name=${encodeURIComponent(searchString)}` : '';
-            const createdAtFromQueryParam = createdAtFrom ? `&created_at_from=${encodeURIComponent(createdAtFrom)}` : `&created_at_from=${setDateHours(watch.dateRange.range.from, false)}`;
-            const createdAtToQueryParam = createdAtTo ? `&created_at_to=${encodeURIComponent(createdAtTo)}` : `&created_at_to=${setDateHours(watch.dateRange.range.to, false)}`;
+            const createdAtFromQueryParam =  `&created_at_from=${setDateHours(watch.dateRange.range.from, false)}`;
+            const createdAtToQueryParam =  `&created_at_to=${setDateHours(watch.dateRange.range.to, true)}`;
             const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
             const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=${pageAsNumber}&limit=${perPageAsNumber}${industryQueryParam}${segmentQueryParam}${createdByQueryParam}${nameQueryParam}${lastFundingStageQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${getToken()}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
@@ -251,13 +251,13 @@ const Accounts = ({ form, permissions }: {
             }
         }
 
-        createFilterQueryString([{ filterFieldName: "created_at_from", value: null }, { filterFieldName: "created_at_to", value: null }])
+        // createFilterQueryString([{filterFieldName:"tab",value:"Organisation"}, { filterFieldName: "created_at_from", value: null }, { filterFieldName: "created_at_to", value: null }])
+        
     }, [])
 
 
 
     useEffect(() => {
-        console.log("daterange", watch.dateRange.range.from)
         setAccountFilter()
     }, [watch.industries, watch.segments, watch.creators, watch.domains, watch.sizes, watch.fundingStages, JSON.stringify(watch.dateRange)])
 
@@ -379,7 +379,7 @@ const Accounts = ({ form, permissions }: {
             }
             createdAtToQueryParam = {
                 filterFieldName: "created_at_to",
-                value: setDateHours(watch.dateRange.range.to, false)
+                value: setDateHours(watch.dateRange.range.to, true)
             }
         }
 

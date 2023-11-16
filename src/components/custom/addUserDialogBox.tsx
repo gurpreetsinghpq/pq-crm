@@ -257,8 +257,14 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             form.setValue("firstName", data.first_name)
             form.setValue("lastName", data.last_name)
             form.setValue("email", data.email)
-            const [stdCode, mobile] = data.mobile.split(" ")
-            if (stdCode?.length > 0 && mobile?.length > 0) {
+            const phone = data?.mobile?.split(" ")
+            let stdCode = null
+            let mobile = null
+            if(phone && phone?.length>0){
+                stdCode = phone[0]
+                mobile = phone[1]
+            }
+            if (stdCode && mobile && stdCode?.length > 0 && mobile?.length > 0) {
                 form.setValue("phone", mobile)
                 form.setValue("std_code", stdCode)
             }

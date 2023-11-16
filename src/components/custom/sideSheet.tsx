@@ -288,7 +288,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     const reasonMap: any = {
         "junk": ["Low Cash Component", "Equity Only Role", "Non-Tech Role", "Low Service Fee", "Role Type Changed", "Role Region Changed"],
         "lost": ["Lost to Competition", "Internal Hiring"],
-        "deferred": ["Funding Awaited", "Hiring Freeze", "Role Deferred"]
+        "deferred": ["Funding Awaited", "Hiring Freeze", "Role Deferred", "Internal Hiring"]
     }
 
     function safeparse2() {
