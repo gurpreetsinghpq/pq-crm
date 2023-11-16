@@ -606,7 +606,8 @@ export default function DashboardComponent() {
     function setTab(tabName:string, removeQueryParams?:boolean){
         setCurrentTab(tabName)
         if(removeQueryParams){
-            router.replace(`/dashboard`, undefined)
+            router.replace(`${pathname}`, undefined)
+            // window.history.replaceState(null, '', '/dashboard')
         }
     }
 

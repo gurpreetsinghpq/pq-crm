@@ -48,6 +48,8 @@ import SideSheetAccounts from "./sideSheetAccounts"
 import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import { useDebounce } from "@/hooks/useDebounce"
 import DataTableServer from "./table/datatable-server"
+import useCreateQueryString from "@/hooks/useCreateQueryString"
+import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -186,40 +188,9 @@ const Accounts = ({ form, permissions }: {
     }, [pageAsNumber, per_page, industry, segment, fundingStage, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
 
-
-    // Create query string
-    const createQueryString = useCallback(
-        (params: Record<string, string | number | null>) => {
-            const newSearchParams = new URLSearchParams(searchParams?.toString())
-
-            for (const [key, value] of Object.entries(params)) {
-                if (value === null) {
-                    newSearchParams.delete(key)
-                } else {
-                    newSearchParams.set(key, String(value))
-                }
-            }
-
-            return newSearchParams.toString()
-        },
-        [searchParams]
-    )
-
-    function createFilterQueryString(data: FilterQuery[]) {
-
-        const queryParamData: Record<string, string | number | null> = {};
-
-        data.forEach((query) => {
-            queryParamData[query.filterFieldName] = query.value;
-        });
-
-        router.push(
-            `${pathname}?${createQueryString({
-                page: 1,
-                ...queryParamData
-            })}`
-        )
-    }
+    const createQueryString = useCreateQueryString()
+    const createFilterQueryString = useCreateFilterQueryString()
+    
 
     useEffect(() => {
         getUserList()
@@ -811,7 +782,7 @@ const Accounts = ({ form, permissions }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTableServer columns={columnsClient(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"accounts"} pageCount={totalPageCount} />
+                    <DataTableServer columns={columnsClient(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Accounts"} pageCount={totalPageCount} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconAccounts2 size="24" />

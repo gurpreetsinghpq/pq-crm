@@ -10,13 +10,13 @@ import {
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 
-import { REGIONS as regions, SOURCES as sources, STATUSES as statuses } from "@/app/constants/constants"
-import { IValueLabel, LeadInterface, Permission } from "@/app/interfaces/interface"
+import { EMPTY_FILTER_QUERY, REGIONS, SOURCES, STATUSES, REGIONS as regions, SOURCES as sources, STATUSES as statuses } from "@/app/constants/constants"
+import { FilterQuery, IValueLabel, LeadInterface, Permission } from "@/app/interfaces/interface"
 import { cn } from "@/lib/utils"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 import { Check, Loader2 } from "lucide-react"
-import * as React from "react"
+import { useEffect, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { IconArchive, IconArchive2, IconInbox, IconLeads } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
@@ -30,11 +30,15 @@ import AddLeadDialog from "./addLeadDialog"
 import DataTable from "./table/datatable"
 // import { getData } from "@/app/dummy/dummydata"
 import { getCookie } from "cookies-next"
-import { useRouter, useSearchParams } from "next/navigation"
-import { fetchUserDataList } from "./commonFunctions"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import Loader from "./loader"
-import SideSheet from "./sideSheet"
+import SideSheet, { labelToValueArray, valueToLabelArray } from "./sideSheet"
 import { columns } from "./table/columns"
+import DataTableServer from "./table/datatable-server"
+import useCreateQueryString from "@/hooks/useCreateQueryString"
+import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
+import { useDebounce } from "@/hooks/useDebounce"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -44,6 +48,7 @@ export interface IChildData {
     row: any
 }
 let dataFromApi: LeadInterface[] = []
+let totalPageCount: number
 
 const Leads = ({ form, permissions }: {
     form: UseFormReturn<{
@@ -61,18 +66,42 @@ const Leads = ({ form, permissions }: {
     const { toast } = useToast()
 
     const router = useRouter();
+    const watch = form.watch()
 
-    const [data, setLeadData] = React.useState<LeadInterface[]>([])
+    const [data, setLeadData] = useState<LeadInterface[]>([])
 
-    const [isLoading, setIsLoading] = React.useState<boolean>(true)
-    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
-    const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
-    const [isInbox, setIsInbox] = React.useState<boolean>(true)
-    const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
-    const [tableLeadLength, setTableLength] = React.useState<any>()
-    const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
-    const [userList, setUserList] = React.useState<IValueLabel[]>()
-    const [childData, setChildData] = React.useState<IChildData>()
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
+    const [isMultiSelectOn, setIsMultiSelectOn] = useState<boolean>(false)
+    const [isInbox, setIsInbox] = useState<boolean>(true)
+    const [isNetworkError, setIsNetworkError] = useState<boolean>(false)
+    const [tableLeadLength, setTableLength] = useState<any>()
+    const [selectedRowIds, setSelectedRowIds] = useState<[]>()
+    const [userList, setUserList] = useState<IValueLabel[]>()
+    const [childData, setChildData] = useState<IChildData>()
+
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const pg = searchParams?.get("page") ?? "1"
+    const pageAsNumber = Number(pg)
+    const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
+    const per_page = searchParams?.get("limit") ?? "10"
+    const perPageAsNumber = Number(per_page)
+    const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
+    const isArchived = searchParams?.get("archived") ?? 'False'
+    const createdBy = searchParams?.get("created_by") ?? null
+    const searchString = searchParams?.get("title") ?? null
+    const createdAtFrom = searchParams?.get("created_at_from") ?? null
+    const createdAtTo = searchParams?.get("created_at_to") ?? null
+    const createdAtSort = searchParams?.get("created_at") ?? null
+    const roleRegion = searchParams?.get("role__region") ?? null
+    const owner = searchParams?.get("owner") ?? null
+    const status = searchParams?.get("status") ?? null
+    const source = searchParams?.get("source") ?? null
+
+    // create param string
+    const createQueryString = useCreateQueryString()
+    const createFilterQueryString = useCreateFilterQueryString()
 
 
 
@@ -86,13 +115,47 @@ const Leads = ({ form, permissions }: {
     }
 
 
-    // React.useEffect(() => {
+    // useEffect(() => {
     //     console.log(childData)
     // }, [childData?.row])
 
     const watcher = form.watch()
-    React.useEffect(() => {
-        // console.log(form.getValues("dateRange"))
+    useEffect(() => {
+        if (searchString) {
+            form.setValue("search", searchString)
+        }
+        if (roleRegion) {
+            const data = labelToValueArray(csvStringToArray(roleRegion), REGIONS)
+            if (data.length > 0) {
+                form.setValue("regions", removeUndefinedFromArray(data))
+            }
+        }
+        if (source) {
+            const data = labelToValueArray(csvStringToArray(source), SOURCES)
+            if (data.length > 0) {
+                form.setValue("sources", removeUndefinedFromArray(data))
+            }
+        }
+        if (status) {
+            const data = labelToValueArray(csvStringToArray(status), STATUSES)
+            if (data.length > 0) {
+                form.setValue("statuses", removeUndefinedFromArray(data))
+            }
+        }
+        
+        if (owner) {
+            const data = csvStringToArray(owner)
+            if (data.length > 0) {
+                form.setValue("owners", removeUndefinedFromArray(data))
+            }
+        }
+        if (createdBy) {
+            const data = csvStringToArray(createdBy)
+            if (data.length > 0) {
+                form.setValue("creators", removeUndefinedFromArray(data))
+            }
+        }
+        getUserList()
     }, [])
 
     function setTableLeadRow(data: any) {
@@ -102,58 +165,47 @@ const Leads = ({ form, permissions }: {
         setSelectedRowIds(ids)
         setTableLength(data.rows.length)
     }
-    const searchParams = useSearchParams()
 
 
 
-    async function checkQueryParam() {
-        const queryParamIds = searchParams.get("ids")
-        if (queryParamIds && queryParamIds?.length > 0) {
-            form.setValue("search", queryParamIds)
-            form.setValue("queryParamString", queryParamIds)
-
-            const { from, to } = getThisMonth(queryParamIds)
-            form.setValue("dateRange", {
-                "range": {
-                    "from": from,
-                    "to": to
-                },
-                rangeCompare: undefined
-            })
-            await fetchLeadData(true)
-        } else {
-            fetchLeadData()
-        }
-    }
-
+    
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getCookie("token")
     async function fetchLeadData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+
+            const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
+            const nameQueryParam = searchString ? `&title=${encodeURIComponent(searchString)}` : '';
+            const createdAtFromQueryParam = `&created_at_from=${setDateHours(watch.dateRange.range.from, false)}`;
+            const createdAtToQueryParam = `&created_at_to=${setDateHours(watch.dateRange.range.to, true)}`;
+            const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
+            const isArchivedQueryParam = isArchived ? `&archived=${encodeURIComponent(isArchived)}` : '';
+            const roleRegionQueryParam = roleRegion ? `&role__region=${encodeURIComponent(roleRegion)}` : '';
+            const ownerQueryParam = owner ? `&owner=${encodeURIComponent(owner)}` : '';
+            const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
+            const sourceQueryParam = source ? `&source=${encodeURIComponent(source)}` : '';
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${roleRegionQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: LeadInterface[] = structuredClone(result.data)
-            let fdata = data.map(val => {
-                val.title = val.title === null ? "" : val.title
-                return val
-            })
-            dataFromApi = fdata
-            const filteredData = noArchiveFilter ? dataFromApi : filterInboxOrArchive(dataFromApi, isInbox)
-            setLeadData(filteredData)
+            dataFromApi = data
+            
+            setLeadData(dataFromApi)
+            totalPageCount = result.total_pages
             setIsLoading(false)
-            if (filteredData.length == 0) {
+            if (dataFromApi.length == 0) {
                 setTableLength(0)
                 setIsMultiSelectOn(false)
                 setSelectedRowIds([])
             }
+            setIsNetworkError(false)
+            console.log('dataFromApi',dataFromApi)
         }
         catch (err) {
             setIsLoading(false)
             setIsNetworkError(true)
             console.log("error", err)
         }
-        getUserList()
     }
 
     async function getUserList() {
@@ -169,16 +221,135 @@ const Leads = ({ form, permissions }: {
 
     }
 
-    React.useEffect(() => {
-        (async () => {
-            await checkQueryParam()
-        })()
-    }, [])
+    useEffect(() => {
+        fetchLeadData()
+    }, [pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
-    React.useEffect(() => {
-        setLeadData(filterInboxOrArchive(dataFromApi, isInbox))
+
+    useEffect(() => {
+        createFilterQueryString([{ filterFieldName: "archived", value: !isInbox ? "True" : "False" }])
     }, [isInbox])
 
+    useEffect(() => {
+        setLeadFilter()
+    }, [watch.regions, watch.sources, watch.creators, watch.statuses, watch.owners, JSON.stringify(watch.dateRange), ])
+
+    function setLeadFilter() {
+        let regionsQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let sourcesQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let statusesQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let ownerQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdByQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtFromQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtToQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+
+        if (watch.regions && watch.regions.includes("allRegions")) {
+            regionsQueryParam = {
+                filterFieldName: "role__region",
+                value: null
+            }
+        }
+        else {
+            const regionsFilter = valueToLabelArray(watch.regions, REGIONS)
+            if (regionsFilter) {
+                regionsQueryParam = {
+                    filterFieldName: "role__region",
+                    value: arrayToCsvString(regionsFilter)
+                }
+            }
+        }
+
+        if (watch.sources && watch.sources.includes("allSources")) {
+            sourcesQueryParam = {
+                filterFieldName: "source",
+                value: null
+            }
+        }
+        else {
+            const sourcesFilter = valueToLabelArray(watch.sources, SOURCES)
+            if (sourcesFilter) {
+                sourcesQueryParam = {
+                    filterFieldName: "source",
+                    value: arrayToCsvString(sourcesFilter)
+                }
+            }
+        }
+
+        if (watch.statuses && watch.statuses.includes("allStatuses")) {
+            statusesQueryParam = {
+                filterFieldName: "status",
+                value: null
+            }
+        }
+        else {
+            const statusesFilter = valueToLabelArray(watch.statuses, STATUSES)
+            if (statusesFilter) {
+                statusesQueryParam = {
+                    filterFieldName: "status",
+                    value: arrayToCsvString(statusesFilter)
+                }
+            }
+        }
+
+
+        if (watch.owners && watch.owners.includes("allOwners")) {
+            ownerQueryParam = {
+                filterFieldName: "owner",
+                value: null
+            }
+
+        }
+        else {
+            const ownerFilter = watch.owners
+            if (ownerFilter) {
+                ownerQueryParam = {
+                    filterFieldName: "owner",
+                    value: arrayToCsvString(ownerFilter)
+                }
+            }
+        }
+
+        if (watch.creators && watch.creators.includes("allCreators")) {
+            createdByQueryParam = {
+                filterFieldName: "created_by",
+                value: null
+            }
+
+        }
+        else {
+            const creatorFilter = watch.creators
+            if (creatorFilter) {
+                createdByQueryParam = {
+                    filterFieldName: "created_by",
+                    value: arrayToCsvString(creatorFilter)
+                }
+            }
+        }
+
+        if (watch.dateRange) {
+            createdAtFromQueryParam = {
+                filterFieldName: "created_at_from",
+                value: setDateHours(watch.dateRange.range.from, false)
+            }
+            createdAtToQueryParam = {
+                filterFieldName: "created_at_to",
+                value: setDateHours(watch.dateRange.range.to, true)
+            }
+        }
+
+        // // table.getColumn("id")?.setFilterValue(filterObj.ids)
+        // table.getColumn("title")?.setFilterValue(filterObj.search)
+        // table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+        let leadFilteredData = [regionsQueryParam, sourcesQueryParam, statusesQueryParam, ownerQueryParam, createdByQueryParam, createdAtFromQueryParam, createdAtToQueryParam]
+        createFilterQueryString(leadFilteredData)
+    }
+
+    const debouncedSearchableFilters = useDebounce(watch.search, 500)
+
+    useEffect(() => {
+        const data: FilterQuery[] = [{ filterFieldName: "title", value: debouncedSearchableFilters || null }]
+        createFilterQueryString(data)
+    }, [debouncedSearchableFilters])
 
     async function patchArchiveLeadData(ids: number[]) {
 
@@ -630,7 +801,7 @@ const Leads = ({ form, permissions }: {
                                                                 <CommandEmpty>No Creator found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {userList &&  userList?.length > 0 && [{ value: "allCreators", label: "All Creators" }, ...userList].map((creator) => (
+                                                                        {userList && userList?.length > 0 && [{ value: "allCreators", label: "All Creators" }, ...userList].map((creator) => (
                                                                             <CommandItem
                                                                                 value={creator.label}
                                                                                 key={creator.value}
@@ -683,7 +854,7 @@ const Leads = ({ form, permissions }: {
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTable columns={columns(setChildDataHandler, patchArchiveLeadData, isInbox, permissions)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"leads"} />
+                    <DataTableServer columns={columns(setChildDataHandler, patchArchiveLeadData, isInbox, permissions)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Leads"} pageCount={totalPageCount} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
@@ -702,9 +873,6 @@ const Leads = ({ form, permissions }: {
     </div>
 }
 
-function filterInboxOrArchive(data: LeadInterface[], isInbox: boolean) {
-    return data.filter((val) => val.archived !== isInbox)
-}
 
 export function formatData(data: any[], plural: string, childOf: IValueLabel[]) {
     const finalString = data.length > 1 ? `${data.length} ${plural}` : childOf.find((item) => item.value === data[0])?.label
