@@ -95,7 +95,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             contact: data.contact,
             due_date: formattedDueDate,
             mode: valueToLabel(data.mode, MODE) || "",
-            reminder: Number(data.reminder) === -1 ? null : Number(data.reminder),
+            reminder: Number(data.reminder) === -1 ? 0 : Number(data.reminder),
             type: valueToLabel(data.type, ACTIVITY_TYPE) || "",
             assigned_to: Number(form.getValues("assignedTo"))
         }
