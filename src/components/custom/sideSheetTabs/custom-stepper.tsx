@@ -323,7 +323,7 @@ function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, perm
                         </div>
 
                         {
-                            ((isFirstForm || isSecondForm) && (details?.remarks)) && <div className='flex flex-col gap-[2px] col-span-2'>
+                            details?.remarks && <div className='flex flex-col gap-[2px] col-span-2'>
                                 <div className='text-gray-600 text-xs font-normal'>
                                     Remarks
                                 </div>

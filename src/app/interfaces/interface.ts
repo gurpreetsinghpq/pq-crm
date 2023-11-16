@@ -1016,6 +1016,11 @@ export interface NotificationGetResponse {
             name: string,
             id: number
         };
+        owner?: {
+            name: string,
+            id: number,
+            is_active: boolean
+        },
         status: string | null;
         title: string;
         type: string;
@@ -1036,6 +1041,7 @@ export interface NotificationGetResponse {
     object_id: number;
     created_at: string;
     user: number;
+
 }
 
 export interface DuplicateError{

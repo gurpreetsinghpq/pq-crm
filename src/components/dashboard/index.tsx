@@ -17,7 +17,7 @@ import { getAllTime, getLast7Days, getThisMonth } from "../ui/date-range-picker"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "../ui/use-toast"
 import { ArrowDown, ArrowUp, User2, UserIcon } from "lucide-react"
-import { clearAllNotification, clearNotification, fetchMyDetails, fetchNotifications, fetchProfileDetailsById, fetchTimeZone, patchNotification, setToken, timeSince } from "../custom/commonFunctions"
+import { TIMEZONE, clearAllNotification, clearNotification, extractName, fetchMyDetails, fetchNotifications, fetchProfileDetailsById, fetchTimeZone, patchNotification, setToken, timeSince } from "../custom/commonFunctions"
 import { disabledSidebarItem, profileCircleClasses } from "@/app/constants/classes"
 import { deleteCookie, getCookie } from "cookies-next"
 import MyAccount from "../custom/my-account"
@@ -558,13 +558,13 @@ export default function DashboardComponent() {
             getMyDetails()
             fetchTimeZone()
         }
-        setCurrentTab(title)
+        setTab(title)
     }
 
     // to be reomved just for testing user account
     // useEffect(() => {
     //     setInterval(() => {
-    //         setCurrentTab(TITLES.MY_ACCOUNT)
+    //         setTab(TITLES.MY_ACCOUNT)
     //     }, 1000)
     // }, [])
 
@@ -582,7 +582,12 @@ export default function DashboardComponent() {
         await getNotifications()
     }
 
-    return <>{tokenDashboard ? <div className="flex flex-row h-full ">
+    function setTab(tabName:string){
+        setCurrentTab(tabName)
+        router.replace("/dashboard", undefined)
+    }
+
+    return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left z-[1] flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center  xl:px-1 2xl:px-[0px]">
                 <IconPq size={32} />
@@ -618,7 +623,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.LEADS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.LEADS && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}>
                                 <IconLeads size={24} />
                             </div>
                         </TooltipTrigger>
@@ -631,7 +636,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${!(permissions["Prospect"]?.access && permissions["Prospect"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.PROSPECTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.PROSPECTS && 'bg-purple-600'} ${!(permissions["Prospect"]?.access && permissions["Prospect"]?.view) && disabledSidebarItem}`}>
                                 <IconProspects size={24} />
                             </div>
                         </TooltipTrigger>
@@ -647,7 +652,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.DEALS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ !(permissions["Deal"]?.access && permissions["Deal"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.DEALS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ !(permissions["Deal"]?.access && permissions["Deal"]?.view) && disabledSidebarItem}`}>
                                 <IconDealsHome size={24} />
                             </div>
                         </TooltipTrigger>
@@ -664,7 +669,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'} ${!(permissions["Organisation"]?.access && permissions["Organisation"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.ACCOUNTS)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACCOUNTS && 'bg-purple-600'} ${!(permissions["Organisation"]?.access && permissions["Organisation"]?.view) && disabledSidebarItem}`}>
                                 <IconAccounts2 size={24} />
                             </div>
                         </TooltipTrigger>
@@ -676,7 +681,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'} ${!(permissions["Contact"]?.access && permissions["Contact"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.CONTACTS)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.CONTACTS && 'bg-purple-600'} ${!(permissions["Contact"]?.access && permissions["Contact"]?.view) && disabledSidebarItem}`}>
                                 <IconContacts />
                             </div>
                         </TooltipTrigger>
@@ -690,7 +695,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setCurrentTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
                                 {/* <IconUserManagement /> */}
                                 <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
                                     <g id="users-02">
@@ -800,6 +805,21 @@ export default function DashboardComponent() {
                                                                     </div>
                                                                 </>
                                                             }
+                                                            {
+                                                                val.type.toLowerCase().includes("owner assigned") &&
+                                                                <>
+                                                                    <div className="text-sm font-medium text-[#696F8C]">
+                                                                        <span className="text-gray-600 font-semibold">{extractName(val.description)}</span> assigned ownership for {val.model_name} <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.data.title}</span> 
+                                                                        <span className="block mt-[5px]">
+                                                                            to <span className="text-gray-600 font-semibold">{val.data.owner?.name}</span>
+                                                                            
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="text-xs text-[#696F8C] font-medium">
+                                                                        {timeSince(val.created_at)}
+                                                                    </div>
+                                                                </>
+                                                            }
                                                             <div>
 
                                                             </div>
@@ -852,7 +872,7 @@ export default function DashboardComponent() {
                                         </div>
                                     </div>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setCurrentTab(TITLES.MY_ACCOUNT)} className="border-b-[1px] border-gray-200">
+                                <DropdownMenuItem onClick={() => setTab(TITLES.MY_ACCOUNT)} className="border-b-[1px] border-gray-200">
                                     <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px] ">
                                         <IconUser />
                                         Profile

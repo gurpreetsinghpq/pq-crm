@@ -45,7 +45,7 @@ import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import SideSheetAccounts from "./sideSheetAccounts"
-import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import { useDebounce } from "@/hooks/useDebounce"
 import DataTableServer from "./table/datatable-server"
 
@@ -94,9 +94,9 @@ const Accounts = ({ form, permissions }: {
     const [childData, setChildData] = useState<IChildData>()
     const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
     const [userList, setUserList] = useState<IValueLabel[]>()
-    
-    
-    
+    const watch = form.watch()
+
+
     // server side data fetching
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -150,8 +150,8 @@ const Accounts = ({ form, permissions }: {
             const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
             const lastFundingStageQueryParam = fundingStage ? `&last_funding_stage=${encodeURIComponent(fundingStage)}` : '';
             const nameQueryParam = searchString ? `&name=${encodeURIComponent(searchString)}` : '';
-            const createdAtFromQueryParam = createdAtFrom ? `&created_at_from=${encodeURIComponent(createdAtFrom)}` : '';
-            const createdAtToQueryParam = createdAtTo ? `&created_at_to=${encodeURIComponent(createdAtTo)}` : '';
+            const createdAtFromQueryParam = createdAtFrom ? `&created_at_from=${encodeURIComponent(createdAtFrom)}` : `&created_at_from=${setDateHours(watch.dateRange.range.from, false)}`;
+            const createdAtToQueryParam = createdAtTo ? `&created_at_to=${encodeURIComponent(createdAtTo)}` : `&created_at_to=${setDateHours(watch.dateRange.range.to, false)}`;
             const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
             const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=${pageAsNumber}&limit=${perPageAsNumber}${industryQueryParam}${segmentQueryParam}${createdByQueryParam}${nameQueryParam}${lastFundingStageQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${getToken()}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
@@ -185,76 +185,81 @@ const Accounts = ({ form, permissions }: {
         fetchData()
     }, [pageAsNumber, per_page, industry, segment, fundingStage, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
-    useEffect(() => {
-        getUserList()
-        if(searchString){
-            form.setValue("search", searchString)
-        }
-        if(industry){
-            const data = labelToValueArray(csvStringToArray(industry), INDUSTRIES)
-            if( data.length>0){
-                form.setValue("industries",  removeUndefinedFromArray(data) )
-            }
-        }
-        if(segment){
-            const data = labelToValueArray(csvStringToArray(segment), SEGMENT)
-            if( data.length>0){
-                form.setValue("segments",  removeUndefinedFromArray(data) )
-            }
-        }
-        if(fundingStage){
-            const data = labelToValueArray(csvStringToArray(fundingStage), LAST_FUNDING_STAGE)
-            if( data.length>0){
-                form.setValue("fundingStages",  removeUndefinedFromArray(data) )
-            }
-        }
-        if(createdBy){
-            const data = csvStringToArray(createdBy)
-            if( data.length>0){
-                form.setValue("creators",  removeUndefinedFromArray(data) )
-            }
-        }
-    }, [])
+
 
     // Create query string
-  const createQueryString = useCallback(
-    (params: Record<string, string | number | null>) => {
-      const newSearchParams = new URLSearchParams(searchParams?.toString())
+    const createQueryString = useCallback(
+        (params: Record<string, string | number | null>) => {
+            const newSearchParams = new URLSearchParams(searchParams?.toString())
 
-      for (const [key, value] of Object.entries(params)) {
-        if (value === null) {
-          newSearchParams.delete(key)
-        } else {
-          newSearchParams.set(key, String(value))
-        }
-      }
+            for (const [key, value] of Object.entries(params)) {
+                if (value === null) {
+                    newSearchParams.delete(key)
+                } else {
+                    newSearchParams.set(key, String(value))
+                }
+            }
 
-      return newSearchParams.toString()
-    },
-    [searchParams]
-  )
-
-  function createFilterQueryString(data: FilterQuery[]) {
-
-    const queryParamData: Record<string, string | number | null> = {};
-
-    data.forEach((query) => {
-      queryParamData[query.filterFieldName] = query.value;
-    });
-
-    router.push(
-      `${pathname}?${createQueryString({
-        page: 1,
-        ...queryParamData
-      })}`
+            return newSearchParams.toString()
+        },
+        [searchParams]
     )
-  }
 
-    const watch = form.watch()
-    useEffect(()=>{
+    function createFilterQueryString(data: FilterQuery[]) {
+
+        const queryParamData: Record<string, string | number | null> = {};
+
+        data.forEach((query) => {
+            queryParamData[query.filterFieldName] = query.value;
+        });
+
+        router.push(
+            `${pathname}?${createQueryString({
+                page: 1,
+                ...queryParamData
+            })}`
+        )
+    }
+
+    useEffect(() => {
+        getUserList()
+        if (searchString) {
+            form.setValue("search", searchString)
+        }
+        if (industry) {
+            const data = labelToValueArray(csvStringToArray(industry), INDUSTRIES)
+            if (data.length > 0) {
+                form.setValue("industries", removeUndefinedFromArray(data))
+            }
+        }
+        if (segment) {
+            const data = labelToValueArray(csvStringToArray(segment), SEGMENT)
+            if (data.length > 0) {
+                form.setValue("segments", removeUndefinedFromArray(data))
+            }
+        }
+        if (fundingStage) {
+            const data = labelToValueArray(csvStringToArray(fundingStage), LAST_FUNDING_STAGE)
+            if (data.length > 0) {
+                form.setValue("fundingStages", removeUndefinedFromArray(data))
+            }
+        }
+        if (createdBy) {
+            const data = csvStringToArray(createdBy)
+            if (data.length > 0) {
+                form.setValue("creators", removeUndefinedFromArray(data))
+            }
+        }
+
+        createFilterQueryString([{ filterFieldName: "created_at_from", value: null }, { filterFieldName: "created_at_to", value: null }])
+    }, [])
+
+
+
+    useEffect(() => {
         console.log("daterange", watch.dateRange.range.from)
         setAccountFilter()
-    },[watch.industries, watch.segments, watch.creators, watch.domains, watch.sizes, watch.fundingStages, JSON.stringify(watch.dateRange)])
+    }, [watch.industries, watch.segments, watch.creators, watch.domains, watch.sizes, watch.fundingStages, JSON.stringify(watch.dateRange)])
 
     function setAccountFilter() {
         let industryQueryParam: FilterQuery = EMPTY_FILTER_QUERY
@@ -265,135 +270,135 @@ const Accounts = ({ form, permissions }: {
         let createdByQueryParam: FilterQuery = EMPTY_FILTER_QUERY
         let createdAtFromQueryParam: FilterQuery = EMPTY_FILTER_QUERY
         let createdAtToQueryParam: FilterQuery = EMPTY_FILTER_QUERY
-    
+
         if (watch.industries && watch.industries.includes("allIndustries")) {
-          industryQueryParam = {
-            filterFieldName: "industry",
-            value: null
-          }
-        }
-        else {
-          const industryFilter = valueToLabelArray(watch.industries, INDUSTRIES)
-          if (industryFilter) {
             industryQueryParam = {
-              filterFieldName: "industry",
-              value: arrayToCsvString(industryFilter)
+                filterFieldName: "industry",
+                value: null
             }
-          }
         }
-    
+        else {
+            const industryFilter = valueToLabelArray(watch.industries, INDUSTRIES)
+            if (industryFilter) {
+                industryQueryParam = {
+                    filterFieldName: "industry",
+                    value: arrayToCsvString(industryFilter)
+                }
+            }
+        }
+
         if (watch.domains && watch.domains.includes("allDomains")) {
-          domainQueryParam = {
-            filterFieldName: "domain",
-            value: null
-          }
-        }
-        else {
-          const domainsFilter = valueToLabelArray(watch.domains,DOMAINS)
-          if (domainsFilter) {
             domainQueryParam = {
-              filterFieldName: "domain",
-              value: arrayToCsvString(domainsFilter)
+                filterFieldName: "domain",
+                value: null
             }
-          }
         }
-    
+        else {
+            const domainsFilter = valueToLabelArray(watch.domains, DOMAINS)
+            if (domainsFilter) {
+                domainQueryParam = {
+                    filterFieldName: "domain",
+                    value: arrayToCsvString(domainsFilter)
+                }
+            }
+        }
+
         if (watch.segments && watch.segments.includes("allSegments")) {
-          segmentQueryParam = {
-            filterFieldName: "segment",
-            value: null
-          }
-        }
-        else {
-          const segmentFilter = valueToLabelArray(watch.segments, SEGMENT)
-          if (segmentFilter) {
             segmentQueryParam = {
-              filterFieldName: "segment",
-              value: arrayToCsvString(segmentFilter)
+                filterFieldName: "segment",
+                value: null
             }
-          }
         }
-    
+        else {
+            const segmentFilter = valueToLabelArray(watch.segments, SEGMENT)
+            if (segmentFilter) {
+                segmentQueryParam = {
+                    filterFieldName: "segment",
+                    value: arrayToCsvString(segmentFilter)
+                }
+            }
+        }
+
         if (watch.sizes && watch.sizes.includes("allSizes")) {
-          sizeQueryParam = {
-            filterFieldName: "size",
-            value: null
-          }
-    
-        }
-        else {
-          const sizeFilter = valueToLabelArray(watch.sizes, SIZE_OF_COMPANY)
-          if (sizeFilter) {
             sizeQueryParam = {
-              filterFieldName: "size",
-              value: arrayToCsvString(sizeFilter)
+                filterFieldName: "size",
+                value: null
             }
-          }
+
         }
-    
+        else {
+            const sizeFilter = valueToLabelArray(watch.sizes, SIZE_OF_COMPANY)
+            if (sizeFilter) {
+                sizeQueryParam = {
+                    filterFieldName: "size",
+                    value: arrayToCsvString(sizeFilter)
+                }
+            }
+        }
+
         if (watch.fundingStages && watch.fundingStages.includes("allFundingStages")) {
-          fundingStageQueryParam = {
-            filterFieldName: "last_funding_stage",
-            value: null
-          }
-        }
-        else {
-          const fundingStageFilter = valueToLabelArray(watch.fundingStages, LAST_FUNDING_STAGE)
-          if (fundingStageFilter) {
             fundingStageQueryParam = {
-              filterFieldName: "last_funding_stage",
-              value: arrayToCsvString(fundingStageFilter)
+                filterFieldName: "last_funding_stage",
+                value: null
             }
-          }
-        }
-    
-        if (watch.creators && watch.creators.includes("allCreators")) {
-          createdByQueryParam = {
-            filterFieldName: "created_by",
-            value: null
-          }
-          
         }
         else {
-          const creatorFilter = watch.creators
-          if (creatorFilter) {
-            createdByQueryParam = {
-              filterFieldName: "created_by",
-              value: arrayToCsvString(creatorFilter)
+            const fundingStageFilter = valueToLabelArray(watch.fundingStages, LAST_FUNDING_STAGE)
+            if (fundingStageFilter) {
+                fundingStageQueryParam = {
+                    filterFieldName: "last_funding_stage",
+                    value: arrayToCsvString(fundingStageFilter)
+                }
             }
-          }
         }
-    
-    
+
+        if (watch.creators && watch.creators.includes("allCreators")) {
+            createdByQueryParam = {
+                filterFieldName: "created_by",
+                value: null
+            }
+
+        }
+        else {
+            const creatorFilter = watch.creators
+            if (creatorFilter) {
+                createdByQueryParam = {
+                    filterFieldName: "created_by",
+                    value: arrayToCsvString(creatorFilter)
+                }
+            }
+        }
+
+
         // table.getColumn("id")?.setFilterValue(filterObj.ids)
-        
+
         if (watch.dateRange) {
-          createdAtFromQueryParam = {
-            filterFieldName: "created_at_from",
-            value: new Date(watch.dateRange.range.from.setHours(0,0,0,0)).toISOString()
-          }
-          createdAtToQueryParam = {
-            filterFieldName: "created_at_to",
-            value: new Date(watch.dateRange.range.to.setHours(23,59,0,0)).toISOString()
-          }
+            createdAtFromQueryParam = {
+                filterFieldName: "created_at_from",
+                value: setDateHours(watch.dateRange.range.from, false)
+            }
+            createdAtToQueryParam = {
+                filterFieldName: "created_at_to",
+                value: setDateHours(watch.dateRange.range.to, false)
+            }
         }
-    
+
         let accountFilteredData = [industryQueryParam, segmentQueryParam, domainQueryParam, sizeQueryParam, fundingStageQueryParam, createdByQueryParam, createdAtFromQueryParam, createdAtToQueryParam]
         createFilterQueryString(accountFilteredData)
-      }
+    }
 
-      
-      
-      const debouncedSearchableFilters = useDebounce(watch.search,500)
-      
-      useEffect(()=>{
-        const data:FilterQuery[] = [{filterFieldName:"name", value:debouncedSearchableFilters||null}]
+
+
+    const debouncedSearchableFilters = useDebounce(watch.search, 500)
+
+    useEffect(() => {
+        const data: FilterQuery[] = [{ filterFieldName: "name", value: debouncedSearchableFilters || null }]
         createFilterQueryString(data)
-      },[debouncedSearchableFilters])
-    
+    }, [debouncedSearchableFilters])
+
 
     // useEffect(() => {
-        
+
     // }, [form.watch])
 
     // useEffect(() => {
@@ -477,7 +482,7 @@ const Accounts = ({ form, permissions }: {
     return <div className="flex flex-col flex-1">
         <div className="bottom flex-1 flex flex-col">
             <Form {...form}>
-                <form onSubmit={(e)=>e.preventDefault()}>
+                <form onSubmit={(e) => e.preventDefault()}>
                     <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
                         <div className="w-1/2 flex flex-row gap-4 items-center">
                             <FormField
@@ -486,7 +491,7 @@ const Accounts = ({ form, permissions }: {
                                 render={({ field }) => (
                                     <FormItem className="w-2/3">
                                         <FormControl>
-                                            <Input onKeyDown={(event)=>{return (event.keyCode!=13)}} placeholder="Search" className="text-md border" {...field} />
+                                            <Input onKeyDown={(event) => { return (event.keyCode != 13) }} placeholder="Search" className="text-md border" {...field} />
                                         </FormControl>
                                     </FormItem>
                                 )}

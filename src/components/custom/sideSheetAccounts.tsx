@@ -25,7 +25,7 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
@@ -771,7 +771,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className={`mt-[2px] p-0 w-[calc(32vw-6px)]`}>
+                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Industry" />
                                                                     <CommandEmpty>Industry not found.</CommandEmpty>
@@ -936,7 +936,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 w-[calc(32vw-6px)]`}  >
+                                                            {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}  >
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                                     <CommandEmpty>Funding Stage not found.</CommandEmpty>

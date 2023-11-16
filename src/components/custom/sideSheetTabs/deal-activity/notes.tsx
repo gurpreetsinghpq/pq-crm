@@ -1092,7 +1092,7 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                         </div>
                                     </div>
                                     {/* add here remarks */}
-                                    {<div className='flex flex-row gap-[16px]'>
+                                    <div className='flex flex-row gap-[16px]'>
                                         <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                             <div className={commonNumericIconClasses}>6</div>
                                             <div className='text-md text-gray-500 font-normal'>Remarks</div>
@@ -1100,7 +1100,7 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                         <div className='flex-1 w-[60%]'>
                                             {Remarks()}
                                         </div>
-                                    </div>}
+                                    </div>
                                 </div>}
                                 {
                                     isSecondForm && <div className='flex flex-col gap-[16px] w-full max-w-[800px]'>
@@ -1141,7 +1141,7 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                             </div>
                                         </div>
                                         {/* add here remarks */}
-                                        {<div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[16px]'>
                                             <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                                 <div className={commonNumericIconClasses}>5</div>
                                                 <div className='text-md text-gray-500 font-normal'>Remarks</div>
@@ -1149,7 +1149,7 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                             <div className='flex-1 w-[60%]'>
                                                 {Remarks()}
                                             </div>
-                                        </div>}
+                                        </div>
                                     </div>
 
                                 }
@@ -1198,6 +1198,16 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                             </div>
                                             <div className='flex-1 w-[60%]'>
                                                 <ProposalShared />
+                                            </div>
+                                        </div>
+                                        {/* add here remarks */}
+                                        <div className='flex flex-row gap-[16px]'>
+                                            <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                                <div className={commonNumericIconClasses}>6</div>
+                                                <div className='text-md text-gray-500 font-normal'>Remarks</div>
+                                            </div>
+                                            <div className='flex-1 w-[60%]'>
+                                                {Remarks()}
                                             </div>
                                         </div>
                                     </div>
@@ -1249,6 +1259,16 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                                 <ProspectStatus />
                                             </div>
                                         </div>
+                                        {/* add here remarks */}
+                                        <div className='flex flex-row gap-[16px]'>
+                                            <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                                <div className={commonNumericIconClasses}>6</div>
+                                                <div className='text-md text-gray-500 font-normal'>Remarks</div>
+                                            </div>
+                                            <div className='flex-1 w-[60%]'>
+                                                {Remarks()}
+                                            </div>
+                                        </div>
 
                                     </div>
                                 }
@@ -1279,6 +1299,16 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                             </div>
                                             <div className='flex-1 w-[60%]'>
                                                 <ServiceContractDraftShared />
+                                            </div>
+                                        </div>
+                                        {/* add here remarks */}
+                                        <div className='flex flex-row gap-[16px]'>
+                                            <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                                <div className={commonNumericIconClasses}>4</div>
+                                                <div className='text-md text-gray-500 font-normal'>Remarks</div>
+                                            </div>
+                                            <div className='flex-1 w-[60%]'>
+                                                {Remarks()}
                                             </div>
                                         </div>
                                     </div>
@@ -1320,6 +1350,16 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                             <CollateralShared />
                                         </div>
                                     </div>
+                                    {/* add here remarks */}
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>5</div>
+                                            <div className='text-md text-gray-500 font-normal'>Remarks</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            {Remarks()}
+                                        </div>
+                                    </div>
                                 </div>}
                                 {isSeventhForm && <div className='flex flex-col gap-[16px] w-full max-w-[800px]'>
                                     <div className='flex flex-row gap-[16px]'>
@@ -1356,6 +1396,16 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                         </div>
                                         <div className='flex-1 w-[60%]'>
                                             <CollateralShared />
+                                        </div>
+                                    </div>
+                                    {/* add here remarks */}
+                                    <div className='flex flex-row gap-[16px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className={commonNumericIconClasses}>5</div>
+                                            <div className='text-md text-gray-500 font-normal'>Remarks</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            {Remarks()}
                                         </div>
                                     </div>
                                 </div>}

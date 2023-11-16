@@ -584,3 +584,22 @@ export function removeUndefinedFromArray(arr: (string | undefined)[]): string[] 
 }
 
 
+export function setDateHours(date:Date, isEnd:boolean){
+  if(isEnd){
+    return new Date(date.setHours(23,59,0,0)).toISOString()
+  }else{
+    return new Date(date.setHours(0,0,0,0)).toISOString()
+  }
+}
+
+export function extractName(inputString: string): string | null {
+  // Define a regular expression to extract the name before "assigned Ownership for"
+  const regex = /^(.+?) assigned Ownership for/;
+
+  // Use the regular expression to match the input string
+  const match = inputString.match(regex);
+
+  // If a match is found, return the captured name (group 1)
+  return match ? match[1].trim() : null;
+}
+
