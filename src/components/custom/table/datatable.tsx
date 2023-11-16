@@ -548,7 +548,7 @@ export default function DataTable<TData, TValue>({
   return (
     <div className="flex flex-col flex-1">
       <div className="border-[1px] border-gray-200 flex-1 " ref={tbl}>
-        {tbl.current?.offsetHeight && (<div style={{ height: page === 'teamsDialog' ? "200px" : `${tbl.current?.offsetHeight - 3}px` }} className={` overflow-y-scroll`}>
+        {tbl.current?.offsetHeight && (<div style={{ height: page === 'teamsDialog' ? "200px" : `${tbl.current?.offsetHeight - 3}px` }} className={` overflow-y-auto`}>
           <Table className="flex-1 " onChange={handleTableChange} >
             <TableHeader className="bg-gray-50 sticky top-0 left-0">
               {table.getHeaderGroups().map((headerGroup) => (

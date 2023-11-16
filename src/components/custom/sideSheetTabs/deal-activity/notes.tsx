@@ -250,11 +250,12 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
             role_status: valueToLabel(form.getValues("roleStatus") || "", ROLE_STATUS) || null,
             role_urgency: valueToLabel(form.getValues("roleUrgency") || "", ROLE_URGENCY) || null,
             related_to: valueToLabel(form.getValues("relatedTo") || "", RELATED_TO) || null,
+            remarks: form.getValues("remarks")
         }
 
-        if(isAccounts){
-            dataToSend["remarks"] = form.getValues("remarks")
-        }
+        // if(isAccounts){
+        // dataToSend["remarks"] = form.getValues("remarks")
+        // }
 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/note/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -280,14 +281,14 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
 
     console.log("contactFromParents", contactFromParents)
 
-    
+
     async function getActivityList() {
         setIsActivityDataLoading(true)
         try {
-            let acttivityList:any
-            if(isAccounts){
+            let acttivityList: any
+            if (isAccounts) {
                 acttivityList = await fetchActivityListAccToEntityOrganisation(entityId)
-            }else{
+            } else {
                 acttivityList = await fetchActivityListAccToEntity(entityId)
             }
             setIsActivityDataLoading(false)
@@ -1091,13 +1092,13 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                         </div>
                                     </div>
                                     {/* add here remarks */}
-                                    {isAccounts && <div className='flex flex-row gap-[16px]'>
+                                    {<div className='flex flex-row gap-[16px]'>
                                         <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                             <div className={commonNumericIconClasses}>6</div>
                                             <div className='text-md text-gray-500 font-normal'>Remarks</div>
                                         </div>
                                         <div className='flex-1 w-[60%]'>
-                                        {Remarks()}
+                                            {Remarks()}
                                         </div>
                                     </div>}
                                 </div>}
@@ -1140,7 +1141,7 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                             </div>
                                         </div>
                                         {/* add here remarks */}
-                                        {isAccounts && <div className='flex flex-row gap-[16px]'>
+                                        {<div className='flex flex-row gap-[16px]'>
                                             <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                                 <div className={commonNumericIconClasses}>5</div>
                                                 <div className='text-md text-gray-500 font-normal'>Remarks</div>
@@ -1388,8 +1389,8 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
                                                             <SelectContent>
                                                                 {
                                                                     NEXT_STEP.map((nextStep, index) => {
-                                                                        if(isAccounts){
-                                                                            if(nextStep.value!="noAction"&&nextStep.value!="coldOutreach"){
+                                                                        if (isAccounts) {
+                                                                            if (nextStep.value != "noAction" && nextStep.value != "coldOutreach") {
                                                                                 return
                                                                             }
                                                                         }

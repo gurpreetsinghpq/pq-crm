@@ -67,11 +67,13 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
     }, [debouncedSearchableFilters])
 
 
-    function dataFromChild() {
+    function dataFromChild(isCancelled?:boolean) {
         setIsExpanded(false)
         setOpen(false)
         setInputAccount("")
-        fetchLeadData()
+        if(!isCancelled){
+            fetchLeadData()
+        }
         setDetails(undefined)
         setFilteredLeadData([])
         setAccountData([])
@@ -196,7 +198,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                 <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
                     if (e.key === "Escape") {
                         console.log("this should not be called");
-                        dataFromChild()
+                        dataFromChild(true)
                     }
                 }}>
                     <DialogHeader >
@@ -278,7 +280,7 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                         {!isExpanded && <><Separator className="bg-gray-200 h-[1px]  mt-8" />
                             <div className="flex flex-row gap-2 justify-end mx-6 my-6">
                                 <DialogClose asChild>
-                                    <Button variant={"google"} onClick={dataFromChild}>Cancel</Button>
+                                    <Button variant={"google"} onClick={()=>dataFromChild(true)}>Cancel</Button>
                                 </DialogClose>
                                 <Button disabled>Save & Add</Button>
                             </div></>}
