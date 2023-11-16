@@ -14,7 +14,7 @@ import {
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 
-import * as React from "react"
+import { useEffect, useState } from "react"
 import { DropdownMenuCheckboxItemProps, RadioGroup } from "@radix-ui/react-dropdown-menu"
 import DataTable from "./table/datatable"
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "../ui/dialog"
@@ -28,19 +28,24 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES, PROSPECT_STATUSES } from "@/app/constants/constants"
+import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES, PROSPECT_STATUSES, EMPTY_FILTER_QUERY, REGIONS, SOURCES } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { IValueLabel, Permission, ProspectsGetResponse, User } from "@/app/interfaces/interface"
+import { FilterQuery, IValueLabel, Permission, ProspectsGetResponse, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { columnsProspects } from "./table/columns-prospect"
 import SideSheetProspects from "./sideSheetProspects"
-import { fetchUserDataList, getToken } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import useCreateQueryString from "@/hooks/useCreateQueryString"
+import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
+import { labelToValueArray, valueToLabelArray } from "./sideSheet"
+import { useDebounce } from "@/hooks/useDebounce"
+import DataTableServer from "./table/datatable-server"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -52,6 +57,7 @@ export interface IChildData {
     row: any
 }
 let dataFromApi: ProspectsGetResponse[] = []
+let totalPageCount: number
 
 const Prospects = ({ form, permissions }: {
     form: UseFormReturn<{
@@ -69,20 +75,43 @@ const Prospects = ({ form, permissions }: {
     const { toast } = useToast()
 
     const router = useRouter();
+    const watch = form.watch()
 
-    const [data, setLeadData] = React.useState<ProspectsGetResponse[]>([])
+    const [data, setLeadData] = useState<ProspectsGetResponse[]>([])
 
-    const [isLoading, setIsLoading] = React.useState<boolean>(true)
-    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
-    const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
-    const [isInbox, setIsInbox] = React.useState<boolean>(true)
-    const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
-    const [tableLeadLength, setTableLength] = React.useState<any>()
-    const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
-    const [userList, setUserList] = React.useState<IValueLabel[]>()
-    const [childData, setChildData] = React.useState<IChildData>()
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
+    const [isMultiSelectOn, setIsMultiSelectOn] = useState<boolean>(false)
+    const [isInbox, setIsInbox] = useState<boolean>(true)
+    const [isNetworkError, setIsNetworkError] = useState<boolean>(false)
+    const [tableLeadLength, setTableLength] = useState<any>()
+    const [selectedRowIds, setSelectedRowIds] = useState<[]>()
+    const [userList, setUserList] = useState<IValueLabel[]>()
+    const [childData, setChildData] = useState<IChildData>()
 
 
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const pg = searchParams?.get("page") ?? "1"
+    const pageAsNumber = Number(pg)
+    const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
+    const per_page = searchParams?.get("limit") ?? "10"
+    const perPageAsNumber = Number(per_page)
+    const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
+    const isArchived = searchParams?.get("archived") ?? 'False'
+    const createdBy = searchParams?.get("created_by") ?? null
+    const searchString = searchParams?.get("lead__title") ?? null
+    const createdAtFrom = searchParams?.get("created_at_from") ?? null
+    const createdAtTo = searchParams?.get("created_at_to") ?? null
+    const createdAtSort = searchParams?.get("created_at") ?? null
+    const roleRegion = searchParams?.get("lead__role__region") ?? null
+    const owner = searchParams?.get("owner") ?? null
+    const status = searchParams?.get("status") ?? null
+    const source = searchParams?.get("lead__source") ?? null
+
+    // create param string
+    const createQueryString = useCreateQueryString()
+    const createFilterQueryString = useCreateFilterQueryString()
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
@@ -95,7 +124,7 @@ const Prospects = ({ form, permissions }: {
     }
 
 
-    React.useEffect(() => {
+    useEffect(() => {
         
     }, [childData?.row])
     function setTableLeadRow(data: any) {
@@ -105,29 +134,7 @@ const Prospects = ({ form, permissions }: {
         setSelectedRowIds(ids)
         setTableLength(data.rows.length)
     }
-    const searchParams = useSearchParams()
 
-
-
-    async function checkQueryParam() {
-        const queryParamIds = searchParams.get("ids")
-        if (queryParamIds && queryParamIds?.length > 0) {
-            form.setValue("search", queryParamIds)
-            form.setValue("queryParamString", queryParamIds)
-
-            const { from, to } = getThisMonth(queryParamIds)
-            form.setValue("dateRange", {
-                "range": {
-                    "from": from,
-                    "to": to
-                },
-                rangeCompare: undefined
-            })
-            await fetchProspectData(true)
-        } else {
-            fetchProspectData()
-        }
-    }
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -135,35 +142,205 @@ const Prospects = ({ form, permissions }: {
     async function fetchProspectData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
+            const nameQueryParam = searchString ? `&lead__title=${encodeURIComponent(searchString)}` : '';
+            const createdAtFromQueryParam = `&created_at_from=${setDateHours(watch.dateRange.range.from, false)}`;
+            const createdAtToQueryParam = `&created_at_to=${setDateHours(watch.dateRange.range.to, true)}`;
+            const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
+            const isArchivedQueryParam = isArchived ? `&archived=${encodeURIComponent(isArchived)}` : '';
+            const roleRegionQueryParam = roleRegion ? `&lead__role__region=${encodeURIComponent(roleRegion)}` : '';
+            const ownerQueryParam = owner ? `&owner=${encodeURIComponent(owner)}` : '';
+            const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
+            const sourceQueryParam = source ? `&lead__source=${encodeURIComponent(source)}` : '';
+           
+            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${roleRegionQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: ProspectsGetResponse[] = structuredClone(result.data)
-            // let fdata = data.map(val => {
-            //     val.title = val.title === null ? "" : val.title
-            //     return val
-            // })
+           
             dataFromApi = data
-            const filteredData = noArchiveFilter ? dataFromApi : filterInboxOrArchive(dataFromApi, isInbox)
-            setLeadData(filteredData)
+            setLeadData(dataFromApi)
+            totalPageCount = result.total_pages
             setIsLoading(false)
-            if (filteredData.length == 0) {
+            if (dataFromApi.length == 0) {
                 setTableLength(0)
                 setIsMultiSelectOn(false)
                 setSelectedRowIds([])
             }
+            setIsNetworkError(false)
         }
         catch (err) {
             setIsLoading(false)
             setIsNetworkError(true)
             console.log("error", err)
         }
-        getUserList()
+        
     }
 
-    React.useEffect(() => {
-        (async () => {
-            await checkQueryParam()
-        })()
+    useEffect(() => {
+        fetchProspectData()
+    }, [pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
+
+    useEffect(() => {
+        createFilterQueryString([{ filterFieldName: "archived", value: !isInbox ? "True" : "False" }])
+    }, [isInbox])
+
+    useEffect(() => {
+        setProspectFilter()
+    }, [watch.regions, watch.sources, watch.creators, watch.statuses, watch.owners, JSON.stringify(watch.dateRange), ])
+
+    function setProspectFilter() {
+        let regionsQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let sourcesQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let statusesQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let ownerQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdByQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtFromQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtToQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+
+        if (watch.regions && watch.regions.includes("allRegions")) {
+            regionsQueryParam = {
+                filterFieldName: "lead__role__region",
+                value: null
+            }
+        }
+        else {
+            const regionsFilter = valueToLabelArray(watch.regions, REGIONS)
+            if (regionsFilter) {
+                regionsQueryParam = {
+                    filterFieldName: "lead__role__region",
+                    value: arrayToCsvString(regionsFilter)
+                }
+            }
+        }
+
+        if (watch.sources && watch.sources.includes("allSources")) {
+            sourcesQueryParam = {
+                filterFieldName: "lead__source",
+                value: null
+            }
+        }
+        else {
+            const sourcesFilter = valueToLabelArray(watch.sources, SOURCES)
+            if (sourcesFilter) {
+                sourcesQueryParam = {
+                    filterFieldName: "lead__source",
+                    value: arrayToCsvString(sourcesFilter)
+                }
+            }
+        }
+
+        if (watch.statuses && watch.statuses.includes("allStatuses")) {
+            statusesQueryParam = {
+                filterFieldName: "status",
+                value: null
+            }
+        }
+        else {
+            const statusesFilter = valueToLabelArray(watch.statuses, PROSPECT_STATUSES)
+            if (statusesFilter) {
+                statusesQueryParam = {
+                    filterFieldName: "status",
+                    value: arrayToCsvString(statusesFilter)
+                }
+            }
+        }
+
+
+        if (watch.owners && watch.owners.includes("allOwners")) {
+            ownerQueryParam = {
+                filterFieldName: "owner",
+                value: null
+            }
+
+        }
+        else {
+            const ownerFilter = watch.owners
+            if (ownerFilter) {
+                ownerQueryParam = {
+                    filterFieldName: "owner",
+                    value: arrayToCsvString(ownerFilter)
+                }
+            }
+        }
+
+        if (watch.creators && watch.creators.includes("allCreators")) {
+            createdByQueryParam = {
+                filterFieldName: "created_by",
+                value: null
+            }
+
+        }
+        else {
+            const creatorFilter = watch.creators
+            if (creatorFilter) {
+                createdByQueryParam = {
+                    filterFieldName: "created_by",
+                    value: arrayToCsvString(creatorFilter)
+                }
+            }
+        }
+
+        if (watch.dateRange) {
+            createdAtFromQueryParam = {
+                filterFieldName: "created_at_from",
+                value: setDateHours(watch.dateRange.range.from, false)
+            }
+            createdAtToQueryParam = {
+                filterFieldName: "created_at_to",
+                value: setDateHours(watch.dateRange.range.to, true)
+            }
+        }
+
+        // // table.getColumn("id")?.setFilterValue(filterObj.ids)
+        // table.getColumn("title")?.setFilterValue(filterObj.search)
+        // table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+        let leadFilteredData = [regionsQueryParam, sourcesQueryParam, statusesQueryParam, ownerQueryParam, createdByQueryParam, createdAtFromQueryParam, createdAtToQueryParam]
+        createFilterQueryString(leadFilteredData)
+    }
+
+    const debouncedSearchableFilters = useDebounce(watch.search, 500)
+
+    useEffect(() => {
+        const data: FilterQuery[] = [{ filterFieldName: "lead__title", value: debouncedSearchableFilters || null }]
+        createFilterQueryString(data)
+    }, [debouncedSearchableFilters])
+
+    useEffect(() => {
+        if (searchString) {
+            form.setValue("search", searchString)
+        }
+        if (roleRegion) {
+            const data = labelToValueArray(csvStringToArray(roleRegion), REGIONS)
+            if (data.length > 0) {
+                form.setValue("regions", removeUndefinedFromArray(data))
+            }
+        }
+        if (source) {
+            const data = labelToValueArray(csvStringToArray(source), SOURCES)
+            if (data.length > 0) {
+                form.setValue("sources", removeUndefinedFromArray(data))
+            }
+        }
+        if (status) {
+            const data = labelToValueArray(csvStringToArray(status), PROSPECT_STATUSES)
+            if (data.length > 0) {
+                form.setValue("statuses", removeUndefinedFromArray(data))
+            }
+        }
+        
+        if (owner) {
+            const data = csvStringToArray(owner)
+            if (data.length > 0) {
+                form.setValue("owners", removeUndefinedFromArray(data))
+            }
+        }
+        if (createdBy) {
+            const data = csvStringToArray(createdBy)
+            if (data.length > 0) {
+                form.setValue("creators", removeUndefinedFromArray(data))
+            }
+        }
+        getUserList()
     }, [])
 
     const watcher = form.watch()
@@ -181,27 +358,11 @@ const Prospects = ({ form, permissions }: {
 
     }
 
-    React.useEffect(() => {
+    useEffect(() => {
         
     }, [watcher])
 
-    React.useEffect(() => {
-        setLeadData(filterInboxOrArchive(dataFromApi, isInbox))
-    }, [isInbox])
-    // console.log(tableLeadLength)
-
-    async function promoteToProspect() {
-        try {
-            // const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            // const result = await dataResp.json()
-            // if (result.message === "success") {
-            //     closeSideSheet()
-            // }
-        }
-        catch (err) {
-            console.log("error", err)
-        }
-    }
+  
 
 
     async function patchArchiveProspectData(ids: number[]) {
@@ -701,7 +862,7 @@ const Prospects = ({ form, permissions }: {
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTable columns={columnsProspects(setChildDataHandler, patchArchiveProspectData, isInbox, permissions)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"prospects"} />
+                    <DataTableServer columns={columnsProspects(setChildDataHandler, patchArchiveProspectData, isInbox, permissions)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Prospects"} pageCount={totalPageCount}/>
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">

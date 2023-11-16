@@ -22,7 +22,7 @@ import { DialogClose } from '@radix-ui/react-dialog'
 import { acronymFinder, guidGenerator } from './addLeadDetailedDialog'
 import { Tooltip, TooltipProvider } from '@radix-ui/react-tooltip'
 import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon, Phone, Type } from 'lucide-react'
+import { Check, CheckCircle, CheckCircle2, ChevronDown, Loader2, MinusCircleIcon, Phone, Type } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
@@ -31,6 +31,7 @@ import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
 import { doesTypeIncludesMandatory, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { useDebounce } from '@/hooks/useDebounce'
 
 
 const FormSchema = z.object({
@@ -62,7 +63,7 @@ const formDefaults: z.infer<typeof FormSchema> = {
     contactId: undefined
 }
 
-
+let dataFromApi: ClientCompleteInterface[] = []
 
 function SideSheetContacts({ parentData, permissions, accountList }: { parentData: { childData: IChildData, setChildDataHandler: CallableFunction }, permissions: Permission, accountList: IValueLabel[] | undefined }) {
 
@@ -75,11 +76,15 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     const { childData: { row }, setChildDataHandler } = parentData
     const [rowState, setRowState] = useState<DeepPartial<ClientGetResponse>>()
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
+    const [loading, setLoading] = useState<boolean>(false)
+    const [accountData, setAccountData] = useState<ClientCompleteInterface[]>([])
+    const [inputAccount, setInputAccount] = useState("")
+    const [currentAccountName, setCurrentAccountName] = useState("")
 
     const data: ContactsGetResponse = row.original
     useEffect(() => {
         console.log(data)
-        fetchClientData()
+
         setRowState((prevState) => ({
             ...prevState,
             name: data.name
@@ -87,7 +92,8 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         const type = labelToValue(data.type, TYPE)
         console.log("type", type)
         changeStdCode(type)
-
+        console.log("data.name",data.organisation)
+        setCurrentAccountName(data.organisation.name)
     }, [])
 
     function closeSideSheet() {
@@ -100,19 +106,41 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         // return <>{d && <d.icon />}</>
     }
 
-    async function fetchClientData() {
+
+    async function fetchClientData(textToSearch: string) {
+        const nameQueryParam = textToSearch ? `&name=${encodeURIComponent(textToSearch)}` : '';
+        setLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/?page=1&limit=15${nameQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" }, cache: "no-store" })
             const result = await dataResp.json()
+            setLoading(false)
             let data: ClientCompleteInterface[] = structuredClone(result.data)
+            setAccountData(data)
             let fdata = data
-            setOrganisationList(fdata)
+            dataFromApi = fdata
         }
         catch (err) {
             console.log("error", err)
+            setLoading(false)
         }
     }
 
+
+    const debouncedSearchableFilters = useDebounce(inputAccount, 500)
+
+    useEffect(() => {
+        console.log("fetchclientdata", debouncedSearchableFilters)
+        if (inputAccount.length === 0) {
+            setAccountData([])
+        }
+
+        fetchClientData(debouncedSearchableFilters)
+
+    }, [debouncedSearchableFilters])
+
+    function onChangeHandler(data: string) {
+        setInputAccount(data)
+    }
 
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -192,9 +220,9 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         const contactId = data.id
 
         let phone = form.getValues("phone")
-        let std_code = form.getValues("std_code") 
+        let std_code = form.getValues("std_code")
 
-        if(!phone || !std_code){
+        if (!phone || !std_code) {
             phone = ""
             std_code = ""
         }
@@ -209,7 +237,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             organisation: Number(form.getValues("organisationName"))
         }
 
-        
+
 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${contactId}/`, { method: "PATCH", body: JSON.stringify(contactDetails), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
@@ -460,50 +488,78 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                     <div className="bg-gray-200 mt-[20px] h-[1px]" ></div>
                                 </span>
 
-                                <div className="px-[6px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200 ">
+                                <div className="pl-[18px] pr-[4px] pt-[10px] pb-[14px] mt-[8px] text-md font-medium w-full flex flex-row border-b-[1px] border-gray-200">
                                     <FormField
                                         control={form.control}
                                         name="organisationName"
                                         render={({ field }) => (
-                                            <FormItem className='w-full'    >
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className={`border-none mb-2 ${commonFontClasses}`}>
-                                                            <div className='flex flex-row gap-[22px] items-center  ' >
-                                                                <div className='text-[#98A2B3]'>
-                                                                    <TooltipProvider>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <div>
-                                                                                    <IconOrgnaisation size={24} />
-                                                                                </div>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent side="top">
-                                                                                Organisation Name
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                    </TooltipProvider>
+                                            <FormItem className='w-full cursor-pointer'>
+                                                <Popover>
+                                                    <PopoverTrigger asChild >
+                                                        <div className='flex flex-row gap-[10px] items-center  ' >
+                                                            <TooltipProvider>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <div>
+                                                                            <IconOrgnaisation size={24} />
+                                                                        </div>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent side="top">
+                                                                        Organisation Name
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                            <div className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
+                                                                    { currentAccountName || <span className='text-muted-foreground '>Organisation</span>}
                                                                 </div>
-                                                                <SelectValue placeholder="Organisation Name" />
+                                                                <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <div className='max-h-[200px] overflow-y-auto'>
-                                                            {
-                                                                accountList && accountList?.map((organisation, index) => {
-                                                                    return <SelectItem value={organisation.value} key={index}>
-                                                                        {organisation.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
                                                         </div>
-                                                    </SelectContent>
-                                                </Select>
-                                                {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                {/* <FormMessage /> */}
+
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="mt-[8px] p-0 w-[33vw]" >
+                                                        <Command>
+                                                            <CommandInput  onInput={(e) => { onChangeHandler(e.currentTarget.value) }} className='w-full flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50' placeholder="Search Organisation" />
+
+                                                            {loading ? <div className='p-[16px] flex flex-row justify-center items-center min-h-[150px]'>
+                                                                <Loader2 className="mr-2 h-10 w-10 animate-spin" />
+                                                            </div> :
+                                                                <>
+                                                                    {accountData.length> 0 ?
+                                                                    <div>
+                                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                            {accountData.map((account) => (
+                                                                                <div
+                                                                                    key={account.id.toString()}
+                                                                                    onClick={() => {
+                                                                                        form.setValue("organisationName", account.id.toString(), SET_VALUE_CONFIG)
+                                                                                        setCurrentAccountName(account.name)
+                                                                                    }}
+                                                                                    className="relative flex cursor-default hover:bg-accent items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground "
+                                                                                >
+                                                                                    <PopoverClose asChild>
+                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                            {account.name}
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                    field.value === account.id.toString()
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </PopoverClose>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div> :  <div className='py-6 text-center text-sm'>Organisation not found.</div>}
+                                                                </>
+                                                            }
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
                                             </FormItem>
                                         )}
                                     />

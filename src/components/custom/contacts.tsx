@@ -14,7 +14,7 @@ import {
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 
-import * as React from "react"
+import { useEffect, useState } from "react"
 import { DropdownMenuCheckboxItemProps, RadioGroup } from "@radix-ui/react-dropdown-menu"
 import DataTable from "./table/datatable"
 import { Dialog, DialogDescription, DialogHeader, DialogTitle, DialogContent, DialogTrigger } from "../ui/dialog"
@@ -28,25 +28,29 @@ import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, DESIGNATION, ALL_DESIGNATIONS, ALL_TYPES } from "@/app/constants/constants"
+import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, INDUSTRIES, ALL_DOMAINS, ALL_SEGMENTS, ALL_SIZE_OF_COMPANY, ALL_LAST_FUNDING_STAGE, DESIGNATION, ALL_DESIGNATIONS, ALL_TYPES, EMPTY_FILTER_QUERY, TYPE } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconArchive2, IconArrowSquareRight, IconContacts, IconCross, IconInbox, Unverified } from "../icons/svgIcons"
 import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { ClientGetResponse, ContactsGetResponse, IValueLabel, LeadInterface, PatchLead, Permission, User } from "@/app/interfaces/interface"
+import { ClientGetResponse, ContactsGetResponse, FilterQuery, IValueLabel, LeadInterface, PatchLead, Permission, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { TableContext } from "@/app/helper/context"
-import SideSheet from "./sideSheet"
-import { useRouter, useSearchParams } from "next/navigation"
+import SideSheet, { labelToValueArray, valueToLabelArray } from "./sideSheet"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import { columnsContacts } from "./table/columns-contact"
 import SideSheetContacts from "./sideSheetContacts"
-import { fetchUserDataList, getToken } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import useCreateQueryString from "@/hooks/useCreateQueryString"
+import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
+import { useDebounce } from "@/hooks/useDebounce"
+import DataTableServer from "./table/datatable-server"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -59,6 +63,7 @@ export interface IChildData {
     row: any
 }
 let dataFromApi: LeadInterface[] = []
+let totalPageCount: number
 
 const Contacts = ({ form, permissions }: {
     form: UseFormReturn<{
@@ -75,19 +80,42 @@ const Contacts = ({ form, permissions }: {
     const { toast } = useToast()
 
     const router = useRouter();
+    const watch = form.watch()
 
-    const [data, setContactData] = React.useState<ContactsGetResponse[]>([])
+    const [data, setContactData] = useState<ContactsGetResponse[]>([])
 
-    const [isLoading, setIsLoading] = React.useState<boolean>(true)
-    const [isMultiSelectOn, setIsMultiSelectOn] = React.useState<boolean>(false)
-    const [isInbox, setIsInbox] = React.useState<boolean>(true)
-    const [isNetworkError, setIsNetworkError] = React.useState<boolean>(false)
-    const [tableLeadLength, setTableLength] = React.useState<any>()
-    const [selectedRowIds, setSelectedRowIds] = React.useState<[]>()
-    const [childData, setChildData] = React.useState<IChildData>()
-    const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
-    const [userList, setUserList] = React.useState<IValueLabel[]>()
-    const [accountList, setAccountList] = React.useState<IValueLabel[]>()
+    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isMultiSelectOn, setIsMultiSelectOn] = useState<boolean>(false)
+    const [isInbox, setIsInbox] = useState<boolean>(true)
+    const [isNetworkError, setIsNetworkError] = useState<boolean>(false)
+    const [tableLeadLength, setTableLength] = useState<any>()
+    const [selectedRowIds, setSelectedRowIds] = useState<[]>()
+    const [childData, setChildData] = useState<IChildData>()
+    const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
+    const [userList, setUserList] = useState<IValueLabel[]>()
+    const [accountList, setAccountList] = useState<IValueLabel[]>()
+
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const pg = searchParams?.get("page") ?? "1"
+    const pageAsNumber = Number(pg)
+    const fallbackPage = isNaN(pageAsNumber) || pageAsNumber < 1 ? 1 : pageAsNumber
+    const per_page = searchParams?.get("limit") ?? "10"
+    const perPageAsNumber = Number(per_page)
+    const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
+    const searchString = searchParams?.get("name") ?? null
+    const createdAtFrom = searchParams?.get("created_at_from") ?? null
+    const createdAtTo = searchParams?.get("created_at_to") ?? null
+    const createdAtSort = searchParams?.get("created_at") ?? null
+    const designation = searchParams?.get("designation") ?? null
+    const type = searchParams?.get("type") ?? null
+    const createdBy = searchParams?.get("created_by") ?? null
+
+    // create param string
+    const createQueryString = useCreateQueryString()
+    const createFilterQueryString = useCreateFilterQueryString()
+
+
 
 
 
@@ -101,9 +129,7 @@ const Contacts = ({ form, permissions }: {
     }
 
 
-    React.useEffect(() => {
-        console.log(childData)
-    }, [childData?.row])
+
     function setTableLeadRow(data: any) {
         const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
         setIsMultiSelectOn(selectedRows.length !== 0)
@@ -111,31 +137,6 @@ const Contacts = ({ form, permissions }: {
         setSelectedRowIds(ids)
         setTableLength(data.rows.length)
     }
-    const searchParams = useSearchParams()
-
-
-
-    async function checkQueryParam() {
-        const queryParamIds = searchParams.get("ids")
-        if (queryParamIds && queryParamIds?.length > 0) {
-            form.setValue("search", queryParamIds)
-            form.setValue("queryParamString", queryParamIds)
-
-            const { from, to } = getThisMonth(queryParamIds)
-            form.setValue("dateRange", {
-                "range": {
-                    "from": from,
-                    "to": to
-                },
-                rangeCompare: undefined
-            })
-            await fetchLeadData(true)
-        } else {
-            fetchLeadData()
-        }
-    }
-
-
 
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -143,43 +144,49 @@ const Contacts = ({ form, permissions }: {
     async function fetchLeadData(noArchiveFilter: boolean = false) {
         setIsLoading(true)
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            
+            const nameQueryParam = searchString ? `&name=${encodeURIComponent(searchString)}` : '';
+            const typeQueryParam = type ? `&type=${encodeURIComponent(type)}` : '';
+            const designationQueryParam = designation ? `&designation=${encodeURIComponent(designation)}` : '';
+            const createdAtFromQueryParam = `&created_at_from=${setDateHours(watch.dateRange.range.from, false)}`;
+            const createdAtToQueryParam = `&created_at_to=${setDateHours(watch.dateRange.range.to, true)}`;
+            const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
+            const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
+            
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/?page=${pageAsNumber}&limit=${perPageAsNumber}${designationQueryParam}${typeQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${createdByQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: ContactsGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
             setContactData(dataFromApi)
             setIsLoading(false)
-            // if (filteredData.length == 0) {
-            //     setTableLength(0)
-            //     setIsMultiSelectOn(false)
-            //     setSelectedRowIds([])
-            // }
             const accountData: IValueLabel[] = data.map((val) => ({
                 value: val.organisation.id.toString(),
                 label: val.organisation.name,
-              }));
-              
-              // Create a Set to keep track of unique IDs
-              const uniqueIds = new Set();
-              
-              // Use filter to get unique entries based on the 'value' property
-              const uniqueAccountData = accountData.filter((entry) => {
+            }));
+
+            // Create a Set to keep track of unique IDs
+            const uniqueIds = new Set();
+            totalPageCount = result.total_pages
+            // Use filter to get unique entries based on the 'value' property
+            const uniqueAccountData = accountData.filter((entry) => {
                 if (!uniqueIds.has(entry.value)) {
-                  uniqueIds.add(entry.value);
-                  return true;
+                    uniqueIds.add(entry.value);
+                    return true;
                 }
                 return false;
-              });
-              
-              setAccountList(uniqueAccountData);
-              
+            });
+
+            setAccountList(uniqueAccountData);
+
+            setIsNetworkError(false)
+
         }
         catch (err) {
             setIsLoading(false)
             setIsNetworkError(true)
             console.log("error", err)
         }
-        getUserList() 
+        
     }
     async function getUserList() {
         setIsUserDataLoading(true)
@@ -194,37 +201,123 @@ const Contacts = ({ form, permissions }: {
 
     }
 
-    React.useEffect(() => {
-        (async () => {
-            await checkQueryParam()
-        })()
-    }, [])
+    useEffect(() => {
+        fetchLeadData()
+    }, [pageAsNumber, per_page,  searchString, createdAtFrom, createdAtTo, createdAtSort, type, designation, createdBy])
 
-    const watcher = form.watch()
+    useEffect(() => {
+        setDealFilter()
+    }, [ watch.designations,  watch.types, watch.creators, JSON.stringify(watch.dateRange) ])
 
+    function setDealFilter() {
+        let desigationQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let typeQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtFromQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdAtToQueryParam: FilterQuery = EMPTY_FILTER_QUERY
+        let createdByQueryParam: FilterQuery = EMPTY_FILTER_QUERY
 
-    React.useEffect(() => {
-        console.log(watcher)
-    }, [watcher])
+        
 
-    // React.useEffect(() => {
-    //     setContactData(filterInboxOrArchive(dataFromApi, isInbox))
-    // }, [isInbox])
-    // console.log(tableLeadLength)
-
-    async function promoteToProspect() {
-        try {
-            // const dataResp = await fetch(`${baseUrl}/v1/api/lead/${data.id}/promote/`, { method: "PATCH", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            // const result = await dataResp.json()
-            // if (result.message === "success") {
-            //     closeSideSheet()
-            // }
+        if (watch.designations && watch.designations.includes("allDesignations")) {
+            desigationQueryParam = {
+                filterFieldName: "designation",
+                value: null
+            }
         }
-        catch (err) {
-            console.log("error", err)
+        else {
+            const designationFilter = valueToLabelArray(watch.designations, DESIGNATION)
+            if (designationFilter) {
+                desigationQueryParam = {
+                    filterFieldName: "designation",
+                    value: arrayToCsvString(designationFilter)
+                }
+            }
         }
+
+        if (watch.types && watch.types.includes("allStatuses")) {
+            typeQueryParam = {
+                filterFieldName: "type",
+                value: null
+            }
+        }
+        else {
+            const typeFilter = valueToLabelArray(watch.types, TYPE)
+            if (typeFilter) {
+                typeQueryParam = {
+                    filterFieldName: "type",
+                    value: arrayToCsvString(typeFilter)
+                }
+            }
+        }
+
+
+        if (watch.creators && watch.creators.includes("allCreators")) {
+            createdByQueryParam = {
+                filterFieldName: "created_by",
+                value: null
+            }
+
+        }
+        else {
+            const creatorFilter = watch.creators
+            if (creatorFilter) {
+                createdByQueryParam = {
+                    filterFieldName: "created_by",
+                    value: arrayToCsvString(creatorFilter)
+                }
+            }
+        }
+
+        if (watch.dateRange) {
+            createdAtFromQueryParam = {
+                filterFieldName: "created_at_from",
+                value: setDateHours(watch.dateRange.range.from, false)
+            }
+            createdAtToQueryParam = {
+                filterFieldName: "created_at_to",
+                value: setDateHours(watch.dateRange.range.to, true)
+            }
+        }
+
+        // // table.getColumn("id")?.setFilterValue(filterObj.ids)
+        // table.getColumn("title")?.setFilterValue(filterObj.search)
+        // table.getColumn("created_at")?.setFilterValue(filterObj.dateRange)
+        let leadFilteredData = [ desigationQueryParam, typeQueryParam, createdAtFromQueryParam, createdAtToQueryParam, createdByQueryParam]
+        createFilterQueryString(leadFilteredData)
     }
 
+    const debouncedSearchableFilters = useDebounce(watch.search, 500)
+
+    useEffect(() => {
+        const data: FilterQuery[] = [{ filterFieldName: "name", value: debouncedSearchableFilters || null }]
+        createFilterQueryString(data)
+    }, [debouncedSearchableFilters])
+
+    useEffect(() => {
+        if (searchString) {
+            form.setValue("search", searchString)
+        }
+        
+        if (type) {
+            const data = labelToValueArray(csvStringToArray(type),TYPE)
+            if (data.length > 0) {
+                form.setValue("types", removeUndefinedFromArray(data))
+            }
+        }
+        if (designation) {
+            const data = labelToValueArray(csvStringToArray(designation), DESIGNATION)
+            if (data.length > 0) {
+                form.setValue("designations", removeUndefinedFromArray(data))
+            }
+        }
+        if (createdBy) {
+            const data = csvStringToArray(createdBy)
+            if (data.length > 0) {
+                form.setValue("creators", removeUndefinedFromArray(data))
+            }
+        }
+        getUserList()
+    }, [])
 
     async function patchArchiveLeadData(ids: number[]) {
 
@@ -374,7 +467,7 @@ const Contacts = ({ form, permissions }: {
                                         showCompare={false}
                                     />
                                 </div>
-                                <div>
+                                {/* <div>
                                     <FormField
                                         control={form.control}
                                         name="accounts"
@@ -436,7 +529,7 @@ const Contacts = ({ form, permissions }: {
                                             </FormItem>
                                         )}
                                     />
-                                </div>
+                                </div> */}
                                 <div>
                                     <FormField
                                         control={form.control}
@@ -651,7 +744,7 @@ const Contacts = ({ form, permissions }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTable columns={columnsContacts(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} page={"contacts"} />
+                    <DataTableServer columns={columnsContacts(setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Contacts"} pageCount={totalPageCount} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconContacts size="20" color="#667085" />
@@ -663,7 +756,7 @@ const Contacts = ({ form, permissions }: {
                         {isInbox && addAccountDialogButton()}</>}
                 </div>)
             }
-            {childData?.row && <SideSheetContacts parentData={{ childData, setChildDataHandler }} permissions={permissions} accountList={accountList}/>}
+            {childData?.row && <SideSheetContacts parentData={{ childData, setChildDataHandler }} permissions={permissions} accountList={accountList} />}
         </div>
 
 
