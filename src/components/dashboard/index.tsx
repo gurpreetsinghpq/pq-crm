@@ -194,7 +194,7 @@ const TITLE_MAP_W_PERMISSION_KEY = new Map([
     [TITLES.ACCOUNTS, "Organisation"],
     [TITLES.CONTACTS, "Contact"],
     [TITLES.USER_MANAGEMENT, "User Management"],
-    
+
 ])
 
 let INITIAL_PARENT_TITLE = ''
@@ -324,7 +324,7 @@ export default function DashboardComponent() {
             }
         }
     })
-    
+
     const DealsForm = useForm<z.infer<typeof DealsFormSchema>>({
         resolver: zodResolver(DealsFormSchema),
         defaultValues: {
@@ -459,11 +459,11 @@ export default function DashboardComponent() {
         setPermissions(permissionsObject)
         const tabNameQueryParam = searchParams?.get("tab") ?? ""
         const tabNameAsPerPermissionObject = TITLE_MAP_W_PERMISSION_KEY.get(tabNameQueryParam)
-        if(tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view){
+        if (tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view) {
             INITIAL_PARENT_TITLE = tabNameQueryParam
             setTab(tabNameQueryParam)
         }
-        else{
+        else {
             if (permissionsObject["Lead"].access && permissionsObject["Lead"].view) {
                 INITIAL_PARENT_TITLE = TITLES.LEADS
                 setTab(TITLES.LEADS)
@@ -603,9 +603,9 @@ export default function DashboardComponent() {
         await getNotifications()
     }
 
-    function setTab(tabName:string, removeQueryParams?:boolean){
+    function setTab(tabName: string, removeQueryParams?: boolean) {
         setCurrentTab(tabName)
-        if(removeQueryParams){
+        if (removeQueryParams) {
             router.replace(`${pathname}`, undefined)
             // window.history.replaceState(null, '', '/dashboard')
         }
@@ -676,7 +676,7 @@ export default function DashboardComponent() {
                 {<TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.DEALS, true)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${ !(permissions["Deal"]?.access && permissions["Deal"]?.view) && disabledSidebarItem}`}>
+                            <div onClick={() => setTab(TITLES.DEALS, true)} className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.DEALS && 'bg-purple-600'} ${!(permissions["Deal"]?.access && permissions["Deal"]?.view) && disabledSidebarItem}`}>
                                 <IconDealsHome size={24} />
                             </div>
                         </TooltipTrigger>
@@ -798,7 +798,7 @@ export default function DashboardComponent() {
                                                         </div>
                                                         <div className="flex-1 flex flex-col gap-[10px]">
                                                             <div className="text-sm font-medium text-purple-600">
-                                                                {val?.data?.organisation?.name}
+                                                                {val.model_name.toLowerCase() === "prospect" ? typeof val.data.lead==="object" && val?.data?.lead?.organisation?.name : val?.data?.organisation?.name}
                                                             </div>
                                                             {val.type.toLowerCase() === "activity reminder" &&
                                                                 <>
@@ -833,10 +833,13 @@ export default function DashboardComponent() {
                                                                 val.type.toLowerCase().includes("owner assigned") &&
                                                                 <>
                                                                     <div className="text-sm font-medium text-[#696F8C]">
-                                                                        <span className="text-gray-600 font-semibold">{extractName(val.description)}</span> assigned ownership for {val.model_name} <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.data.title}</span> 
+                                                                        <span className="text-gray-600 font-semibold">{extractName(val.description)}</span> assigned ownership for {val.model_name} <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]">
+                                                                            {val.model_name.toLowerCase() === "prospect" ? typeof val.data.lead==="object" && val?.data?.lead?.title : val.data.title}
+                                                                            {val.data.title}
+                                                                        </span>
                                                                         <span className="block mt-[5px]">
                                                                             to <span className="text-gray-600 font-semibold">{val.data.owner?.name}</span> on <span className="text-gray-700 font-semibold">{multiLineStyle2(val.created_at, true)}</span>
-                                                                            
+
                                                                         </span>
                                                                     </div>
                                                                     <div className="text-xs text-[#696F8C] font-medium">

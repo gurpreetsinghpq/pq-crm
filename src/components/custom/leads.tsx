@@ -73,7 +73,7 @@ const Leads = ({ form, permissions }: {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
     const [isMultiSelectOn, setIsMultiSelectOn] = useState<boolean>(false)
-    const [isInbox, setIsInbox] = useState<boolean>(true)
+    
     const [isNetworkError, setIsNetworkError] = useState<boolean>(false)
     const [tableLeadLength, setTableLength] = useState<any>()
     const [selectedRowIds, setSelectedRowIds] = useState<[]>()
@@ -98,6 +98,8 @@ const Leads = ({ form, permissions }: {
     const owner = searchParams?.get("owner") ?? null
     const status = searchParams?.get("status") ?? null
     const source = searchParams?.get("source") ?? null
+
+    const [isInbox, setIsInbox] = useState<boolean>(isArchived=="True"?false:true)
 
     // create param string
     const createQueryString = useCreateQueryString()
