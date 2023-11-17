@@ -194,33 +194,33 @@ const Accounts = ({ form, permissions }: {
 
     useEffect(() => {
         getUserList()
-        if (searchString) {
-            form.setValue("search", searchString)
-        }
-        if (industry) {
-            const data = labelToValueArray(csvStringToArray(industry), INDUSTRIES)
-            if (data.length > 0) {
-                form.setValue("industries", removeUndefinedFromArray(data))
-            }
-        }
-        if (segment) {
-            const data = labelToValueArray(csvStringToArray(segment), SEGMENT)
-            if (data.length > 0) {
-                form.setValue("segments", removeUndefinedFromArray(data))
-            }
-        }
-        if (fundingStage) {
-            const data = labelToValueArray(csvStringToArray(fundingStage), LAST_FUNDING_STAGE)
-            if (data.length > 0) {
-                form.setValue("fundingStages", removeUndefinedFromArray(data))
-            }
-        }
-        if (createdBy) {
-            const data = csvStringToArray(createdBy)
-            if (data.length > 0) {
-                form.setValue("creators", removeUndefinedFromArray(data))
-            }
-        }
+        // if (searchString) {
+        //     form.setValue("search", searchString)
+        // }
+        // if (industry) {
+        //     const data = labelToValueArray(csvStringToArray(industry), INDUSTRIES)
+        //     if (data.length > 0) {
+        //         form.setValue("industries", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (segment) {
+        //     const data = labelToValueArray(csvStringToArray(segment), SEGMENT)
+        //     if (data.length > 0) {
+        //         form.setValue("segments", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (fundingStage) {
+        //     const data = labelToValueArray(csvStringToArray(fundingStage), LAST_FUNDING_STAGE)
+        //     if (data.length > 0) {
+        //         form.setValue("fundingStages", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (createdBy) {
+        //     const data = csvStringToArray(createdBy)
+        //     if (data.length > 0) {
+        //         form.setValue("creators", removeUndefinedFromArray(data))
+        //     }
+        // }
 
         // createFilterQueryString([{filterFieldName:"tab",value:"Organisation"}, { filterFieldName: "created_at_from", value: null }, { filterFieldName: "created_at_to", value: null }])
         

@@ -294,28 +294,28 @@ const Contacts = ({ form, permissions }: {
     }, [debouncedSearchableFilters])
 
     useEffect(() => {
-        if (searchString) {
-            form.setValue("search", searchString)
-        }
+        // if (searchString) {
+        //     form.setValue("search", searchString)
+        // }
         
-        if (type) {
-            const data = labelToValueArray(csvStringToArray(type),TYPE)
-            if (data.length > 0) {
-                form.setValue("types", removeUndefinedFromArray(data))
-            }
-        }
-        if (designation) {
-            const data = labelToValueArray(csvStringToArray(designation), DESIGNATION)
-            if (data.length > 0) {
-                form.setValue("designations", removeUndefinedFromArray(data))
-            }
-        }
-        if (createdBy) {
-            const data = csvStringToArray(createdBy)
-            if (data.length > 0) {
-                form.setValue("creators", removeUndefinedFromArray(data))
-            }
-        }
+        // if (type) {
+        //     const data = labelToValueArray(csvStringToArray(type),TYPE)
+        //     if (data.length > 0) {
+        //         form.setValue("types", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (designation) {
+        //     const data = labelToValueArray(csvStringToArray(designation), DESIGNATION)
+        //     if (data.length > 0) {
+        //         form.setValue("designations", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (createdBy) {
+        //     const data = csvStringToArray(createdBy)
+        //     if (data.length > 0) {
+        //         form.setValue("creators", removeUndefinedFromArray(data))
+        //     }
+        // }
         getUserList()
     }, [])
 
