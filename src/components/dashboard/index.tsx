@@ -26,6 +26,7 @@ import { getContacts } from "../custom/sideSheetTabs/custom-stepper"
 import { valueToAcronym, valueToLabel } from "../custom/sideSheet"
 import { REMINDER } from "@/app/constants/constants"
 import Deals from "../custom/deals"
+import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
 
 
 const LeadFormSchema = z.object({
@@ -268,7 +269,9 @@ export default function DashboardComponent() {
         }
 
         window.addEventListener('resize', handleResize)
-
+        window.history.replaceState(null, '', 'dashboard')
+        router.replace(`dashboard`, undefined)
+        // window.history.replaceState(null, '', '/dashboard')
         // Clean up event listener on unmount
         return () => {
             window.removeEventListener('resize', handleResize)
@@ -605,12 +608,14 @@ export default function DashboardComponent() {
 
     function setTab(tabName: string, removeQueryParams?: boolean) {
         setCurrentTab(tabName)
-        if (removeQueryParams) {
-            router.replace(`${pathname}`, undefined)
-            // window.history.replaceState(null, '', '/dashboard')
-        }
+        
+        
     }
+    useEffect(()=>{
+        window.history.replaceState(null, '', 'dashboard')
+        router.replace(`dashboard`, undefined)
 
+    },[currentTab])
     return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left z-[1] flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center  xl:px-1 2xl:px-[0px]">
@@ -798,7 +803,7 @@ export default function DashboardComponent() {
                                                         </div>
                                                         <div className="flex-1 flex flex-col gap-[10px]">
                                                             <div className="text-sm font-medium text-purple-600">
-                                                                {val.model_name.toLowerCase() === "prospect" ? typeof val.data.lead==="object" && val?.data?.lead?.organisation?.name : val?.data?.organisation?.name}
+                                                                {val.model_name.toLowerCase() === "prospect" ? (typeof val?.data?.lead === "object" ? val?.data?.lead?.organisation?.name : "") : val?.data?.organisation?.name}
                                                             </div>
                                                             {val.type.toLowerCase() === "activity reminder" &&
                                                                 <>
@@ -834,8 +839,7 @@ export default function DashboardComponent() {
                                                                 <>
                                                                     <div className="text-sm font-medium text-[#696F8C]">
                                                                         <span className="text-gray-600 font-semibold">{extractName(val.description)}</span> assigned ownership for {val.model_name} <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]">
-                                                                            {val.model_name.toLowerCase() === "prospect" ? typeof val.data.lead==="object" && val?.data?.lead?.title : val.data.title}
-                                                                            {val.data.title}
+                                                                            {val.model_name.toLowerCase() === "prospect" ? typeof val.data.lead === "object" && val?.data?.lead?.title : val?.data?.title}
                                                                         </span>
                                                                         <span className="block mt-[5px]">
                                                                             to <span className="text-gray-600 font-semibold">{val.data.owner?.name}</span> on <span className="text-gray-700 font-semibold">{multiLineStyle2(val.created_at, true)}</span>

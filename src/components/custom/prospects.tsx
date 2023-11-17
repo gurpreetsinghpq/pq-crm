@@ -98,7 +98,7 @@ const Prospects = ({ form, permissions }: {
     const per_page = searchParams?.get("limit") ?? "10"
     const perPageAsNumber = Number(per_page)
     const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
-    const isArchived = searchParams?.get("archived") ?? 'False'
+    const isArchived = searchParams?.get("archived") ?? null
     const createdBy = searchParams?.get("created_by") ?? null
     const searchString = searchParams?.get("lead__title") ?? null
     const createdAtFrom = searchParams?.get("created_at_from") ?? null
@@ -109,7 +109,7 @@ const Prospects = ({ form, permissions }: {
     const status = searchParams?.get("status") ?? null
     const source = searchParams?.get("lead__source") ?? null
 
-    const [isInbox, setIsInbox] = useState<boolean>(isArchived=="True"?false:true)
+    const [isInbox, setIsInbox] = useState<boolean>(true)
 
     // create param string
     const createQueryString = useCreateQueryString()
@@ -238,7 +238,7 @@ const Prospects = ({ form, permissions }: {
             }
         }
         else {
-            const statusesFilter = valueToLabelArray(watch.statuses, PROSPECT_STATUSES)
+            const statusesFilter = valueToLabelArray(watch.statuses, ALL_PROSPECT_STATUSES)
             if (statusesFilter) {
                 statusesQueryParam = {
                     filterFieldName: "status",
@@ -308,40 +308,40 @@ const Prospects = ({ form, permissions }: {
     }, [debouncedSearchableFilters])
 
     useEffect(() => {
-        if (searchString) {
-            form.setValue("search", searchString)
-        }
-        if (roleRegion) {
-            const data = labelToValueArray(csvStringToArray(roleRegion), REGIONS)
-            if (data.length > 0) {
-                form.setValue("regions", removeUndefinedFromArray(data))
-            }
-        }
-        if (source) {
-            const data = labelToValueArray(csvStringToArray(source), SOURCES)
-            if (data.length > 0) {
-                form.setValue("sources", removeUndefinedFromArray(data))
-            }
-        }
-        if (status) {
-            const data = labelToValueArray(csvStringToArray(status), PROSPECT_STATUSES)
-            if (data.length > 0) {
-                form.setValue("statuses", removeUndefinedFromArray(data))
-            }
-        }
+        // if (searchString) {
+        //     form.setValue("search", searchString)
+        // }
+        // if (roleRegion) {
+        //     const data = labelToValueArray(csvStringToArray(roleRegion), REGIONS)
+        //     if (data.length > 0) {
+        //         form.setValue("regions", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (source) {
+        //     const data = labelToValueArray(csvStringToArray(source), SOURCES)
+        //     if (data.length > 0) {
+        //         form.setValue("sources", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (status) {
+        //     const data = labelToValueArray(csvStringToArray(status), ALL_PROSPECT_STATUSES)
+        //     if (data.length > 0) {
+        //         form.setValue("statuses", removeUndefinedFromArray(data))
+        //     }
+        // }
         
-        if (owner) {
-            const data = csvStringToArray(owner)
-            if (data.length > 0) {
-                form.setValue("owners", removeUndefinedFromArray(data))
-            }
-        }
-        if (createdBy) {
-            const data = csvStringToArray(createdBy)
-            if (data.length > 0) {
-                form.setValue("creators", removeUndefinedFromArray(data))
-            }
-        }
+        // if (owner) {
+        //     const data = csvStringToArray(owner)
+        //     if (data.length > 0) {
+        //         form.setValue("owners", removeUndefinedFromArray(data))
+        //     }
+        // }
+        // if (createdBy) {
+        //     const data = csvStringToArray(createdBy)
+        //     if (data.length > 0) {
+        //         form.setValue("creators", removeUndefinedFromArray(data))
+        //     }
+        // }
         
         getUserList()
     }, [])
