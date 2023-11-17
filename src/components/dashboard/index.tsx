@@ -609,16 +609,16 @@ export default function DashboardComponent() {
     function setTab(tabName: string, removeQueryParams?: boolean) {
         setCurrentTab(tabName)
         
-        
-    }
-    useEffect(()=>{
-        window.history.replaceState(null, '', 'dashboard')
-        router.replace(`dashboard`, undefined)
         LeadForm.reset()
         ProspectForm.reset()
         DealsForm.reset()
         AccountsForm.reset()
         ContactsForm.reset()
+        
+    }
+    useEffect(()=>{
+        window.history.replaceState(null, '', 'dashboard')
+        router.replace(`dashboard`, undefined)
 
     },[currentTab])
     return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full ">
