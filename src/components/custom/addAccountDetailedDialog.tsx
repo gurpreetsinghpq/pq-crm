@@ -283,12 +283,12 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         const sizeLabel = specificValueFinder(formData.size || "", SIZE_OF_COMPANY)?.label
         const lastFundingStageLabel = specificValueFinder(formData.lastFundingStage || "", LAST_FUNDING_STAGE)?.label
         const lastFundingAmountLabel = specificValueFinder(formData.lastFundingAmount || "", LAST_FUNDING_AMOUNT)?.label
-        const registeredName = formData.registeredName || ""
-        const gstinVatGstNo = formData.gstinVatGstNo || ""
-        const billingAddress = formData.billingAddress || ""
-        const shippingAddress = formData.shippingAddress || ""
-        const organisationName = formData.organisationName || ""
-        const segment = LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || ""
+        const registeredName = formData.registeredName || null
+        const gstinVatGstNo = formData.gstinVatGstNo || null
+        const billingAddress = formData.billingAddress || null
+        const shippingAddress = formData.shippingAddress || null
+        const organisationName = formData.organisationName || null
+        const segment = LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym  || null
         const finalContactData = dummyContactData.filter((contact) => !contact.id)
 
         let keysToRemove: any = ["contactId", "isLocallyAdded",]

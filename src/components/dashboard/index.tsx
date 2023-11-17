@@ -798,7 +798,7 @@ export default function DashboardComponent() {
                                                         </div>
                                                         <div className="flex-1 flex flex-col gap-[10px]">
                                                             <div className="text-sm font-medium text-purple-600">
-                                                                {val.data.organisation.name}
+                                                                {val?.data?.organisation?.name}
                                                             </div>
                                                             {val.type.toLowerCase() === "activity reminder" &&
                                                                 <>

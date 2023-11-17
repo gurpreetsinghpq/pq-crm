@@ -294,7 +294,7 @@ export interface ClientPostBody {
     last_funding_amount: string;
     funding_currency?: string;
     contact_details: ClientContactDetailPostBody[];
-    segment: string;
+    segment: string | null;
 }
 
 interface ClientContactDetailPostBody {
@@ -1013,7 +1013,7 @@ export interface NotificationGetResponse {
             name: string;
             id: number;
         };
-        organisation: {
+        organisation?: {
             name: string,
             id: number
         };

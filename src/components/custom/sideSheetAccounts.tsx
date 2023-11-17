@@ -424,9 +424,10 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
 
     async function patchData() {
 
+
         const orgData: Partial<PatchOrganisation> = {
-            name: form.getValues("organisationName"),
-            industry: valueToLabel(form.getValues("industry") || "", INDUSTRY),
+            name: form.getValues("organisationName") || null,
+            industry: valueToLabel(form.getValues("industry") || "", INDUSTRY) || null,
             domain: valueToLabel(form.getValues("domain") || "", DOMAINS) || null,
             size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY) || null,
             last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE) || null,
@@ -436,7 +437,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             shipping_address: form.getValues("shippingAddress") || null,
             govt_id: form.getValues("gstinVatGstNo") || null,
             registered_name: form.getValues("registeredName") || null
-
         }
 
         console.log("datatosend", orgData)
