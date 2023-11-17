@@ -255,17 +255,26 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
         const res = await getIsContactDuplicate(email, `${std_code}-${phone}`)
 
-        if (( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone) {
-            setDuplicateErrorMessage({
-                email: false,
-                phone: res.phone
-            })
-        }
-        else if ((contactDetailsById.email != email) && res?.email) {
-            setDuplicateErrorMessage({
-                email: res.email,
-                phone: false
-            })
+        if(( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone || (contactDetailsById.email != email) && res?.email)
+        {
+            if (( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone) {
+                setDuplicateErrorMessage({
+                    email: false,
+                    phone: res.phone
+                })
+            }
+            if ((contactDetailsById.email != email) && res?.email) {
+                setDuplicateErrorMessage({
+                    email: res.email,
+                    phone: false
+                })
+            }
+            if(( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone && (contactDetailsById.email != email) && res?.email){
+                setDuplicateErrorMessage({
+                    email: res.email,
+                    phone: res.phone
+                })
+            }
         }
         else {
             setDuplicateErrorMessage({
@@ -294,6 +303,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             }
         }
 
+        
 
 
 
