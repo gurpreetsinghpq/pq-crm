@@ -269,8 +269,8 @@ export default function DashboardComponent() {
         }
 
         window.addEventListener('resize', handleResize)
-        window.history.replaceState(null, '', 'dashboard')
-        // router.replace(`dashboard`, undefined)
+        // window.history.replaceState(null, '', 'dashboard')
+        router.replace(`dashboard`, undefined)
         // window.history.replaceState(null, '', '/dashboard')
         // Clean up event listener on unmount
         return () => {
@@ -617,8 +617,8 @@ export default function DashboardComponent() {
         
     }
     useEffect(()=>{
-        window.history.replaceState(null, '', 'dashboard')
-        // router.replace(`dashboard`, undefined)
+        // window.history.replaceState(null, '', 'dashboard')
+        router.replace(`dashboard`, undefined)
 
     },[currentTab])
     return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full ">
