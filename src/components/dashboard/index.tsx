@@ -614,6 +614,11 @@ export default function DashboardComponent() {
     useEffect(()=>{
         window.history.replaceState(null, '', 'dashboard')
         router.replace(`dashboard`, undefined)
+        LeadForm.reset()
+        ProspectForm.reset()
+        DealsForm.reset()
+        AccountsForm.reset()
+        ContactsForm.reset()
 
     },[currentTab])
     return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full ">
