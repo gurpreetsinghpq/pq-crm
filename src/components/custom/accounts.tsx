@@ -162,6 +162,11 @@ const Accounts = ({ form, permissions }: {
             totalPageCount = result.total_pages
             setClientData(dataFromApi)
             setIsLoading(false)
+            if (dataFromApi.length == 0) {
+                setTableLength(0)
+                setIsMultiSelectOn(false)
+                setSelectedRowIds([])
+            }
         }
         catch (err) {
             setIsLoading(false)

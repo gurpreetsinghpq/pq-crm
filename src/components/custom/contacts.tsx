@@ -176,6 +176,11 @@ const Contacts = ({ form, permissions }: {
                 return false;
             });
 
+            if (dataFromApi.length == 0) {
+                setTableLength(0)
+                setIsMultiSelectOn(false)
+                setSelectedRowIds([])
+            }
             setAccountList(uniqueAccountData);
 
             setIsNetworkError(false)
