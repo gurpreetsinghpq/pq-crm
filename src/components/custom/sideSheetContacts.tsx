@@ -5,13 +5,13 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, DUPLICATE_ERROR_MESSAGE_DEFAULT, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Select } from '@radix-ui/react-select'
 import { SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { ClientCompleteInterface, ClientGetResponse, Contact, ContactPatchBody, ContactsGetResponse, DeepPartial, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
+import { ClientCompleteInterface, ClientGetResponse, Contact, ContactPatchBody, ContactsGetResponse, DeepPartial, DuplicateError, IValueLabel, LeadInterface, Organisation, PatchLead, PatchOrganisation, PatchRoleDetails, Permission, RoleDetails, User } from '@/app/interfaces/interface'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from '../ui/input'
 import { Separator } from '../ui/separator'
@@ -30,7 +30,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
-import { doesTypeIncludesMandatory, handleOnChangeNumericReturnNull } from './commonFunctions'
+import { doesTypeIncludesMandatory, getContactById, getIsContactDuplicate, handleOnChangeNumericReturnNull } from './commonFunctions'
 import { useDebounce } from '@/hooks/useDebounce'
 
 
@@ -80,6 +80,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     const [accountData, setAccountData] = useState<ClientCompleteInterface[]>([])
     const [inputAccount, setInputAccount] = useState("")
     const [currentAccountName, setCurrentAccountName] = useState("")
+    const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
 
     const data: ContactsGetResponse = row.original
     useEffect(() => {
@@ -92,7 +93,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         const type = labelToValue(data.type, TYPE)
         console.log("type", type)
         changeStdCode(type)
-        console.log("data.name",data.organisation)
+        console.log("data.name", data.organisation)
         setCurrentAccountName(data.organisation.name)
     }, [])
 
@@ -221,44 +222,84 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
         let phone = form.getValues("phone")
         let std_code = form.getValues("std_code")
+        let email = form.getValues("email")
 
         if (!phone || !std_code) {
             phone = ""
             std_code = ""
         }
+        const contactDetailsById: ContactsGetResponse = await getContactById(contactId)
+
 
         const contactDetails: Partial<ContactPatchBody> = {
             name: form.getValues("name"),
-            email: form.getValues("email"),
+            // email: form.getValues("email"),
             designation: valueToLabel(form.getValues("designation") || "", DESIGNATION) || "",
             type: valueToLabel(form.getValues("type") || "", TYPE) || "",
-            phone: phone,
-            std_code: std_code,
+            // phone: phone,
+            // std_code: std_code,
             organisation: Number(form.getValues("organisationName"))
         }
 
+        if (contactDetailsById.email !== email) {
+            contactDetails["email"] = email
+        }
+        if (`${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) {
+            contactDetails["std_code"] = std_code
+            contactDetails["phone"] = phone
+        }
+
+        
 
 
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${contactId}/`, { method: "PATCH", body: JSON.stringify(contactDetails), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            console.log(result)
-            if (result.status == "1") {
-                toast({
-                    title: "Contact Details Updated Successfully!",
-                    variant: "dark"
-                })
-            } else {
-                toast({
-                    title: "Api failure!",
-                    variant: "destructive"
-                })
+
+        const res = await getIsContactDuplicate(email, `${std_code}-${phone}`)
+
+        if (( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone) {
+            setDuplicateErrorMessage({
+                email: false,
+                phone: res.phone
+            })
+        }
+        else if ((contactDetailsById.email != email) && res?.email) {
+            setDuplicateErrorMessage({
+                email: res.email,
+                phone: false
+            })
+        }
+        else {
+            setDuplicateErrorMessage({
+                email: false,
+                phone: false
+            })
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${contactId}/`, { method: "PATCH", body: JSON.stringify(contactDetails), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                console.log(result)
+                if (result.status == "1") {
+                    toast({
+                        title: "Contact Details Updated Successfully!",
+                        variant: "dark"
+                    })
+                } else {
+                    toast({
+                        title: "Api failure!",
+                        variant: "destructive"
+                    })
+                }
+
             }
+            catch (err) {
+                console.log("error", err)
+            }
+        }
 
-        }
-        catch (err) {
-            console.log("error", err)
-        }
+
+
+
+
+
+
         // /v1/api/client/contact/
 
 
@@ -480,6 +521,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                             )}
                                         />
 
+
                                     </div>
                                 </div>
                                 {/* <div className="bg-gray-200 mt-[20px] h-[1px]" ></div> */}
@@ -511,7 +553,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                             </TooltipProvider>
                                                             <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                 <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                    { currentAccountName || <span className='text-muted-foreground '>Organisation</span>}
+                                                                    {currentAccountName || <span className='text-muted-foreground '>Organisation</span>}
                                                                 </div>
                                                                 <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
                                                             </div>
@@ -520,41 +562,41 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                     </PopoverTrigger>
                                                     <PopoverContent className="mt-[8px] p-0 w-[33vw]" >
                                                         <Command>
-                                                            <CommandInput  onInput={(e) => { onChangeHandler(e.currentTarget.value) }} className='w-full flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50' placeholder="Search Organisation" />
+                                                            <CommandInput onInput={(e) => { onChangeHandler(e.currentTarget.value) }} className='w-full flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50' placeholder="Search Organisation" />
 
                                                             {loading ? <div className='p-[16px] flex flex-row justify-center items-center min-h-[150px]'>
                                                                 <Loader2 className="mr-2 h-10 w-10 animate-spin" />
                                                             </div> :
                                                                 <>
-                                                                    {accountData.length> 0 ?
-                                                                    <div>
-                                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                            {accountData.map((account) => (
-                                                                                <div
-                                                                                    key={account.id.toString()}
-                                                                                    onClick={() => {
-                                                                                        form.setValue("organisationName", account.id.toString(), SET_VALUE_CONFIG)
-                                                                                        setCurrentAccountName(account.name)
-                                                                                    }}
-                                                                                    className="relative flex cursor-default hover:bg-accent items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground "
-                                                                                >
-                                                                                    <PopoverClose asChild>
-                                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                                            {account.name}
-                                                                                            <Check
-                                                                                                className={cn(
-                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                    field.value === account.id.toString()
-                                                                                                        ? "opacity-100"
-                                                                                                        : "opacity-0"
-                                                                                                )}
-                                                                                            />
-                                                                                        </div>
-                                                                                    </PopoverClose>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div> :  <div className='py-6 text-center text-sm'>Organisation not found.</div>}
+                                                                    {accountData.length > 0 ?
+                                                                        <div>
+                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                {accountData.map((account) => (
+                                                                                    <div
+                                                                                        key={account.id.toString()}
+                                                                                        onClick={() => {
+                                                                                            form.setValue("organisationName", account.id.toString(), SET_VALUE_CONFIG)
+                                                                                            setCurrentAccountName(account.name)
+                                                                                        }}
+                                                                                        className="relative flex cursor-default hover:bg-accent items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground "
+                                                                                    >
+                                                                                        <PopoverClose asChild>
+                                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                                {account.name}
+                                                                                                <Check
+                                                                                                    className={cn(
+                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                        field.value === account.id.toString()
+                                                                                                            ? "opacity-100"
+                                                                                                            : "opacity-0"
+                                                                                                    )}
+                                                                                                />
+                                                                                            </div>
+                                                                                        </PopoverClose>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div> : <div className='py-6 text-center text-sm'>Organisation not found.</div>}
                                                                 </>
                                                             }
                                                         </Command>
@@ -664,6 +706,10 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                 )}
                                             />
                                         </div>
+                                        {duplicateErrorMessage?.email && <div className='text-error-500 text-sm font-normal px-[20px] mt-[5px]'>
+                                            Email ID is linked to another contact
+
+                                        </div>}
                                         <div className='flex flex-row  gap-2 items-center px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200' >
                                             <TooltipProvider>
                                                 <Tooltip>
@@ -755,6 +801,10 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                 />
                                             </div>
                                         </div>
+                                        {duplicateErrorMessage?.phone && <div className='text-error-500 text-sm font-normal px-[20px] mt-[5px]'>
+                                            Phone Number is linked to another contact
+
+                                        </div>}
                                     </div>
 
                                 </div>

@@ -513,6 +513,20 @@ export async function getIsContactDuplicate(emailId: string, mobile: string) {
     return err
   }
 }
+export async function getContactById(id: number) {
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/?id=${id}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    if (result.data && result.data.length>0) {
+      return result.data[0]
+    }
+    return undefined
+  }
+  catch (err: any) {
+    console.log("err", err)
+    return err
+  }
+}
 export function toastContactAlreadyExists() {
   toast({
     title: "Contact already exists!",
