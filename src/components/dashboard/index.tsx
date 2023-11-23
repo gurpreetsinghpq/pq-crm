@@ -300,8 +300,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }
@@ -320,8 +320,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }
@@ -340,8 +340,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }
@@ -362,8 +362,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }
@@ -382,8 +382,8 @@ export default function DashboardComponent() {
             queryParamString: undefined,
             dateRange: {
                 "range": {
-                    "from": from,
-                    "to": to
+                    "from": fromAllTime,
+                    "to": toAllTime
                 },
                 rangeCompare: undefined
             }

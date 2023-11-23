@@ -426,7 +426,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
 
 
         const orgData: Partial<PatchOrganisation> = {
-            name: form.getValues("organisationName") || null,
             industry: valueToLabel(form.getValues("industry") || "", INDUSTRY) || null,
             domain: valueToLabel(form.getValues("domain") || "", DOMAINS) || null,
             size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY) || null,
