@@ -21,8 +21,8 @@ import RelatedEntityDeal from './related-entities/components/related-entity-deal
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
 } = {
-  TODO: "To-Do",
   ACTIVITY: "Activity",
+  TODO: "To-Do",
   NOTES: "Notes"
 }
 
@@ -30,8 +30,8 @@ const HISTORY_TABS: {
   [key: string]: string
 } = {
   ALL: "All",
-  NOTES: "Notes",
   ACTIVITY: "Activities",
+  NOTES: "Notes",
   CHANGE_LOG: "Changelog"
 }
 
@@ -326,7 +326,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permiss
           </TabsContent>
         </div>
       </Tabs>}
-      {(parentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY || parentTab === SIDE_SHEET_TABS_ACCOUNTS.ACCOUNT_ACTIVITY) && <Tabs defaultValue={DEAL_ACTIVITY_TABS.TODO} className="flex flex-col flex-1  ">
+      {(parentTab === SIDE_SHEET_TABS.DEAL_ACTIVITY || parentTab === SIDE_SHEET_TABS_ACCOUNTS.ACCOUNT_ACTIVITY) && <Tabs defaultValue={DEAL_ACTIVITY_TABS.ACTIVITY} className="flex flex-col flex-1  ">
         <div className="flex flex-row  py-[24px] border-gray-100">
           <TabsList className={commonTabListClasses} >
             {dealActivityTab.map((tab) => {

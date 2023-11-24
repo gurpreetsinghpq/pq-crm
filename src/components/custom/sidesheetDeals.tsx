@@ -186,7 +186,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             sources: data.prospect.lead.source || "",
             statuses: labelToValue(data.status, DEAL_STATUSES),
             owners: undefined,
-            dealValue: data.deal_value,
+            dealValue: "",
             role: data.prospect.lead.role?.role_type,
             budget: labelToValue(data.prospect.lead.role?.budget_range, BUDGET_RANGE[labelToValue(data.prospect.lead.role?.region, REGIONS) || ""]),
             locations: data.prospect.lead.role.location ? data.prospect.lead.role.location : undefined,
@@ -213,8 +213,10 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             billingAddress: data.prospect.lead.organisation.billing_address || "",
             shippingAddress: data.prospect.lead.organisation.shipping_address || "",
             gstinVatGstNo: data.prospect.lead.organisation.govt_id || "",
-            serviceFee: data.prospect.lead.service_fee || "",
-            flatFee: parseCurrencyValue(data.prospect.lead.flat_fee || "")?.getNumericValue() || undefined,
+            // serviceFee: data.prospect.lead.service_fee || "",
+            // flatFee: parseCurrencyValue(data.prospect.lead.flat_fee || "")?.getNumericValue() || undefined,
+            serviceFee: "",
+            flatFee: "",
             equityFee: parseCurrencyValue(data.prospect.lead.equity_fee || "")?.getNumericValue() || undefined,
         },
         mode: "all"
@@ -248,6 +250,9 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         form.setValue("owners", data?.owner?.id?.toString() || "")
         form.setValue("closedBy", data?.prospect.lead.closed_by?.id?.toString() || "")
         form.setValue("fulfilledBy", data?.prospect.lead.fullfilled_by?.id?.toString() || "")
+        form.setValue("serviceFee", data?.prospect.lead.service_fee || "")
+        form.setValue("flatFee", parseCurrencyValue(data?.prospect.lead.flat_fee || "")?.getNumericValue() || undefined)
+        form.setValue("dealValue", data?.deal_value || "")
         getUserList()
     }, [])
 
@@ -507,6 +512,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         let dealValueToSend
         if (isServiceRadioSelected) {
             dealValue = Number(convertLocalStringToNumber(form.getValues("fixedCtcBudget"))) * Number(form.getValues("serviceFee")) / 100
+            dealValue += Number(convertLocalStringToNumber(form.getValues("equityFee")))
             dealValueToSend = `${form.getValues("fixedCtcBudgetCurrency")} ${dealValue.toLocaleString("en-US")}`
         } else {
             dealValue = Number(convertLocalStringToNumber(form.getValues("flatFee"))) + Number(convertLocalStringToNumber(form.getValues("equityFee")))
@@ -746,7 +752,8 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             const fixedCtcBudget = data.fixedCtcBudget;
             const esopRsusUl = data.esopRsusUl;
             const serviceFee = data.serviceFee;
-
+            const flatFee = data.flatFee;
+            const equityFee = data.equityFee;
             // Check if fixedBudgetUl is a valid number greater than or equal to fixedCtcBudget
             if (fixedBudgetUl !== null && fixedBudgetUl !== '' && fixedBudgetUl != undefined && fixedCtcBudget !== null && fixedCtcBudget !== '' && fixedCtcBudget != undefined) {
                 const fixedBudgetUlNumeric = Number(fixedBudgetUl?.toLocaleString().replace(/\D/g, ''));
@@ -802,6 +809,34 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                         code: z.ZodIssueCode.custom,
                         message: "Invalid Input",
                         path: ["serviceFee"],
+                    });
+                }
+            }
+
+            if (equityFee !== null && equityFee !== '' && equityFee !== undefined) {
+                const equityFeeNumeric = Number(equityFee?.toLocaleString().replace(/\D/g, ''));
+                const isEquityFeeValid = equityFeeNumeric >= 9999;
+
+                if (!isEquityFeeValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        message: "Invalid Input",
+                        path: ["equityFee"],
+                    });
+                }
+            }
+
+            if (flatFee !== null && flatFee !== '' && flatFee !== undefined) {
+                const flatFeeNumeric = Number(flatFee?.toLocaleString().replace(/\D/g, ''));
+                const isFlatFeeValid = flatFeeNumeric >= 9999;
+
+                if (!isFlatFeeValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        message: "Invalid Input",
+                        path: ["flatFee"],
                     });
                 }
             }
@@ -905,6 +940,17 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         }
     }, [formSchema])
 
+    useEffect(() => {
+        if (isServiceRadioSelected) {
+            form.resetField("flatFee")
+            form.setValue("flatFeeCurrency", "INR")
+            form.setValue("equityFeeCurrency", form.getValues("fixedCtcBudgetCurrency"))
+        } else {
+            form.resetField("serviceFee")
+            form.setValue("equityFeeCurrency", form.getValues("flatFeeCurrency"))
+        }
+        updateFormSchemaOnStatusChange(form.getValues("statuses"))
+    }, [isServiceRadioSelected])
 
     async function postPromoteToDealSafeParse() {
         patchData()
@@ -1442,7 +1488,15 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                     name="fixedCtcBudgetCurrency"
                                                     render={({ field }) => (
                                                         <FormItem className='w-fit min-w-[80px]'>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <Select onValueChange={
+                                                                (val) => {
+                                                                    if (isServiceRadioSelected) {
+
+                                                                        form.setValue("equityFeeCurrency", val)
+                                                                    }
+                                                                    return field.onChange(val)
+                                                                }
+                                                            } defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
                                                                         <SelectValue placeholder="INR" />
@@ -2239,8 +2293,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                     } else {
                                                                         setIsServiceRadioSelected(false)
                                                                     }
-                                                                    console.log(val)
-                                                                    return field.onChange
+                                                                    return field.onChange(val)
                                                                 }}
                                                                 defaultValue={field.value}
                                                                 className="flex flex-row px-[18px] gap-[40px]"
@@ -2320,9 +2373,14 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                     name="flatFeeCurrency"
                                                     render={({ field }) => (
                                                         <FormItem className='w-fit min-w-[80px]'>
-                                                            <Select disabled={isServiceRadioSelected} onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <Select disabled={isServiceRadioSelected} onValueChange={
+                                                                (val) => {
+                                                                    form.setValue("equityFeeCurrency", val)
+                                                                    return field.onChange(val)
+                                                                }
+                                                            } defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
-                                                                    <SelectTrigger className={`border-none ${commonFontClasses} ${isServiceRadioSelected ? disabledClasses : ''}`}>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses} ${isServiceRadioSelected ? `${disabledClasses} text-gray-400` : ''}`}>
                                                                         <SelectValue placeholder="INR" />
                                                                     </SelectTrigger>
                                                                 </FormControl>
@@ -2383,7 +2441,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                     name="equityFeeCurrency"
                                                     render={({ field }) => (
                                                         <FormItem className='w-fit min-w-[80px]'>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses} `}>
                                                                         <SelectValue placeholder="INR" />
@@ -2816,14 +2874,16 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/deal/${dealId}/`, { method: "PATCH", body: JSON.stringify(dealData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            if (result.message.toLowerCase() === "success") {
-                const { data: { status } } = result
+            if (result.status== "1") {
+                const { data: { status, deal_value } } = result
                 setRowState((prevState) => {
                     return {
                         ...prevState,
                         status: status
                     }
                 })
+                console.log("dealValue", deal_value)
+                form.setValue("dealValue", deal_value)
             }
         }
         catch (err) {

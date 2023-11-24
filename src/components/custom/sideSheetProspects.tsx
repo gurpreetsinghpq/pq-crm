@@ -176,7 +176,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
     const data: ProspectsGetResponse = row.original
-    const [isServiceRadioSelected, setIsServiceRadioSelected] = useState<boolean>(data.lead.service_fee ?  true : data.lead.flat_fee ?  false : true)
+    const [isServiceRadioSelected, setIsServiceRadioSelected] = useState<boolean>(data.lead.service_fee ? true : data.lead.flat_fee ? false : true)
 
     const { toast } = useToast()
 
@@ -213,8 +213,10 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             billingAddress: data.lead.organisation.billing_address || "",
             shippingAddress: data.lead.organisation.shipping_address || "",
             gstinVatGstNo: data.lead.organisation.govt_id || "",
-            serviceFee: data.lead.service_fee || "",
-            flatFee: parseCurrencyValue(data.lead.flat_fee || "")?.getNumericValue() || undefined,
+            // serviceFee: data.lead.service_fee || "",
+            // flatFee: parseCurrencyValue(data.lead.flat_fee || "")?.getNumericValue() || undefined,
+            serviceFee: "",
+            flatFee: "",
             equityFee: parseCurrencyValue(data.lead.equity_fee || "")?.getNumericValue() || undefined,
 
         },
@@ -245,8 +247,11 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         form.setValue("lastFundingStage", labelToValue(data.lead.organisation.last_funding_stage || "", LAST_FUNDING_STAGE))
         form.setValue("lastFundingAmount", labelToValue(data.lead.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
         form.setValue("owners", data?.owner?.id?.toString() || "")
+        form.setValue("serviceFee", data.lead.service_fee || "")
+        form.setValue("flatFee", parseCurrencyValue(data.lead.flat_fee || "")?.getNumericValue() || undefined)
+
         getUserList()
-        console.log("isServiceRadioSelected",isServiceRadioSelected, data.lead.service_fee, data.lead.flat_fee, data.lead.service_fee ? data.lead.flat_fee ? false : true : true)
+        console.log("isServiceRadioSelected", isServiceRadioSelected, data.lead.service_fee, data.lead.flat_fee, data.lead.service_fee ? data.lead.flat_fee ? false : true : true)
     }, [])
 
 
@@ -488,14 +493,14 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             exclusivity: form.getValues("exclusivity")?.toLowerCase() === "yes" ? true : form.getValues("exclusivity")?.toLowerCase() === "no" ? false : null,
             service_fee_range: valueToLabel(form.getValues("serviceFeeRange") || "", SERVICE_FEE_RANGE),
             // owner: valueToLabel(form.getValues("owners"), OWNERS),
-            equity_fee : form.getValues("equityFee") ? `${form.getValues("equityFeeCurrency")} ${form.getValues("equityFee")}` : null,
+            equity_fee: form.getValues("equityFee") ? `${form.getValues("equityFeeCurrency")} ${form.getValues("equityFee")}` : null,
         }
-        if(isServiceRadioSelected){
+        if (isServiceRadioSelected) {
             leadData["service_fee"] = form.getValues("serviceFee") || null
             leadData["flat_fee"] = null
-        }else{
+        } else {
             leadData["flat_fee"] = form.getValues("flatFee") ? `${form.getValues("flatFeeCurrency")} ${form.getValues("flatFee")}` : null,
-            leadData["service_fee"] =  null
+            leadData["service_fee"] = null
         }
 
         const prospectData: Partial<PatchProspect> = {
@@ -656,16 +661,16 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                     gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
                     esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
                 })
-                if(isServiceRadioSelected){
+                if (isServiceRadioSelected) {
                     updatedSchema = updatedSchema.extend({
                         serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
                     })
-                    
-                }else{
+
+                } else {
                     updatedSchema = updatedSchema.extend({
                         flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
                     })
-                    
+
                 }
             }
         }
@@ -732,6 +737,8 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             const fixedCtcBudget = data.fixedCtcBudget;
             const esopRsusUl = data.esopRsusUl;
             const serviceFee = data.serviceFee;
+            const flatFee = data.flatFee;
+            const equityFee = data.equityFee;
 
             // Check if fixedBudgetUl is a valid number greater than or equal to fixedCtcBudget
             if (fixedBudgetUl !== null && fixedBudgetUl !== '' && fixedBudgetUl != undefined && fixedCtcBudget !== null && fixedCtcBudget !== '' && fixedCtcBudget != undefined) {
@@ -788,6 +795,33 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                         code: z.ZodIssueCode.custom,
                         message: "Invalid Input",
                         path: ["serviceFee"],
+                    });
+                }
+            }
+            if (equityFee !== null && equityFee !== '' && equityFee !== undefined) {
+                const equityFeeNumeric = Number(equityFee?.toLocaleString().replace(/\D/g, ''));
+                const isEquityFeeValid = equityFeeNumeric >= 9999;
+
+                if (!isEquityFeeValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        message: "Invalid Input",
+                        path: ["equityFee"],
+                    });
+                }
+            }
+
+            if (flatFee !== null && flatFee !== '' && flatFee !== undefined) {
+                const flatFeeNumeric = Number(flatFee?.toLocaleString().replace(/\D/g, ''));
+                const isFlatFeeValid = flatFeeNumeric >= 9999;
+
+                if (!isFlatFeeValid) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        message: "Invalid Input",
+                        path: ["flatFee"],
                     });
                 }
             }
@@ -892,20 +926,30 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     }, [formSchema])
 
     useEffect(() => {
+        if (isServiceRadioSelected) {
+            form.resetField("flatFee")
+            form.setValue("flatFeeCurrency", "INR")
+            form.setValue("equityFeeCurrency", form.getValues("fixedCtcBudgetCurrency"))
+        } else {
+            form.resetField("serviceFee")
+            form.setValue("equityFeeCurrency", form.getValues("flatFeeCurrency"))
+        }
         updateFormSchemaOnStatusChange(form.getValues("statuses"))
-    },[isServiceRadioSelected])
+    }, [isServiceRadioSelected])
+
 
 
     async function postPromoteToDealSafeParse() {
         patchData()
         setPromoteToDealClicked(false)
         try {
-            let dealValue 
-            let dealValueToSend 
-            if(isServiceRadioSelected){
+            let dealValue
+            let dealValueToSend
+            if (isServiceRadioSelected) {
                 dealValue = Number(convertLocalStringToNumber(form.getValues("fixedCtcBudget"))) * Number(form.getValues("serviceFee")) / 100
+                dealValue += Number(convertLocalStringToNumber(form.getValues("equityFee")))
                 dealValueToSend = `${form.getValues("fixedCtcBudgetCurrency")} ${dealValue.toLocaleString("en-US")}`
-            }else{
+            } else {
                 dealValue = Number(convertLocalStringToNumber(form.getValues("flatFee"))) + Number(convertLocalStringToNumber(form.getValues("equityFee")))
                 dealValueToSend = `${form.getValues("flatFeeCurrency")} ${dealValue.toLocaleString("en-US")}`
             }
@@ -1354,7 +1398,15 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     name="fixedCtcBudgetCurrency"
                                                     render={({ field }) => (
                                                         <FormItem className='w-fit min-w-[80px]'>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <Select onValueChange={
+                                                                (val) => {
+                                                                    if (isServiceRadioSelected) {
+
+                                                                        form.setValue("equityFeeCurrency", val)
+                                                                    }
+                                                                    return field.onChange(val)
+                                                                }
+                                                            } defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
                                                                         <SelectValue placeholder="INR" />
@@ -2145,14 +2197,13 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     <FormItem className=" space-y-3">
                                                         <FormControl>
                                                             <RadioGroup
-                                                                onValueChange={(val)=>{
-                                                                    if(val==="service_fee"){
+                                                                onValueChange={(val) => {
+                                                                    if (val === "service_fee") {
                                                                         setIsServiceRadioSelected(true)
-                                                                    }else{
+                                                                    } else {
                                                                         setIsServiceRadioSelected(false)
                                                                     }
-                                                                    console.log(val)
-                                                                    return field.onChange
+                                                                    return field.onChange(val)
                                                                 }}
                                                                 defaultValue={field.value}
                                                                 className="flex flex-row px-[18px] gap-[40px]"
@@ -2232,9 +2283,14 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     name="flatFeeCurrency"
                                                     render={({ field }) => (
                                                         <FormItem className='w-fit min-w-[80px]'>
-                                                            <Select disabled={isServiceRadioSelected} onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <Select disabled={isServiceRadioSelected} onValueChange={
+                                                                (val) => {
+                                                                    form.setValue("equityFeeCurrency", val)
+                                                                    return field.onChange(val)
+                                                                }
+                                                            } defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
-                                                                    <SelectTrigger className={`border-none ${commonFontClasses} ${isServiceRadioSelected ? disabledClasses : ''}`}>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses} ${isServiceRadioSelected ? `${disabledClasses} text-gray-400` : ''}`}>
                                                                         <SelectValue placeholder="INR" />
                                                                     </SelectTrigger>
                                                                 </FormControl>
@@ -2260,12 +2316,14 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     render={({ field }) => (
                                                         <FormItem className='flex-1'>
                                                             <FormControl>
-                                                                <Input disabled={isServiceRadioSelected} className={`border-none ${commonClasses} ${commonFontClasses} ${isServiceRadioSelected ? disabledClasses : ''}`} placeholder="Flat Fee" {...field}
+                                                                <Input
+                                                                    disabled={isServiceRadioSelected}
+                                                                    className={`border-none ${commonClasses} ${commonFontClasses} ${isServiceRadioSelected ? disabledClasses : ''}`} placeholder="Flat Fee" {...field}
                                                                     onKeyPress={handleKeyPress}
                                                                     onChange={event => {
                                                                         return handleOnChangeNumeric(event, field)
                                                                     }}
-                                                                    
+
                                                                 />
                                                             </FormControl>
                                                             <FormMessage className={inputFormMessageClassesWithSelect} />
@@ -2295,9 +2353,9 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     name="equityFeeCurrency"
                                                     render={({ field }) => (
                                                         <FormItem className='w-fit min-w-[80px]'>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
-                                                                    <SelectTrigger className={`border-none ${commonFontClasses} `}>
+                                                                    <SelectTrigger disabled className={`border-none ${commonFontClasses} `}>
                                                                         <SelectValue placeholder="INR" />
                                                                     </SelectTrigger>
                                                                 </FormControl>
