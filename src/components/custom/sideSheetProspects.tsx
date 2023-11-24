@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
+import { IconAccounts, IconAlert, IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEquityFee, IconEsop, IconExclusitivity, IconFlatFee, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
 import { IChildData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
@@ -32,6 +32,8 @@ import { convertLocalStringToNumber, doesTypeIncludesMandatory, fetchUserDataLis
 import { toast, useToast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Label } from '../ui/label'
 
 
 const FormSchema2 = z.object({
@@ -126,7 +128,12 @@ const FormSchema = z.object({
     fixedBudgetUlCurrency: z.string().optional(),
     timeToFill: z.string(required_error).min(1, { message: required_error.required_error }),
     gstinVatGstNo: z.string().optional(),
-    contacts: z.string().optional()
+    contacts: z.string().optional(),
+    equityFee: z.string().optional(),
+    equityFeeCurrency: z.string().optional(),
+    flatFee: z.string().optional(),
+    flatFeeCurrency: z.string().optional(),
+    feeType: z.string().optional()
 })
 
 
@@ -169,6 +176,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
     const data: ProspectsGetResponse = row.original
+    const [isServiceRadioSelected, setIsServiceRadioSelected] = useState<boolean>(data.lead.service_fee ?  true : data.lead.flat_fee ?  false : true)
 
     const { toast } = useToast()
 
@@ -199,11 +207,16 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             fixedCtcBudgetCurrency: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getCurrencyCode() || "INR",
             fixedBudgetUlCurrency: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getCurrencyCode() || "INR",
             esopRsusUlCurrency: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getCurrencyCode() || "INR",
+            flatFeeCurrency: parseCurrencyValue(data.lead.flat_fee || "")?.getCurrencyCode() || "INR",
+            equityFeeCurrency: parseCurrencyValue(data.lead.equity_fee || "")?.getCurrencyCode() || "INR",
             registeredName: data.lead.organisation.registered_name || "",
             billingAddress: data.lead.organisation.billing_address || "",
             shippingAddress: data.lead.organisation.shipping_address || "",
             gstinVatGstNo: data.lead.organisation.govt_id || "",
-            serviceFee: data.lead.service_fee || ""
+            serviceFee: data.lead.service_fee || "",
+            flatFee: parseCurrencyValue(data.lead.flat_fee || "")?.getNumericValue() || undefined,
+            equityFee: parseCurrencyValue(data.lead.equity_fee || "")?.getNumericValue() || undefined,
+
         },
         mode: "all"
     })
@@ -233,6 +246,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         form.setValue("lastFundingAmount", labelToValue(data.lead.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
         form.setValue("owners", data?.owner?.id?.toString() || "")
         getUserList()
+        console.log("isServiceRadioSelected",isServiceRadioSelected, data.lead.service_fee, data.lead.flat_fee, data.lead.service_fee ? data.lead.flat_fee ? false : true : true)
     }, [])
 
 
@@ -473,8 +487,15 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             retainer_advance: form.getValues("retainerAdvance")?.toLowerCase() === "yes" ? true : form.getValues("retainerAdvance")?.toLowerCase() === "no" ? false : null,
             exclusivity: form.getValues("exclusivity")?.toLowerCase() === "yes" ? true : form.getValues("exclusivity")?.toLowerCase() === "no" ? false : null,
             service_fee_range: valueToLabel(form.getValues("serviceFeeRange") || "", SERVICE_FEE_RANGE),
-            service_fee: form.getValues("serviceFee") || null,
-            // owner: valueToLabel(form.getValues("owners"), OWNERS)
+            // owner: valueToLabel(form.getValues("owners"), OWNERS),
+            equity_fee : form.getValues("equityFee") ? `${form.getValues("equityFeeCurrency")} ${form.getValues("equityFee")}` : null,
+        }
+        if(isServiceRadioSelected){
+            leadData["service_fee"] = form.getValues("serviceFee") || null
+            leadData["flat_fee"] = null
+        }else{
+            leadData["flat_fee"] = form.getValues("flatFee") ? `${form.getValues("flatFeeCurrency")} ${form.getValues("flatFee")}` : null,
+            leadData["service_fee"] =  null
         }
 
         const prospectData: Partial<PatchProspect> = {
@@ -633,9 +654,19 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                     shippingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
                     billingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
                     gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
-                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
                     esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
                 })
+                if(isServiceRadioSelected){
+                    updatedSchema = updatedSchema.extend({
+                        serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                    })
+                    
+                }else{
+                    updatedSchema = updatedSchema.extend({
+                        flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                    })
+                    
+                }
             }
         }
 
@@ -860,13 +891,24 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         }
     }, [formSchema])
 
+    useEffect(() => {
+        updateFormSchemaOnStatusChange(form.getValues("statuses"))
+    },[isServiceRadioSelected])
+
 
     async function postPromoteToDealSafeParse() {
         patchData()
         setPromoteToDealClicked(false)
         try {
-            const dealValue = Number(convertLocalStringToNumber(form.getValues("fixedCtcBudget"))) * Number(form.getValues("serviceFee")) / 100
-            const dealValueToSend = `${form.getValues("fixedCtcBudgetCurrency")} ${dealValue.toLocaleString("en-US")}`
+            let dealValue 
+            let dealValueToSend 
+            if(isServiceRadioSelected){
+                dealValue = Number(convertLocalStringToNumber(form.getValues("fixedCtcBudget"))) * Number(form.getValues("serviceFee")) / 100
+                dealValueToSend = `${form.getValues("fixedCtcBudgetCurrency")} ${dealValue.toLocaleString("en-US")}`
+            }else{
+                dealValue = Number(convertLocalStringToNumber(form.getValues("flatFee"))) + Number(convertLocalStringToNumber(form.getValues("equityFee")))
+                dealValueToSend = `${form.getValues("flatFeeCurrency")} ${dealValue.toLocaleString("en-US")}`
+            }
             console.log("dealValueToSend", dealValueToSend)
             const dataResp = await fetch(`${baseUrl}/v1/api/prospect/${data.id}/promote/`, { method: "PATCH", body: JSON.stringify({ deal_value: dealValueToSend }), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
@@ -2094,7 +2136,51 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                 )}
                                             />
                                         </div>
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                        <div className={`py-[20px] border-b-[1px] border-gray-200 ${commonFontClasses} font-medium`}>
+                                            <FormField
+                                                control={form.control}
+                                                name="feeType"
+                                                defaultValue={isServiceRadioSelected ? 'service_fee' : 'flat_fee'}
+                                                render={({ field }) => (
+                                                    <FormItem className=" space-y-3">
+                                                        <FormControl>
+                                                            <RadioGroup
+                                                                onValueChange={(val)=>{
+                                                                    if(val==="service_fee"){
+                                                                        setIsServiceRadioSelected(true)
+                                                                    }else{
+                                                                        setIsServiceRadioSelected(false)
+                                                                    }
+                                                                    console.log(val)
+                                                                    return field.onChange
+                                                                }}
+                                                                defaultValue={field.value}
+                                                                className="flex flex-row px-[18px] gap-[40px]"
+                                                            >
+                                                                <FormItem className="flex items-center space-y-0">
+                                                                    <FormControl>
+                                                                        <RadioGroupItem value="service_fee" />
+                                                                    </FormControl>
+                                                                    <FormLabel className='px-[10px]'>
+                                                                        Service Fee %
+                                                                    </FormLabel>
+                                                                </FormItem>
+                                                                <FormItem className="flex items-center space-y-0">
+                                                                    <FormControl>
+                                                                        <RadioGroupItem value="flat_fee" />
+                                                                    </FormControl>
+                                                                    <FormLabel className='px-[10px]'>
+                                                                        Flat Fee
+                                                                    </FormLabel>
+                                                                </FormItem>
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                        <div className={`px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 ${!isServiceRadioSelected ? 'bg-gray-100' : ''}`}>
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
@@ -2114,7 +2200,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Service Fee" {...field}
+                                                            <Input disabled={!isServiceRadioSelected} className={`border-none ${commonClasses} ${commonFontClasses} ${!isServiceRadioSelected ? 'bg-gray-100' : ''}`} placeholder="Service Fee" {...field}
                                                                 onKeyPress={handleKeyPress}
                                                                 onChange={event => {
                                                                     return handleOnChangeNumeric(event, field, false)
@@ -2124,6 +2210,132 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                     </FormItem>
                                                 )}
                                             />
+                                        </div>
+                                        {/* new fields */}
+                                        <div className={`px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 ${isServiceRadioSelected ? 'bg-gray-100' : ''}`}>
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconFlatFee size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Flat Fee
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <div className='flex ml-[2px] flex-row w-full items-start'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="flatFeeCurrency"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-fit min-w-[80px]'>
+                                                            <Select disabled={isServiceRadioSelected} onValueChange={field.onChange} defaultValue={field.value} >
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses} ${isServiceRadioSelected ? disabledClasses : ''}`}>
+                                                                        <SelectValue placeholder="INR" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        CURRENCIES?.map((currency, index) => {
+                                                                            return <SelectItem key={index} value={currency.value}>
+                                                                                {currency.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="flatFee"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1'>
+                                                            <FormControl>
+                                                                <Input disabled={isServiceRadioSelected} className={`border-none ${commonClasses} ${commonFontClasses} ${isServiceRadioSelected ? disabledClasses : ''}`} placeholder="Flat Fee" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumeric(event, field)
+                                                                    }}
+                                                                    
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className={inputFormMessageClassesWithSelect} />
+                                                        </FormItem>
+
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconEquityFee size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Equity Fee
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <div className='flex ml-[2px] flex-row w-full items-start'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="equityFeeCurrency"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-fit min-w-[80px]'>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses} `}>
+                                                                        <SelectValue placeholder="INR" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        CURRENCIES?.map((currency, index) => {
+                                                                            return <SelectItem key={index} value={currency.value}>
+                                                                                {currency.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="equityFee"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1'>
+                                                            <FormControl>
+                                                                <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Equity Fee" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumeric(event, field)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className={inputFormMessageClassesWithSelect} />
+                                                        </FormItem>
+
+                                                    )}
+                                                />
+                                            </div>
                                         </div>
                                         <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                             <span className='font-bold'>Contact Details</span>

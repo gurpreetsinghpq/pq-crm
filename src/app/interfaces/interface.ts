@@ -96,6 +96,8 @@ export interface LeadInterface {
     currency: string | null;
     service_fee: number | null;
     service_fee_range: string | null;
+    flat_fee: string | null,
+    equity_fee: string | null,
     retainer_advance: boolean | null;
     exclusivity: boolean | null;
     source: string;
@@ -163,7 +165,9 @@ export interface PatchLead {
     updated_at: string;
     reason: string
     closed_by?: number | null,
-    fullfilled_by?: number | null
+    fullfilled_by?: number | null,
+    flat_fee: string | null,
+    equity_fee: string | null,
 }
 
 export interface PatchDeal {
@@ -385,6 +389,8 @@ export interface ProspectsGetResponse {
         service_fee_range: null | any; // Replace 'any' with appropriate type
         retainer_advance: boolean;
         exclusivity: boolean;
+        flat_fee: string | null;
+        equity_fee: string | null;
         source: string;
         status: string;
         reason: null | string;
@@ -1207,6 +1213,8 @@ export interface DealsGetResponse {
             retainer_advance: boolean;
             exclusivity: boolean;
             source: string;
+            flat_fee: string | null;
+            equity_fee: string | null;
             status: string;
             reason: string;
             is_converted_to_prospect: boolean;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEsop, IconExclusitivity, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
+import { IconArrowSquareRight, IconBilling, IconBuildings, IconCheckCircle, IconClock, IconClosedBy, IconCoinsHand, IconContacts, IconCross, IconCurrencyDollars, IconDeal, IconEquityFee, IconEsop, IconExclusitivity, IconFlatFee, IconGlobe, IconGst, IconIndustry, IconLeads, IconLocation, IconLock, IconOrgnaisation, IconPackage, IconPercent2, IconProfile, IconRequiredError, IconRetainerAdvance, IconRoles, IconSave, IconServiceFeeRange, IconShield, IconShipping, IconStackedCoins, IconStackedCoins2, IconStackedCoins3, IconTick, IconUserCheck, IconUsers, IconUsersSearch, IconWallet, Unverified } from '../icons/svgIcons'
 import { IChildData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
@@ -29,6 +29,7 @@ import { PopoverClose } from '@radix-ui/react-popover'
 import { useToast } from '../ui/use-toast'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
 import { getCookie } from 'cookies-next'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 
 export const required_error = {
     required_error: "Required field"
@@ -125,7 +126,11 @@ const FormSchema = z.object({
     fixedBudgetUlCurrency: z.string().optional(),
     timeToFill: z.string().optional(),
     gstinVatGstNo: z.string().optional(),
-    contacts: z.string().optional()
+    contacts: z.string().optional(),
+    equityFee: z.string().optional(),
+    equityFeeCurrency: z.string().optional(),
+    flatFee: z.string().optional(),
+    flatFeeCurrency: z.string().optional(),
 })
 
 
@@ -2057,6 +2062,51 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                 )}
                                             />
                                         </div>
+                                        <div className={`py-[20px] border-b-[1px] border-gray-200 ${commonFontClasses} font-medium bg-gray-100`}>
+                                            <FormField
+                                                control={form.control}
+                                                name="feeType"
+                                                // defaultValue={isServiceRadioSelected ? 'service_fee' : 'flat_fee'}
+                                                render={({ field }) => (
+                                                    <FormItem className=" space-y-3">
+                                                        <FormControl>
+                                                            <RadioGroup
+                                                                onValueChange={(val) => {
+                                                                    // if(val==="service_fee"){
+                                                                    //     setIsServiceRadioSelected(true)
+                                                                    // }else{
+                                                                    //     setIsServiceRadioSelected(false)
+                                                                    // }
+                                                                    // console.log(val)
+                                                                    return field.onChange
+                                                                }}
+                                                                disabled={true}
+                                                                defaultValue={field.value}
+                                                                className="flex flex-row px-[18px] gap-[40px]"
+                                                            >
+                                                                <FormItem className="flex items-center space-y-0">
+                                                                    <FormControl>
+                                                                        <RadioGroupItem value="service_fee" />
+                                                                    </FormControl>
+                                                                    <FormLabel className={`px-[10px] ${disabledClasses} text-gray-400`}>
+                                                                            Service Fee %
+                                                                    </FormLabel>
+                                                                </FormItem>
+                                                                <FormItem className="flex items-center space-y-0">
+                                                                    <FormControl>
+                                                                        <RadioGroupItem value="flat_fee" />
+                                                                    </FormControl>
+                                                                    <FormLabel className={`px-[10px] ${disabledClasses} text-gray-400`}>
+                                                                        Flat Fee
+                                                                    </FormLabel>
+                                                                </FormItem>
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                         <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
@@ -2084,6 +2134,132 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                 )}
                                             />
                                         </div>
+                                        {/* new fields */}
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconFlatFee size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Flat Fee
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <div className='flex ml-[2px] flex-row w-full items-start'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="flatFeeCurrency"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-fit min-w-[80px]'>
+                                                            <Select disabled onValueChange={field.onChange} defaultValue={field.value} >
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses} ${disabledClasses}`}>
+                                                                        <SelectValue placeholder="INR" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        CURRENCIES?.map((currency, index) => {
+                                                                            return <SelectItem key={index} value={currency.value}>
+                                                                                {currency.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="flatFee"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1'>
+                                                            <FormControl>
+                                                                <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses}`} placeholder="Flat Fee" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumeric(event, field)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className={inputFormMessageClassesWithSelect} />
+                                                        </FormItem>
+
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 bg-gray-100">
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div>
+                                                            <IconEquityFee size={24} />
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="top">
+                                                        Equity Fee
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                            <div className='flex ml-[2px] flex-row w-full items-start'>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="equityFeeCurrency"
+                                                    render={({ field }) => (
+                                                        <FormItem className='w-fit min-w-[80px]'>
+                                                            <Select disabled onValueChange={field.onChange} defaultValue={field.value} >
+                                                                <FormControl>
+                                                                    <SelectTrigger className={`border-none ${commonFontClasses} ${disabledClasses}`}>
+                                                                        <SelectValue placeholder="INR" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        CURRENCIES?.map((currency, index) => {
+                                                                            return <SelectItem key={index} value={currency.value}>
+                                                                                {currency.label}
+                                                                            </SelectItem>
+                                                                        })
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="equityFee"
+                                                    render={({ field }) => (
+                                                        <FormItem className='flex-1'>
+                                                            <FormControl>
+                                                                <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses}`} placeholder="Equity Fee" {...field}
+                                                                    onKeyPress={handleKeyPress}
+                                                                    onChange={event => {
+                                                                        return handleOnChangeNumeric(event, field)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormMessage className={inputFormMessageClassesWithSelect} />
+                                                        </FormItem>
+
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+
                                         <span className='px-[16px] mt-[24px] mb-[12px] text-gray-700 text-sm font-medium flex flex-row justify-between items-center'>
                                             <span className='font-bold'>Contact Details</span>
                                             <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
@@ -2515,13 +2691,13 @@ export function labelToValue(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.label === lookup)?.value
 }
 export function labelToValueArray(lookup: string[], arr: IValueLabel[]) {
-    return lookup.map((lp)=>arr.find((item) => item.label === lp)?.value)
+    return lookup.map((lp) => arr.find((item) => item.label === lp)?.value)
 }
 export function valueToLabel(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.value === lookup)?.label
 }
 export function valueToLabelArray(lookup: string[], arr: IValueLabel[]) {
-    return lookup.map((lp)=>arr.find((item) => item.value === lp)?.label)
+    return lookup.map((lp) => arr.find((item) => item.value === lp)?.label)
 }
 export function valueToAcronym(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.value === lookup)?.acronym
