@@ -698,6 +698,17 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                     esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
                 })
             }
+            if (isServiceRadioSelected) {
+                updatedSchema = updatedSchema.extend({
+                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                })
+
+            } else {
+                updatedSchema = updatedSchema.extend({
+                    flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                })
+
+            }
         }
 
         if (form.getValues("industry") === "vc_pe") {
