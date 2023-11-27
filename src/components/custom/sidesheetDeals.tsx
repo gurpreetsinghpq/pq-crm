@@ -671,22 +671,12 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 closedBy: z.string(required_error).min(1, { message: required_error.required_error }),
                 fulfilledBy: z.string(required_error).min(1, { message: required_error.required_error }),
             })
-            if (isServiceRadioSelected) {
-                updatedSchema = updatedSchema.extend({
-                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
-                })
-
-            } else {
-                updatedSchema = updatedSchema.extend({
-                    flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
-                })
-
-            }
         } else {
             console.log("aualified")
             updatedSchema = FormSchema.extend({
                 reasons: z.string().optional()
             })
+
 
             if (isPromoteToDeal) {
                 updatedSchema = updatedSchema.extend({
@@ -709,6 +699,18 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 })
 
             }
+        }
+
+        if (isServiceRadioSelected) {
+            updatedSchema = updatedSchema.extend({
+                serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
+            })
+
+        } else {
+            updatedSchema = updatedSchema.extend({
+                flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
+            })
+
         }
 
         if (form.getValues("industry") === "vc_pe") {
