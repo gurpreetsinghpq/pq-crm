@@ -103,7 +103,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             dataToSend["organisation"] = entityId
         } else {
             dataToSend["lead"] = entityId
-            
+
         }
 
 
@@ -143,11 +143,27 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
         const utcDate = new Date(dueDateFinal).toISOString()
         const formattedDueDate = utcDate.replace('T', ' ').replace('Z', '')
+
         if (iso) {
             return utcDate
         } else {
             return formattedDueDate
         }
+    }
+
+    function formattedDueDateToSendDate() {
+        const dueDate = form.getValues("dueDate")
+        const dueTime = form.getValues("dueTime")
+        const [hours, minutes] = dueTime.split(":").map(Number)
+        dueDate.setHours(hours)
+        dueDate.setMinutes(minutes)
+        dueDate.setSeconds(0)
+        dueDate.setMilliseconds(0)
+        const timezoneOffSet = getTimeOffsetFromUTC(TIMEZONE)
+        const dueDateFinal = replaceTimeZone(dueDate.toString(), timezoneOffSet)
+
+        const utcDate = new Date(dueDateFinal)
+        return utcDate
     }
 
     async function getTimeZone() {
@@ -738,17 +754,24 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
     function disableReminderOnInvalidDateAndTime(reminder: string) {
         let shouldDisable = false
+        const currentDate = getDateAccToTimezone()
         const dueDate = form.getValues("dueDate")
         const dueTime = form.getValues("dueTime")
-        const currentDate = getDateAccToTimezone()
-        if (Number(reminder) != -1 && dueDate && dueTime && dueDate.getDate() === currentDate.getDate()) {
+        if (Number(reminder) != -1 && dueDate && dueTime) {
             const [dueHour, dueMinute] = dueTime.split(":")
-            const currentHour = currentDate.getHours()
-            const currentMinute = currentDate.getMinutes()
-            const minuteDiff = calculateMinuteDifference(currentHour, Number(dueHour), currentMinute, Number(dueMinute))
-            console.log("time difference", currentDate.getHours(), dueHour, currentDate.getMinutes(), dueMinute)
-            console.log("time difference minutes", minuteDiff)
-            shouldDisable = !(Number(reminder) < minuteDiff)
+            //     const currentHour = currentDate.getHours()
+            //     const currentMinute = currentDate.getMinutes()
+            //     const minuteDiff = calculateMinuteDifference(currentHour, Number(dueHour), currentMinute, Number(dueMinute))
+            // console.log("time difference", currentDate.getHours(), dueHour, currentDate.getMinutes(), dueMinute)
+            // console.log("time difference minutes", minuteDiff)
+            dueDate.setHours(Number(dueHour))
+            dueDate.setMinutes(Number(dueMinute))
+
+            let dif = (+dueDate - +currentDate);
+            dif = Math.round((dif / 1000) / 60);
+
+            console.log(dueDate, currentDate, dif)
+            shouldDisable = !(Number(reminder) <dif)
         } else {
             shouldDisable = false
         }
