@@ -7,6 +7,7 @@ export interface IValueLabel {
     class?: string
     acronym?: string
     mandatory?: boolean
+    currency?: string
 }
 
 export interface Client {

@@ -28,7 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
-import { convertLocalStringToNumber, doesTypeIncludesMandatory, fetchUserDataList, getIsContactDuplicate, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { convertLocalStringToNumber, doesTypeIncludesMandatory, fetchUserDataList, getCurrencyAccToRegion, getIsContactDuplicate, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { toast, useToast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
@@ -204,11 +204,11 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
             serviceFeeRange: labelToValue(data.lead.service_fee_range || "", SERVICE_FEE_RANGE),
             timeToFill: labelToValue(data.lead.role.time_To_fill || "", TIME_TO_FILL),
             reasons: data.reason || undefined,
-            fixedCtcBudgetCurrency: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getCurrencyCode() || "INR",
-            fixedBudgetUlCurrency: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getCurrencyCode() || "INR",
-            esopRsusUlCurrency: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getCurrencyCode() || "INR",
-            flatFeeCurrency: parseCurrencyValue(data.lead.flat_fee || "")?.getCurrencyCode() || "INR",
-            equityFeeCurrency: parseCurrencyValue(data.lead.equity_fee || "")?.getCurrencyCode() || "INR",
+            fixedCtcBudgetCurrency: parseCurrencyValue(data.lead.role.fixed_budget || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.lead.role.region),
+            fixedBudgetUlCurrency: parseCurrencyValue(data.lead.role.fixed_budget_ul || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.lead.role.region),
+            esopRsusUlCurrency: parseCurrencyValue(data.lead.role.esop_rsu || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.lead.role.region),
+            flatFeeCurrency: parseCurrencyValue(data.lead.flat_fee || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.lead.role.region),
+            equityFeeCurrency: parseCurrencyValue(data.lead.equity_fee || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.lead.role.region),
             registeredName: data.lead.organisation.registered_name || "",
             billingAddress: data.lead.organisation.billing_address || "",
             shippingAddress: data.lead.organisation.shipping_address || "",
@@ -927,7 +927,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
     useEffect(() => {
         if (isServiceRadioSelected) {
             form.resetField("flatFee")
-            form.setValue("flatFeeCurrency", "INR")
+            form.setValue("flatFeeCurrency", getCurrencyAccToRegion(data.lead.role.region))
             form.setValue("equityFeeCurrency", form.getValues("fixedCtcBudgetCurrency"))
         } else {
             form.resetField("serviceFee")
@@ -1408,7 +1408,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                             } defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.lead.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -1470,7 +1470,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.lead.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -1531,7 +1531,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.lead.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -2290,7 +2290,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                             } defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses} ${isServiceRadioSelected ? `${disabledClasses} text-gray-400` : ''}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.lead.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -2355,7 +2355,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
                                                                     <SelectTrigger disabled className={`border-none ${commonFontClasses} `}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.lead.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>

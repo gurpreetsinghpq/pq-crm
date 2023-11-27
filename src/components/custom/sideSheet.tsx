@@ -24,7 +24,7 @@ import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from '
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
-import { doesTypeIncludesMandatory, fetchUserDataList, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { doesTypeIncludesMandatory, fetchUserDataList, getCurrencyAccToRegion, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useToast } from '../ui/use-toast'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
@@ -203,9 +203,9 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             timeToFill: labelToValue(data.role.time_To_fill || "", TIME_TO_FILL),
             // set initially undefined due to bug with react hook form will be updated in useeffect
             reasons: undefined,
-            fixedCtcBudgetCurrency: parseCurrencyValue(data.role.fixed_budget || "")?.getCurrencyCode() || "INR",
-            fixedBudgetUlCurrency: parseCurrencyValue(data.role.fixed_budget_ul || "")?.getCurrencyCode() || "INR",
-            esopRsusUlCurrency: parseCurrencyValue(data.role.esop_rsu || "")?.getCurrencyCode() || "INR",
+            fixedCtcBudgetCurrency: parseCurrencyValue(data.role.fixed_budget || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.role.region),
+            fixedBudgetUlCurrency: parseCurrencyValue(data.role.fixed_budget_ul || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.role.region),
+            esopRsusUlCurrency: parseCurrencyValue(data.role.esop_rsu || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.role.region),
         },
         mode: "all"
     })
@@ -1285,7 +1285,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -1347,7 +1347,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -1408,7 +1408,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -2158,7 +2158,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                             <Select disabled onValueChange={field.onChange} defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses} ${disabledClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>
@@ -2220,7 +2220,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                             <Select disabled onValueChange={field.onChange} defaultValue={field.value} >
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses} ${disabledClasses}`}>
-                                                                        <SelectValue placeholder="INR" />
+                                                                        <SelectValue placeholder={getCurrencyAccToRegion(data.role.region)} />
                                                                     </SelectTrigger>
                                                                 </FormControl>
                                                                 <SelectContent>

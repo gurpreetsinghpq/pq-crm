@@ -2,35 +2,40 @@ import { Deferred, InProgress, InProgress2, Junk, Lost, Unverified, Verified } f
 import { FilterQuery, IValueLabel } from "../interfaces/interface"
 import { GODFATHER_CLASS, GodfatherIcon, HUSTLER_CLASS, HustlerIcon, ROCKSTAR_CLASS, RockstarIcon, SEGEMENT_COMMON_CLASS } from "../../components/icons/labels"
 import timezones from "./timezones.json"
-const REGION = [
+const REGION:IValueLabel[] = [
     {
         value: "india",
         label: "India",
-        acronym: "IND"
+        acronym: "IND",
+        currency: "INR"
 
     },
     {
         value: "usa",
         label: "USA",
-        acronym: "USA"
+        acronym: "USA",
+        currency: "USD"
 
     },
     {
         value: "apac",
         label: "APAC",
-        acronym: "APAC"
+        acronym: "APAC",
+        currency: "USD"
 
     },
     {
         value: "mena",
         label: "MENA",
-        acronym: "MENA"
+        acronym: "MENA",
+        currency: "USD"
 
     },
     {
         value: "europe",
         label: "Europe",
-        acronym: "EU"
+        acronym: "EU",
+        currency: "EUR"
 
     },
 ]

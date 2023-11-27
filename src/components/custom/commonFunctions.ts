@@ -1,4 +1,4 @@
-import { TIME_ZONES, TYPE } from "@/app/constants/constants";
+import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
 import { ActivityAccToEntity, ActivityAccToEntityOrganisation, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
@@ -41,7 +41,7 @@ export function handleOnChangeNumericReturnNull(
 
   // If the cleaned value is empty, set it as undefined
   const formattedValue = inputValue === '' ? undefined : formatNumber(inputValue, isSeparator);
-  
+
 
   inputElement.value = formattedValue || ''; // Update the input value (use an empty string if undefined)
   field.onChange(formattedValue); // Update the field value
@@ -72,7 +72,7 @@ function addSeparator(value: number): string {
 export const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
   const keyValue = event.key;
   const validCharacters = /^[0-9.,\b]+$/; // Allow numbers, comma, period, and backspace (\b)
-  
+
   if (!validCharacters.test(keyValue)) {
     event.preventDefault();
   }
@@ -109,7 +109,7 @@ export async function fetchUserDataList(ownerList: boolean = false) {
     const result = await dataResp.json()
     let data: UsersGetResponse[] = structuredClone(result.data)
     let activeUsers = data.filter((val) => val.is_active === true)
-    
+
     let dataToReturn = activeUsers.map((val) => {
       const final: IValueLabel = {
         label: `${val.first_name} ${val.last_name}`,
@@ -196,7 +196,7 @@ export async function fetchProfileDetailsById(id: string): Promise<PermissionRes
     const result = await dataResp.json()
     if (result.data.permissions) {
       const data: PermissionResponse[] = structuredClone(result?.data?.permissions)
-      
+
       return data
     }
     return []
@@ -238,8 +238,8 @@ export function getName(data: any, customMessage?: string) {
   }
 }
 
-export function getActive(data:any){
-  if(data){
+export function getActive(data: any) {
+  if (data) {
     return data?.is_active
   }
 }
@@ -301,7 +301,7 @@ export async function getCurrentDateTime() {
 export function compareTimeStrings(timeVlaue: string, currentTime: string, dueDate: Date | undefined, currentDate: Date): boolean {
   // Create Date objects for the current date and the two time strings
   if (dueDate) {
-    if (dueDate.toDateString() === currentDate.toDateString() ) {
+    if (dueDate.toDateString() === currentDate.toDateString()) {
 
       console.log("disbaled", dueDate, currentDate)
       const timeParts1: string[] = timeVlaue.split(":");
@@ -501,7 +501,7 @@ export function calculateMinuteDifference(
 
 export async function getIsContactDuplicate(emailId: string, mobile: string) {
   try {
-    const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/is_duplicate/?email=${emailId}${mobile && mobile!="-"? `&phone=${mobile}` : "" }`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/is_duplicate/?email=${emailId}${mobile && mobile != "-" ? `&phone=${mobile}` : ""}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
     if (result.data) {
       return result.data
@@ -517,7 +517,7 @@ export async function getContactById(id: number) {
   try {
     const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/?id=${id}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
     const result = await dataResp.json()
-    if (result.data && result.data.length>0) {
+    if (result.data && result.data.length > 0) {
       return result.data[0]
     }
     return undefined
@@ -533,7 +533,7 @@ export function toastContactAlreadyExists() {
     variant: "destructive"
   })
 }
-export function toastOtherError(e:string) {
+export function toastOtherError(e: string) {
   toast({
     title: e,
     variant: "destructive"
@@ -547,7 +547,7 @@ export function formatNumberToTwoDigits(num: number): string {
   }
 }
 
-export function formatBytes(bytes:any, decimals = 2) {
+export function formatBytes(bytes: any, decimals = 2) {
   if (!+bytes) return '0 Bytes'
 
   const k = 1024
@@ -561,20 +561,20 @@ export function formatBytes(bytes:any, decimals = 2) {
 
 export function convertLocalStringToNumber(localString: string): number | null {
   try {
-      // Remove any commas from the input string
-      const numberStr = localString.replace(/,/g, '');
+    // Remove any commas from the input string
+    const numberStr = localString.replace(/,/g, '');
 
-      // Convert the string to a number
-      const number = parseFloat(numberStr);
+    // Convert the string to a number
+    const number = parseFloat(numberStr);
 
-      if (!isNaN(number)) {
-          return number;
-      } else {
-          return null;
-      }
-  } catch (error) {
-      // Handle any errors, e.g., invalid input
+    if (!isNaN(number)) {
+      return number;
+    } else {
       return null;
+    }
+  } catch (error) {
+    // Handle any errors, e.g., invalid input
+    return null;
   }
 }
 export function extractFileNameFromUrl(url: string): string | null {
@@ -598,11 +598,11 @@ export function removeUndefinedFromArray(arr: (string | undefined)[]): string[] 
 }
 
 
-export function setDateHours(date:Date, isEnd:boolean){
-  if(isEnd){
-    return new Date(date.setHours(23,59,0,0)).toISOString()
-  }else{
-    return new Date(date.setHours(0,0,0,0)).toISOString()
+export function setDateHours(date: Date, isEnd: boolean) {
+  if (isEnd) {
+    return new Date(date.setHours(23, 59, 0, 0)).toISOString()
+  } else {
+    return new Date(date.setHours(0, 0, 0, 0)).toISOString()
   }
 }
 
@@ -617,3 +617,7 @@ export function extractName(inputString: string): string | null {
   return match ? match[1].trim() : null;
 }
 
+export function getCurrencyAccToRegion(region: string) {
+  const currency = REGION.find((reg)=>reg.label===region)?.currency
+  return currency
+}
