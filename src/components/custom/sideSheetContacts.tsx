@@ -798,7 +798,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                     render={({ field }) => (
                                                         <FormItem className='flex-1 '>
                                                             <FormControl>
-                                                                <Input type="text" className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                                <Input type="text" className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
                                                                     onKeyPress={handleKeyPress}
                                                                     onChange={event => {
                                                                         const std_code = form.getValues("std_code")

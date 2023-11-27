@@ -2445,7 +2445,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                             name="contacts.phone"
                                                                             render={({ field }) => (
                                                                                 <FormControl>
-                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
                                                                                         onKeyPress={handleKeyPress}
                                                                                         onChange={event => {
                                                                                             const std_code = form.getValues("contacts.std_code")

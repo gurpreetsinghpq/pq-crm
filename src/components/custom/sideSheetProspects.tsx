@@ -659,7 +659,6 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                     shippingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
                     billingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
                     gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
-                    esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
                 })
                 if (isServiceRadioSelected) {
                     updatedSchema = updatedSchema.extend({
@@ -2580,7 +2579,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                             name="contacts.phone"
                                                                             render={({ field }) => (
                                                                                 <FormControl>
-                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
                                                                                         onKeyPress={handleKeyPress}
                                                                                         onChange={event => {
                                                                                             const std_code = form.getValues("contacts.std_code")

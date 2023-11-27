@@ -1019,7 +1019,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     render={({ field }) => (
                                         <FormItem className='mt-3  w-3/4 flex-1'>
                                             <FormControl>
-                                                <Input type="text" className={` ${commonFontClassesAddDialog} ${commonClasses}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                <Input type="text" className={` ${commonFontClassesAddDialog} ${commonClasses}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
                                                     onKeyPress={handleKeyPress}
                                                     onChange={event => {
                                                         const std_code = form2.getValues("std_code")

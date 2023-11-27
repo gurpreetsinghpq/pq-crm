@@ -671,7 +671,17 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 closedBy: z.string(required_error).min(1, { message: required_error.required_error }),
                 fulfilledBy: z.string(required_error).min(1, { message: required_error.required_error }),
             })
+            if (isServiceRadioSelected) {
+                updatedSchema = updatedSchema.extend({
+                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                })
 
+            } else {
+                updatedSchema = updatedSchema.extend({
+                    flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                })
+
+            }
         } else {
             console.log("aualified")
             updatedSchema = FormSchema.extend({
@@ -2441,7 +2451,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                     name="equityFeeCurrency"
                                                     render={({ field }) => (
                                                         <FormItem className='w-fit min-w-[80px]'>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
+                                                            <Select disabled onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
                                                                     <SelectTrigger className={`border-none ${commonFontClasses} `}>
                                                                         <SelectValue placeholder="INR" />
@@ -2668,7 +2678,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                             name="contacts.phone"
                                                                             render={({ field }) => (
                                                                                 <FormControl>
-                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : ""}`} {...field}
+                                                                                    <Input type="text" className={`mt-3 w-full ${commonClasses2}`} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
                                                                                         onKeyPress={handleKeyPress}
                                                                                         onChange={event => {
                                                                                             const std_code = form.getValues("contacts.std_code")
@@ -2874,7 +2884,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/deal/${dealId}/`, { method: "PATCH", body: JSON.stringify(dealData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            if (result.status== "1") {
+            if (result.status == "1") {
                 const { data: { status, deal_value } } = result
                 setRowState((prevState) => {
                     return {
