@@ -795,10 +795,10 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 }
             }
 
-            // Check if esopRsusUl is a valid number greater than or equal to 9999
+            // Check if esopRsusUl is a valid number greater than 9999
             if (esopRsusUl !== null && esopRsusUl !== '' && esopRsusUl !== undefined) {
                 const esopRsusUlNumeric = Number(esopRsusUl?.toLocaleString().replace(/\D/g, ''));
-                const isEsopRsusUlValid = esopRsusUlNumeric >= 9999;
+                const isEsopRsusUlValid = esopRsusUlNumeric > 9999;
 
                 if (!isEsopRsusUlValid) {
                     ctx.addIssue({
@@ -825,12 +825,12 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
 
             if (equityFee !== null && equityFee !== '' && equityFee !== undefined) {
                 const equityFeeNumeric = Number(equityFee?.toLocaleString().replace(/\D/g, ''));
-                const isEquityFeeValid = equityFeeNumeric >= 9999;
+                const isEquityFeeValid = equityFeeNumeric > 9999;
 
                 if (!isEquityFeeValid) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        // message: "Esop Rsus Ul should be greater than 9999.",
                         message: "Invalid Input",
                         path: ["equityFee"],
                     });
@@ -839,12 +839,12 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
 
             if (flatFee !== null && flatFee !== '' && flatFee !== undefined) {
                 const flatFeeNumeric = Number(flatFee?.toLocaleString().replace(/\D/g, ''));
-                const isFlatFeeValid = flatFeeNumeric >= 9999;
+                const isFlatFeeValid = flatFeeNumeric > 9999;
 
                 if (!isFlatFeeValid) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        // message: "Esop Rsus Ul should be greater than or equal to 9999.",
+                        // message: "Esop Rsus Ul should be greater than 9999.",
                         message: "Invalid Input",
                         path: ["flatFee"],
                     });
