@@ -671,17 +671,18 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 closedBy: z.string(required_error).min(1, { message: required_error.required_error }),
                 fulfilledBy: z.string(required_error).min(1, { message: required_error.required_error }),
             })
+
             if (isServiceRadioSelected) {
                 updatedSchema = updatedSchema.extend({
-                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error })
                 })
-
             } else {
                 updatedSchema = updatedSchema.extend({
-                    flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                    flatFee: z.string(required_error).min(1, { message: required_error.required_error })
                 })
-
             }
+            
+            
         } else {
             console.log("aualified")
             updatedSchema = FormSchema.extend({
@@ -695,11 +696,28 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                     shippingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
                     billingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
                     gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
-                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
                     esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
                 })
             }
+
+            
+
         }
+
+        if(value.toLocaleLowerCase()==="in-progress"){
+            if (isServiceRadioSelected) {
+                updatedSchema = updatedSchema.extend({
+                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error })
+                })
+            } else {
+                updatedSchema = updatedSchema.extend({
+                    flatFee: z.string(required_error).min(1, { message: required_error.required_error })
+                })
+            }
+        }
+       
+        
+        
 
         if (form.getValues("industry") === "vc_pe") {
             updatedSchema = updatedSchema.extend({
