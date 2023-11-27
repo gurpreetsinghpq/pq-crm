@@ -671,23 +671,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 closedBy: z.string(required_error).min(1, { message: required_error.required_error }),
                 fulfilledBy: z.string(required_error).min(1, { message: required_error.required_error }),
             })
-        } else {
-            console.log("aualified")
-            updatedSchema = FormSchema.extend({
-                reasons: z.string().optional()
-            })
-
-
-            if (isPromoteToDeal) {
-                updatedSchema = updatedSchema.extend({
-                    registeredName: z.string(required_error).min(1, { message: required_error.required_error }),
-                    shippingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
-                    billingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
-                    gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
-                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
-                    esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
-                })
-            }
             if (isServiceRadioSelected) {
                 updatedSchema = updatedSchema.extend({
                     serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
@@ -699,18 +682,23 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 })
 
             }
-        }
-
-        if (isServiceRadioSelected) {
-            updatedSchema = updatedSchema.extend({
-                serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
-            })
-
         } else {
-            updatedSchema = updatedSchema.extend({
-                flatFee: z.string(required_error).min(1, { message: required_error.required_error }),
+            console.log("aualified")
+            updatedSchema = FormSchema.extend({
+                reasons: z.string().optional()
             })
+            
 
+            if (isPromoteToDeal) {
+                updatedSchema = updatedSchema.extend({
+                    registeredName: z.string(required_error).min(1, { message: required_error.required_error }),
+                    shippingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
+                    billingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
+                    gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
+                    serviceFee: z.string(required_error).min(1, { message: required_error.required_error }),
+                    esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
+                })
+            }
         }
 
         if (form.getValues("industry") === "vc_pe") {
@@ -857,7 +845,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 if (!isFlatFeeValid) {
                     ctx.addIssue({
                         code: z.ZodIssueCode.custom,
-                        // message: "Esop Rsus Ul should be greater than 9999.",
+                        // message: "Esop Rsus Ul should be greater than or  9999.",
                         message: "Invalid Input",
                         path: ["flatFee"],
                     });
