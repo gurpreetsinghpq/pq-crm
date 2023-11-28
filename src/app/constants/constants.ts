@@ -241,6 +241,11 @@ const DESIGNATION = [
         value: "partner",
         label: "Partner",
     },
+    {
+        value: "procurementLead",
+        label: "Procurement Lead",
+    },
+    
 ]
 
 const ALL_DESIGNATIONS:IValueLabel[] = [
