@@ -1,5 +1,5 @@
 import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, ActivityAccToEntityOrganisation, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 
@@ -66,8 +66,12 @@ function formatNumber(value: string, isSeparator: boolean): string {
 }
 
 // Helper function to add separators (e.g., commas) to a number
-function addSeparator(value: number): string {
+export function addSeparator(value: number): string {
   return value.toLocaleString();
+}
+
+export function addSeparatorAndRemoveDecimal(value: number): string {
+  return Math.round(value).toLocaleString();
 }
 export const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
   const keyValue = event.key;
@@ -527,6 +531,20 @@ export async function getContactById(id: number) {
     return err
   }
 }
+
+export async function fetchCummulativeSummary(status: string, createdAtFrom: string | null, createdAtTo: string | null) {
+  try {
+    const createdAtFromQueryParam = createdAtFrom ? `&created_at_from=${encodeURIComponent(createdAtFrom)}` : '';
+    const createdAtToQueryParam = createdAtTo ? `&created_at_to=${encodeURIComponent(createdAtTo)}` : '';
+    const dataResp = await fetch(`${baseUrl}/v1/api/deal/cummulative_summary/?status=${status}${createdAtFromQueryParam}${createdAtToQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    return result
+  }
+  catch (err: any) {
+    console.log("err", err)
+    return err
+  }
+}
 export function toastContactAlreadyExists() {
   toast({
     title: "Contact already exists!",
@@ -618,6 +636,22 @@ export function extractName(inputString: string): string | null {
 }
 
 export function getCurrencyAccToRegion(region: string) {
-  const currency = REGION.find((reg)=>reg.label===region)?.currency
+  const currency = REGION.find((reg) => reg.label === region)?.currency
   return currency
 }
+
+
+export const getCurrentFy = (): TimeRange => {
+  const currentYear = new Date().getFullYear();
+  const fyStart = new Date(currentYear, 3, 1); // April is month 3 (0-based index)
+  const fyEnd = new Date(currentYear + 1, 2, 31); // March is month 2 (0-based index)
+  return { from: fyStart.toISOString(), to: fyEnd.toISOString() };
+};
+
+export const getLastFy = (): TimeRange => {
+  const currentYear = new Date().getFullYear();
+  const fyStart = new Date(currentYear - 1, 3, 1); // April is month 3 (0-based index)
+  const fyEnd = new Date(currentYear, 2, 31); // March is month 2 (0-based index)
+  return { from: fyStart.toISOString(), to: fyEnd.toISOString() };
+};
+

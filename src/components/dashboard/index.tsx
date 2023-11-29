@@ -91,7 +91,10 @@ const DealsFormSchema = z.object({
     }),
     search: z.string(),
     dateRange: z.any(),
-    queryParamString: z.string()
+    queryParamString: z.string(),
+    dateRangeCummulative: z.any(),
+    statusCummulative: z.string()
+
 })
 
 
@@ -344,7 +347,9 @@ export default function DashboardComponent() {
                     "to": toAllTime
                 },
                 rangeCompare: undefined
-            }
+            },
+            dateRangeCummulative: "Current FY",
+            statusCummulative: "in-progress",
         }
     })
 

@@ -1259,3 +1259,24 @@ export interface RelatedEntitiesGetResponse {
     prospects: ProspectsGetResponse[],
     deal: DealsGetResponse[]
 }
+export interface TimeRange {
+    from: string;
+    to: string;
+}
+
+export type DropdownOption = {
+    label: string;
+    value: TimeRange;
+};
+
+export interface CummulativeSummaryGetResponse {
+    "data": {
+        "INR": number,
+        "USD": number,
+        "EUR": number,
+        // "CAD": number
+        "SGD": number
+    },
+    "status": string
+    "message": string
+}

@@ -22,32 +22,33 @@ import { Input } from "../ui/input"
 import { DialogClose } from "@radix-ui/react-dialog"
 import AddLeadDialog from "./addLeadDialog"
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
-import { Check, ChevronDownIcon, Loader2, Search } from "lucide-react"
+import { Check, ChevronDown, ChevronDownIcon, Loader2, Search } from "lucide-react"
 import { UseFormReturn, useForm } from "react-hook-form"
 import * as z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useToast } from "../ui/use-toast"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
-import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES, PROSPECT_STATUSES, ALL_DEAL_STATUSES, EMPTY_FILTER_QUERY, SOURCES, DEAL_STATUSES } from "@/app/constants/constants"
+import { OWNERS as owners, CREATORS as creators, SOURCES as sources, REGIONS as regions, STATUSES as statuses, ALL_PROSPECT_STATUSES, PROSPECT_STATUSES, ALL_DEAL_STATUSES, EMPTY_FILTER_QUERY, SOURCES, DEAL_STATUSES, DATE_DROPDOWN_CUMMULATIVE, DEAL_STATUS } from "@/app/constants/constants"
 import { cn } from "@/lib/utils"
 import { IconArchive, IconArchive2, IconArrowSquareRight, IconCross, IconDeal, IconDealsHome, IconInbox, IconLeads, IconProspects, Unverified } from "../icons/svgIcons"
-import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
+import { DateRangePicker, getAllTime, getThisMonth } from "../ui/date-range-picker"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 import { Separator } from "../ui/separator"
-import { DealsGetResponse, FilterQuery, IValueLabel, Permission, User } from "@/app/interfaces/interface"
+import { CummulativeSummaryGetResponse, DealsGetResponse, FilterQuery, IValueLabel, Permission, User } from "@/app/interfaces/interface"
 // import { getData } from "@/app/dummy/dummydata"
 import Loader from "./loader"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { columnsProspects } from "./table/columns-prospect"
 import SideSheetProspects from "./sideSheetProspects"
-import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import { addSeparator, addSeparatorAndRemoveDecimal, arrayToCsvString, csvStringToArray, fetchCummulativeSummary, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import { columnsDeals } from "./table/columns-deals"
 import SideSheetDeals from "./sidesheetDeals"
 import useCreateQueryString from "@/hooks/useCreateQueryString"
 import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
-import { labelToValueArray, valueToLabelArray } from "./sideSheet"
+import { labelToValue, labelToValueArray, valueToLabel, valueToLabelArray } from "./sideSheet"
 import { useDebounce } from "@/hooks/useDebounce"
 import DataTableServer from "./table/datatable-server"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -71,6 +72,8 @@ const Deals = ({ form, permissions }: {
         search: string;
         queryParamString: string;
         dateRange?: any;
+        statusCummulative: string;
+        dateRangeCummulative?: any;
     }, any, undefined>,
     permissions: Permission
 }) => {
@@ -89,6 +92,8 @@ const Deals = ({ form, permissions }: {
     const [selectedRowIds, setSelectedRowIds] = useState<[]>()
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [childData, setChildData] = useState<IChildData>()
+    const [cummultiveSummaryData, setCummultiveSummaryData] = useState<CummulativeSummaryGetResponse>()
+    const [loadingCummultive, setLoadingCummultive] = useState<boolean>(false)
 
 
     const pathname = usePathname()
@@ -156,11 +161,11 @@ const Deals = ({ form, permissions }: {
             const ownerQueryParam = owner ? `&owner=${encodeURIComponent(owner)}` : '';
             const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
             const sourceQueryParam = source ? `&lead__source=${encodeURIComponent(source)}` : '';
-            
+
             const dataResp = await fetch(`${baseUrl}/v1/api/deal/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${fulfilledByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${roleRegionQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: DealsGetResponse[] = structuredClone(result.data)
-            
+
             dataFromApi = data
             setLeadData(dataFromApi)
             totalPageCount = result.total_pages
@@ -179,7 +184,7 @@ const Deals = ({ form, permissions }: {
         }
 
     }
-    
+
     useEffect(() => {
         fetchDealData()
     }, [pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, fulfilledBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
@@ -190,7 +195,7 @@ const Deals = ({ form, permissions }: {
 
     useEffect(() => {
         setDealFilter()
-    }, [ watch.sources,  watch.statuses, watch.owners, watch.fulfilledBy, JSON.stringify(watch.dateRange), ])
+    }, [watch.sources, watch.statuses, watch.owners, watch.fulfilledBy, JSON.stringify(watch.dateRange),])
 
     function setDealFilter() {
         let regionsQueryParam: FilterQuery = EMPTY_FILTER_QUERY
@@ -201,7 +206,7 @@ const Deals = ({ form, permissions }: {
         let createdAtFromQueryParam: FilterQuery = EMPTY_FILTER_QUERY
         let createdAtToQueryParam: FilterQuery = EMPTY_FILTER_QUERY
 
-        
+
 
         if (watch.sources && watch.sources.includes("allSources")) {
             sourcesQueryParam = {
@@ -299,7 +304,7 @@ const Deals = ({ form, permissions }: {
         // if (searchString) {
         //     form.setValue("search", searchString)
         // }
-        
+
         // if (source) {
         //     const data = labelToValueArray(csvStringToArray(source), SOURCES)
         //     if (data.length > 0) {
@@ -312,7 +317,7 @@ const Deals = ({ form, permissions }: {
         //         form.setValue("statuses", removeUndefinedFromArray(data))
         //     }
         // }
-        
+
         // if (owner) {
         //     const data = csvStringToArray(owner)
         //     if (data.length > 0) {
@@ -325,7 +330,7 @@ const Deals = ({ form, permissions }: {
         //         form.setValue("fulfilledBy", removeUndefinedFromArray(data))
         //     }
         // }
-        
+
         getUserList()
     }, [])
 
@@ -345,7 +350,7 @@ const Deals = ({ form, permissions }: {
     }
 
 
-    
+
 
 
     async function patchArchiveProspectData(ids: number[]) {
@@ -409,13 +414,44 @@ const Deals = ({ form, permissions }: {
             });
     }
 
+    async function getCummulativeSummaryData(status: string, from: string | null, to: string | null) {
+        setLoadingCummultive(true)
+        try {
+            const data: CummulativeSummaryGetResponse = await fetchCummulativeSummary(status, from, to)
+            console.log(data)
+            if (data.status == "1") {
+                setCummultiveSummaryData(data)
+                setLoadingCummultive(false)
+            } else {
+                toast({
+                    title: `${data?.message}`,
+                    variant: "destructive"
+                })
+            }
+            setLoadingCummultive(false)
+        }
+        catch (err) {
+            console.log("cant fetch ccummultiveSummaryData")
+            toast({
+                title: `${err}`,
+                variant: "destructive"
+            })
+            setLoadingCummultive(false)
+        }
+    }
+    useEffect(() => {
+        const statusCummulative = valueToLabel(watch.statusCummulative, DEAL_STATUSES)
+        const dateRangeCummulative = DATE_DROPDOWN_CUMMULATIVE.find((val) => val.label === watch.dateRangeCummulative)?.value
+        console.log("statusCummulative", watch.statusCummulative, statusCummulative, dateRangeCummulative)
+        getCummulativeSummaryData(statusCummulative || "In Progress", dateRangeCummulative?.from || null, dateRangeCummulative?.to || null)
 
+    }, [watch.dateRangeCummulative, watch.statusCummulative])
 
     return <div className="flex flex-col flex-1">
         <div className="bottom flex-1 flex flex-col">
             <Form {...form}>
                 <form>
-                    <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
+                    <div className="flex flex-row justify-between items-center top px-6 py-5 border-b-2 border-gray-100">
                         <div className="w-1/2 flex flex-row gap-4 items-center">
                             <FormField
                                 control={form.control}
@@ -428,7 +464,7 @@ const Deals = ({ form, permissions }: {
                                     </FormItem>
                                 )}
                             />
-                            {!form.getValues("queryParamString") && <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
+                            <div className="flex flex-row border border-[1px] border-gray-300 rounded-[8px]">
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger asChild>
@@ -454,10 +490,145 @@ const Deals = ({ form, permissions }: {
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
-                            </div>}
+                            </div>
                         </div>
+                        <div className="xl:text-md sm:text-xs flex flex-row items-center sm:gap-[5px] xl:gap-[10px] bg-purple-600 text-purple-25 sm:px-[10px]  xl:px-[24px] py-[8px] rounded-[5px] border-[1px] border-purple-300">
+                            <div className="flex flex-row gap-[4px] items-center ">
+                                <div className="flex flex-row  font-bold  ">
+                                    Deals:
+                                </div>
+                                <div className=" font-medium cursor-pointer">
+                                    <FormField
+                                        control={form.control}
+                                        name="statusCummulative"
+                                        render={({ field }) => (
+                                            <FormItem className='w-full'>
+                                                <Select onValueChange={(value) => {
+                                                    return field.onChange(value)
+                                                }
+                                                } defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger color="white" className={`focus:bg-none sm:text-xs xl:text-md font-medium focus:border-none outline-none gap-[5px] p-0 bg-transparent border-none m-0 h-fit w-fit border-[0px]`}>
+                                                            <SelectValue defaultValue={field.value} placeholder="Select a Status" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        {
+                                                            DEAL_STATUSES.map((status, index) => {
+                                                                return <SelectItem key={index} value={status.value}>
+                                                                    <div className="">
+                                                                        {/* <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}> */}
+                                                                        {/* {status.icon && <status.icon />} */}
+                                                                        {status.label}
+                                                                        {/* </div> */}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            })
+                                                        }
+                                                    </SelectContent>
+                                                </Select>
+                                                {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                            </FormItem>
+                                        )}
+                                    />
 
+                                </div>
+                            </div>
+                            <div>
+                                |
+                            </div>
+                            <div className=" font-medium cursor-pointer">
+                                <FormField
+                                    control={form.control}
+                                    name="dateRangeCummulative"
+                                    render={({ field }) => (
+                                        <FormItem className='w-full'>
+                                            <Select onValueChange={(value) => {
+                                                return field.onChange(value)
+                                            }
+                                            } defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger color="white" className={`focus:bg-none sm:text-xs xl:text-md font-medium focus:border-none outline-none gap-[5px] p-0 bg-transparent border-none m-0 h-fit w-fit border-[0px]`}>
+                                                        <SelectValue defaultValue={field.value} placeholder="Select a Status" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    {
+                                                        DATE_DROPDOWN_CUMMULATIVE.map((status, index) => {
+                                                            return <SelectItem key={index} value={status.label}>
+                                                                <div className="">
+                                                                    {/* <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!status.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status.class}`}> */}
+                                                                    {/* {status.icon && <status.icon />} */}
+                                                                    {status.label}
+                                                                    {/* </div> */}
+                                                                </div>
+                                                            </SelectItem>
+                                                        })
+                                                    }
+                                                </SelectContent>
+                                            </Select>
+                                            {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                        </FormItem>
+                                    )}
+                                />
+
+                            </div>
+                            <div>
+                                |
+                            </div>
+                            <div className="flex flex-row gap-[5px]">
+                                <div className="font-bold">
+                                    INR
+                                </div>
+                                <div className="font-medium">
+                                    {loadingCummultive ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <>
+                                        {
+                                         cummultiveSummaryData ? addSeparatorAndRemoveDecimal(cummultiveSummaryData?.data.INR) : <>--</>
+                                        }
+                                    </>}
+                                </div>
+
+                            </div>
+                            <div>
+                                |
+                            </div>
+                            <div className="flex flex-row gap-[5px]">
+                                <div className="font-bold">
+                                    USD
+                                </div>
+                                <div className="font-medium">
+                                    {loadingCummultive ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <>
+                                        {
+                                         cummultiveSummaryData ? addSeparatorAndRemoveDecimal(cummultiveSummaryData?.data.USD) : <>--</>
+                                        }
+                                    </>}
+                                </div>
+
+                            </div>
+                            <div>
+                                |
+                            </div>
+                            <div className="flex flex-row gap-[5px]">
+                                <div className="font-bold">
+                                    SGD
+                                </div>
+                                <div className="font-medium">
+                                    {loadingCummultive ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <>
+                                        {
+                                         cummultiveSummaryData ? addSeparatorAndRemoveDecimal(cummultiveSummaryData?.data.SGD) : <>--</>
+                                        }
+                                    </>}
+                                </div>
+
+                            </div>
+
+                        </div>
                     </div>
+
                     <div className="filters px-6 py-3 border-b-2 border-gray-100 flex flex-row space-between items-center ">
                         <div className=" flex items-center flex-row gap-2">
                             <span className="text-sm ">{isLoading ? "Loading..." : data?.length === 0 ? "No Deals" : isMultiSelectOn ? <span>Selected {selectedRowIds?.length} out of {tableLeadLength} {tableLeadLength > 1 ? "Deals" : "Deal"}</span> : tableLeadLength > 0 ? `Showing ${tableLeadLength} ${tableLeadLength > 1 ? "Deals" : "Deal"}` : "No Deals"}</span>
@@ -849,7 +1020,7 @@ const Deals = ({ form, permissions }: {
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
                     {/* <TableContext.Provider value={{ tableLeadLength, setTableLeadRow }}> */}
-                    <DataTableServer columns={columnsDeals(setChildDataHandler, patchArchiveProspectData, isInbox, permissions)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Deals"} pageCount={totalPageCount}/>
+                    <DataTableServer columns={columnsDeals(setChildDataHandler, patchArchiveProspectData, isInbox, permissions)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Deals"} pageCount={totalPageCount} />
                     {/* </TableContext.Provider> */}
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
