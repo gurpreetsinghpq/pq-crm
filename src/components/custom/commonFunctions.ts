@@ -641,14 +641,14 @@ export function getCurrencyAccToRegion(region: string) {
 }
 
 
-export const getCurrentFy = (): TimeRange => {
+export function getCurrentFy(): TimeRange  {
   const currentYear = new Date().getFullYear();
   const fyStart = new Date(currentYear, 3, 1); // April is month 3 (0-based index)
   const fyEnd = new Date(currentYear + 1, 2, 31); // March is month 2 (0-based index)
   return { from: fyStart.toISOString(), to: fyEnd.toISOString() };
 };
 
-export const getLastFy = (): TimeRange => {
+export function getLastFy(): TimeRange {
   const currentYear = new Date().getFullYear();
   const fyStart = new Date(currentYear - 1, 3, 1); // April is month 3 (0-based index)
   const fyEnd = new Date(currentYear, 2, 31); // March is month 2 (0-based index)
