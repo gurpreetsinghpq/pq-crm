@@ -305,7 +305,7 @@ function Profiles({ form, permissions }: {
                                         align="start"
                                         locale="en-GB"
                                         showCompare={false}
-                                        classFromParent="xl:max-h-[300px] 2xl:max-h-[400px] overflow-y-auto"
+                                        classFromParent="sm:max-h-[50vh] xl:max-h-[60vh] 2xl:max-h-[400px] overflow-y-auto"
                                     />
                                 </div>
                             </>

@@ -787,7 +787,7 @@ export default function DashboardComponent() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="xl:max-h-[400px] 2xl:max-h-[600px] overflow-y-auto w-full">
+                                        <div className="md:max-h-[300px] lg:max-h-[350px] xl:max-h-[400px] 2xl:max-h-[600px] overflow-y-auto w-full">
                                             {(notificationData && notificationData.length > 0) ? notificationData.map((val, index) => {
                                                 return <div key={val.id} className={`p-[16px] ${index !== notificationData.length - 1 && "border-b-[1px] border-[#DCDEE4]"} hover:bg-gray-50`} >
                                                     <div className="flex flex-row gap-[20px] items-baseline" onClick={() => patchSpecificNotification(val.id, !val.is_viewed)}>
