@@ -452,12 +452,12 @@ const Deals = ({ form, permissions }: {
             <Form {...form}>
                 <form>
                     <div className="flex flex-row justify-between items-center top px-6 py-5 border-b-2 border-gray-100">
-                        <div className="w-1/2 flex flex-row gap-4 items-center">
+                        <div className="flex flex-row gap-4 items-center">
                             <FormField
                                 control={form.control}
                                 name="search"
                                 render={({ field }) => (
-                                    <FormItem className="w-2/3">
+                                    <FormItem className="w-[200px] min-[1300px]:w-[350px] ">
                                         <FormControl>
                                             <Input placeholder="Search" className="text-md border" {...field} />
                                         </FormControl>
@@ -492,12 +492,12 @@ const Deals = ({ form, permissions }: {
                                 </TooltipProvider>
                             </div>
                         </div>
-                        <div className="xl:text-md sm:text-xs flex flex-row items-center sm:gap-[5px] xl:gap-[10px] bg-purple-600 text-purple-25 sm:px-[10px]  xl:px-[24px] py-[8px] rounded-[5px] border-[1px] border-purple-300">
+                        <div className="text-md flex flex-row items-center gap-[10px] bg-purple-600 text-purple-25 px-[24px] py-[8px] rounded-[5px] border-[1px] border-purple-300">
                             <div className="flex flex-row gap-[4px] items-center ">
                                 <div className="flex flex-row  font-bold  ">
                                     Deals:
                                 </div>
-                                <div className=" font-medium cursor-pointer">
+                                <div className=" font-medium cursor-pointer w-[110px]">
                                     <FormField
                                         control={form.control}
                                         name="statusCummulative"
@@ -508,7 +508,7 @@ const Deals = ({ form, permissions }: {
                                                 }
                                                 } defaultValue={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger color="white" className={`focus:bg-none sm:text-xs xl:text-md font-medium focus:border-none outline-none gap-[5px] p-0 bg-transparent border-none m-0 h-fit w-fit border-[0px]`}>
+                                                        <SelectTrigger color="white" className={`focus:bg-none text-md font-medium focus:border-none outline-none gap-[5px] p-0 bg-transparent border-none m-0 h-fit w-fit border-[0px]`}>
                                                             <SelectValue defaultValue={field.value} placeholder="Select a Status" />
                                                         </SelectTrigger>
                                                     </FormControl>
@@ -539,7 +539,7 @@ const Deals = ({ form, permissions }: {
                             <div>
                                 |
                             </div>
-                            <div className=" font-medium cursor-pointer">
+                            <div className=" font-medium cursor-pointer w-[110px]">
                                 <FormField
                                     control={form.control}
                                     name="dateRangeCummulative"
@@ -550,7 +550,7 @@ const Deals = ({ form, permissions }: {
                                             }
                                             } defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger color="white" className={`focus:bg-none sm:text-xs xl:text-md font-medium focus:border-none outline-none gap-[5px] p-0 bg-transparent border-none m-0 h-fit w-fit border-[0px]`}>
+                                                    <SelectTrigger color="white" className={`focus:bg-none text-md font-medium focus:border-none outline-none gap-[5px] p-0 bg-transparent border-none m-0 h-fit w-fit border-[0px]`}>
                                                         <SelectValue defaultValue={field.value} placeholder="Select a Status" />
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -580,7 +580,7 @@ const Deals = ({ form, permissions }: {
                             <div>
                                 |
                             </div>
-                            <div className="flex flex-row gap-[5px]">
+                            <div className="flex flex-row gap-[5px] w-[130px]">
                                 <div className="font-bold">
                                     INR
                                 </div>
@@ -596,7 +596,7 @@ const Deals = ({ form, permissions }: {
                             <div>
                                 |
                             </div>
-                            <div className="flex flex-row gap-[5px]">
+                            <div className="flex flex-row gap-[5px] w-[130px]">
                                 <div className="font-bold">
                                     USD
                                 </div>
@@ -612,7 +612,7 @@ const Deals = ({ form, permissions }: {
                             <div>
                                 |
                             </div>
-                            <div className="flex flex-row gap-[5px]">
+                            <div className="flex flex-row gap-[5px] w-[130px]">
                                 <div className="font-bold">
                                     SGD
                                 </div>

@@ -71,7 +71,11 @@ export function addSeparator(value: number): string {
 }
 
 export function addSeparatorAndRemoveDecimal(value: number): string {
-  return Math.round(value).toLocaleString();
+  if(value===0){
+    return "--"
+  }else{
+    return Math.round(value).toLocaleString();
+  }
 }
 export const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
   const keyValue = event.key;
