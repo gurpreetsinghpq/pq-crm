@@ -104,7 +104,7 @@ const Deals = ({ form, permissions }: {
     const per_page = searchParams?.get("limit") ?? "10"
     const perPageAsNumber = Number(per_page)
     const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
-    const isArchived = searchParams?.get("archived") ?? null
+    const isArchived = searchParams?.get("archived") ?? "False"
     const fulfilledBy = searchParams?.get("lead__fullfilled_by") ?? null
     const searchString = searchParams?.get("lead__title") ?? null
     const createdAtFrom = searchParams?.get("created_at_from") ?? null
@@ -128,6 +128,7 @@ const Deals = ({ form, permissions }: {
         })
         if (!data) {
             fetchDealData()
+            getCummulativeSummaryData()
         }
     }
 
@@ -414,10 +415,12 @@ const Deals = ({ form, permissions }: {
             });
     }
 
-    async function getCummulativeSummaryData(status: string, from: string | null, to: string | null) {
+    async function getCummulativeSummaryData() {
+        const statusCummulative = valueToLabel(watch.statusCummulative, DEAL_STATUSES)
+        const dateRangeCummulative = DATE_DROPDOWN_CUMMULATIVE.find((val) => val.label === watch.dateRangeCummulative)?.value
         setLoadingCummultive(true)
         try {
-            const data: CummulativeSummaryGetResponse = await fetchCummulativeSummary(status, from, to)
+            const data: CummulativeSummaryGetResponse = await fetchCummulativeSummary(statusCummulative  || "In Progress", dateRangeCummulative?.from || null, dateRangeCummulative?.to || null)
             console.log(data)
             if (data.status == "1") {
                 setCummultiveSummaryData(data)
@@ -440,10 +443,8 @@ const Deals = ({ form, permissions }: {
         }
     }
     useEffect(() => {
-        const statusCummulative = valueToLabel(watch.statusCummulative, DEAL_STATUSES)
-        const dateRangeCummulative = DATE_DROPDOWN_CUMMULATIVE.find((val) => val.label === watch.dateRangeCummulative)?.value
-        console.log("statusCummulative", watch.statusCummulative, statusCummulative, dateRangeCummulative)
-        getCummulativeSummaryData(statusCummulative || "In Progress", dateRangeCummulative?.from || null, dateRangeCummulative?.to || null)
+        
+        getCummulativeSummaryData()
 
     }, [watch.dateRangeCummulative, watch.statusCummulative])
 
