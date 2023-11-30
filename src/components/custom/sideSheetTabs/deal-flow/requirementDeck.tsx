@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { UploadedFile } from '@/app/interfaces/interface'
 import { multiLineStyle2 } from '../../table/columns'
 
-function RequirementDeck({ entityId, title }: { entityId: number, title:string }) {
+function RequirementDeck({ entityId, title, isProposalDeck=false }: { entityId: number, title:string, isProposalDeck:boolean }) {
 
     const [isAnyDocument, setIsAnyDocument] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<{ name: string | null, size: number | null }>({ name: null, size: null });
@@ -32,8 +32,10 @@ function RequirementDeck({ entityId, title }: { entityId: number, title:string }
         getAllPdf()
     }, [])
     async function getAllPdf() {
+        // /v1/api/proposal/?prospect=2
+
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/rdcapsule/?deal=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/${isProposalDeck? "proposal": "rdcapsule"}/?${isProposalDeck?'prospect': 'deal'}=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
 
             if (result.status == "1") {
@@ -85,10 +87,14 @@ function RequirementDeck({ entityId, title }: { entityId: number, title:string }
                 const newTitle = `${title.replace(/\s/g, '')}_Capsule_V${newVersion}.pdf`
 
                 formData.append('file', selectedFile, newTitle)
-                formData.append('deal', entityId.toString())
+                if(isProposalDeck){
+                    formData.append('prospect', entityId.toString())
+                }else{
+                    formData.append('deal', entityId.toString())
+                }
                 setIsUploading(true)
                 try {
-                    const dataResp = await fetch(`${baseUrl}/v1/api/rdcapsule/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
+                    const dataResp = await fetch(`${baseUrl}/v1/api/${isProposalDeck? "proposal": "rdcapsule"}/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
                     const result = await dataResp.json()
                     setIsUploading(false)
                     if (result.message === "success") {
@@ -125,10 +131,10 @@ function RequirementDeck({ entityId, title }: { entityId: number, title:string }
                         Open document editor
                     </div>
                     <div className='my-[16px] text-sm font-medium text-gray-700 flex flex-row justify-center text-center'>
-                        Click the Open Editor button to begin creating a requirement deck.
+                        Click the Open Editor button to begin creating a {isProposalDeck?"proposal": "requirement deck"}.
                     </div>
                     <div className='flex flex-row justify-center'>
-                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open('https://capsule.purplequarter.co/')}>
+                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open(`https://capsule.purplequarter.co/tab=${isProposalDeck ?"Proposal":"Capsule" }`)}>
                             <IconPencil2 />
                             Open Editor
                         </Button>
@@ -139,7 +145,7 @@ function RequirementDeck({ entityId, title }: { entityId: number, title:string }
                         {
                             <div className='flex flex-col gap-[12px] items-center'>
                                 <div>
-                                    <img src="images/pdf-front.png" />
+                                    {isProposalDeck ? <img src="images/pdf-front-proposal.png" /> :  <img src="images/pdf-front.png" />}
 
                                 </div>
                                 <div className='text-gray-700 text-lg font-medium'>
