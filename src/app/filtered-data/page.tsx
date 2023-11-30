@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { DateRangePicker, getAllTime, getThisMonth } from '@/components/ui/date-range-picker'
-import { fetchTimeZone, fetchUserDataList, getToken, setToken } from '@/components/custom/commonFunctions'
+import { fetchTimeZone, fetchUserDataList, fetchUserDataListForDrodpdown, getToken, setToken } from '@/components/custom/commonFunctions'
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
@@ -152,7 +152,7 @@ function filteredData() {
   async function getUserList() {
     setIsUserDataLoading(true)
     try {
-      const userList: any = await fetchUserDataList()
+      const userList: any = await fetchUserDataListForDrodpdown()
       setIsUserDataLoading(false)
       setUserList(userList)
     } catch (err) {

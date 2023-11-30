@@ -17,7 +17,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
 import { ActivityPatchBody, ActivityPostBody, IValueLabel, Permission } from '@/app/interfaces/interface'
-import { TIMEZONE, calculateMinuteDifference, compareTimeStrings, fetchTimeZone, fetchUserDataList, getCurrentDateTime, getTimeOffsetFromUTC, getToken, replaceTimeZone } from '../../commonFunctions'
+import { TIMEZONE, calculateMinuteDifference, compareTimeStrings, fetchTimeZone, fetchUserDataList, fetchUserDataListForDrodpdown, getCurrentDateTime, getTimeOffsetFromUTC, getToken, replaceTimeZone } from '../../commonFunctions'
 import { toast } from '@/components/ui/use-toast'
 import { labelToValue, valueToLabel } from '../../sideSheet'
 import { beforeCancelDialog } from '../../addLeadDetailedDialog'
@@ -79,7 +79,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {

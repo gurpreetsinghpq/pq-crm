@@ -464,6 +464,13 @@ export interface UsersGetResponse {
     // groups: number[];
     // user_permissions: number[];
 }
+
+export interface UsersDropdownGetResponse{
+    id: string,
+    first_name: string,
+    last_name: string,
+    function: string
+}
 export type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>;
 } : T;

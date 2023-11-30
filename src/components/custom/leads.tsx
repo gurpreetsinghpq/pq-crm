@@ -31,7 +31,7 @@ import DataTable from "./table/datatable"
 // import { getData } from "@/app/dummy/dummydata"
 import { getCookie } from "cookies-next"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { arrayToCsvString, csvStringToArray, fetchUserDataList, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, fetchUserDataListForDrodpdown, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import Loader from "./loader"
 import SideSheet, { labelToValueArray, valueToLabelArray } from "./sideSheet"
 import { columns } from "./table/columns"
@@ -88,7 +88,7 @@ const Leads = ({ form, permissions }: {
     const per_page = searchParams?.get("limit") ?? "10"
     const perPageAsNumber = Number(per_page)
     const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
-    const isArchived = searchParams?.get("archived") ?? null
+    const isArchived = searchParams?.get("archived") ?? "False"
     const createdBy = searchParams?.get("created_by") ?? null
     const searchString = searchParams?.get("title") ?? null
     const createdAtFrom = searchParams?.get("created_at_from") ?? null
@@ -214,7 +214,7 @@ const Leads = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {

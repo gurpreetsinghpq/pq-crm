@@ -46,7 +46,7 @@ import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import { columnsContacts } from "./table/columns-contact"
 import SideSheetContacts from "./sideSheetContacts"
-import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, fetchUserDataListForDrodpdown, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import useCreateQueryString from "@/hooks/useCreateQueryString"
 import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
 import { useDebounce } from "@/hooks/useDebounce"
@@ -196,7 +196,7 @@ const Contacts = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {

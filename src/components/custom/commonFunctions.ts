@@ -1,5 +1,5 @@
 import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, ActivityAccToEntityOrganisation, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 
@@ -119,6 +119,27 @@ export async function fetchUserDataList(ownerList: boolean = false) {
     let activeUsers = data.filter((val) => val.is_active === true)
 
     let dataToReturn = activeUsers.map((val) => {
+      const final: IValueLabel = {
+        label: `${val.first_name} ${val.last_name}`,
+        value: val.id.toString()
+      }
+      return final
+    })
+    return dataToReturn
+  }
+  catch (err) {
+    console.log("error", err)
+    return err
+  }
+}
+export async function fetchUserDataListForDrodpdown(ownerList: boolean = false) {
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/users/dropdown_list`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    let data: UsersDropdownGetResponse[] = structuredClone(result.data)
+    // let activeUsers = data.filter((val) => val.is_active === true)
+
+    let dataToReturn = data.map((val) => {
       const final: IValueLabel = {
         label: `${val.first_name} ${val.last_name}`,
         value: val.id.toString()

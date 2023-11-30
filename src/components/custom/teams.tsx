@@ -43,7 +43,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { formatData } from "./leads"
 import { columnsTeams } from "./table/columns-teams"
 import AddTeamDialogBox from "./addTeamDialogBox"
-import { fetchUserDataList, getToken } from "./commonFunctions"
+import { fetchUserDataList, fetchUserDataListForDrodpdown, getToken } from "./commonFunctions"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -165,7 +165,7 @@ function Teams({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {
