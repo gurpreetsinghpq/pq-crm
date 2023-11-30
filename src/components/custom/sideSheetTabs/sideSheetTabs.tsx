@@ -17,6 +17,7 @@ import RequirementDeck from './deal-flow/requirementDeck';
 import RelatedEntityLeads from './related-entities/components/related-entity-leads';
 import RelatedEntityProspects from './related-entities/components/related-entity-prospects';
 import RelatedEntityDeal from './related-entities/components/related-entity-deal';
+import ServiceContract from './deal-flow/service-contract';
 
 const DEAL_ACTIVITY_TABS: {
   [key: string]: string
@@ -84,9 +85,10 @@ const dealFlowTab: IValueLabel[] = Object.keys(DEAL_FLOW_TABS).map((tab) => ({
 interface DisabledProps {
   proposal?: boolean
   requirementDeck?: boolean
+  serviceContract?: boolean
 }
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = { proposal: false, requirementDeck: false }, dealId, title, isAccounts = false }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps, dealId?: number, title?: string, isAccounts?: boolean }) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permissions, disable = { proposal: false, requirementDeck: false, serviceContract: false }, dealId, title, isAccounts = false }: { currentParentTab: string, contactFromParents: any, entityId: number, permissions: Permission, disable?: DisabledProps, dealId?: number, title?: string, isAccounts?: boolean }) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
@@ -305,7 +307,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permiss
             {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft} /></div>}
             <TabsList className={`${commonTabListClasses} overflow-hidden `} ref={containerRef}>
               {dealFlowTab.map((tab) => {
-                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal" && (tab.value === "Requirement Deck" ? disable.requirementDeck : true)} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal" && tab.value !== "Service Contract" && (tab.value === "Requirement Deck" ? disable.requirementDeck : true)} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
               })}
             </TabsList>
             {isRightVisible && <div><ChevronRight className='cursor-pointer' onClick={scrollRight} /></div>}
@@ -314,6 +316,9 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, permiss
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
             <Proposal isDisabled={disable.proposal} entityId={entityId} />
+          </TabsContent>
+          <TabsContent value={DEAL_FLOW_TABS.SERVICE_CONTRACT} className="flex flex-col flex-1">
+            <ServiceContract isDisabled={disable.serviceContract} entityId={entityId} />
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.REQUIREMENT_DECK} className="flex flex-col flex-1">
             {dealId && title && <RequirementDeck entityId={dealId} title={title} />}
