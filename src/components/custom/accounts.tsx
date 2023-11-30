@@ -45,7 +45,7 @@ import { Router } from "next/router"
 import { RowModel } from "@tanstack/react-table"
 import { columnsClient } from "./table/columns-client"
 import SideSheetAccounts from "./sideSheetAccounts"
-import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, fetchUserDataListForDrodpdown, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import { useDebounce } from "@/hooks/useDebounce"
 import DataTableServer from "./table/datatable-server"
 import useCreateQueryString from "@/hooks/useCreateQueryString"
@@ -178,7 +178,7 @@ const Accounts = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {

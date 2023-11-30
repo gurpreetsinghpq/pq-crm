@@ -40,7 +40,7 @@ import Loader from "./loader"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { columnsProspects } from "./table/columns-prospect"
 import SideSheetProspects from "./sideSheetProspects"
-import { addSeparator, addSeparatorAndRemoveDecimal, arrayToCsvString, csvStringToArray, fetchCummulativeSummary, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import { addSeparator, addSeparatorAndRemoveDecimal, arrayToCsvString, csvStringToArray, fetchCummulativeSummary, fetchUserDataList, fetchUserDataListForDrodpdown, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import { columnsDeals } from "./table/columns-deals"
 import SideSheetDeals from "./sidesheetDeals"
 import useCreateQueryString from "@/hooks/useCreateQueryString"
@@ -340,7 +340,7 @@ const Deals = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {

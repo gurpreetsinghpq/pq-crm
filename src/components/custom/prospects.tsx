@@ -40,7 +40,7 @@ import Loader from "./loader"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { columnsProspects } from "./table/columns-prospect"
 import SideSheetProspects from "./sideSheetProspects"
-import { arrayToCsvString, csvStringToArray, fetchUserDataList, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
+import { arrayToCsvString, csvStringToArray, fetchUserDataList, fetchUserDataListForDrodpdown, getToken, removeUndefinedFromArray, setDateHours } from "./commonFunctions"
 import useCreateQueryString from "@/hooks/useCreateQueryString"
 import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
 import { labelToValueArray, valueToLabelArray } from "./sideSheet"
@@ -351,7 +351,7 @@ const Prospects = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {

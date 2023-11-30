@@ -15,7 +15,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
-import { fetchUserDataList, getToken } from './commonFunctions'
+import { fetchUserDataList, fetchUserDataListForDrodpdown, getToken } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
@@ -199,7 +199,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
 
     async function getUserList() {
         try {
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setUserList(userList)
         } catch (err) {
             console.error("user fetch error", err)
