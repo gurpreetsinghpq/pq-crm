@@ -136,7 +136,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                         Click the Open Editor button to begin creating a {isProposalDeck?"proposal": "requirement deck"}.
                     </div>
                     <div className='flex flex-row justify-center'>
-                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open(`https://capsule.purplequarter.co/tab=${isProposalDeck ?"Proposal":"Capsule" }`)}>
+                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open(`https://capsule.purplequarter.co/?tab=${isProposalDeck ?"Proposal":"Capsule" }`)}>
                             <IconPencil2 />
                             Open Editor
                         </Button>
