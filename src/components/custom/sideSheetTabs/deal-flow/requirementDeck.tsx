@@ -86,7 +86,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                     }
                 })
                 const newVersion = maxVersion + 1;
-                const newTitle = `${title.replace(/\s/g, '')}_Capsule_V${newVersion}.pdf`
+                const newTitle = `${title.replace(/\s/g, '')}_${isProposalDeck?"Proposal":"Capsule"}_V${newVersion}.pdf`
 
                 formData.append('file', selectedFile, newTitle)
                 if(isProposalDeck){
