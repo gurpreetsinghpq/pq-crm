@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { UploadedFile } from '@/app/interfaces/interface'
 import { multiLineStyle2 } from '../../table/columns'
 
-function RequirementDeck({ entityId, title, isProposalDeck=false }: { entityId: number, title:string, isProposalDeck:boolean }) {
+function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisabled=false }: { entityId: number, title:string, isProposalDeck:boolean, isProposalDisabled?:boolean }) {
 
     const [isAnyDocument, setIsAnyDocument] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<{ name: string | null, size: number | null }>({ name: null, size: null });
@@ -29,7 +29,9 @@ function RequirementDeck({ entityId, title, isProposalDeck=false }: { entityId: 
     const token_superuser = getCookie("token")
 
     useEffect(() => {
-        getAllPdf()
+        if(!isProposalDisabled){
+            getAllPdf()
+        }
     }, [])
     async function getAllPdf() {
         // /v1/api/proposal/?prospect=2
@@ -235,6 +237,9 @@ function RequirementDeck({ entityId, title, isProposalDeck=false }: { entityId: 
             </div>
             {isUploading && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
                 <Loader2 className="mr-2 h-20 w-20 animate-spin" color='#7F56D9' />
+            </div>}
+            {isProposalDisabled && <div className='absolute top-0 left-0 bottom-0 right-0 bg-black-900 opacity-[0.2] hover:opacity-[0.3] rounded-[5px] cursor-not-allowed '>
+
             </div>}
         </div>
     )

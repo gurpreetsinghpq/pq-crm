@@ -38,6 +38,13 @@ export interface RoleDetails {
     budget_range: string;
 }
 
+export interface ServiceContractGetResponse{
+    name: string,
+    file_size:string,
+    file_type:string,
+    event_date:string,
+    status:string
+}
 
 export interface LeadInterface {
     id: number;

@@ -1,5 +1,5 @@
 import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, ActivityAccToEntityOrganisation, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ClientGetResponse, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 
@@ -160,6 +160,19 @@ export async function fetchActivityListAccToEntity(entityId: number) {
     let data: ActivityAccToEntity[] = structuredClone(result.data)
     let filteredData = data.filter((val) => val.status !== null)
     return filteredData
+  }
+  catch (err) {
+    console.log("error", err)
+    return err
+  }
+}
+
+export async function fetchAccountFromId(entityId: number) {
+  try {
+    const dataResp = await fetch(`${baseUrl}/v1/api/client/${entityId}/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    let data: ClientGetResponse = structuredClone(result.data)
+    return data
   }
   catch (err) {
     console.log("error", err)

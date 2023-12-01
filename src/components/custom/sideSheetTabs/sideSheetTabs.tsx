@@ -88,7 +88,7 @@ interface DisabledProps {
   serviceContract?: boolean
 }
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospectId, permissions, disable = { proposal: false, requirementDeck: false, serviceContract: false }, dealId, title, isAccounts = false }: { currentParentTab: string, contactFromParents: any, entityId: number, prospectId?:number, permissions: Permission, disable?: DisabledProps, dealId?: number, title?: string, isAccounts?: boolean }) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospectId, permissions, disable = { proposal: false, requirementDeck: false, serviceContract: false }, dealId, title, isAccounts = false, ids }: { currentParentTab: string, contactFromParents: any, entityId: number, prospectId?:number, permissions: Permission, disable?: DisabledProps, dealId?: number, title?: string, isAccounts?: boolean, ids?:{accountId:number, contactId:number | null} }) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);
@@ -315,13 +315,14 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospec
         </div>
         <div className="bottom flex-1 flex flex-col  ">
           <TabsContent value={DEAL_FLOW_TABS.PROPOSAL} className="flex flex-col flex-1">
-            <Proposal isDisabled={disable.proposal} entityId={entityId} />
+            {/* <Proposal isDisabled={disable.proposal} entityId={entityId} /> */}
+            {prospectId && title && <RequirementDeck entityId={prospectId} title={title} isProposalDeck={true} isProposalDisabled={disable.proposal} />}
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.SERVICE_CONTRACT} className="flex flex-col flex-1">
-            <ServiceContract isDisabled={disable.serviceContract} entityId={entityId} />
+            {ids?.accountId && <ServiceContract ids={ids} isDisabled={disable.serviceContract} entityId={entityId} />}
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.REQUIREMENT_DECK} className="flex flex-col flex-1">
-            {dealId && title && <RequirementDeck entityId={dealId} title={title} isProposalDeck={false}/>}
+            {dealId && title && <RequirementDeck entityId={dealId} title={title} isProposalDeck={false} />}
           </TabsContent>
           <TabsContent value={DEAL_ACTIVITY_TABS.TEAMS} className="flex flex-col flex-1">
 
