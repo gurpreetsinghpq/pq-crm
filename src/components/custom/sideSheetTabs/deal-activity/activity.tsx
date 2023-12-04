@@ -16,8 +16,8 @@ import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { getContacts } from '../custom-stepper'
-import { ActivityPatchBody, ActivityPostBody, IValueLabel, Permission } from '@/app/interfaces/interface'
-import { TIMEZONE, calculateMinuteDifference, compareTimeStrings, fetchTimeZone, fetchUserDataList, fetchUserDataListForDrodpdown, getCurrentDateTime, getTimeOffsetFromUTC, getToken, replaceTimeZone } from '../../commonFunctions'
+import { ActivityPatchBody, ActivityPostBody, IValueLabel, Permission, UserProfile } from '@/app/interfaces/interface'
+import { TIMEZONE, calculateMinuteDifference, compareTimeStrings, fetchMyDetails, fetchTimeZone, fetchUserDataList, fetchUserDataListForDrodpdown, getCurrentDateTime, getTimeOffsetFromUTC, getToken, replaceTimeZone } from '../../commonFunctions'
 import { toast } from '@/components/ui/use-toast'
 import { labelToValue, valueToLabel } from '../../sideSheet'
 import { beforeCancelDialog } from '../../addLeadDetailedDialog'
@@ -54,6 +54,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
+    const [myDetails, setMyDetails] = React.useState<UserProfile>()
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -180,6 +181,15 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
     }
 
+    async function getMyDetails() {
+        const data: UserProfile | undefined = await fetchMyDetails()
+        if (data) {
+            const profileId: string = data.id.toString()
+            setMyDetails(data)
+            form.setValue("assignedTo", profileId)
+        }
+    }
+
     useEffect(() => {
         getUserList()
         // console.log("timezone", getCurrentDateTime())
@@ -190,8 +200,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             form.setValue("type", labelToValue(editMode?.data?.type, ACTIVITY_TYPE) || "")
             form.setValue("mode", labelToValue(editMode?.data?.mode, MODE) || "")
             form.setValue("contact", editMode?.data?.contact)
-            console.log("REMINDER", editMode?.data?.reminder?.toString(), editMode.data.id)
-            form.setValue("reminder", editMode?.data?.reminder?.toString())
+            const reminderToSet = Number(editMode?.data?.reminder) == 0 ? -1 : editMode?.data?.reminder
+            console.log("REMINDER", reminderToSet, editMode.data.id)
+            form.setValue("reminder", reminderToSet?.toString())
             const dueDateFromEdit: string = editMode?.data?.due_date
             if (dueDateFromEdit) {
                 const dateObject = new Date(dueDateFromEdit);
@@ -213,6 +224,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
             }
 
+        }else{
+            getMyDetails()
+            // form.setValue("assignedTo", )
         }
 
         if (isAccounts) {
@@ -507,7 +521,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                             const sixtyDaysAgo = new Date();
                                                                             sixtyDaysAgo.setDate(today.getDate() - 60);
                                                                             sixtyDaysAgo.setHours(0, 0, 0, 0);
-                                                                            return date < sixtyDaysAgo || ((date.toDateString() === today.toDateString()) && (today.getHours() >= 23 && today.getMinutes() >= 45))
+                                                                            return date < sixtyDaysAgo 
                                                                         }
                                                                         }
 
@@ -741,7 +755,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                     const { disableDueDate, dueDate, today } = disableDueToInvalidDate()
                                     const reminder = form.getValues("reminder")
                                     let shouldDisableDueToReminder = disableReminderOnInvalidDateAndTime(reminder)
-                                    const disable = !form.formState.isDirty || disableDueDate || shouldDisableDueToReminder
+                                    const disable = !form.formState.isDirty 
                                     console.log("disable due date", dueDate < today, "due date: ", dueDate, " today: ", today)
                                     return disable
 
