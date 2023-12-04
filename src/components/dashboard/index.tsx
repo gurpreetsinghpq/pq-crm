@@ -1,6 +1,6 @@
 "use client"
 import Prospects from "@/components/custom/prospects"
-import { IconAccounts, IconAccounts2, IconContacts, IconDashboard, IconDealsHome, IconHome, IconLeads, IconLineChart, IconLogout, IconNotification, IconPq, IconProfile, IconProspects, IconUser, IconUserManagement } from "@/components/icons/svgIcons"
+import { IconAccounts, IconAccounts2, IconContacts, IconDashboard, IconDealsHome, IconHome, IconLeads, IconLineChart, IconLogout, IconNotification, IconPq, IconProfile, IconProspects, IconSettings, IconUser, IconUserManagement } from "@/components/icons/svgIcons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useEffect, useRef, useState } from "react"
@@ -27,6 +27,7 @@ import { valueToAcronym, valueToLabel } from "../custom/sideSheet"
 import { REMINDER } from "@/app/constants/constants"
 import Deals from "../custom/deals"
 import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
+import Settings from "../custom/settings"
 
 
 const LeadFormSchema = z.object({
@@ -735,7 +736,18 @@ export default function DashboardComponent() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <div onClick={() => setTab(TITLES.USER_MANAGEMENT, true)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
-                                {/* <IconUserManagement /> */}
+                               <IconSettings/>
+                            </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={5}>
+                            Settings
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>}
+                {/* {<TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div onClick={() => setTab(TITLES.USER_MANAGEMENT, true)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 25 24" fill="none">
                                     <g id="users-02">
                                         <path id="Icon" d="M16.5 3.46776C17.9817 4.20411 19 5.73314 19 7.5C19 9.26686 17.9817 10.7959 16.5 11.5322M18.5 16.7664C20.0115 17.4503 21.3725 18.565 22.5 20M2.5 20C4.44649 17.5226 7.08918 16 10 16C12.9108 16 15.5535 17.5226 17.5 20M14.5 7.5C14.5 9.98528 12.4853 12 10 12C7.51472 12 5.5 9.98528 5.5 7.5C5.5 5.01472 7.51472 3 10 3C12.4853 3 14.5 5.01472 14.5 7.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -748,7 +760,8 @@ export default function DashboardComponent() {
                             User Management
                         </TooltipContent>
                     </Tooltip>
-                </TooltipProvider>}
+                </TooltipProvider>} */}
+                
                 {isSmallScreen && <div className="sticky bottom-0 rounded-full h-[40px] w-[40px] bg-purple-700 flex-row justify-center w-full">
                     {showScrollButton && <div onClick={() => scrollDown()} className="cursor-pointer flex flex-row justify-center"><ArrowDown size={20} color="white" /></div>}
                     {!showScrollButton && <div onClick={() => scrollUp()} className="cursor-pointer flex flex-row justify-center"><ArrowUp size={20} color="white" /></div>}
@@ -758,7 +771,7 @@ export default function DashboardComponent() {
         </div>
         <div className="text-teal-700 bg-teal-50 border-teal-600"></div>
         <div className="right flex flex-col w-full h-full">
-            {currentTab !== TITLES.MY_ACCOUNT ? <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${currentTab !== TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2"}`} >
+            {(currentTab !== TITLES.MY_ACCOUNT &&  currentTab !== TITLES.USER_MANAGEMENT )? <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${currentTab !== TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2"}`} >
                 <div className="text-xl   ">
                     {currentTab}
                 </div>
@@ -919,6 +932,12 @@ export default function DashboardComponent() {
                                         Profile
                                     </div>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTab(TITLES.MY_ACCOUNT, true)} className="border-b-[1px] border-gray-200">
+                                    <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px] ">
+                                        <IconSettings color="#344054"/>
+                                        Settings
+                                    </div>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={logOut} >
                                     <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px]">
                                         <IconLogout size="16" />
@@ -941,7 +960,7 @@ export default function DashboardComponent() {
                 {currentTab === TITLES.DEALS && <Deals form={DealsForm} permissions={permissions["Deal"]} />}
                 {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} permissions={permissions["Organisation"]} />}
                 {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} permissions={permissions["Contact"]} />}
-                {currentTab === TITLES.USER_MANAGEMENT && <UserManagement usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]} />}
+                {currentTab === TITLES.USER_MANAGEMENT && <Settings usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]}  />}
                 {currentTab === TITLES.MY_ACCOUNT && <MyAccount myDetails={myDetails} parentTitles={TITLES} setCurrentParentTab={updateParentTitle} initialParentTitle={INITIAL_PARENT_TITLE} />}
 
             </div>

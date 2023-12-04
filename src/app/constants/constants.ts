@@ -3,7 +3,7 @@ import { DropdownOption, FilterQuery, IValueLabel } from "../interfaces/interfac
 import { GODFATHER_CLASS, GodfatherIcon, HUSTLER_CLASS, HustlerIcon, ROCKSTAR_CLASS, RockstarIcon, SEGEMENT_COMMON_CLASS } from "../../components/icons/labels"
 import timezones from "./timezones.json"
 import { getCurrentFy, getLastFy } from "@/components/custom/commonFunctions"
-const REGION:IValueLabel[] = [
+const REGION: IValueLabel[] = [
     {
         value: "india",
         label: "India",
@@ -246,10 +246,10 @@ const DESIGNATION = [
         value: "procurementLead",
         label: "Procurement Lead",
     },
-    
+
 ]
 
-const ALL_DESIGNATIONS:IValueLabel[] = [
+const ALL_DESIGNATIONS: IValueLabel[] = [
     {
         value: "allDesignations",
         label: "All Designations"
@@ -268,7 +268,7 @@ const TYPE: IValueLabel[] = [
         value: "decisionMaker",
         label: "Decision Maker",
         class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600",
-        mandatory:true
+        mandatory: true
     },
     {
         value: "gatekeeper",
@@ -279,30 +279,30 @@ const TYPE: IValueLabel[] = [
         value: "investor",
         label: "Investor",
         class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600",
-        mandatory:true
+        mandatory: true
     },
     {
         value: "legal",
         label: "Legal",
         class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-warning-700 bg-warning-50 border-warning-500"
     },
-    {
-        value: "accountsPayable",
-        label: "Accounts Payable",
-        class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-warning-700 bg-warning-50 border-warning-500",
-        mandatory:true
-    },
+    // {
+    //     value: "accountsPayable",
+    //     label: "Accounts Payable",
+    //     class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-warning-700 bg-warning-50 border-warning-500",
+    //     mandatory: true
+    // },
     {
         value: "budgetHolder",
         label: "Budget Holder",
         class: " px-[10px] py-[4px] border border-[1px] text-sm font-medium text-success-700 bg-success-50 border-success-600",
-        mandatory:true
+        mandatory: true
     },
 ]
 
-const ALL_TYPES:IValueLabel[] = [
+const ALL_TYPES: IValueLabel[] = [
     {
-        value :"allTypes",
+        value: "allTypes",
         label: "All Types",
         isDefault: true
     },
@@ -474,7 +474,7 @@ const ALL_TEAM_LEADERS: IValueLabel[] = [
 ]
 
 const REPORTING_MANAGERS: IValueLabel[] = [
-    
+
     {
         value: "ashokKumar",
         label: "Ashok Kumar"
@@ -552,6 +552,33 @@ const STATUSES: IValueLabel[] = [
     },
 ]
 
+const CONTRACT_DRAFT_STATUSES: IValueLabel[] = [
+    {
+        value: "completed",
+        label: "Completed",
+        icon: Verified,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-success-600 bg-success-50 text-success-600"
+    },
+    {
+        value: "sent",
+        label: "Sent",
+        icon: Deferred,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-warning-600 bg-warning-50 text-warning-500"
+    },
+    {
+        value: "draft",
+        label: "Draft",
+        icon: InProgress2,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-purple-700 bg-primary-50 text-purple-700"
+    },
+    {
+        value: "created",
+        label: "Draft",
+        icon: InProgress2,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-purple-700 bg-primary-50 text-purple-700"
+    },
+]
+
 const PROSPECT_STATUSES: IValueLabel[] = [
     {
         value: "qualified",
@@ -577,7 +604,7 @@ const PROSPECT_STATUSES: IValueLabel[] = [
         icon: Lost,
         class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
     }
-    
+
 ]
 
 const DEAL_STATUSES: IValueLabel[] = [
@@ -605,28 +632,28 @@ const DEAL_STATUSES: IValueLabel[] = [
         icon: Lost,
         class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
     }
-    
+
 ]
 
-const ALL_PROSPECT_STATUSES:IValueLabel[] = [
+const ALL_PROSPECT_STATUSES: IValueLabel[] = [
     {
         value: "allStatuses",
-        label:"All Statuses",
+        label: "All Statuses",
         isDefault: true
     },
     ...PROSPECT_STATUSES
 
 ]
-const ALL_DEAL_STATUSES:IValueLabel[] = [
+const ALL_DEAL_STATUSES: IValueLabel[] = [
     {
         value: "allStatuses",
-        label:"All Statuses",
+        label: "All Statuses",
         isDefault: true
     },
     ...DEAL_STATUSES
 ]
 
-const ALL_STATUS_MERGED:IValueLabel[] = [
+const ALL_STATUS_MERGED: IValueLabel[] = [
     ...STATUSES,
     ...ALL_PROSPECT_STATUSES,
     ...ALL_DEAL_STATUSES
@@ -1619,7 +1646,7 @@ const INDUSTRY: IValueLabel[] = [
         value: "bfsi",
         label: "BFSI"
     },
-    
+
     {
         value: "energy_and_utilities",
         label: "Energy & Utilities"
@@ -1670,7 +1697,7 @@ const SIZE_OF_COMPANY: IValueLabel[] = [
     { value: "10001_plus", label: "10001+" }
 ]
 const ALL_SIZE_OF_COMPANY: IValueLabel[] = [
-    {value: "allSizes", label: "All Sizes"},
+    { value: "allSizes", label: "All Sizes" },
     ...SIZE_OF_COMPANY
 ]
 
@@ -1681,12 +1708,12 @@ const segmentnames = {
 }
 
 const SEGMENT: IValueLabel[] = [
-    {value:"hustler", label: segmentnames.hustler, icon: HustlerIcon, class: `${SEGEMENT_COMMON_CLASS} ${HUSTLER_CLASS}`},
-    {value:"rockstar", label: segmentnames.rockstar, icon: RockstarIcon, class: `${SEGEMENT_COMMON_CLASS} ${ROCKSTAR_CLASS}`},
-    {value:"godfather", label: segmentnames.godfather, icon: GodfatherIcon,class: `${SEGEMENT_COMMON_CLASS} ${GODFATHER_CLASS}`},
+    { value: "hustler", label: segmentnames.hustler, icon: HustlerIcon, class: `${SEGEMENT_COMMON_CLASS} ${HUSTLER_CLASS}` },
+    { value: "rockstar", label: segmentnames.rockstar, icon: RockstarIcon, class: `${SEGEMENT_COMMON_CLASS} ${ROCKSTAR_CLASS}` },
+    { value: "godfather", label: segmentnames.godfather, icon: GodfatherIcon, class: `${SEGEMENT_COMMON_CLASS} ${GODFATHER_CLASS}` },
 ]
 const ALL_SEGMENTS: IValueLabel[] = [
-    {value: "allSegments", label: "All Segments", isDefault:true},
+    { value: "allSegments", label: "All Segments", isDefault: true },
     ...SEGMENT
 ]
 
@@ -1711,7 +1738,7 @@ const LAST_FUNDING_STAGE: IValueLabel[] = [
 ];
 
 const ALL_LAST_FUNDING_STAGE: IValueLabel[] = [
-    { value: "allFundingStages", label: "All Funding Stages"},
+    { value: "allFundingStages", label: "All Funding Stages" },
     ...LAST_FUNDING_STAGE
 ];
 
@@ -1785,7 +1812,7 @@ const SERVICE_FEE_RANGE: IValueLabel[] = [
         label: "Above 30%"
     }
 ]
-;
+    ;
 const FUNCTION: IValueLabel[] = [
     {
         value: "ra",
@@ -1867,16 +1894,16 @@ const ALL_FUNCTIONS: IValueLabel[] = [
 //     }
 // ]
 
-const SIDE_SHEET_TABS:{
-    [key:string]:string
+const SIDE_SHEET_TABS: {
+    [key: string]: string
 } = {
     DEAL_FLOW: "Deal Flow",
     DEAL_ACTIVITY: "Deal Activity",
     HISTORY: "History",
 }
 
-const SIDE_SHEET_TABS_ACCOUNTS:{
-    [key:string]:string
+const SIDE_SHEET_TABS_ACCOUNTS: {
+    [key: string]: string
 } = {
     ACCOUNT_ACTIVITY: "Account Activity",
     HISTORY: "History",
@@ -1885,7 +1912,7 @@ const SIDE_SHEET_TABS_ACCOUNTS:{
 
 
 
-const SET_VALUE_CONFIG = {shouldDirty:true,shouldValidate:true}
+const SET_VALUE_CONFIG = { shouldDirty: true, shouldValidate: true }
 
 const ACTIVITY_TYPE: IValueLabel[] = [
     {
@@ -2196,19 +2223,19 @@ const REMINDER: IValueLabel[] = [
     {
         value: "30",
         label: "30 mins before the due date and time",
-        acronym:"30min"
+        acronym: "30min"
     },
     {
         value: "60",
         label: "1hr before the due date and time",
-        acronym:"1hr"
+        acronym: "1hr"
     },
     {
         value: "180",
         label: "3hr before the due date and time",
-        acronym:"3hr"
+        acronym: "3hr"
     },
-    
+
 ];
 
 const TIME_OPTIONS: IValueLabel[] = [
@@ -2311,9 +2338,9 @@ const TIME_OPTIONS: IValueLabel[] = [
 ];
 
 
-const ENTITY_TYPE:IValueLabel[] = [
-    {value: "lead", label: "Lead"},
-    {value: "prospect", label: "Prospect"}
+const ENTITY_TYPE: IValueLabel[] = [
+    { value: "lead", label: "Lead" },
+    { value: "prospect", label: "Prospect" }
 ]
 
 const SIDESHEET_TAB_TYPE = {
@@ -2322,7 +2349,7 @@ const SIDESHEET_TAB_TYPE = {
     NOTES: "Notes"
 }
 
-const STEPPER_STATUS:IValueLabel[] = [
+const STEPPER_STATUS: IValueLabel[] = [
     {
         value: "unverified",
         label: "Unverified",
@@ -2373,9 +2400,9 @@ const DATE_DROPDOWN_CUMMULATIVE: DropdownOption[] = [
     { label: 'Current FY', value: getCurrentFy() },
     { label: 'Last FY', value: getLastFy() },
     { label: 'All Time', value: { from: '', to: '' } }, // You can set default values or handle this case as needed
-  ];
-  
+];
+
 
 const EMPTY_FILTER_QUERY: FilterQuery = { filterFieldName: '', value: null }
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY,ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, TEAM_LEADERS, ALL_TEAM_LEADERS, REPORTING_MANAGERS, SET_VALUE_CONFIG, SIDE_SHEET_TABS, ACTIVITY_TYPE, MODE, ROLE_STATUS, NEXT_STEP, ROLE_URGENCY, OPEN_TO_RETAINER_MODEL, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, COLLATERAL_SHARED, RESPONSE_RECEIVED, OPEN_TO_ENGAGE, ROLE_CLARITY, WILLING_TO_PAY, EXPECTED_SERVICE_FEE_RANGE, PROPOSAL_SHARED, RELATED_TO, PROSPECT_STATUS_NOTES, DEAL_STATUS, NEGOTIATION_BLOCKER, SERVICE_CONTRACT_DRAFT_SHARED, ACTIVITY_STATUS, REMINDER, TIME_OPTIONS, ENTITY_TYPE, SIDESHEET_TAB_TYPE, STEPPER_STATUS, TIME_ZONES, ALL_STATUS_MERGED, DEAL_STATUSES, ALL_DEAL_STATUSES, DUPLICATE_ERROR_MESSAGE_DEFAULT, EMPTY_FILTER_QUERY, SIDE_SHEET_TABS_ACCOUNTS, ACTIVITY_TYPE_ACCOUNTS, DATE_DROPDOWN_CUMMULATIVE }
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY, ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, TEAM_LEADERS, ALL_TEAM_LEADERS, REPORTING_MANAGERS, SET_VALUE_CONFIG, SIDE_SHEET_TABS, ACTIVITY_TYPE, MODE, ROLE_STATUS, NEXT_STEP, ROLE_URGENCY, OPEN_TO_RETAINER_MODEL, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, COLLATERAL_SHARED, RESPONSE_RECEIVED, OPEN_TO_ENGAGE, ROLE_CLARITY, WILLING_TO_PAY, EXPECTED_SERVICE_FEE_RANGE, PROPOSAL_SHARED, RELATED_TO, PROSPECT_STATUS_NOTES, DEAL_STATUS, NEGOTIATION_BLOCKER, SERVICE_CONTRACT_DRAFT_SHARED, ACTIVITY_STATUS, REMINDER, TIME_OPTIONS, ENTITY_TYPE, SIDESHEET_TAB_TYPE, STEPPER_STATUS, TIME_ZONES, ALL_STATUS_MERGED, DEAL_STATUSES, ALL_DEAL_STATUSES, DUPLICATE_ERROR_MESSAGE_DEFAULT, EMPTY_FILTER_QUERY, SIDE_SHEET_TABS_ACCOUNTS, ACTIVITY_TYPE_ACCOUNTS, DATE_DROPDOWN_CUMMULATIVE, CONTRACT_DRAFT_STATUSES }

@@ -13,7 +13,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { doesTypeIncludesMandatory, fetchAccountFromId, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from "../../commonFunctions";
-import { ClientGetResponse, ContactsGetResponse } from "@/app/interfaces/interface";
+import { ClientGetResponse, ContactsGetResponse, ServiceContractGetResponse } from "@/app/interfaces/interface";
 import { beforeCancelDialog } from "../../addLeadDetailedDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { COUNTRY_CODE, DESIGNATION, SET_VALUE_CONFIG } from "@/app/constants/constants";
@@ -22,7 +22,7 @@ import { CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/compone
 import { PopoverClose } from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils";
 import { labelToValue, valueToLabel } from "../../sideSheet";
-import { toast } from "@/components/ui/use-toast";
+import { toast, useToast } from "@/components/ui/use-toast";
 import { DialogClose } from "@radix-ui/react-dialog";
 import DataTable from "../../table/datatable";
 import { columnsServiceContacts } from "../../table/columns-service-contract";
@@ -71,18 +71,32 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
     const [isPayableEditMode, setPayableEditMode] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<{ name: string | null, size: number | null }>({ name: null, size: null });
     const [isUploading, setIsUploading] = useState<boolean>(false)
-    const [isContractDraft, setIsContractDraft] = useState<boolean>(false)
-    const [contractDraft, setContractDraft] = useState<[]>([])
+    const [contractDraft, setContractDraft] = useState<ServiceContractGetResponse[]>([])
+    const [contractDraftLoading, setContractDraftLoading] = useState<boolean>(false)
+    const [formData, setFormData] = useState<FormData>()
 
     const form2 = useForm<z.infer<typeof formSchema2>>({
         resolver: zodResolver(formSchema2),
         defaultValues: form2Defaults
 
     })
-
+    const { toast } = useToast()
     const watcher2 = form2.watch()
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
+
+    async function sendESign(id: number) {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/contract/${id}/docu_esign/`, { method: "POST", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data = structuredClone(result.data)
+            console.log(data)
+
+        }
+        catch (err) {
+            console.log("error", err)
+        }
+    }
 
     async function getAccountDetails() {
         try {
@@ -104,6 +118,39 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
         catch (err) {
             console.log("error", err)
         }
+
+    }
+    async function getServiceContractsDataTable() {
+        setContractDraftLoading(true)
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/contract/?deal=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            let data = structuredClone(result)
+            setContractDraftLoading(false)
+            if (data.status == "1") {
+                let dataToSave: ServiceContractGetResponse[] = data.data
+                console.log(dataToSave)
+                setContractDraft(dataToSave)
+            } else {
+                toast({
+                    title: "Sorry some error have occured!",
+                    variant: "destructive"
+                })
+            }
+
+        }
+        catch (err) {
+            console.log("error", err)
+            setContractDraftLoading(false)
+            toast({
+                title: "Sorry some error have occured!",
+                variant: "destructive"
+            })
+        }
+
+    }
+    async function uploadContactDraft() {
+        // /v1/api/contract/
 
     }
     async function getContactDetails() {
@@ -133,6 +180,7 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
     useEffect(() => {
         getAccountDetails()
         changeStdCode()
+        getServiceContractsDataTable()
         console.log("ids", ids)
         if (ids.contactId) {
             getContactDetails()
@@ -178,42 +226,19 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
         }
     };
 
+
+
     const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
         if (selectedFile) {
             if (selectedFile.type === 'application/pdf') {
                 // Handle the selected PDF file here
                 console.log('Selected file:', selectedFile.name);
+                const formDataLocal = new FormData()
                 setSelectedFile({ name: selectedFile.name, size: selectedFile.size });
-                const formData = new FormData()
-                let maxVersion = 0
-                let newTitle = "file"
-                formData.append('file', selectedFile, newTitle)
-                formData.append('prospect', entityId.toString())
-
-                setIsUploading(true)
-                // try {
-                //     const dataResp = await fetch(`${baseUrl}/v1/api/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
-                //     const result = await dataResp.json()
-                //     setIsUploading(false)
-                //     if (result.message === "success") {
-                //         toast({
-                //             title: "File uploaded Succesfully!",
-                //             variant: "dark"
-                //         })
-
-                //     } else {
-                //         toast({
-                //             title: "Something went wrong, Please try again later!",
-                //             variant: "destructive"
-                //         })
-                //     }
-                // }
-                // catch (err) {
-                //     console.log("error", err)
-                //     setIsUploading(false)
-                // }
-
+                formDataLocal.append('file', selectedFile)
+                formDataLocal.append('deal', entityId.toString())
+                setFormData(formDataLocal)
             } else {
                 alert('Please select a PDF file.');
                 setIsUploading(false)
@@ -221,6 +246,41 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
 
         }
     };
+
+
+    useEffect(() => {
+        console.log(formData)
+
+    }, [formData])
+
+    async function uploadFile() {
+        setIsUploading(true)
+
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/contract/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
+            const result = await dataResp.json()
+            setIsUploading(false)
+            if (result.message === "success") {
+                toast({
+                    title: "File uploaded Succesfully!",
+                    variant: "dark"
+                })
+
+            } else {
+                toast({
+                    title: "Something went wrong, Please try again later!",
+                    variant: "destructive"
+                })
+            }
+        }
+        catch (err) {
+            console.log("error", err)
+            setIsUploading(false)
+        }
+    }
+    useEffect(() => {
+        console.log(contractDraft)
+    }, [contractDraft])
     return (
         <>
             <div className="flex flex-col items-start gap-4 flex-1 self-stretch">
@@ -243,22 +303,32 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
                             }}>
                                 <DialogHeader>
                                     <DialogTitle className="  pb-[10px]">
-                                        <div className="text-lg">Upload and attach files</div>
+                                        <div className="text-lg">Upload and attach file</div>
                                         <div className="text-gray-600 text-sm mt-[5px] font-normal w-[450px]">
-                                            Upload and attach files to this project.
+                                            Upload and attach file to this project.
                                         </div>
                                     </DialogTitle>
                                 </DialogHeader>
                                 <div id="file-upload-div" onClick={handleDivClick} className="cursor-pointer my-[20px] rounded-[12px] border-[2px] border-purple-600 flex flex-col items-center px-[24px] py-[16px] gap-[10px]">
-                                    <div className='rounded-[8px] p-[10px] border border-[1px] border-gray-200'>
-                                        <AlertCircle color="black" />
-                                    </div>
-                                    <div className="flex flex-col gap-[5px] items-center">
-                                        <div>
-                                            <span className="text-purple-700 font-semibold text-sm">Click to upload</span>
-                                        </div>
-                                        <span className="text-xs font-normal">Word documents only (Docx)</span>
-                                    </div>
+                                    {formData === undefined ?
+                                        <>
+                                            <div className='rounded-[8px] p-[10px] border border-[1px] border-gray-200'>
+                                                <AlertCircle color="black" />
+                                            </div>
+                                            <div className="flex flex-col gap-[5px] items-center">
+                                                <div>
+                                                    <span className="text-purple-700 font-semibold text-sm">Click to upload</span>
+                                                </div>
+                                                <span className="text-xs font-normal">PDF only</span>
+                                            </div>
+                                        </>
+                                        : <div className="flex flex-col">
+                                            {/* {formData.get("file")} */}
+                                            <div className="flex flex-row items-center gap-[10px]">
+                                                <img src="/images/pdf-icon.png" />
+                                                {selectedFile.name}
+                                            </div>
+                                        </div>}
 
                                 </div>
                                 <input
@@ -266,15 +336,19 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
                                     ref={fileInputRef}
                                     style={{ display: 'none' }}
                                     onChange={handleFileChange}
-                                    accept="application/msword"
+                                    accept="application/pdf"
                                 />
+                                {/* application/msword */}
                                 <div className="flex flex-row gap-[10px] justify-center">
                                     <DialogClose asChild>
-                                        <Button variant={"google"} className="flex-1">
+                                        <Button variant={"google"} className="flex-1" onClick={() => {
+                                            setFormData(undefined)
+                                            setSelectedFile({ name: "", size: null })
+                                        }}>
                                             Cancel
                                         </Button>
                                     </DialogClose>
-                                    <Button className="flex-1">Attach Files</Button>
+                                    <Button className="flex-1" disabled={formData === undefined} onClick={() => uploadFile()}>Attach File</Button>
 
                                 </div>
 
@@ -282,11 +356,8 @@ function ServiceContract({ isDisabled = false, entityId, ids }: { isDisabled?: b
                         </Dialog>
                     </div>
                 </div>
-                <Dialog>
-
-                </Dialog>
-                {!isContractDraft ? <div className="flex flex-row w-full min-h-[300px]">
-                    <DataTable columns={columnsServiceContacts()} data={contractDraft} filterObj={{}} page="service-contracts" setChildDataHandler={()=>{}} setIsMultiSelectOn={()=>{}} setTableLeadRow={()=>{}}/>
+                {contractDraft.length > 0 ? <div className="flex flex-row w-full min-h-[200px]">
+                    <DataTable columns={columnsServiceContacts(sendESign)} data={contractDraft} filterObj={{}} page="serviceContracts" setChildDataHandler={() => { }} setIsMultiSelectOn={() => { }} setTableLeadRow={() => { }} />
                 </div>
                     : <div className="flex justify-center items-center self-stretch">
                         <div className="flex flex-col items-center gap-6">

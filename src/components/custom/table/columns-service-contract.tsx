@@ -1,8 +1,8 @@
 "use client"
 
-import { STATUSES } from "@/app/constants/constants"
+import { CONTRACT_DRAFT_STATUSES, STATUSES } from "@/app/constants/constants"
 import { LeadInterface, Permission, ServiceContractGetResponse } from "@/app/interfaces/interface"
-import { IconArchive, IconArrowDown, IconEdit, IconInbox } from "@/components/icons/svgIcons"
+import { IconArchive, IconArrowDown, IconESignature, IconEdit, IconInbox } from "@/components/icons/svgIcons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
@@ -41,7 +41,7 @@ import { DialogClose } from "@radix-ui/react-dialog"
 // }
 
 function getClassOfStatus(statusName: string) {
-    const status = STATUSES.find((status) => status.label === statusName)
+    const status = CONTRACT_DRAFT_STATUSES.find((status) => status.value.toLowerCase() === statusName.toLowerCase())
     const render = <div className={`flex flex-row gap-2 items-center  pl-2 pr-3 py-1 w-fit ${!status?.isDefault && 'border border-[1.5px] rounded-[16px]'} ${status?.class} `}>
         {status?.icon && <status.icon />}
         {status?.label}
@@ -71,7 +71,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction): 
         //     enableHiding: false,
         // },
         {
-            accessorKey: "name",
+            accessorKey: "file_name",
             header: ({ column }) => {
                 return (
                     <div
@@ -81,7 +81,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction): 
                     </div>
                 )
             },
-            cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("name")}</span>
+            cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("file_name")}</span>
         },
         {
             accessorKey: "file_size",
@@ -127,7 +127,9 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction): 
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("event_date")}</div>,
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">
+                {multiLineStyle2(row.getValue("event_date"), true)}
+            </div>,
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
             },
@@ -152,7 +154,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction): 
             id: "actions",
             enableHiding: true,
             cell: ({ row, cell }) => {
-                const payment = row.original
+                const id = row.original.id
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -162,10 +164,10 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction): 
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler('row', row)}>
+                            <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler(id)}>
                                 <div className="flex flex-row gap-2 items-center" >
-                                    <IconEdit size={16} />
-                                    Edit
+                                    <IconESignature size={16} />
+                                    Get e-Signature
                                 </div>
                             </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -186,16 +188,16 @@ export const multiLine = (dateStr: any) => {
         <div className="text-gray-600 text-xs font-normal">{time}</div>
     </>
 }
-export const multiLineStyle2 = (dateStr: any, displayInline:boolean=false) => {
+export const multiLineStyle2 = (dateStr: any, displayInline: boolean = false) => {
     const formattedDate = formatUtcDateToLocal(dateStr, true);
     const [date, time] = formattedDate.split("@");
     return <>
-        <div className={`${displayInline ? "inline" :"block"}`}>{date}, {time}</div>
+        <div className={`${displayInline ? "inline" : "block"}`}>{date}, {time}</div>
     </>
 }
 
 
-function formatUtcDateToLocal(backendUtcDate: any, removeCommaAfterDay?:boolean) {
+function formatUtcDateToLocal(backendUtcDate: any, removeCommaAfterDay?: boolean) {
 
     const inputString = new Date(backendUtcDate).toLocaleString('en-US', { timeZone: TIMEZONE, hour12: false })
     const months = [
@@ -207,7 +209,7 @@ function formatUtcDateToLocal(backendUtcDate: any, removeCommaAfterDay?:boolean)
     const [month, date, year] = datePart.split('/');
     const timeString = timePart;
 
-    const formattedDate = `${months[parseInt(month) - 1]} ${parseInt(date)}${removeCommaAfterDay?"":","} ${year}`;
+    const formattedDate = `${months[parseInt(month) - 1]} ${parseInt(date)}${removeCommaAfterDay ? "" : ","} ${year}`;
     const [hours, minutes] = timeString.split(':');
     const numericHours = parseInt(hours);
     const period = numericHours >= 12 ? 'pm' : 'am';

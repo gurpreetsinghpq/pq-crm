@@ -38,12 +38,34 @@ export interface RoleDetails {
     budget_range: string;
 }
 
-export interface ServiceContractGetResponse{
-    name: string,
-    file_size:string,
-    file_type:string,
-    event_date:string,
-    status:string
+export interface ServiceContractGetResponse {
+    id: number;
+    uploaded_by: {
+        name: string;
+        id: number;
+        is_active: boolean;
+    };
+    docusign: {
+        id: number;
+        status: string;
+        file_url: string;
+        envelop_id: string;
+        created_at: string;
+        response: {
+            uri: string;
+            status: string;
+            envelopeId: string;
+            statusDateTime: string;
+        };
+    };
+    file: string;
+    file_name: string;
+    file_size: string;
+    file_type: string;
+    uploaded_at: string;
+    status: string;
+    event_date: string;
+    deal: number;
 }
 
 export interface LeadInterface {
@@ -472,7 +494,7 @@ export interface UsersGetResponse {
     // user_permissions: number[];
 }
 
-export interface UsersDropdownGetResponse{
+export interface UsersDropdownGetResponse {
     id: string,
     first_name: string,
     last_name: string,
@@ -1293,4 +1315,12 @@ export interface CummulativeSummaryGetResponse {
     },
     "status": string
     "message": string
+}
+
+export interface IntegrationStatus {
+    "service_name": string,
+    "archived": boolean,
+    "user_email": string,
+    "created_at": string,
+    "auth_type": string
 }

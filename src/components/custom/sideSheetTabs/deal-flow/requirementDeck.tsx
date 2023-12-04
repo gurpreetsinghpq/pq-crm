@@ -87,6 +87,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                 })
                 const newVersion = maxVersion + 1;
                 const newTitle = `${title.replace(/\s/g, '')}_${isProposalDeck?"Proposal":"Capsule"}_V${newVersion}.pdf`
+                console.log("newTitle",newTitle, formData)
 
                 formData.append('file', selectedFile, newTitle)
                 if(isProposalDeck){
@@ -116,6 +117,10 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                 catch (err) {
                     console.log("error", err)
                     setIsUploading(false)
+                    toast({
+                        title: `Something went wrong, Please try again later!`,
+                        variant: "destructive"
+                    })
                 }
 
             } else {
@@ -130,10 +135,10 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
             <div className='flex-1 flex flex-col gap-[80px]'>
                 <div className='top'>
                     <div className='text-md font-semibold flex flex-row justify-center'>
-                        Open document editor
+                        Open { isProposalDeck? "Proposal" : "Document"} Editor
                     </div>
                     <div className='my-[16px] text-sm font-medium text-gray-700 flex flex-row justify-center text-center'>
-                        Click the Open Editor button to begin creating a {isProposalDeck?"proposal": "requirement deck"}.
+                        Click the Open Editor button to begin creating a {isProposalDeck?"Proposal Deck": "Requirement Deck"}.
                     </div>
                     <div className='flex flex-row justify-center'>
                         <Button className='flex flex-row gap-[8px]' onClick={() => window.open(`https://capsule.purplequarter.co/?tab=${isProposalDeck ?"Proposal":"Capsule" }`)}>

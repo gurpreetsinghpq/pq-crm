@@ -2578,7 +2578,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                             </div>
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs title={data.title || ""} prospectId={1} currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions} disable={{ proposal: true, requirementDeck: true }} />
+                            <SideSheetTabs title={data.title || ""} prospectId={1} currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions} disable={{ proposal: true, requirementDeck: true, serviceContract:true }} />
                         </div>
                     </div>
                 </div>

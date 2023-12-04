@@ -623,7 +623,7 @@ export default function DataTable<TData, TValue>({
           </Button>
         </div>
       </div> */}
-      {page !== "teamsDialog" && <div className="pl-[16px] pr-[16px] py-4">
+      {(page !== "teamsDialog" && page!== "serviceContracts") && <div className="pl-[16px] pr-[16px] py-4">
         <DataTablePagination table={table} hidden={{paginationSelectedCount:hidden.paginationSelectedCount}}/>
       </div>}
     </div>

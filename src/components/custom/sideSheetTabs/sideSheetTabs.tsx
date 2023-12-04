@@ -307,7 +307,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospec
             {isLeftVisible && <div><ChevronLeft className='cursor-pointer' onClick={scrollLeft} /></div>}
             <TabsList className={`${commonTabListClasses} overflow-hidden `} ref={containerRef}>
               {dealFlowTab.map((tab) => {
-                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal" && tab.value !== "Service Contract" && (tab.value === "Requirement Deck" ? disable.requirementDeck : true)} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+                return <TabsTrigger className={commonTabTriggerClasses} disabled={tab.value !== "Proposal" && (tab.value === "Requirement Deck" ? disable.requirementDeck : true) && (tab.value === "Service Contract" ? disable.serviceContract : true)} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
               })}
             </TabsList>
             {isRightVisible && <div><ChevronRight className='cursor-pointer' onClick={scrollRight} /></div>}
@@ -319,7 +319,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospec
             {prospectId && title && <RequirementDeck entityId={prospectId} title={title} isProposalDeck={true} isProposalDisabled={disable.proposal} />}
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.SERVICE_CONTRACT} className="flex flex-col flex-1">
-            {ids?.accountId && <ServiceContract ids={ids} isDisabled={disable.serviceContract} entityId={entityId} />}
+            {ids?.accountId && dealId && <ServiceContract ids={ids} isDisabled={disable.serviceContract} entityId={dealId} />}
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.REQUIREMENT_DECK} className="flex flex-col flex-1">
             {dealId && title && <RequirementDeck entityId={dealId} title={title} isProposalDeck={false} />}
