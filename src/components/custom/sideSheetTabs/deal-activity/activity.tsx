@@ -213,10 +213,13 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                     hour12: false, // Use 24-hour format
 
                 });
-                const dueTime = formatter.format(dateObject)
+                let dueTime = formatter.format(dateObject)
                 const dueDate = new Date(new Date(dueDateFromEdit).toLocaleString("en-us", { timeZone: TIMEZONE }))
                 // dueDate.setHours(0,0,0,0)
                 console.log("dueDateFromEdit", dueDateFromEdit, dueDate, TIMEZONE)
+                console.log("duetimeformatted", dueTime)
+                dueTime = dueTime === "24:00" ? "00:00" : dueTime
+                console.log("duetimeformatted", dueTime)
 
                 form.setValue("dueTime", dueTime)
                 form.setValue("dueDate", dueDate)
