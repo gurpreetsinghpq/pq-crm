@@ -4,7 +4,7 @@ import { IChildData } from './leads'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, DUPLICATE_ERROR_MESSAGE_DEFAULT, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIDE_SHEET_TABS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { BUDGET_RANGE, CONTACT_TYPE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, DUPLICATE_ERROR_MESSAGE_DEFAULT, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SET_VALUE_CONFIG, SIDE_SHEET_TABS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ZodObject, z } from 'zod'
@@ -2360,7 +2360,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                                             </SelectTrigger>
                                                                                         </FormControl>
                                                                                         <SelectContent>
-                                                                                            {TYPE.map((type, index) => {
+                                                                                            {CONTACT_TYPE.map((type, index) => {
                                                                                                 return <SelectItem value={type.value} key={index}>
                                                                                                     {type.label}
                                                                                                 </SelectItem>

@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG, SIDE_SHEET_TABS, DUPLICATE_ERROR_MESSAGE_DEFAULT } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG, SIDE_SHEET_TABS, DUPLICATE_ERROR_MESSAGE_DEFAULT, CONTACT_TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -2494,7 +2494,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                                                             </SelectTrigger>
                                                                                         </FormControl>
                                                                                         <SelectContent>
-                                                                                            {TYPE.map((type, index) => {
+                                                                                            {CONTACT_TYPE.map((type, index) => {
                                                                                                 return <SelectItem value={type.value} key={index}>
                                                                                                     {type.label}
                                                                                                 </SelectItem>

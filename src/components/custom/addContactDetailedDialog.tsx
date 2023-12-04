@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { Button } from '../ui/button'
 import { ArrowDown, ArrowDown01, ArrowDown01Icon, ArrowUpRight, Check, ChevronDown, ChevronDownIcon, ChevronsDown, Contact, Ghost, MoveDown, PencilIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, SET_VALUE_CONFIG, DUPLICATE_ERROR_MESSAGE_DEFAULT } from '@/app/constants/constants'
+import { COUNTRY_CODE as countryCode, TYPE as type, DESIGNATION as designation, LEAD_SOURCE as leadSource, BUDGET_RANGE as budgetRange, REGION as region, ROLETYPE as roleType, REGION, CREATORS, OWNERS, TYPE, DESIGNATION, ROLETYPE, SET_VALUE_CONFIG, DUPLICATE_ERROR_MESSAGE_DEFAULT, CONTACT_TYPE } from '@/app/constants/constants'
 import { DialogClose } from '@radix-ui/react-dialog'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
@@ -411,7 +411,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                     </FormControl>
                                                     <SelectContent>
                                                         {
-                                                            type.map((type, index) => {
+                                                            CONTACT_TYPE.map((type, index) => {
                                                                 return <SelectItem value={type.value} key={index}>
                                                                     {type.label}
                                                                 </SelectItem>

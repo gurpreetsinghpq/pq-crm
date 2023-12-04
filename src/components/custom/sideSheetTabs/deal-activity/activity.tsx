@@ -499,10 +499,15 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                         selected={field.value}
                                                                         onSelect={field.onChange}
                                                                         disabled={(date) => {
-                                                                            const today = getDateAccToTimezone()
-                                                                            const tempToday = structuredClone(today)
+                                                                            const today = getDateAccToTimezone();
+                                                                            const tempToday = structuredClone(today);
                                                                             tempToday.setHours(0, 0, 0, 0);
-                                                                            return date < tempToday || ((date.toDateString() === today.toDateString()) && (today.getHours() >= 23 && today.getMinutes() >= 45))
+                                                                    
+                                                                            // Calculate the date 60 days ago
+                                                                            const sixtyDaysAgo = new Date();
+                                                                            sixtyDaysAgo.setDate(today.getDate() - 60);
+                                                                            sixtyDaysAgo.setHours(0, 0, 0, 0);
+                                                                            return date < sixtyDaysAgo || ((date.toDateString() === today.toDateString()) && (today.getHours() >= 23 && today.getMinutes() >= 45))
                                                                         }
                                                                         }
 
@@ -529,7 +534,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                                 const today = getDateAccToTimezone()
                                                                                 today.setHours(0, 0, 0, 0);
                                                                                 const dueDate = form.getValues("dueDate")
-                                                                                const disable = dueDate == undefined || form.getValues("dueDate") < today
+                                                                                const disable = dueDate == undefined
                                                                                 return disable
                                                                             })()} variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                                 <div className='w-full flex-1 text-align-left text-md flex  '>
@@ -550,11 +555,13 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                         <CommandEmpty>Due Time not found.</CommandEmpty>
                                                                         <CommandGroup>
                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                {TIME_OPTIONS.filter((timeOption) => {
-                                                                                    const today = getDateAccToTimezone()
-                                                                                    const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate"), today) : false
-                                                                                    return !shouldDisable
-                                                                                }).map((timeOption) => {
+                                                                                {TIME_OPTIONS
+                                                                                // .filter((timeOption) => {
+                                                                                //     const today = getDateAccToTimezone()
+                                                                                //     const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate"), today) : false
+                                                                                //     return !shouldDisable
+                                                                                // })
+                                                                                .map((timeOption) => {
                                                                                     return (<CommandItem
                                                                                         value={timeOption.label}
                                                                                         key={timeOption.value}

@@ -319,7 +319,7 @@ function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospec
             {prospectId && title && <RequirementDeck entityId={prospectId} title={title} isProposalDeck={true} isProposalDisabled={disable.proposal} />}
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.SERVICE_CONTRACT} className="flex flex-col flex-1">
-            {ids?.accountId && dealId && <ServiceContract ids={ids} isDisabled={disable.serviceContract} entityId={dealId} />}
+            {ids?.accountId && dealId && title && <ServiceContract ids={ids} isDisabled={disable.serviceContract} entityId={dealId} title={title}/>}
           </TabsContent>
           <TabsContent value={DEAL_FLOW_TABS.REQUIREMENT_DECK} className="flex flex-col flex-1">
             {dealId && title && <RequirementDeck entityId={dealId} title={title} isProposalDeck={false} />}

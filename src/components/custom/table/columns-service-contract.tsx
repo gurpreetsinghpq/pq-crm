@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+import { ArrowUpDown, ChevronDown, ChevronDownIcon, EyeIcon, MoreVertical } from "lucide-react"
 import { TIMEZONE, getActive, getName } from "../commonFunctions"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { DialogClose } from "@radix-ui/react-dialog"
@@ -49,7 +49,7 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export function columnsServiceContacts(setChildDataHandler?: CallableFunction): ColumnDef<ServiceContractGetResponse>[] {
+export function columnsServiceContacts(setChildDataHandler?: CallableFunction, viewDocument?: CallableFunction): ColumnDef<ServiceContractGetResponse>[] {
     return [
         // {
         //     id: "select",
@@ -155,6 +155,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction): 
             enableHiding: true,
             cell: ({ row, cell }) => {
                 const id = row.original.id
+                const docusign = row.original.docusign
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -163,14 +164,23 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction): 
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        {!docusign? <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler(id)}>
                                 <div className="flex flex-row gap-2 items-center" >
                                     <IconESignature size={16} />
                                     Get e-Signature
                                 </div>
                             </DropdownMenuItem>
-                        </DropdownMenuContent>
+                        </DropdownMenuContent> :
+                         <DropdownMenuContent align="end">
+                         <DropdownMenuItem onClick={() => viewDocument && viewDocument(id)}>
+                             <div className="flex flex-row gap-2 items-center" >
+                                 <EyeIcon size={16} />
+                                 View Document
+                             </div>
+                         </DropdownMenuItem>
+                     </DropdownMenuContent>
+                        }
                     </DropdownMenu>
                 )
             },

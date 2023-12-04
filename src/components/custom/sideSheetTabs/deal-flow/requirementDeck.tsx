@@ -73,8 +73,8 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                 console.log('Selected file:', selectedFile.name);
                 setSelectedFile({ name: selectedFile.name, size: selectedFile.size });
                 const formData = new FormData()
+                
                 let maxVersion = 0;
-
                 data.map((pdf)=>{
                     const name = extractFileNameFromUrl(pdf.file)
                     if(name){
@@ -151,11 +151,11 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                     <div>
                         {
                             <div className='flex flex-col gap-[12px] items-center'>
-                                <div>
-                                    {isProposalDeck ? <img src="images/pdf-front-proposal.png" /> :  <img src="images/pdf-front.png" />}
+                                <div className='w-[150px]'>
+                                    {isProposalDeck ? <img src="images/pdf-front-proposal.png" className='w-full h-full object-contain' /> :  <img src="images/pdf-front.png" className='w-full h-full object-contain' />}
 
                                 </div>
-                                <div className='text-gray-700 text-lg font-medium'>
+                                <div className='text-gray-700 text-lg font-medium text-center'>
                                     {extractFileNameFromUrl(data[0].file)}
                                 </div>
                                 <div className='flex flex-row text-gray-700 text-sm'>

@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG, SIDE_SHEET_TABS, DEAL_STATUSES, DUPLICATE_ERROR_MESSAGE_DEFAULT } from '@/app/constants/constants'
+import { BUDGET_RANGE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIZE_OF_COMPANY, SOURCES, PROSPECT_STATUSES, TIME_TO_FILL, TYPE, CLOSEDBY, SET_VALUE_CONFIG, SIDE_SHEET_TABS, DEAL_STATUSES, DUPLICATE_ERROR_MESSAGE_DEFAULT, CONTACT_TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -2612,7 +2612,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                                             </SelectTrigger>
                                                                                         </FormControl>
                                                                                         <SelectContent>
-                                                                                            {TYPE.map((type, index) => {
+                                                                                            {CONTACT_TYPE.map((type, index) => {
                                                                                                 return <SelectItem value={type.value} key={index}>
                                                                                                     {type.label}
                                                                                                 </SelectItem>
@@ -2831,7 +2831,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
 
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs ids={{accountId:data.prospect.lead.organisation.id, contactId: data.prospect.lead.organisation.contacts.find((val)=>val.type==="Accounts Payable")?.id || null}} prospectId={data.prospect.id} title={data.prospect.lead.title} currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} dealId={data.id} entityId={data.prospect.lead.id} permissions={permissions} disable={{ requirementDeck: false, serviceContract:false }} />
+                            <SideSheetTabs ids={{accountId:data.prospect.lead.organisation.id, contactId: data.prospect.lead.organisation.contacts.find((val)=>val.type==="Accounts Payable")?.id || null}} prospectId={data.prospect.id} title={data.prospect.lead.title} currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} dealId={data.id} entityId={data.prospect.lead.id} permissions={permissions} disable={{ requirementDeck: false, serviceContract:true }} />
                         </div>
                     </div>
                 </div>

@@ -1318,6 +1318,7 @@ export interface CummulativeSummaryGetResponse {
 }
 
 export interface IntegrationStatus {
+    "id":string,
     "service_name": string,
     "archived": boolean,
     "user_email": string,

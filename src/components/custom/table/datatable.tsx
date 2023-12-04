@@ -114,7 +114,8 @@ interface DataTableProps<TData, TValue> {
   setChildDataHandler: CallableFunction,
   setIsMultiSelectOn: CallableFunction,
   page: string,
-  hidden?: HiddenIf
+  hidden?: HiddenIf,
+  manualPageSize?:number
 }
 
 export default function DataTable<TData, TValue>({
@@ -128,7 +129,8 @@ export default function DataTable<TData, TValue>({
   hidden={
     threeDots:false,
     multiCheckBoxes:false
-  }
+  },
+  manualPageSize
 }: DataTableProps<TData, TValue>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -170,6 +172,7 @@ export default function DataTable<TData, TValue>({
           desc:true
         }
       ],
+
     },
     
     
@@ -240,6 +243,9 @@ export default function DataTable<TData, TValue>({
           "select":false
         }
       })
+    }
+    if(manualPageSize){
+      table.setPageSize(manualPageSize)
     }
   },[])
 

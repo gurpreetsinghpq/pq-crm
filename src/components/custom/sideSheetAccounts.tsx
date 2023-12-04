@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, } from '../ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import Image from 'next/image'
-import { COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, DUPLICATE_ERROR_MESSAGE_DEFAULT, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIDE_SHEET_TABS, SIDE_SHEET_TABS_ACCOUNTS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
+import { CONTACT_TYPE, COUNTRY_CODE, CURRENCIES, DESIGNATION, DOMAINS, DUPLICATE_ERROR_MESSAGE_DEFAULT, EXCLUSIVITY, INDUSTRY, LAST_FUNDING_AMOUNT, LAST_FUNDING_STAGE, OWNERS, REGION, REGIONS, RETAINER_ADVANCE, ROLETYPE, SEGMENT, SERVICE_FEE_RANGE, SIDE_SHEET_TABS, SIDE_SHEET_TABS_ACCOUNTS, SIZE_OF_COMPANY, SOURCES, STATUSES, TIME_TO_FILL, TYPE } from '@/app/constants/constants'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -1211,7 +1211,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                                             </SelectTrigger>
                                                                                         </FormControl>
                                                                                         <SelectContent>
-                                                                                            {TYPE.map((type, index) => {
+                                                                                            {CONTACT_TYPE.map((type, index) => {
                                                                                                 return <SelectItem value={type.value} key={index}>
                                                                                                     {type.label}
                                                                                                 </SelectItem>
