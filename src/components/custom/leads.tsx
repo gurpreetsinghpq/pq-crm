@@ -214,7 +214,8 @@ const Leads = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            const userList: any = await fetchUserDataListForDrodpdown()
+            // const userList: any = await fetchUserDataListForDrodpdown()
+            const userList: any = await fetchUserDataList()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {
