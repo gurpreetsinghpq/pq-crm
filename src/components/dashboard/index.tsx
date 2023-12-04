@@ -932,12 +932,12 @@ export default function DashboardComponent() {
                                         Profile
                                     </div>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setTab(TITLES.MY_ACCOUNT, true)} className="border-b-[1px] border-gray-200">
+                                {(permissions["User Management"]?.access && permissions["User Management"]?.view) && <DropdownMenuItem onClick={() => setTab(TITLES.USER_MANAGEMENT, true)} className="border-b-[1px] border-gray-200">
                                     <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px] ">
                                         <IconSettings color="#344054"/>
                                         Settings
                                     </div>
-                                </DropdownMenuItem>
+                                </DropdownMenuItem>}
                                 <DropdownMenuItem onClick={logOut} >
                                     <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px]">
                                         <IconLogout size="16" />
