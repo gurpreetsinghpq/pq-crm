@@ -171,7 +171,6 @@ const Leads = ({ form, permissions }: {
 
 
 
-    
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getCookie("token")
     async function fetchLeadData(noArchiveFilter: boolean = false) {

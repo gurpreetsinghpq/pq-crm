@@ -157,8 +157,18 @@ export interface ClientCompleteInterface {
     name: string;
     registered_name: string | null;
     govt_id: string | null;
-    billing_address: string | null;
-    shipping_address: string | null;
+    billing_address?: string | null;
+    billing_address_l2: string | null
+    billing_country: string | null
+    billing_city: string | null
+    billing_state: string | null
+    billing_zipcode: string | null
+    shipping_address: string | null
+    shipping_address_l2: string | null
+    shipping_country: string | null
+    shipping_city: string | null
+    shipping_state: string | null
+    shipping_zipcode: string | null
     industry: string | null;
     domain: string | null;
     size: string | null;
@@ -217,7 +227,17 @@ export interface PatchOrganisation {
     registered_name?: string | null;
     govt_id?: string | null;
     billing_address?: string | null;
-    shipping_address?: string | null;
+    billing_address_l2: string | null
+    billing_country: string | null
+    billing_city: string | null
+    billing_state: string | null
+    billing_zipcode: string | null
+    shipping_address: string | null
+    shipping_address_l2: string | null
+    shipping_country: string | null
+    shipping_city: string | null
+    shipping_state: string | null
+    shipping_zipcode: string | null
     industry?: string | null;
     domain?: string | null;
     size?: string | null;
@@ -283,8 +303,18 @@ export interface ClientGetResponse {
     name: string;
     registered_name: string | null;
     govt_id: string | null;
-    billing_address: string | null;
-    shipping_address: string | null;
+    billing_address: string | null
+    billing_address_l2: string | null
+    billing_country: string | null
+    billing_city: string | null
+    billing_state: string | null
+    billing_zipcode: string | null
+    shipping_address: string | null
+    shipping_address_l2: string | null
+    shipping_country: string | null
+    shipping_city: string | null
+    shipping_state: string | null
+    shipping_zipcode: string | null
     industry: string;
     domain: string;
     size: string;
@@ -1318,7 +1348,7 @@ export interface CummulativeSummaryGetResponse {
 }
 
 export interface IntegrationStatus {
-    "id":string,
+    "id": string,
     "service_name": string,
     "archived": boolean,
     "user_email": string,

@@ -88,7 +88,7 @@ interface DisabledProps {
   serviceContract?: boolean
 }
 
-function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospectId, permissions, disable = { proposal: false, requirementDeck: false, serviceContract: false }, dealId, title, isAccounts = false, ids }: { currentParentTab: string, contactFromParents: any, entityId: number, prospectId?:number, permissions: Permission, disable?: DisabledProps, dealId?: number, title?: string, isAccounts?: boolean, ids?:{accountId:number, contactId:number | null} }) {
+function SideSheetTabs({ currentParentTab, contactFromParents, entityId, prospectId, permissions, disable = { proposal: false, requirementDeck: false, serviceContract: false }, dealId, title, isAccounts = false, ids }: { currentParentTab: string, contactFromParents: any, entityId: number, prospectId?:number, permissions: Permission, disable?: DisabledProps, dealId?: number, title?: string, isAccounts?: boolean, ids?:{accountId:number} }) {
   const [parentTab, setCurrentParentTab] = useState("")
   const [currentActiveTab, setCurrentActiveTab] = useState("")
   const [isLeftVisible, setIsLeftVisible] = useState(false);

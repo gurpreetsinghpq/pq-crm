@@ -244,10 +244,13 @@ export default function DataTable<TData, TValue>({
         }
       })
     }
+  },[])
+
+  useEffect(()=>{
     if(manualPageSize){
       table.setPageSize(manualPageSize)
     }
-  },[])
+  },[manualPageSize])
 
   function setLeadFilter() {
     if (filterObj?.regions && filterObj.regions.includes("allRegions")) {

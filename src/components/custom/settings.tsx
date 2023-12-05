@@ -4,7 +4,7 @@ import { Permission } from '@/app/interfaces/interface';
 import { UseFormReturn } from 'react-hook-form';
 import { IconGrid, IconHomeLine, IconWebHook } from '../icons/svgIcons';
 
-import { ArrowLeft, ArrowRight, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Integrations from './integrations';
 import { disabledSidebarItem } from '@/app/constants/classes';
 
@@ -44,7 +44,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
         <div className='flex flex-row relative'>
             {isSettingPanelOpen && <div className='absolute flex flex-col min-w-[250px] gap-[16px] h-[100vh]  top-0 left-0 bottom-0 z-[999] px-[16px] py-[36px] bg-gray-50 border-[1px] border-gray-200'>
                 <div className='absolute top-[15px] right-[20px] bg-gray-100 p-[6px] rounded-[4px] hover:shadow-2xl cursor-pointer'>
-                    <ArrowLeft onClick={() => setSettingPanelOpen(false)}  color="#667085"/>
+                    <ChevronLeft onClick={() => setSettingPanelOpen(false)}  color="#667085"/>
                 </div>
                 <div className='text-gray-900 text-md font-medium'>Settings</div>
                 <div className='flex flex-col gap-[4px] cursor-pointer rounded-[6px]'>
@@ -99,7 +99,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
                 <div className='flex flex-row '>
                     <div className='top flex flex-row items-center gap-[8px] px-[16px] py-[22px] border-b-[1px] border-gray-200 w-full'>
                         <div className='flex flex-row cursor-pointer bg-gray-100 p-[6px] rounded-[4px] hover:shadow-2xl' onClick={() => setSettingPanelOpen(true)} >
-                            <ArrowRight color="#667085"/>
+                            <ChevronRight color="#667085"/>
                         </div>
                         <div className='p-[4px] ml-[15px]' >
                             <IconHomeLine size="20" />

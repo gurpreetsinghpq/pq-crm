@@ -1,5 +1,5 @@
-import { commonClasses, commonFontClasses, disabledClasses, selectFormMessageClasses } from "@/app/constants/classes";
-import { IconBilling, IconBriefcase, IconContacts, IconEdit, IconEmail, IconEmail2, IconExportToZoho, IconGst, IconPackage, IconShield, IconShipping } from "@/components/icons/svgIcons";
+import { commonClasses, commonFontClasses, disabledClassesBorderNone, selectFormMessageClasses } from "@/app/constants/classes";
+import { IconBilling, IconBriefcase, IconContacts, IconEdit, IconEmail, IconEmail2, IconExportToZoho, IconGst, IconMinus, IconPackage, IconPlus, IconShield, IconShipping } from "@/components/icons/svgIcons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
@@ -12,8 +12,8 @@ import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { doesTypeIncludesMandatory, fetchAccountFromId, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from "../../commonFunctions";
-import { ClientGetResponse, ContactsGetResponse, ServiceContractGetResponse } from "@/app/interfaces/interface";
+import { doesTypeIncludesMandatory, fetchAccountFromId, formatAddresses, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from "../../commonFunctions";
+import { ClientGetResponse, Contact, ContactsGetResponse, PatchOrganisation, ServiceContractGetResponse } from "@/app/interfaces/interface";
 import { beforeCancelDialog } from "../../addLeadDetailedDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { COUNTRY_CODE, DESIGNATION, SET_VALUE_CONFIG } from "@/app/constants/constants";
@@ -29,9 +29,20 @@ import { columnsServiceContacts } from "../../table/columns-service-contract";
 
 const FormSchema = z.object({
     registeredName: z.string(),
-    billingAddress: z.string(),
-    shippingAddress: z.string(),
     gstinVatGstNo: z.string(),
+    billingCountry: z.string(),
+    billingL1: z.string(),
+    billingL2: z.string(),
+    billingCity: z.string(),
+    billingState: z.string(),
+    billingZip: z.string(),
+    shippingCountry: z.string(),
+    shippingL1: z.string(),
+    shippingL2: z.string(),
+    shippingCity: z.string(),
+    shippingState: z.string(),
+    shippingZip: z.string(),
+
 })
 
 const FormSchema2 = z.object({
@@ -58,7 +69,7 @@ const form2Defaults = {
 }
 
 
-function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisabled?: boolean, entityId: number, ids: { accountId: number, contactId: number | null }, title: string }) {
+function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisabled?: boolean, entityId: number, ids: { accountId: number }, title: string }) {
 
     const [contractDetailExpanded, setContractDetailExpanded] = useState<boolean>(false)
 
@@ -77,6 +88,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     const [isDocumentLoading, setDocumentLoading] = useState<boolean>()
     const [open, setOpen] = useState<boolean>(false)
     const [isESignUploading, setESignUploading] = useState<boolean>(false)
+    const [isBillingExplanded, setBillingExpanded] = useState<boolean>(true)
+    const [isShippingExplanded, setShippingExpanded] = useState<boolean>(false)
+    const [payableAccountId,setPayableAccountId] = useState<number | null>()
 
     const form2 = useForm<z.infer<typeof formSchema2>>({
         resolver: zodResolver(formSchema2),
@@ -93,21 +107,21 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/contract/${id}/docu_esign/`, { method: "POST", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            let data = structuredClone(result.data)
-            console.log(data)
-            if(data.status=="1"){
+            if (result.status == "1") {
+                let data = structuredClone(result.data)
+                console.log(data)
                 toast({
                     title: "E-Sign Successful!",
                     variant: "dark"
                 })
                 getServiceContractsDataTable()
-                setESignUploading(false)
-            }else{
+            } else {
                 toast({
-                    title: `Sorry some error have occured: ${data.message}`,
+                    title: `Sorry some error have occured: ${result.message}`,
                     variant: "destructive"
                 })
             }
+            setESignUploading(false)
         }
         catch (err) {
             console.log("error", err)
@@ -141,11 +155,25 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             let data: ClientGetResponse = structuredClone(result.data)
             setAccountData(data)
             form.reset({
-                billingAddress: data.billing_address || "",
-                shippingAddress: data.shipping_address || "",
+                billingL1: data.billing_address || "",
+                billingL2: data.billing_address_l2 || "",
+                billingCity: data.billing_city || "",
+                billingCountry: data.billing_country || "",
+                billingState: data.billing_state || "",
+                billingZip: data.billing_zipcode || "",
+                shippingL1: data.shipping_address || "",
+                shippingL2: data.shipping_address_l2 || "",
+                shippingCity: data.shipping_city || "",
+                shippingCountry: data.shipping_country || "",
+                shippingState: data.shipping_state || "",
+                shippingZip: data.shipping_zipcode || "",
                 gstinVatGstNo: data.govt_id || "",
                 registeredName: data.registered_name || ""
             })
+            console.log("form2 contacts", data.contacts)
+            const contactId = data.contacts.find((val)=>val.type==="Accounts Payable")?.id || null
+            setPayableAccountId(contactId)
+
         }
         catch (err) {
             console.log("error", err)
@@ -157,9 +185,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/contract/?deal=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            let data = structuredClone(result)
             setContractDraftLoading(false)
-            if (data.status == "1") {
+            if (result.status == "1") {
+                let data = structuredClone(result)
                 let dataToSave: ServiceContractGetResponse[] = data.data
                 console.log(dataToSave)
                 setContractDraft(dataToSave)
@@ -183,26 +211,29 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     }
 
     async function getContactDetails() {
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${ids.contactId}/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            let data: ContactsGetResponse = structuredClone(result.data)
-            setContactData(data)
-            // form2.setValue("std_code", data.std_code)
-            // form2.setValue("phone", data.phone)
-            // form2.setValue("email", data.email)
-            // form2.setValue("name", data.name)
-            // form2.setValue("designation", labelToValue(data.designation, DESIGNATION))
-            form2.reset({
-                "name": data.name,
-                "email": data.email,
-                "phone": data.phone,
-                "std_code": data.std_code,
-                "designation": labelToValue(data.designation, DESIGNATION)
-            })
-        }
-        catch (err) {
-            console.log("error", err)
+        if(payableAccountId){
+            try {
+                const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${payableAccountId}/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+                const result = await dataResp.json()
+                let data: ContactsGetResponse = structuredClone(result.data)
+                setContactData(data)
+                // form2.setValue("std_code", data.std_code)
+                // form2.setValue("phone", data.phone)
+                // form2.setValue("email", data.email)
+                // form2.setValue("name", data.name)
+                // form2.setValue("designation", labelToValue(data.designation, DESIGNATION))
+                form2.reset({
+                    "name": data.name,
+                    "email": data.email,
+                    "phone": data.phone,
+                    "std_code": data.std_code,
+                    "designation": labelToValue(data.designation,DESIGNATION)
+                })
+                console.log("form2",form2.getValues())
+            }
+            catch (err) {
+                console.log("error", err)
+            }
         }
 
     }
@@ -211,11 +242,14 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         changeStdCode()
         getServiceContractsDataTable()
         console.log("ids", ids)
-        if (ids.contactId) {
-            getContactDetails()
-        }
     }, [])
 
+    useEffect(()=>{
+        console.log("form2", payableAccountId)
+        if (payableAccountId) {
+            getContactDetails()
+        }
+    },[payableAccountId])
     function changeStdCode() {
         const value = form2.getValues("std_code")
         let updatedSchema
@@ -304,7 +338,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             const dataResp = await fetch(`${baseUrl}/v1/api/contract/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
             const result = await dataResp.json()
             setIsUploading(false)
-            if (result.message === "success") {
+            if (result.status == "1") {
                 toast({
                     title: "File uploaded Succesfully!",
                     variant: "dark"
@@ -319,7 +353,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     title: "Something went wrong, Please try again later!",
                     variant: "destructive"
                 })
-                setSelectedFile({ name: "", size: null })
             }
         }
         catch (err) {
@@ -327,6 +360,106 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             setIsUploading(false)
         }
     }
+
+    function saveAccountDetails(){
+        const formData = form.getValues()
+        
+        const dataToSend:Partial<PatchOrganisation> = {
+            billing_address : formData.billingL1,
+            billing_address_l2 : formData.billingL2,
+            billing_country : formData.billingCountry,
+            billing_city : formData.billingCity,
+            billing_state : formData.billingState,
+            billing_zipcode : formData.billingZip,
+            shipping_address : formData.shippingL1,
+            shipping_address_l2 : formData.shippingL2,
+            shipping_country : formData.shippingCountry,
+            shipping_city : formData.shippingCity,
+            shipping_state : formData.shippingState,
+            shipping_zipcode : formData.shippingZip,
+            registered_name : formData.registeredName,
+            govt_id : formData.gstinVatGstNo
+            
+        }
+        patchOrgData(ids.accountId, dataToSend)
+    }
+
+    function saveContactDetails(){
+        const formData2 = form2.getValues()
+        
+        const dataToSend:Partial<Contact> = {
+            name: formData2.name,
+            designation: valueToLabel(formData2.designation, DESIGNATION),
+            email: formData2.email,
+            phone: formData2.phone,
+            std_code: formData2.std_code,
+            type: "Accounts Payable"
+        }
+
+        if(payableAccountId){
+            patchContactData(payableAccountId, dataToSend)
+        }else{
+            dataToSend["organisation"] = ids.accountId
+            patchContactData(null, dataToSend )
+        }
+    }
+
+    async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+            if (result.status == "1") {
+                toast({
+                    title: "Account details upadted!",
+                    variant: "dark"
+                })
+                getAccountDetails()
+            }else{
+                toast({
+                    title: "Something went wrong, Please try again later!",
+                    variant: "destructive"
+                })
+            }
+        }
+        catch (err) {
+            console.log("error", err)
+            toast({
+                title: "Something went wrong, Please try again later!",
+                variant: "destructive"
+            })
+        }
+    }
+
+    async function patchContactData(id: number | null, contactData: Partial<Contact>) {
+    
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${id? id:''}/`, { method: `${!id? "POST" : "PATCH"}`, body: JSON.stringify(contactData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            console.log(result)
+            if (result.status == "1") {
+                toast({
+                    title: `Contact details ${!id? "Added": "Upadted"}!`,
+                    variant: "dark"
+                })
+                getContactDetails()
+                getAccountDetails()
+            }else{
+                toast({
+                    title: "Something went wrong, Please try again later!",
+                    variant: "destructive"
+                })
+            }
+        }
+        catch (err) {
+            console.log("error", err)
+            toast({
+                title: "Something went wrong, Please try again later!",
+                variant: "destructive"
+            })
+        }
+    }
+
     useEffect(() => {
         console.log(contractDraft)
     }, [contractDraft])
@@ -338,7 +471,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                         <h2 className="text-gray-700 font-inter font-semibold text-base leading-6">Service Contract Status Tracking</h2>
                         <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="default" className="gap-2">
+                                <Button type="button" variant="default" className="gap-2">
                                     <Image src="/images/upload.svg" alt="upload image" height={20} width={20} />
                                     <div className="text-white font-inter text-base font-semibold leading-6">
                                         Upload Contract Draft
@@ -390,14 +523,14 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                 {/* application/msword */}
                                 <div className="flex flex-row gap-[10px] justify-center">
                                     <DialogClose asChild>
-                                        <Button variant={"google"} className="flex-1" onClick={() => {
+                                        <Button type="button" variant={"google"} className="flex-1" onClick={() => {
                                             setFormData(undefined)
                                             setSelectedFile({ name: "", size: null })
                                         }}>
                                             Cancel
                                         </Button>
                                     </DialogClose>
-                                    <Button className="flex-1" disabled={formData === undefined} onClick={() => uploadFile()}>Attach File</Button>
+                                    <Button type="button" className="flex-1" disabled={formData === undefined} onClick={() => uploadFile()}>Attach File</Button>
 
                                 </div>
 
@@ -406,7 +539,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     </div>
                 </div>
                 {contractDraft.length > 0 ? <div className="flex flex-row w-full min-h-[200px]">
-                    <DataTable columns={columnsServiceContacts(sendESign, viewDocument)} data={contractDraft} filterObj={{}} page="serviceContracts" setChildDataHandler={() => { }} setIsMultiSelectOn={() => { }} setTableLeadRow={() => { }} manualPageSize={contractDraft.length}/>
+                    <DataTable columns={columnsServiceContacts(sendESign, viewDocument)} data={contractDraft} filterObj={{}} page="serviceContracts" setChildDataHandler={() => { }} setIsMultiSelectOn={() => { }} setTableLeadRow={() => { }} manualPageSize={contractDraft.length} />
                 </div>
                     : <div className="flex justify-center items-center self-stretch">
                         <div className="flex flex-col items-center gap-6">
@@ -416,7 +549,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                             </p>
                         </div>
                     </div>}
-                <Separator className='mt-10' />
+                <Separator  />
                 <div className="flex flex-col w-full">
                     <div className="flex flex-row justify-between items-center w-full">
                         <div className="flex flex-row gap-[5px] items-center cursor-pointer" onClick={() => setContractDetailExpanded(prev => !prev)}>
@@ -425,7 +558,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                 Contract Details
                             </div>
                         </div>
-                        <Button variant="default" className="gap-2">
+                        <Button type="button" variant="default" className="gap-2">
                             <IconExportToZoho size={20} />
                             <div className="text-white font-inter text-base font-semibold leading-6">
                                 Export to Zoho
@@ -454,7 +587,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     <div className="flex flex-row gap-[8px]">
                                         <IconShield size={20} />
                                         <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
+                                            <div className="text-xs font-bold text-gray-600 items-baseline">
                                                 Registered Name
                                             </div>
                                             <FormField
@@ -463,7 +596,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input disabled={!isAccountEditMode} className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Registered Name" {...field} />
+                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Registered Name" {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -472,53 +605,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                         </div>
                                     </div>
                                     <div className="flex flex-row gap-[8px]">
-                                        <IconBilling size="20" color="#98A2B3" />
-                                        <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
-                                                Billing Address
-                                            </div>
-                                            <div className="text-md font-normal ">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="billingAddress"
-                                                    render={({ field }) => (
-                                                        <FormItem className='w-full'>
-                                                            <FormControl>
-                                                                <Input disabled={!isAccountEditMode} className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Billing Address" {...field} />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row gap-[8px]">
-                                        <IconPackage size="20" color="#98A2B3" />
-                                        <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
-                                                Shipping Address
-                                            </div>
-                                            <div className="text-md font-normal">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="shippingAddress"
-                                                    render={({ field }) => (
-                                                        <FormItem className='w-full'>
-                                                            <FormControl>
-                                                                <Input disabled={!isAccountEditMode} className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row gap-[8px]">
                                         <IconGst size="20" color="#98A2B3" />
                                         <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
+                                            <div className="text-xs font-bold text-gray-600 items-baseline">
                                                 GSTIN/VAT/GST
                                             </div>
                                             <div className="text-md font-normal">
@@ -529,7 +618,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                         render={({ field }) => (
                                                             <FormItem className='w-full'>
                                                                 <FormControl>
-                                                                    <Input disabled={!isAccountEditMode} className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="GSTIN/VAT/GST Number" {...field} />
+                                                                    <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="GSTIN/VAT/GST Number" {...field} />
                                                                 </FormControl>
                                                                 <FormMessage />
                                                             </FormItem>
@@ -537,6 +626,260 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                     />
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row gap-[8px]">
+                                        <IconBilling size="20" color="#98A2B3" />
+                                        <div className="flex flex-col gap-[5px] w-full">
+                                            {isAccountEditMode ? <div className="flex flex-row items-center gap-[10px] cursor-pointer" onClick={() => setBillingExpanded(prev => !prev)}>
+                                                <div className="text-xs font-bold text-gray-600 items-baseline">
+                                                    Billing Address
+                                                </div>
+                                                <div className="h-[2px] bg-gray-200 flex-1 w-full">
+                                                </div>
+                                                <div>
+                                                    {isBillingExplanded ? <IconMinus /> : <IconPlus />}
+                                                </div>
+                                            </div> :
+                                                <div className="flex flex-col gap-[10px]">
+                                                    <div className="text-xs font-bold text-gray-600 items-baseline">
+                                                        Billing Address
+                                                    </div>
+                                                    <div className={`${commonClasses} ${commonFontClasses} px-[14px]`}>{accountData ? formatAddresses(accountData).billing : "—"} </div>
+                                                </div>
+                                            }
+                                            {(isAccountEditMode && isBillingExplanded )&&
+                                                <div className="flex flex-col gap-[16px] mt-[10px]">
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Country / Region</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="billingCountry"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Country / Region" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Address line 1</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="billingL1"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 1" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Address line 2</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="billingL2"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 2" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">City</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="billingCity"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="City" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">State</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="billingState"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="State" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Zip Code</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="billingZip"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Zip Code" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row gap-[8px]">
+                                        <IconPackage size="20" color="#98A2B3" />
+                                        <div className="flex flex-col gap-[5px] w-full">
+                                            {isAccountEditMode ? <div className="flex flex-row items-center gap-[10px] cursor-pointer" onClick={() => setShippingExpanded(prev => !prev)}>
+                                                <div className="text-xs font-bold text-gray-600 items-baseline">
+                                                    Shipping Address
+                                                </div>
+                                                <div className="h-[2px] bg-gray-200 flex-1 w-full">
+                                                </div>
+                                                <div>
+                                                    {isShippingExplanded ? <IconMinus /> : <IconPlus />}
+                                                </div>
+                                            </div> : <div className="flex flex-col gap-[10px]">
+                                                    <div className="text-xs font-bold text-gray-600 items-baseline">
+                                                        Shipping Address
+                                                    </div>
+                                                    <div className={`${commonClasses} ${commonFontClasses} px-[14px]`}>{accountData ? formatAddresses(accountData).shipping : "—"} </div>
+                                                </div>}
+                                            { (isAccountEditMode && isShippingExplanded) &&
+                                                <div className="flex flex-col gap-[16px] mt-[10px]">
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Country / Region</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="shippingCountry"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Country / Region" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Address line 1</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="shippingL1"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 1" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Address line 2</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="shippingL2"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 2" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">City</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="shippingCity"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="City" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">State</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="shippingState"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="State" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-[4px]">
+                                                        <div className="text-xs font-bold text-gray-500">Zip Code</div>
+                                                        <div className="text-md font-normal ">
+                                                            <FormField
+                                                                control={form.control}
+                                                                name="shippingZip"
+                                                                render={({ field }) => (
+                                                                    <FormItem className='w-full'>
+                                                                        <FormControl>
+                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Zip Code" {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
                                         </div>
                                     </div>
 
@@ -549,7 +892,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button >Save</Button>
+                                                <Button type="button" disabled={!(form.formState.isValid)}  onClick={()=>saveAccountDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
@@ -557,7 +900,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                             </form>
                         </Form>
                         <Form {...form2}>
-                            <form className="flex flex-col flex-1 rounded-[5px] bg-white-900 ">
+                            <form className="flex flex-col flex-1 rounded-[5px] bg-white-900 sticky top-0 h-fit">
                                 <div className="flex flex-row items-center justify-between p-[16px]">
                                     <div className="text-sm font-bold">Accounts Payable Contact Details</div>
                                     {
@@ -577,7 +920,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     <div className="flex flex-row gap-[8px]">
                                         <IconShield size={20} />
                                         <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
+                                            <div className="text-xs font-bold text-gray-600 items-baseline">
                                                 Name
                                             </div>
                                             <FormField
@@ -586,7 +929,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input disabled={!isPayableEditMode} className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder=" Name" {...field} />
+                                                            <Input disabled={!isPayableEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder=" Name" {...field} />
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
@@ -597,7 +940,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     <div className="flex flex-row gap-[8px]">
                                         <IconBriefcase size="20" color="#98A2B3" />
                                         <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
+                                            <div className="text-xs font-bold text-gray-600 items-baseline">
                                                 Title
                                             </div>
                                             <div className="text-md font-normal ">
@@ -608,12 +951,12 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                         <FormItem className='w-full cursor-pointer'>
                                                             <Popover>
                                                                 <PopoverTrigger asChild disabled={!isPayableEditMode} >
-                                                                    <div className={`flex flex-row gap-[10px] py-[10px] items-center ${!isPayableEditMode ? `${disabledClasses} pointer-events-none cursor-not-allowed bg-gray-50 rounded-[8px] ` : ""}`}>
+                                                                    <div className={`border border-[1px] border-gray-300 flex flex-row gap-[10px] py-[10px] items-center ${!isPayableEditMode ? `border-none pointer-events-none cursor-not-allowed ` : "rounded-[8px]"}`}>
                                                                         <div className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                            <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}>
-                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className={!isPayableEditMode ? ` ${disabledClasses} text-gray-400` : "text-muted-foreground"}>Designation</span>}
+                                                                            <div className={`w-full  flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
+                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className={!isPayableEditMode ? ` ${disabledClassesBorderNone} text-gray-400` : "text-muted-foreground"}>Designation</span>}
                                                                             </div>
-                                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                            {isPayableEditMode && <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />}
                                                                         </div>
                                                                     </div>
 
@@ -661,7 +1004,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     <div className="flex flex-row gap-[8px]">
                                         <IconEmail2 size="20" color="#98A2B3" />
                                         <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
+                                            <div className="text-xs font-bold text-gray-600 items-baseline">
                                                 Email
                                             </div>
                                             <div className="text-md font-normal">
@@ -671,7 +1014,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                     render={({ field }) => (
                                                         <FormItem className='w-full'>
                                                             <FormControl>
-                                                                <Input disabled={!isPayableEditMode} className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
+                                                                <Input disabled={!isPayableEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Email" {...field} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -683,7 +1026,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     <div className="flex flex-row gap-[8px]">
                                         <Phone size="20" color="#98A2B3" />
                                         <div className="flex flex-col gap-[5px] w-full">
-                                            <div className="text-xs font-bold text-gray-500 items-baseline">
+                                            <div className="text-xs font-bold text-gray-600 items-baseline">
                                                 Phone
                                             </div>
                                             <div className="text-md font-normal">
@@ -696,12 +1039,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 <Popover>
                                                                     <PopoverTrigger asChild>
                                                                         <FormControl>
-                                                                            <Button variant={"ghost"} className={`flex flex-row gap-2 ${!isPayableEditMode ? `${disabledClasses} cursor-not-allowed pointer-events-none bg-gray-50 rounded-[8px] ` : ""}`}>
-                                                                                {/* {
-                                                                field.value ? creators.find((creator) => creator.value === field.value)?.label : "Select creator"
-                                                            } */}
+                                                                            <Button type="button" variant={`${isPayableEditMode? "google" : "ghost"}`} className={`flex flex-row gap-2 ${!isPayableEditMode ? `border-none cursor-not-allowed pointer-events-none ` : "rounded-[8px]"}`}>
                                                                                 {COUNTRY_CODE.find((val) => val.value === field.value)?.value || <span className='text-muted-foreground '> STD Code</span>}
-                                                                                <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
+                                                                                {isPayableEditMode && <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />}
                                                                             </Button>
                                                                         </FormControl>
                                                                     </PopoverTrigger>
@@ -752,7 +1092,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                         render={({ field }) => (
                                                             <FormItem className='flex-1 '>
                                                                 <FormControl>
-                                                                    <Input type="text" disabled={!isPayableEditMode} className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
+                                                                    <Input type="text" disabled={!isPayableEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
                                                                         onKeyPress={handleKeyPress}
                                                                         onChange={event => {
                                                                             const std_code = form2.getValues("std_code")
@@ -777,7 +1117,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard2)}
-                                                <Button >Save</Button>
+                                                <Button type="button" onClick={()=>saveContactDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>

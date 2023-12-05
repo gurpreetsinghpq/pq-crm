@@ -693,3 +693,47 @@ export function getLastFy(): TimeRange {
   return { from: fyStart.toISOString(), to: fyEnd.toISOString() };
 };
 
+
+export function formatAddresses(data: ClientGetResponse) {
+  const {
+      billing_address,
+      billing_address_l2,
+      billing_country,
+      billing_city,
+      billing_state,
+      billing_zipcode,
+      shipping_address,
+      shipping_address_l2,
+      shipping_country,
+      shipping_city,
+      shipping_state,
+      shipping_zipcode,
+  } = data;
+
+  const formattedBillingAddress = [
+      billing_address,
+      billing_address_l2,
+      billing_country,
+      billing_city,
+      billing_state,
+      billing_zipcode,
+  ]
+      .filter((value) => value !== null && value !== undefined)
+      .join(', ');
+
+  const formattedShippingAddress = [
+      shipping_address,
+      shipping_address_l2,
+      shipping_country,
+      shipping_city,
+      shipping_state,
+      shipping_zipcode,
+  ]
+      .filter((value) => value !== null && value !== undefined)
+      .join(', ');
+
+  return {
+      billing: formattedBillingAddress,
+      shipping: formattedShippingAddress,
+  };
+}
