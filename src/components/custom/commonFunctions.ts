@@ -1,5 +1,5 @@
 import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ClientGetResponse, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, AddressFields, ClientGetResponse, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 
@@ -71,9 +71,9 @@ export function addSeparator(value: number): string {
 }
 
 export function addSeparatorAndRemoveDecimal(value: number): string {
-  if(value===0){
+  if (value === 0) {
     return "--"
-  }else{
+  } else {
     return Math.round(value).toLocaleString();
   }
 }
@@ -679,7 +679,7 @@ export function getCurrencyAccToRegion(region: string) {
 }
 
 
-export function getCurrentFy(): TimeRange  {
+export function getCurrentFy(): TimeRange {
   const currentYear = new Date().getFullYear();
   const fyStart = new Date(currentYear, 3, 1); // April is month 3 (0-based index)
   const fyEnd = new Date(currentYear + 1, 2, 31); // March is month 2 (0-based index)
@@ -694,46 +694,57 @@ export function getLastFy(): TimeRange {
 };
 
 
-export function formatAddresses(data: ClientGetResponse) {
+export function formatAddresses(data: AddressFields) {
   const {
-      billing_address,
-      billing_address_l2,
-      billing_country,
-      billing_city,
-      billing_state,
-      billing_zipcode,
-      shipping_address,
-      shipping_address_l2,
-      shipping_country,
-      shipping_city,
-      shipping_state,
-      shipping_zipcode,
+    billing_address,
+    billing_address_l2,
+    billing_country,
+    billing_city,
+    billing_state,
+    billing_zipcode,
+    shipping_address,
+    shipping_address_l2,
+    shipping_country,
+    shipping_city,
+    shipping_state,
+    shipping_zipcode,
   } = data;
 
   const formattedBillingAddress = [
-      billing_address,
-      billing_address_l2,
-      billing_country,
-      billing_city,
-      billing_state,
-      billing_zipcode,
+    billing_address,
+    billing_address_l2,
+    billing_country,
+    billing_city,
+    billing_state,
+    billing_zipcode,
   ]
-      .filter((value) => value !== null && value !== undefined)
-      .join(', ');
+    .filter((value) => value !== null && value !== undefined)
+    .join(', ');
 
   const formattedShippingAddress = [
-      shipping_address,
-      shipping_address_l2,
-      shipping_country,
-      shipping_city,
-      shipping_state,
-      shipping_zipcode,
+    shipping_address,
+    shipping_address_l2,
+    shipping_country,
+    shipping_city,
+    shipping_state,
+    shipping_zipcode,
   ]
-      .filter((value) => value !== null && value !== undefined)
-      .join(', ');
+    .filter((value) => value !== null && value !== undefined)
+    .join(', ');
 
   return {
-      billing: formattedBillingAddress,
-      shipping: formattedShippingAddress,
+    billing: formattedBillingAddress,
+    shipping: formattedShippingAddress,
   };
+}
+
+export function areBillingAndShippingEqual(data: AddressFields): boolean {
+  return (
+    data.billing_address === data.shipping_address &&
+    data.billing_address_l2 === data.shipping_address_l2 &&
+    data.billing_city === data.shipping_city &&
+    data.billing_country === data.shipping_country &&
+    data.billing_state === data.shipping_state &&
+    data.billing_zipcode === data.shipping_zipcode
+  );
 }

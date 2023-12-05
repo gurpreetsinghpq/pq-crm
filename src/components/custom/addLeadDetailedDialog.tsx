@@ -292,7 +292,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                 resetForm2()
             } else {
                 toast({
-                    title: `${result.error.message}`,
+                    title: `${result.error}`,
                     variant: "destructive"
                 })
             }

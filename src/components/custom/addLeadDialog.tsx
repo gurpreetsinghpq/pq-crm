@@ -20,27 +20,7 @@ import SearchableInput from './searchableInput'
 
 let dataFromApi: ClientCompleteInterface[] = []
 let leadDataFromApi: LeadInterface[] = []
-const dummySearchedItems: ClientCompleteInterface[] = [
-    {
-        "id": 1,
-        "contacts": [],
-        "created_by": "Anmol Goel",
-        "updated_by": "Anmol Goel",
-        "name": "Swiggy",
-        "registered_name": null,
-        "govt_id": null,
-        "billing_address": null,
-        "shipping_address": null,
-        "industry": null,
-        "domain": null,
-        "size": null,
-        "last_funding_stage": null,
-        "last_funding_amount": null,
-        "funding_currency": null,
-        "segment": null,
-        "archived": false
-    }
-]
+
 
 const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetchLeadData: CallableFunction, page: string }) => {
     const [inputAccount, setInputAccount] = useState("")

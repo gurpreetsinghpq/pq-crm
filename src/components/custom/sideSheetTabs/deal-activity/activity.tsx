@@ -60,7 +60,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         defaultValues: {
             type: undefined,
             mode: undefined,
-            reminder: undefined
+            reminder: "-1"
 
         }
     })

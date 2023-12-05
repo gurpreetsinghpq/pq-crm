@@ -110,8 +110,7 @@ export interface LeadInterface {
         name: string;
         registered_name: string | null;
         govt_id: string | null;
-        billing_address: string | null;
-        shipping_address: string | null;
+        
         industry: string | null;
         domain: string | null;
         size: string | null;
@@ -121,7 +120,7 @@ export interface LeadInterface {
         segment: string | null;
         archived: boolean;
 
-    };
+    } & AddressFields;
     title: string | null;
     currency: string | null;
     service_fee: number | null;
@@ -326,6 +325,21 @@ export interface ClientGetResponse {
 
 }
 
+export interface AddressFields {
+    billing_address: string | null
+    billing_address_l2: string | null
+    billing_country: string | null
+    billing_city: string | null
+    billing_state: string | null
+    billing_zipcode: string | null
+    shipping_address: string | null
+    shipping_address_l2: string | null
+    shipping_country: string | null
+    shipping_city: string | null
+    shipping_state: string | null
+    shipping_zipcode: string | null
+  }
+
 export interface ContactsGetResponse {
     id: number;
     name: string;
@@ -430,8 +444,6 @@ export interface ProspectsGetResponse {
             name: string;
             registered_name: null | string;
             govt_id: null | string;
-            billing_address: null | string;
-            shipping_address: null | string;
             industry: string;
             domain: string;
             size: string;
@@ -442,7 +454,7 @@ export interface ProspectsGetResponse {
             archived: boolean;
             created_at: string;
             updated_at: string;
-        };
+        } & AddressFields;
         title: string;
         currency: null | string;
         service_fee: null | any; // Replace 'any' with appropriate type
@@ -1260,8 +1272,6 @@ export interface DealsGetResponse {
                 name: string;
                 registered_name: string;
                 govt_id: string;
-                billing_address: string;
-                shipping_address: string;
                 industry: string;
                 domain: string;
                 size: string;
@@ -1272,7 +1282,7 @@ export interface DealsGetResponse {
                 archived: boolean;
                 created_at: string;
                 updated_at: string;
-            };
+            } & AddressFields;
             title: string;
             currency: string | null;
             service_fee: string;

@@ -107,6 +107,11 @@ const ROLETYPE: IValueLabel[] = [
         label: "Board Member",
         acronym: "BM"
     },
+    {
+        value: "engineering_manager",
+        label: "Engineering Manager",
+        acronym: "EM"
+    },
 ]
 const USA_MENA_APAC_BUDGET: IValueLabel[] = [
     {
@@ -562,6 +567,12 @@ const CONTRACT_DRAFT_STATUSES: IValueLabel[] = [
     },
     {
         value: "sent",
+        label: "Sent",
+        icon: Deferred,
+        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-warning-600 bg-warning-50 text-warning-500"
+    },
+    {
+        value: "delivered",
         label: "Sent",
         icon: Deferred,
         class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-warning-600 bg-warning-50 text-warning-500"

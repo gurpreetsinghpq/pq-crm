@@ -24,7 +24,7 @@ import { Check, CheckCircle, CheckCircle2, ChevronDown, MinusCircleIcon } from '
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
-import { doesTypeIncludesMandatory, fetchUserDataList, fetchUserDataListForDrodpdown, getCurrencyAccToRegion, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { doesTypeIncludesMandatory, fetchUserDataList, fetchUserDataListForDrodpdown, formatAddresses, getCurrencyAccToRegion, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { useToast } from '../ui/use-toast'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
@@ -235,6 +235,8 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         form.setValue("lastFundingStage", labelToValue(data.organisation.last_funding_stage || "", LAST_FUNDING_STAGE))
         form.setValue("lastFundingAmount", labelToValue(data.organisation.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
         form.setValue("owners", data?.owner?.id?.toString() || "")
+        form.setValue("billingAddress", formatAddresses(data.organisation).billing)
+        form.setValue("shippingAddress", formatAddresses(data.organisation).shipping)
         getUserList()
         // form.unregister(["fixedBudgetUl"])
 

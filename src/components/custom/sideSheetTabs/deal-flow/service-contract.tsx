@@ -12,7 +12,7 @@ import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { doesTypeIncludesMandatory, fetchAccountFromId, formatAddresses, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from "../../commonFunctions";
+import { areBillingAndShippingEqual, doesTypeIncludesMandatory, fetchAccountFromId, formatAddresses, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from "../../commonFunctions";
 import { ClientGetResponse, Contact, ContactsGetResponse, PatchOrganisation, ServiceContractGetResponse } from "@/app/interfaces/interface";
 import { beforeCancelDialog } from "../../addLeadDetailedDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -112,7 +112,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             const result = await dataResp.json()
             if (result.status == "1") {
                 let data = structuredClone(result.data)
-                console.log(data)
                 toast({
                     title: "E-Sign Successful!",
                     variant: "dark"
@@ -173,8 +172,13 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 gstinVatGstNo: data.govt_id || "",
                 registeredName: data.registered_name || ""
             })
-            console.log("form2 contacts", data.contacts)
+
             const contactId = data.contacts.find((val) => val.type === "Accounts Payable")?.id || null
+
+            const addressesAreEqual = areBillingAndShippingEqual(data);
+
+            console.log("isequal", addressesAreEqual)
+            form.setValue("sameAsBillingAddress", addressesAreEqual ? true : undefined)
             setPayableAccountId(contactId)
 
         }
@@ -193,7 +197,8 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 let data = structuredClone(result)
                 let dataToSave: ServiceContractGetResponse[] = data.data
                 console.log(dataToSave)
-                setContractDraft(dataToSave)
+                let sortedData = dataToSave.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
+                setContractDraft(sortedData )
             } else {
                 toast({
                     title: "Sorry some error have occured!",
@@ -226,13 +231,13 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 // form2.setValue("name", data.name)
                 // form2.setValue("designation", labelToValue(data.designation, DESIGNATION))
                 form2.reset({
-                    "name": data.name,
-                    "email": data.email,
-                    "phone": data.phone,
-                    "std_code": data.std_code,
+                    "name": data.name || "",
+                    "email": data.email || "",
+                    "phone": data.phone || "",
+                    "std_code": data.std_code || undefined,
                     "designation": labelToValue(data.designation, DESIGNATION)
                 })
-                console.log("form2", form2.getValues())
+
             }
             catch (err) {
                 console.log("error", err)
@@ -244,11 +249,11 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         getAccountDetails()
         changeStdCode()
         getServiceContractsDataTable()
-        console.log("ids", ids)
+
     }, [])
 
     useEffect(() => {
-        console.log("form2", payableAccountId)
+
         if (payableAccountId) {
             getContactDetails()
         }
@@ -256,17 +261,17 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     function changeStdCode() {
         const value = form2.getValues("std_code")
         let updatedSchema
-        console.log("std_code", value, value != "+91")
+
         if (value != "+91" && value != "+1") {
             updatedSchema = FormSchema.extend({
                 phone: z.string().min(4).max(13).optional().nullable()
             })
         } else {
-            console.log("neh")
+
             updatedSchema = FormSchema
         }
         setFormSchema2(updatedSchema)
-        console.log("updatedSchema", updatedSchema)
+
     }
 
 
@@ -312,9 +317,8 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 })
                 const newVersion = maxVersion + 1;
                 const newTitle = `${title.replace(/\s/g, '')}_Contract_V${newVersion}.pdf`
-                console.log("newTitle", newTitle, formData)
 
-                console.log('Selected file:', newTitle);
+
                 const formDataLocal = new FormData()
                 setSelectedFile({ name: newTitle, size: selectedFile.size });
                 formDataLocal.append('file', selectedFile, newTitle)
@@ -330,7 +334,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
 
     useEffect(() => {
-        console.log(formData)
+
 
     }, [formData])
 
@@ -411,7 +415,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            console.log(result)
+
             if (result.status == "1") {
                 toast({
                     title: "Account details upadted!",
@@ -439,7 +443,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${id ? id : ''}/`, { method: `${!id ? "POST" : "PATCH"}`, body: JSON.stringify(contactData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            console.log(result)
+
             if (result.status == "1") {
                 toast({
                     title: `Contact details ${!id ? "Added" : "Upadted"}!`,
@@ -464,19 +468,19 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     }
 
     useEffect(() => {
-        console.log(contractDraft)
+
     }, [contractDraft])
 
     const watcher = form.watch()
     useEffect(() => {
-        console.log("yeah", watcher.sameAsBillingAddress, watcher.billingCity, watcher.billingCountry, watcher.billingL1, watcher.billingL2, watcher.billingState, watcher.billingZip, watcher.billingCountry)
+
         if (watcher.sameAsBillingAddress == true) {
-            form.setValue("shippingCity", watcher.billingCity)
-            form.setValue("shippingCountry", watcher.billingCountry)
-            form.setValue("shippingL1", watcher.billingL1)
-            form.setValue("shippingL2", watcher.billingL2)
-            form.setValue("shippingState", watcher.billingState)
-            form.setValue("shippingZip", watcher.billingZip)
+            form.setValue("shippingCity", watcher.billingCity || "")
+            form.setValue("shippingCountry", watcher.billingCountry || "")
+            form.setValue("shippingL1", watcher.billingL1 || "")
+            form.setValue("shippingL2", watcher.billingL2 || "")
+            form.setValue("shippingState", watcher.billingState || "")
+            form.setValue("shippingZip", watcher.billingZip || "")
         } else if (watcher.sameAsBillingAddress == false) {
             form.setValue("shippingCity", "")
             form.setValue("shippingCountry", "")
@@ -493,9 +497,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     useEffect(() => {
         // console.log(form2.getValues())
         form2.formState.isValid
-        console.log(form2.formState.errors)
-        console.log("form2.formState.isValid", form2.formState.isValid)
-        console.log("isValid formSchema2", formSchema2,FormSchema)
+
     }, [watcher2])
 
     return (
@@ -593,7 +595,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                 Contract Details
                             </div>
                         </div>
-                        <Button type="button" variant="default" className="gap-2">
+                        <Button disabled type="button" variant="default" className="gap-2">
                             <IconExportToZoho size={20} />
                             <div className="text-white font-inter text-base font-semibold leading-6">
                                 Export to Zoho
@@ -821,7 +823,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                         <Checkbox
                                                                             checked={field.value}
                                                                             onCheckedChange={(val) => {
-                                                                                console.log(val)
                                                                                 setSameAsBillingAddress(val === "indeterminate" ? false : val)
                                                                                 field.onChange(val)
                                                                             }}
@@ -1116,7 +1117,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                                             value={cc.label}
                                                                                             key={cc.label}
                                                                                             onSelect={() => {
-                                                                                                console.log("std_code", cc.value)
                                                                                                 form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
                                                                                                 changeStdCode()
 

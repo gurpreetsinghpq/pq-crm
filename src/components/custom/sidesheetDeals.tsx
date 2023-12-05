@@ -28,7 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, inputFormMessageClassesWithSelect, popoverSidesheetWidthClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
-import { convertLocalStringToNumber, doesTypeIncludesMandatory, fetchUserDataList, fetchUserDataListForDrodpdown, getCurrencyAccToRegion, getIsContactDuplicate, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { convertLocalStringToNumber, doesTypeIncludesMandatory, fetchUserDataList, fetchUserDataListForDrodpdown, formatAddresses, getCurrencyAccToRegion, getIsContactDuplicate, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { toast, useToast } from '../ui/use-toast'
 import { getCookie } from 'cookies-next'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
@@ -210,8 +210,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             flatFeeCurrency: parseCurrencyValue(data.prospect.lead.flat_fee || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.prospect.lead.role.region),
             equityFeeCurrency: parseCurrencyValue(data.prospect.lead.equity_fee || "")?.getCurrencyCode() || getCurrencyAccToRegion(data.prospect.lead.role.region),
             registeredName: data.prospect.lead.organisation.registered_name || "",
-            billingAddress: data.prospect.lead.organisation.billing_address || "",
-            shippingAddress: data.prospect.lead.organisation.shipping_address || "",
             gstinVatGstNo: data.prospect.lead.organisation.govt_id || "",
             // serviceFee: data.prospect.lead.service_fee || "",
             // flatFee: parseCurrencyValue(data.prospect.lead.flat_fee || "")?.getNumericValue() || undefined,
@@ -253,6 +251,8 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         form.setValue("serviceFee", data?.prospect.lead.service_fee || "")
         form.setValue("flatFee", parseCurrencyValue(data?.prospect.lead.flat_fee || "")?.getNumericValue() || undefined)
         form.setValue("dealValue", data?.deal_value || "")
+        form.setValue("billingAddress", formatAddresses(data.prospect.lead.organisation).billing)
+        form.setValue("shippingAddress", formatAddresses(data.prospect.lead.organisation).shipping)
         getUserList()
     }, [])
 
@@ -541,8 +541,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT),
             segment: LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym,
             registered_name: form.getValues("registeredName"),
-            billing_address: form.getValues("billingAddress"),
-            shipping_address: form.getValues("shippingAddress"),
             govt_id: form.getValues("gstinVatGstNo")
         }
         const region = valueToLabel(form.getValues("regions"), REGIONS)
@@ -694,8 +692,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             if (isPromoteToDeal) {
                 updatedSchema = updatedSchema.extend({
                     registeredName: z.string(required_error).min(1, { message: required_error.required_error }),
-                    shippingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
-                    billingAddress: z.string(required_error).min(1, { message: required_error.required_error }),
                     gstinVatGstNo: z.string(required_error).min(1, { message: required_error.required_error }),
                     esopRsusUl: z.string(required_error).min(1, { message: required_error.required_error })
                 })
@@ -2079,7 +2075,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 )}
                                             />
                                         </div>
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
@@ -2099,15 +2095,15 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Billing Address" {...field} />
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Billing Address" {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>
                                                 )}
                                             />
                                         </div>
 
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
@@ -2127,9 +2123,9 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses} `} placeholder="Shipping Address" {...field} />
+                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
                                                         </FormControl>
-                                                        <FormMessage />
+                                                        <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>
                                                 )}
                                             />
