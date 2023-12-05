@@ -35,9 +35,11 @@ function Integrations({ currentOption }: { currentOption: string }) {
 
     useEffect(() => {
         getIntegrationStatus()
+        console.log("NEXT_PUBLIC_BASE_URL",process.env.NEXT_PUBLIC_DOCUSIGN_URL)
     }, [])
     function connectDocusign() {
-        let windowPopup: any = window.open(`https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature&client_id=f98519f3-cf54-44a6-b12b-33d1a030513e&redirect_uri=${process.env.NODE_ENV === "production" ? process.env.NEXT_URL : "http://localhost:3000"}/authorize`, "mozillaWindow", "popup")
+        // remove -d on prod
+        let windowPopup: any = window.open(`https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature&client_id=f98519f3-cf54-44a6-b12b-33d1a030513e&redirect_uri=${process.env.NEXT_URL}/authorize`, "mozillaWindow", "popup")
         // console.log(windowPopup)
         if (windowPopup) {
             windowPopup.setWindowState = setWindowState
