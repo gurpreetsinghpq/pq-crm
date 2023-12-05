@@ -2,7 +2,7 @@ import { commonClasses, commonFontClasses, disabledClassesBorderNone, selectForm
 import { IconBilling, IconBriefcase, IconContacts, IconEdit, IconEmail, IconEmail2, IconExportToZoho, IconGst, IconMinus, IconPackage, IconPlus, IconShield, IconShipping } from "@/components/icons/svgIcons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -26,23 +26,24 @@ import { toast, useToast } from "@/components/ui/use-toast";
 import { DialogClose } from "@radix-ui/react-dialog";
 import DataTable from "../../table/datatable";
 import { columnsServiceContacts } from "../../table/columns-service-contract";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const FormSchema = z.object({
-    registeredName: z.string(),
-    gstinVatGstNo: z.string(),
-    billingCountry: z.string(),
-    billingL1: z.string(),
-    billingL2: z.string(),
-    billingCity: z.string(),
-    billingState: z.string(),
-    billingZip: z.string(),
-    shippingCountry: z.string(),
-    shippingL1: z.string(),
-    shippingL2: z.string(),
-    shippingCity: z.string(),
-    shippingState: z.string(),
-    shippingZip: z.string(),
-
+    registeredName: z.string().min(1),
+    gstinVatGstNo: z.string().min(1),
+    billingCountry: z.string().min(1),
+    billingL1: z.string().min(1),
+    billingL2: z.string().min(1),
+    billingCity: z.string().min(1),
+    billingState: z.string().min(1),
+    billingZip: z.string().min(1),
+    shippingCountry: z.string().min(1),
+    shippingL1: z.string().min(1),
+    shippingL2: z.string().min(1),
+    shippingCity: z.string().min(1),
+    shippingState: z.string().min(1),
+    shippingZip: z.string().min(1),
+    sameAsBillingAddress: z.boolean().optional()
 })
 
 const FormSchema2 = z.object({
@@ -73,7 +74,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
     const [contractDetailExpanded, setContractDetailExpanded] = useState<boolean>(false)
 
-    const form = useForm<z.infer<typeof FormSchema>>({})
+    const form = useForm<z.infer<typeof FormSchema>>({ mode: "all" })
     const [formSchema2, setFormSchema2] = useState<any>(FormSchema2)
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const [accountData, setAccountData] = useState<ClientGetResponse>()
@@ -90,12 +91,14 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     const [isESignUploading, setESignUploading] = useState<boolean>(false)
     const [isBillingExplanded, setBillingExpanded] = useState<boolean>(true)
     const [isShippingExplanded, setShippingExpanded] = useState<boolean>(false)
-    const [payableAccountId,setPayableAccountId] = useState<number | null>()
+    const [payableAccountId, setPayableAccountId] = useState<number | null>()
+    const [isSameAsBillingAddress, setSameAsBillingAddress] = useState<boolean>(false)
+    const [areAccountDetailsValid, setAccountDetailsValid] = useState<boolean>(false)
+    const [areAccountPayableDetailsValid, setAccountPayableDetailsValid] = useState<boolean>(false)
 
     const form2 = useForm<z.infer<typeof formSchema2>>({
         resolver: zodResolver(formSchema2),
-        defaultValues: form2Defaults
-
+        defaultValues: form2Defaults,
     })
     const { toast } = useToast()
     const watcher2 = form2.watch()
@@ -171,7 +174,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 registeredName: data.registered_name || ""
             })
             console.log("form2 contacts", data.contacts)
-            const contactId = data.contacts.find((val)=>val.type==="Accounts Payable")?.id || null
+            const contactId = data.contacts.find((val) => val.type === "Accounts Payable")?.id || null
             setPayableAccountId(contactId)
 
         }
@@ -211,7 +214,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     }
 
     async function getContactDetails() {
-        if(payableAccountId){
+        if (payableAccountId) {
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${payableAccountId}/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
@@ -227,9 +230,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     "email": data.email,
                     "phone": data.phone,
                     "std_code": data.std_code,
-                    "designation": labelToValue(data.designation,DESIGNATION)
+                    "designation": labelToValue(data.designation, DESIGNATION)
                 })
-                console.log("form2",form2.getValues())
+                console.log("form2", form2.getValues())
             }
             catch (err) {
                 console.log("error", err)
@@ -244,12 +247,12 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         console.log("ids", ids)
     }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log("form2", payableAccountId)
         if (payableAccountId) {
             getContactDetails()
         }
-    },[payableAccountId])
+    }, [payableAccountId])
     function changeStdCode() {
         const value = form2.getValues("std_code")
         let updatedSchema
@@ -361,33 +364,33 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         }
     }
 
-    function saveAccountDetails(){
+    function saveAccountDetails() {
         const formData = form.getValues()
-        
-        const dataToSend:Partial<PatchOrganisation> = {
-            billing_address : formData.billingL1,
-            billing_address_l2 : formData.billingL2,
-            billing_country : formData.billingCountry,
-            billing_city : formData.billingCity,
-            billing_state : formData.billingState,
-            billing_zipcode : formData.billingZip,
-            shipping_address : formData.shippingL1,
-            shipping_address_l2 : formData.shippingL2,
-            shipping_country : formData.shippingCountry,
-            shipping_city : formData.shippingCity,
-            shipping_state : formData.shippingState,
-            shipping_zipcode : formData.shippingZip,
-            registered_name : formData.registeredName,
-            govt_id : formData.gstinVatGstNo
-            
+
+        const dataToSend: Partial<PatchOrganisation> = {
+            billing_address: formData.billingL1,
+            billing_address_l2: formData.billingL2,
+            billing_country: formData.billingCountry,
+            billing_city: formData.billingCity,
+            billing_state: formData.billingState,
+            billing_zipcode: formData.billingZip,
+            shipping_address: formData.shippingL1,
+            shipping_address_l2: formData.shippingL2,
+            shipping_country: formData.shippingCountry,
+            shipping_city: formData.shippingCity,
+            shipping_state: formData.shippingState,
+            shipping_zipcode: formData.shippingZip,
+            registered_name: formData.registeredName,
+            govt_id: formData.gstinVatGstNo
+
         }
         patchOrgData(ids.accountId, dataToSend)
     }
 
-    function saveContactDetails(){
+    function saveContactDetails() {
         const formData2 = form2.getValues()
-        
-        const dataToSend:Partial<Contact> = {
+
+        const dataToSend: Partial<Contact> = {
             name: formData2.name,
             designation: valueToLabel(formData2.designation, DESIGNATION),
             email: formData2.email,
@@ -396,11 +399,11 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             type: "Accounts Payable"
         }
 
-        if(payableAccountId){
+        if (payableAccountId) {
             patchContactData(payableAccountId, dataToSend)
-        }else{
+        } else {
             dataToSend["organisation"] = ids.accountId
-            patchContactData(null, dataToSend )
+            patchContactData(null, dataToSend)
         }
     }
 
@@ -415,7 +418,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     variant: "dark"
                 })
                 getAccountDetails()
-            }else{
+            } else {
                 toast({
                     title: "Something went wrong, Please try again later!",
                     variant: "destructive"
@@ -432,19 +435,19 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     }
 
     async function patchContactData(id: number | null, contactData: Partial<Contact>) {
-    
+
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${id? id:''}/`, { method: `${!id? "POST" : "PATCH"}`, body: JSON.stringify(contactData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${id ? id : ''}/`, { method: `${!id ? "POST" : "PATCH"}`, body: JSON.stringify(contactData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             console.log(result)
             if (result.status == "1") {
                 toast({
-                    title: `Contact details ${!id? "Added": "Upadted"}!`,
+                    title: `Contact details ${!id ? "Added" : "Upadted"}!`,
                     variant: "dark"
                 })
                 getContactDetails()
                 getAccountDetails()
-            }else{
+            } else {
                 toast({
                     title: "Something went wrong, Please try again later!",
                     variant: "destructive"
@@ -463,6 +466,38 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     useEffect(() => {
         console.log(contractDraft)
     }, [contractDraft])
+
+    const watcher = form.watch()
+    useEffect(() => {
+        console.log("yeah", watcher.sameAsBillingAddress, watcher.billingCity, watcher.billingCountry, watcher.billingL1, watcher.billingL2, watcher.billingState, watcher.billingZip, watcher.billingCountry)
+        if (watcher.sameAsBillingAddress == true) {
+            form.setValue("shippingCity", watcher.billingCity)
+            form.setValue("shippingCountry", watcher.billingCountry)
+            form.setValue("shippingL1", watcher.billingL1)
+            form.setValue("shippingL2", watcher.billingL2)
+            form.setValue("shippingState", watcher.billingState)
+            form.setValue("shippingZip", watcher.billingZip)
+        } else if (watcher.sameAsBillingAddress == false) {
+            form.setValue("shippingCity", "")
+            form.setValue("shippingCountry", "")
+            form.setValue("shippingL1", "")
+            form.setValue("shippingL2", "")
+            form.setValue("shippingState", "")
+            form.setValue("shippingZip", "")
+        }
+    }, [watcher.sameAsBillingAddress, watcher.billingCity, watcher.billingCountry, watcher.billingL1, watcher.billingL2, watcher.billingState, watcher.billingZip, watcher.billingCountry])
+    useEffect(() => {
+        const result = FormSchema.safeParse(form.getValues())
+        setAccountDetailsValid(result.success)
+    }, [watcher])
+    useEffect(() => {
+        // console.log(form2.getValues())
+        form2.formState.isValid
+        console.log(form2.formState.errors)
+        console.log("form2.formState.isValid", form2.formState.isValid)
+        console.log("isValid formSchema2", formSchema2,FormSchema)
+    }, [watcher2])
+
     return (
         <>
             <div className="flex flex-col items-start gap-4 flex-1 self-stretch">
@@ -549,7 +584,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                             </p>
                         </div>
                     </div>}
-                <Separator  />
+                <Separator />
                 <div className="flex flex-col w-full">
                     <div className="flex flex-row justify-between items-center w-full">
                         <div className="flex flex-row gap-[5px] items-center cursor-pointer" onClick={() => setContractDetailExpanded(prev => !prev)}>
@@ -648,7 +683,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                     <div className={`${commonClasses} ${commonFontClasses} px-[14px]`}>{accountData ? formatAddresses(accountData).billing : "—"} </div>
                                                 </div>
                                             }
-                                            {(isAccountEditMode && isBillingExplanded )&&
+                                            {(isAccountEditMode && isBillingExplanded) &&
                                                 <div className="flex flex-col gap-[16px] mt-[10px]">
                                                     <div className="flex flex-col gap-[4px]">
                                                         <div className="text-xs font-bold text-gray-500">Country / Region</div>
@@ -769,13 +804,38 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                     {isShippingExplanded ? <IconMinus /> : <IconPlus />}
                                                 </div>
                                             </div> : <div className="flex flex-col gap-[10px]">
-                                                    <div className="text-xs font-bold text-gray-600 items-baseline">
-                                                        Shipping Address
+                                                <div className="text-xs font-bold text-gray-600 items-baseline">
+                                                    Shipping Address
+                                                </div>
+                                                <div className={`${commonClasses} ${commonFontClasses} px-[14px]`}>{accountData ? formatAddresses(accountData).shipping : "—"} </div>
+                                            </div>}
+                                            {(isAccountEditMode && isShippingExplanded) &&
+                                                <div className="flex flex-col gap-[16px] ">
+                                                    <div className='flex flex-row  gap-[8px]'>
+                                                        <FormField
+                                                            control={form.control}
+                                                            name="sameAsBillingAddress"
+                                                            render={({ field }) => (
+                                                                <FormItem className="flex flex-row items-center gap-[8px]">
+                                                                    <FormControl>
+                                                                        <Checkbox
+                                                                            checked={field.value}
+                                                                            onCheckedChange={(val) => {
+                                                                                console.log(val)
+                                                                                setSameAsBillingAddress(val === "indeterminate" ? false : val)
+                                                                                field.onChange(val)
+                                                                            }}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormLabel >
+                                                                        <div className="text-sm mb-[6px] font-medium text-gray-700 ">
+                                                                            Same as Billing Address
+                                                                        </div>
+                                                                    </FormLabel>
+                                                                </FormItem>
+                                                            )}
+                                                        />
                                                     </div>
-                                                    <div className={`${commonClasses} ${commonFontClasses} px-[14px]`}>{accountData ? formatAddresses(accountData).shipping : "—"} </div>
-                                                </div>}
-                                            { (isAccountEditMode && isShippingExplanded) &&
-                                                <div className="flex flex-col gap-[16px] mt-[10px]">
                                                     <div className="flex flex-col gap-[4px]">
                                                         <div className="text-xs font-bold text-gray-500">Country / Region</div>
                                                         <div className="text-md font-normal ">
@@ -785,7 +845,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 render={({ field }) => (
                                                                     <FormItem className='w-full'>
                                                                         <FormControl>
-                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Country / Region" {...field} />
+                                                                            <Input disabled={(!isAccountEditMode) || isSameAsBillingAddress} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Country / Region" {...field} />
                                                                         </FormControl>
                                                                         <FormMessage />
                                                                     </FormItem>
@@ -802,7 +862,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 render={({ field }) => (
                                                                     <FormItem className='w-full'>
                                                                         <FormControl>
-                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 1" {...field} />
+                                                                            <Input disabled={(!isAccountEditMode) || isSameAsBillingAddress} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 1" {...field} />
                                                                         </FormControl>
                                                                         <FormMessage />
                                                                     </FormItem>
@@ -819,7 +879,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 render={({ field }) => (
                                                                     <FormItem className='w-full'>
                                                                         <FormControl>
-                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 2" {...field} />
+                                                                            <Input disabled={(!isAccountEditMode) || isSameAsBillingAddress} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Address line 2" {...field} />
                                                                         </FormControl>
                                                                         <FormMessage />
                                                                     </FormItem>
@@ -836,7 +896,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 render={({ field }) => (
                                                                     <FormItem className='w-full'>
                                                                         <FormControl>
-                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="City" {...field} />
+                                                                            <Input disabled={(!isAccountEditMode) || isSameAsBillingAddress} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="City" {...field} />
                                                                         </FormControl>
                                                                         <FormMessage />
                                                                     </FormItem>
@@ -853,7 +913,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 render={({ field }) => (
                                                                     <FormItem className='w-full'>
                                                                         <FormControl>
-                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="State" {...field} />
+                                                                            <Input disabled={(!isAccountEditMode) || isSameAsBillingAddress} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="State" {...field} />
                                                                         </FormControl>
                                                                         <FormMessage />
                                                                     </FormItem>
@@ -870,7 +930,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 render={({ field }) => (
                                                                     <FormItem className='w-full'>
                                                                         <FormControl>
-                                                                            <Input disabled={!isAccountEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Zip Code" {...field} />
+                                                                            <Input disabled={(!isAccountEditMode) || isSameAsBillingAddress} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder="Zip Code" {...field} />
                                                                         </FormControl>
                                                                         <FormMessage />
                                                                     </FormItem>
@@ -892,7 +952,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button type="button" disabled={!(form.formState.isValid)}  onClick={()=>saveAccountDetails()}>Save</Button>
+                                                <Button type="button" disabled={!areAccountDetailsValid} onClick={() => saveAccountDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
@@ -1039,7 +1099,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                 <Popover>
                                                                     <PopoverTrigger asChild>
                                                                         <FormControl>
-                                                                            <Button type="button" variant={`${isPayableEditMode? "google" : "ghost"}`} className={`flex flex-row gap-2 ${!isPayableEditMode ? `border-none cursor-not-allowed pointer-events-none ` : "rounded-[8px]"}`}>
+                                                                            <Button type="button" variant={`${isPayableEditMode ? "google" : "ghost"}`} className={`flex flex-row gap-2 ${!isPayableEditMode ? `border-none cursor-not-allowed pointer-events-none ` : "rounded-[8px]"}`}>
                                                                                 {COUNTRY_CODE.find((val) => val.value === field.value)?.value || <span className='text-muted-foreground '> STD Code</span>}
                                                                                 {isPayableEditMode && <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />}
                                                                             </Button>
@@ -1092,7 +1152,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                         render={({ field }) => (
                                                             <FormItem className='flex-1 '>
                                                                 <FormControl>
-                                                                    <Input type="text" disabled={!isPayableEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder={`Phone No ${!isPhoneMandatory ? "(Optional)" : "(Mandatory)"}`} {...field}
+                                                                    <Input type="text" disabled={!isPayableEditMode} className={` ${commonClasses} ${commonFontClasses} ${disabledClassesBorderNone} `} placeholder={`Phone No (Mandatory)`} {...field}
                                                                         onKeyPress={handleKeyPress}
                                                                         onChange={event => {
                                                                             const std_code = form2.getValues("std_code")
@@ -1117,7 +1177,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard2)}
-                                                <Button type="button" onClick={()=>saveContactDetails()}>Save</Button>
+                                                <Button type="button" onClick={() => saveContactDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
