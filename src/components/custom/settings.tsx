@@ -68,7 +68,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
                             </div>
                         </div>
                         <div className='flex flex-col bg-white-900 rounded-[5px] py-[8px] mx-[12px] gap-[8px]'>
-                            <div className={`flex flex-col ${disabledSidebarItem}`}>
+                            <div className={`flex flex-col`}>
                                 <img src="" alt="" />
                                 <div className={`w-[160px] flex mx-[10px] flex-row items-center gap-[12px] px-[12px] py-[8px] hover:cursor-pointer hover:bg-purple-600 hover:fill-current text-gray-700 hover:text-white-900 rounded flex flex-row ${currentOption === CURRENT_OPTION.APPS && 'bg-purple-600 text-white-900'}`} onClick={() => setCurrentOption(CURRENT_OPTION.APPS)}>
                                     <div>
