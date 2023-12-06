@@ -124,11 +124,11 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             setFileInfo(fileInfo)
             if (result.status == "1") {
                 let data = structuredClone(result.data)
-                setOpenAfterEsign(true)
                 toast({
                     title: "E-Sign Successful!",
                     variant: "dark"
                 })
+                setOpenAfterEsign(true)
                 getServiceContractsDataTable()
 
             } else {
@@ -1315,12 +1315,12 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 </div>
                 <Dialog open={openAfterEsign} onOpenChange={setOpenAfterEsign}>
                     <DialogTrigger asChild>
-                        <Button variant="default" className="gap-2">
+                        {/* <Button variant="default" className="gap-2">
                             <Image src="/images/upload.svg" alt="upload image" height={20} width={20} />
                             <div className="text-white font-inter text-base font-semibold leading-6">
                                 Upload Contract Draft
                             </div>
-                        </Button>
+                        </Button> */}
                     </DialogTrigger>
                     <DialogContent className="py-[30px] px-[24px]" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
                         if (e.key === "Escape") {
