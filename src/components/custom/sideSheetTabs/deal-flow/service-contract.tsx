@@ -96,6 +96,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     const [formData, setFormData] = useState<FormData>()
     const [isDocumentLoading, setDocumentLoading] = useState<boolean>()
     const [open, setOpen] = useState<boolean>(false)
+    const [openAfterEsign, setOpenAfterEsign] = useState<boolean>(false)
     const [isESignUploading, setESignUploading] = useState<boolean>(false)
     const [isBillingExplanded, setBillingExpanded] = useState<boolean>(true)
     const [isShippingExplanded, setShippingExpanded] = useState<boolean>(false)
@@ -103,6 +104,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     const [isSameAsBillingAddress, setSameAsBillingAddress] = useState<boolean>(false)
     const [areAccountDetailsValid, setAccountDetailsValid] = useState<boolean>(false)
     const [areAccountPayableDetailsValid, setAccountPayableDetailsValid] = useState<boolean>(false)
+    const [fileInfo, setFileInfo] = useState<ServiceContractGetResponse>()
 
     const form2 = useForm<z.infer<typeof formSchema2>>({
         resolver: zodResolver(formSchema2),
@@ -114,18 +116,21 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getToken()
 
-    async function sendESign(id: number) {
+    async function sendESign(id: number, fileInfo: ServiceContractGetResponse) {
         setESignUploading(true)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/contract/${id}/docu_esign/`, { method: "POST", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
+            setFileInfo(fileInfo)
             if (result.status == "1") {
                 let data = structuredClone(result.data)
+                setOpenAfterEsign(true)
                 toast({
                     title: "E-Sign Successful!",
                     variant: "dark"
                 })
                 getServiceContractsDataTable()
+
             } else {
                 toast({
                     title: `Sorry some error have occured: ${result.message}`,
@@ -188,7 +193,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
             console.log("isequal", addressesAreEqual)
             form.setValue("sameAsBillingAddress", addressesAreEqual ? true : undefined)
-            if(addressesAreEqual){
+            if (addressesAreEqual) {
                 setSameAsBillingAddress(true)
             }
             setPayableAccountId(contactId)
@@ -294,15 +299,15 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     function yesDiscard(): void {
         // form.reset()
         setAccountEditMode(false)
-        if(accountData){
+        if (accountData) {
             const addressesAreEqual = areBillingAndShippingEqual(accountData);
             form.setValue("sameAsBillingAddress", addressesAreEqual ? true : undefined)
-            if(addressesAreEqual){
+            if (addressesAreEqual) {
                 setSameAsBillingAddress(true)
             }
             form.reset()
         }
-        
+
     }
 
     function yesDiscard2(): void {
@@ -681,7 +686,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                         <Button type="button" variant={"google"} className="flex-1" onClick={() => {
                                             setFormData(undefined)
                                             setSelectedFile({ name: "", size: null })
-                                            
+
                                         }}>
                                             Cancel
                                         </Button>
@@ -1074,7 +1079,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button type="button"  onClick={() => saveAccountDetails()}>Save</Button>
+                                                <Button type="button" onClick={() => saveAccountDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
@@ -1308,7 +1313,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
                     </div>}
                 </div>
-                {/* <Dialog open={open} onOpenChange={setOpen}>
+                <Dialog open={openAfterEsign} onOpenChange={setOpenAfterEsign}>
                     <DialogTrigger asChild>
                         <Button variant="default" className="gap-2">
                             <Image src="/images/upload.svg" alt="upload image" height={20} width={20} />
@@ -1326,10 +1331,10 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                             <DialogTitle className="  pb-[10px]">
                                 <div className="text-lg">Get e-Signature</div>
                                 <div className="text-gray-600 text-sm mt-[5px] font-bold w-[450px]">
-                                    {selectedFile.name}
+                                    {fileInfo?.file_name}
                                 </div>
-                                <div className="text-gray-600 text-sm mt-[5px] font-normal">
-                                    {selectedFile.name}
+                                <div className="text-sm font-normal mt-[4px] text-gray-600 ">
+                                    was successfully sent to DocuSign for Signature.
                                 </div>
                             </DialogTitle>
                         </DialogHeader>
@@ -1342,12 +1347,15 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     Cancel
                                 </Button>
                             </DialogClose>
-                            <Button className="flex-1" disabled={formData === undefined} onClick={() => uploadFile()}>Open in DocuSign</Button>
+                            <Button className="flex-1" onClick={() => {
+                                window.open("https://docusign.com/")
+                                setOpenAfterEsign(false)
+                            }}>Open in DocuSign</Button>
 
                         </div>
 
                     </DialogContent>
-                </Dialog> */}
+                </Dialog>
             </div >
             {(isUploading || isDocumentLoading || isESignUploading || contractDraftLoading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
                 <Loader2 className="mr-2 h-20 w-20 animate-spin" color='#7F56D9' />

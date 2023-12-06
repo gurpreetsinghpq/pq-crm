@@ -175,7 +175,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction, v
                                 </DropdownMenuItem>
                             </DropdownMenuContent> :
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler(id)}>
+                                <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler(id, row.original)}>
                                     <div className="flex flex-row gap-2 items-center" >
                                         <IconESignature size={16} />
                                         Get e-Signature
