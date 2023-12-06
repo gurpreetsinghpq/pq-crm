@@ -1154,7 +1154,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                         <CommandEmpty>Designation not found.</CommandEmpty>
                                                                         <CommandGroup>
                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                {DESIGNATION.map((designation) => (
+                                                                                {DESIGNATION_SERVICE_CONTRACT.map((designation) => (
                                                                                     <CommandItem
                                                                                         value={designation.value}
                                                                                         key={designation.value}
