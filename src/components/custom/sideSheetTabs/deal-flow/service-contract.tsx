@@ -1,4 +1,4 @@
-import { commonClasses, commonFontClasses, disabledClassesBorderNone, selectFormMessageClasses } from "@/app/constants/classes";
+import { commonClasses, commonFontClasses, commonFontClassesAddDialog, disabledClassesBorderNone, selectFormMessageClasses } from "@/app/constants/classes";
 import { IconBilling, IconBriefcase, IconContacts, IconEdit, IconEmail, IconEmail2, IconExportToZoho, IconGst, IconMinus, IconPackage, IconPlus, IconShield, IconShipping } from "@/components/icons/svgIcons";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, Check, ChevronDown, ChevronRight, Cross, CrossIcon, Loader2, Phone, XCircleIcon } from "lucide-react";
+import { AlertCircle, CalendarIcon, Check, ChevronDown, ChevronRight, Cross, CrossIcon, Loader2, Phone, XCircleIcon } from "lucide-react";
 import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,7 +16,7 @@ import { areBillingAndShippingEqual, doesTypeIncludesMandatory, fetchAccountFrom
 import { ClientGetResponse, Contact, ContactsGetResponse, PatchOrganisation, ServiceContractGetResponse } from "@/app/interfaces/interface";
 import { beforeCancelDialog } from "../../addLeadDetailedDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { COUNTRY_CODE, DESIGNATION, SET_VALUE_CONFIG } from "@/app/constants/constants";
+import { COUNTRY_CODE, DESIGNATION, DOCUMENT_TYPE, SET_VALUE_CONFIG } from "@/app/constants/constants";
 import { Command } from "cmdk";
 import { CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { PopoverClose } from "@radix-ui/react-popover";
@@ -27,6 +27,9 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import DataTable from "../../table/datatable";
 import { columnsServiceContacts } from "../../table/columns-service-contract";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 
 const FormSchema = z.object({
     registeredName: z.string().min(1),
@@ -61,6 +64,10 @@ const FormSchema2 = z.object({
     contactId: z.string().optional()
 })
 
+const FormSchema3 = z.object({
+    document_type: z.string({}),
+    event_date: z.date()
+})
 
 const form2Defaults = {
     name: "",
@@ -75,6 +82,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     const [contractDetailExpanded, setContractDetailExpanded] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof FormSchema>>({ mode: "all" })
+
     const [formSchema2, setFormSchema2] = useState<any>(FormSchema2)
     const [isPhoneMandatory, setIsPhoneMandatory] = useState<boolean>(false)
     const [accountData, setAccountData] = useState<ClientGetResponse>()
@@ -100,6 +108,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         resolver: zodResolver(formSchema2),
         defaultValues: form2Defaults,
     })
+    const form3 = useForm<z.infer<typeof FormSchema3>>({ defaultValues: { document_type: "Draft Contract" }, mode: "all" })
     const { toast } = useToast()
     const watcher2 = form2.watch()
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -198,7 +207,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 let dataToSave: ServiceContractGetResponse[] = data.data
                 console.log(dataToSave)
                 let sortedData = dataToSave.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
-                setContractDraft(sortedData )
+                setContractDraft(sortedData)
             } else {
                 toast({
                     title: "Sorry some error have occured!",
@@ -323,6 +332,13 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 setSelectedFile({ name: newTitle, size: selectedFile.size });
                 formDataLocal.append('file', selectedFile, newTitle)
                 formDataLocal.append('deal', entityId.toString())
+                const document_type = form3.getValues("document_type")
+                formDataLocal.append('document_type', document_type)
+                if (document_type === "Signed Contract") {
+                    const date_iso = form3.getValues("event_date").toISOString()
+                    formDataLocal.append('event_date', date_iso)
+                    console.log("event_date", date_iso)
+                }
                 setFormData(formDataLocal)
             } else {
                 alert('Please select a PDF file.');
@@ -345,6 +361,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             const dataResp = await fetch(`${baseUrl}/v1/api/contract/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
             const result = await dataResp.json()
             setIsUploading(false)
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
             if (result.status == "1") {
                 toast({
                     title: "File uploaded Succesfully!",
@@ -511,7 +530,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                 <Button type="button" variant="default" className="gap-2">
                                     <Image src="/images/upload.svg" alt="upload image" height={20} width={20} />
                                     <div className="text-white font-inter text-base font-semibold leading-6">
-                                        Upload Contract Draft
+                                        Upload Document
                                     </div>
                                 </Button>
                             </DialogTrigger>
@@ -528,6 +547,89 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                         </div>
                                     </DialogTitle>
                                 </DialogHeader>
+                                <Form {...form3}>
+                                    <form className="flex flex-col">
+                                        <div className="text-sm font-medium text-gray-700">
+                                            Document Type
+                                        </div>
+                                        <div className='flex flex-col mt-3 w-full'>
+                                            <FormField
+                                                control={form3.control}
+                                                name="document_type"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Region" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent >
+                                                                {
+                                                                    DOCUMENT_TYPE.map((documentType, index) => {
+                                                                        return <SelectItem key={index} value={documentType.value} >
+                                                                            <div className="text-gray-900 text-md font-medium">
+                                                                                {documentType.label}
+                                                                            </div>
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
+                                        {form3.getValues("document_type") === "Signed Contract" && <>
+                                            <div className="text-sm mt-[16px] font-medium text-gray-700">
+                                                Signed Date
+                                            </div>
+                                            <div className='flex flex-col mt-3 w-full'>
+                                                <FormField
+                                                    control={form3.control}
+                                                    name="event_date"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-col">
+                                                            <Popover>
+                                                                <PopoverTrigger asChild>
+                                                                    <FormControl>
+                                                                        <Button
+                                                                            variant={"google"}
+                                                                            className="text-md px-[13px]"
+                                                                        >
+                                                                            {field.value ? (
+                                                                                format(field.value, "PPP")
+                                                                            ) : (
+                                                                                <span>Pick a date</span>
+                                                                            )}
+                                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                                        </Button>
+                                                                    </FormControl>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent className="w-full p-0" align="center">
+                                                                    <Calendar
+                                                                        mode="single"
+                                                                        selected={field.value}
+                                                                        onSelect={field.onChange}
+                                                                        disabled={(date) =>
+                                                                            date > new Date() || date < new Date("1900-01-01")
+                                                                        }
+                                                                        initialFocus
+                                                                    />
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </>}
+
+                                    </form>
+                                </Form>
                                 <div id="file-upload-div" onClick={handleDivClick} className="cursor-pointer my-[20px] rounded-[12px] border-[2px] border-purple-600 flex flex-col items-center px-[24px] py-[16px] gap-[10px]">
                                     {formData === undefined ?
                                         <>

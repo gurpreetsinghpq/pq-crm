@@ -70,7 +70,6 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
         if (selectedFile) {
             if (selectedFile.type === 'application/pdf') {
                 // Handle the selected PDF file here
-                console.log('Selected file:', selectedFile.name);
                 setSelectedFile({ name: selectedFile.name, size: selectedFile.size });
                 const formData = new FormData()
                 
@@ -99,7 +98,11 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                 try {
                     const dataResp = await fetch(`${baseUrl}/v1/api/${isProposalDeck? "proposal": "rdcapsule"}/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
                     const result = await dataResp.json()
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                    }
                     setIsUploading(false)
+                    setSelectedFile({name:"", size:null})
                     if (result.message === "success") {
                         toast({
                             title: "File uploaded Succesfully!",
