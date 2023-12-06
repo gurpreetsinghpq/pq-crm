@@ -156,6 +156,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction, v
             cell: ({ row, cell }) => {
                 const id = row.original.id
                 const docusign = row.original.docusign
+                const status = row.original.status
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -164,22 +165,23 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction, v
                                 <MoreVertical className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        {!docusign? <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler(id)}>
-                                <div className="flex flex-row gap-2 items-center" >
-                                    <IconESignature size={16} />
-                                    Get e-Signature
-                                </div>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent> :
-                         <DropdownMenuContent align="end">
-                         <DropdownMenuItem onClick={() => viewDocument && viewDocument(id)}>
-                             <div className="flex flex-row gap-2 items-center" >
-                                 <EyeIcon size={16} />
-                                 View Contract
-                             </div>
-                         </DropdownMenuItem>
-                     </DropdownMenuContent>
+                        {docusign || (docusign===null && status.toLowerCase()) === "completed" ?
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => viewDocument && viewDocument(id)}>
+                                    <div className="flex flex-row gap-2 items-center" >
+                                        <EyeIcon size={16} />
+                                        View Contract
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent> :
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler(id)}>
+                                    <div className="flex flex-row gap-2 items-center" >
+                                        <IconESignature size={16} />
+                                        Get e-Signature
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
                         }
                     </DropdownMenu>
                 )
