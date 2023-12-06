@@ -8,30 +8,11 @@ import { useToast } from '../ui/use-toast'
 function Integrations({ currentOption }: { currentOption: string }) {
 
     const [docuSignStatusData, setDocuSignStatus] = useState<IntegrationStatus>()
-    const [windowState, setWindowState] = useState<any>()
     const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus[]>()
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const token_superuser = getCookie("token")
     const { toast } = useToast()
 
-    useEffect(() => {
-        if (windowState) {
-            if (windowState.status == "1") {
-                // toast({
-                //     title: `Connected!`,
-                //     variant: "dark"
-                // })
-                getIntegrationStatus()
-                // setDocuSignConnect(true)
-            } else {
-                console.log(windowState)
-                toast({
-                    title: `Some error!`,
-                    variant: "destructive"
-                })
-            }
-        }
-    }, [windowState])
 
     useEffect(() => {
         getIntegrationStatus()
@@ -39,11 +20,21 @@ function Integrations({ currentOption }: { currentOption: string }) {
     function connectDocusign() {
         // remove -d on prod
         let windowPopup: any = window.open(`https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature&client_id=f98519f3-cf54-44a6-b12b-33d1a030513e&redirect_uri=${process.env.NEXT_PUBLIC_DOCUSIGN_URL}/authorize`, "mozillaWindow", "popup")
-        // console.log(windowPopup)
-        if (windowPopup) {
-            windowPopup.setWindowState = setWindowState
-
-        }
+        
+        window.addEventListener("message",
+            function (e: any) {
+                // if (e.origin !== 'B') { return; }
+                if(e.data.status=="1" && e.data.data.code){
+                    getIntegrationStatus()
+                }else{
+                    toast({
+                        title: `Unable to integrate with Docusign!`,
+                        variant: "destructive"
+                    })
+                    console.error("error", e)
+                }
+            },
+            false);
     }
     async function getIntegrationStatus() {
         // /v1/api/integrations/
@@ -55,7 +46,6 @@ function Integrations({ currentOption }: { currentOption: string }) {
                 setIntegrationStatus(data)
                 const docuSignStatusData = data.reverse().find((val) => val.service_name === "docusign")
                 if (docuSignStatusData) {
-                    console.log("isDocuSignConnected", docuSignStatusData)
                     setDocuSignStatus(docuSignStatusData)
                 }
             } else {
@@ -81,7 +71,7 @@ function Integrations({ currentOption }: { currentOption: string }) {
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/integrations/${docusignObj.id}/`, { method: "PATCH", body: JSON.stringify({ archived: true }), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
-                if (result.status=="1") {
+                if (result.status == "1") {
                     toast({
                         title: `Disconnected!`,
                         variant: "dark"
