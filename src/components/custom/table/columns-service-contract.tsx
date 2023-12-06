@@ -176,7 +176,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction, v
                          <DropdownMenuItem onClick={() => viewDocument && viewDocument(id)}>
                              <div className="flex flex-row gap-2 items-center" >
                                  <EyeIcon size={16} />
-                                 View Document
+                                 View Contract
                              </div>
                          </DropdownMenuItem>
                      </DropdownMenuContent>
