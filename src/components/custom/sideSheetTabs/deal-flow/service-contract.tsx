@@ -206,7 +206,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 let data = structuredClone(result)
                 let dataToSave: ServiceContractGetResponse[] = data.data
                 console.log(dataToSave)
-                let sortedData = dataToSave.sort((a, b) => new Date(b.event_date).getTime() - new Date(a.event_date).getTime());
+                let sortedData = dataToSave.sort((a, b) => new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime());
                 setContractDraft(sortedData)
             } else {
                 toast({
@@ -524,7 +524,11 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             <div className="flex flex-col items-start gap-4 flex-1 self-stretch">
                 <div className="flex flex-col items-start gap-4 self-stretch">
                     <div className="flex p-1 sm:p-4 justify-between items-center self-stretch rounded-md shadow-md">
-                        <h2 className="text-gray-700 font-inter font-semibold text-base leading-6">Service Contract Status Tracking</h2>
+                        <div className="flex flex-row gap-[10px]">
+                            <h2 className="text-gray-700 font-inter font-semibold text-base leading-6">Service Contract Status Tracking</h2>
+
+                            <Image width={20} height={20} alt="Refresh" src={"/images/refresh.svg"} className="cursor-pointer" onClick={() => getServiceContractsDataTable()} />
+                        </div>
                         <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
                                 <Button type="button" variant="default" className="gap-2">
@@ -708,7 +712,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                         <Form {...form}>
                             <form className="flex flex-col flex-1 rounded-[5px] bg-white-900 ">
                                 <div className="flex flex-row items-center justify-between p-[16px]">
-                                    <div className="text-sm font-bold">Account Details</div>
+                                    <div className="flex flex-row gap-[10px]">
+                                        <div className="text-sm font-bold">Account Details</div>
+                                    </div>
                                     {
                                         // isAccountEditMode ? <div>
                                         //     <XCircleIcon size={20} className="text-error-500 cursor-pointer" onClick={(()=>setAccountEditMode(false))} />
@@ -1330,7 +1336,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     </DialogContent>
                 </Dialog> */}
             </div >
-            {(isUploading || isDocumentLoading || isESignUploading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
+            {(isUploading || isDocumentLoading || isESignUploading || contractDraftLoading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
                 <Loader2 className="mr-2 h-20 w-20 animate-spin" color='#7F56D9' />
             </div>}
 
