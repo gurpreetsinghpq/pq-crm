@@ -29,9 +29,10 @@ import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontCla
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
-import { doesTypeIncludesMandatory, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { doesTypeIncludesMandatory, formatAddresses, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { getCookie } from 'cookies-next'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
+import { Textarea } from '../ui/textarea'
 
 const FormSchema2 = z.object({
     name: z.string({
@@ -155,8 +156,8 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         form.setValue("size", labelToValue(data.size || "", SIZE_OF_COMPANY))
         form.setValue("lastFundingStage", labelToValue(data.last_funding_stage || "", LAST_FUNDING_STAGE))
         form.setValue("lastFundingAmount", labelToValue(data.last_funding_amount?.toString() || "", LAST_FUNDING_AMOUNT))
-        form.setValue("billingAddress", data.billing_address || "")
-        form.setValue("shippingAddress", data.shipping_address || "")
+        form.setValue("billingAddress", formatAddresses(data).billing)
+        form.setValue("shippingAddress", formatAddresses(data).shipping)
         form.setValue("registeredName", data.registered_name || "")
         form.setValue("gstinVatGstNo", data.govt_id || "")
         checkVcIndutsry()
@@ -432,8 +433,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE) || null,
             last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT) || null,
             segment: LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || null,
-            billing_address: form.getValues("billingAddress") || null,
-            shipping_address: form.getValues("shippingAddress") || null,
             govt_id: form.getValues("gstinVatGstNo") || null,
             registered_name: form.getValues("registeredName") || null
         }
@@ -1024,11 +1023,11 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                 )}
                                             />
                                         </div>
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 ">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <div>
+                                                        <div className='mt-[10px]'>
                                                             <IconBilling size={24} />
                                                         </div>
                                                     </TooltipTrigger>
@@ -1044,7 +1043,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}  `} placeholder="Billing Address" {...field} />
+                                                            <Textarea disabled className={`border-none resize-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Billing Address" {...field} />
                                                         </FormControl>
                                                         <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>
@@ -1052,11 +1051,11 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                             />
                                         </div>
 
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <div>
+                                                        <div className='mt-[10px]'>
                                                             <IconPackage size={24} />
                                                         </div>
                                                     </TooltipTrigger>
@@ -1072,7 +1071,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input className={`border-none ${commonClasses} ${commonFontClasses}`} placeholder="Shipping Address" {...field} />
+                                                            <Textarea disabled className={`border-none resize-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
                                                         </FormControl>
                                                         <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>

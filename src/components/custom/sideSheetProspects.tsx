@@ -34,6 +34,7 @@ import { getCookie } from 'cookies-next'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Label } from '../ui/label'
+import { Textarea } from '../ui/textarea'
 
 
 const FormSchema2 = z.object({
@@ -1955,11 +1956,11 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                 )}
                                             />
                                         </div>
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <div>
+                                                        <div className='mt-[10px]'>
                                                             <IconBilling size={24} />
                                                         </div>
                                                     </TooltipTrigger>
@@ -1975,7 +1976,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Billing Address" {...field} />
+                                                            <Textarea disabled className={`border-none resize-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Billing Address" {...field} />
                                                         </FormControl>
                                                         <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>
@@ -1983,11 +1984,11 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                             />
                                         </div>
 
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <div>
+                                                        <div className='mt-[10px]'>
                                                             <IconPackage size={24} />
                                                         </div>
                                                     </TooltipTrigger>
@@ -2003,7 +2004,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
+                                                            <Textarea disabled className={`border-none resize-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
                                                         </FormControl>
                                                         <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>

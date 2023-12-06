@@ -30,6 +30,7 @@ import { useToast } from '../ui/use-toast'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
 import { getCookie } from 'cookies-next'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Textarea } from '../ui/textarea'
 
 export const required_error = {
     required_error: "Required field"
@@ -1836,11 +1837,11 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                 )}
                                             />
                                         </div>
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <div>
+                                                        <div className='mt-[10px]'>
                                                             <IconBilling size={24} />
                                                         </div>
                                                     </TooltipTrigger>
@@ -1856,7 +1857,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Billing Address" {...field} />
+                                                            <Textarea disabled className={`border-none resize-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Billing Address" {...field} />
                                                         </FormControl>
                                                         <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>
@@ -1864,11 +1865,11 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                             />
                                         </div>
 
-                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row  items-center border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
+                                        <div className="px-[18px] py-[8px] gap-2 text-sm font-semibold w-full flex flex-row border-b-[1px] border-gray-200 cursor-not-allowed bg-gray-100">
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
-                                                        <div>
+                                                        <div className='mt-[10px]'>
                                                             <IconPackage size={24} />
                                                         </div>
                                                     </TooltipTrigger>
@@ -1884,7 +1885,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                 render={({ field }) => (
                                                     <FormItem className='w-full'>
                                                         <FormControl>
-                                                            <Input disabled className={`border-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
+                                                            <Textarea disabled className={`border-none resize-none ${commonClasses} ${commonFontClasses} ${disabledClasses} `} placeholder="Shipping Address" {...field} />
                                                         </FormControl>
                                                         <FormMessage className={selectFormMessageClasses} />
                                                     </FormItem>
@@ -2092,7 +2093,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                                         <RadioGroupItem value="service_fee" />
                                                                     </FormControl>
                                                                     <FormLabel className={`px-[10px] ${disabledClasses} text-gray-400`}>
-                                                                            Service Fee %
+                                                                        Service Fee %
                                                                     </FormLabel>
                                                                 </FormItem>
                                                                 <FormItem className="flex items-center space-y-0">
@@ -2581,7 +2582,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                             </div>
                         </div>
                         <div className='px-[24px] pb-[24px] flex flex-row bg-gray-50 flex-1 border-t-[1px] border-gray-200 overflow-y-auto overflow-x-hidden '>
-                            <SideSheetTabs title={data.title || ""} prospectId={1} currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions} disable={{ proposal: true, requirementDeck: true, serviceContract:true }} />
+                            <SideSheetTabs title={data.title || ""} prospectId={1} currentParentTab={currentSidesheetTab} contactFromParents={dummyContactData} entityId={data.id} permissions={permissions} disable={{ proposal: true, requirementDeck: true, serviceContract: true }} />
                         </div>
                     </div>
                 </div>

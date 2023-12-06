@@ -16,7 +16,7 @@ import { areBillingAndShippingEqual, doesTypeIncludesMandatory, fetchAccountFrom
 import { ClientGetResponse, Contact, ContactsGetResponse, PatchOrganisation, ServiceContractGetResponse } from "@/app/interfaces/interface";
 import { beforeCancelDialog } from "../../addLeadDetailedDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { COUNTRY_CODE, DESIGNATION, DOCUMENT_TYPE, SET_VALUE_CONFIG } from "@/app/constants/constants";
+import { COUNTRY_CODE, DESIGNATION, DESIGNATION_SERVICE_CONTRACT, DOCUMENT_TYPE, SET_VALUE_CONFIG } from "@/app/constants/constants";
 import { Command } from "cmdk";
 import { CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { PopoverClose } from "@radix-ui/react-popover";
@@ -188,6 +188,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
             console.log("isequal", addressesAreEqual)
             form.setValue("sameAsBillingAddress", addressesAreEqual ? true : undefined)
+            if(addressesAreEqual){
+                setSameAsBillingAddress(true)
+            }
             setPayableAccountId(contactId)
 
         }
@@ -291,6 +294,15 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     function yesDiscard(): void {
         // form.reset()
         setAccountEditMode(false)
+        if(accountData){
+            const addressesAreEqual = areBillingAndShippingEqual(accountData);
+            form.setValue("sameAsBillingAddress", addressesAreEqual ? true : undefined)
+            if(addressesAreEqual){
+                setSameAsBillingAddress(true)
+            }
+            form.reset()
+        }
+        
     }
 
     function yesDiscard2(): void {
@@ -366,7 +378,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             }
             if (result.status == "1") {
                 toast({
-                    title: "File uploaded Succesfully!",
+                    title: "File Uploaded Succesfully!",
                     variant: "dark"
                 })
                 getServiceContractsDataTable()
@@ -391,18 +403,18 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         const formData = form.getValues()
 
         const dataToSend: Partial<PatchOrganisation> = {
-            billing_address: formData.billingL1,
-            billing_address_l2: formData.billingL2,
-            billing_country: formData.billingCountry,
-            billing_city: formData.billingCity,
-            billing_state: formData.billingState,
-            billing_zipcode: formData.billingZip,
-            shipping_address: formData.shippingL1,
-            shipping_address_l2: formData.shippingL2,
-            shipping_country: formData.shippingCountry,
-            shipping_city: formData.shippingCity,
-            shipping_state: formData.shippingState,
-            shipping_zipcode: formData.shippingZip,
+            billing_address: formData.billingL1 || null,
+            billing_address_l2: formData.billingL2 || null,
+            billing_country: formData.billingCountry || null,
+            billing_city: formData.billingCity || null,
+            billing_state: formData.billingState || null,
+            billing_zipcode: formData.billingZip || null,
+            shipping_address: formData.shippingL1 || null,
+            shipping_address_l2: formData.shippingL2 || null,
+            shipping_country: formData.shippingCountry || null,
+            shipping_city: formData.shippingCity || null,
+            shipping_state: formData.shippingState || null,
+            shipping_zipcode: formData.shippingZip || null,
             registered_name: formData.registeredName,
             govt_id: formData.gstinVatGstNo
 
@@ -437,7 +449,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
             if (result.status == "1") {
                 toast({
-                    title: "Account details upadted!",
+                    title: "Account details updated!",
                     variant: "dark"
                 })
                 getAccountDetails()
@@ -465,7 +477,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
             if (result.status == "1") {
                 toast({
-                    title: `Contact details ${!id ? "Added" : "Upadted"}!`,
+                    title: `Contact Details ${!id ? "Added" : "Updated"}!`,
                     variant: "dark"
                 })
                 getContactDetails()
@@ -669,6 +681,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                         <Button type="button" variant={"google"} className="flex-1" onClick={() => {
                                             setFormData(undefined)
                                             setSelectedFile({ name: "", size: null })
+                                            
                                         }}>
                                             Cancel
                                         </Button>
@@ -1061,7 +1074,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button type="button" disabled={!areAccountDetailsValid} onClick={() => saveAccountDetails()}>Save</Button>
+                                                <Button type="button"  onClick={() => saveAccountDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
@@ -1123,7 +1136,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                     <div className={`border border-[1px] border-gray-300 flex flex-row gap-[10px] py-[10px] items-center ${!isPayableEditMode ? `border-none pointer-events-none cursor-not-allowed ` : "rounded-[8px]"}`}>
                                                                         <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                             <div className={`w-full  flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                                {DESIGNATION.find((val) => val.value === field.value)?.label || <span className={!isPayableEditMode ? ` ${disabledClassesBorderNone} text-gray-400` : "text-muted-foreground"}>Designation</span>}
+                                                                                {DESIGNATION_SERVICE_CONTRACT.find((val) => val.value === field.value)?.label || <span className={!isPayableEditMode ? ` ${disabledClassesBorderNone} text-gray-400` : "text-muted-foreground"}>Designation</span>}
                                                                             </div>
                                                                             {isPayableEditMode && <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />}
                                                                         </div>

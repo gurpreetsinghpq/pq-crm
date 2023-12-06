@@ -731,7 +731,7 @@ export function formatAddresses(data: AddressFields) {
   ]
     .filter((value) => value !== null && value !== undefined)
     .join(', ');
-
+    console.log("formattedBillingAddress", `${formattedBillingAddress}`,`${formattedShippingAddress}`)
   return {
     billing: formattedBillingAddress,
     shipping: formattedShippingAddress,
