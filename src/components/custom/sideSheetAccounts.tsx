@@ -745,7 +745,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                 name="industry"
                                                 render={({ field }) => (
                                                     <FormItem className='w-full cursor-pointer'>
-                                                        <Popover>
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild >
                                                                 <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                                     <TooltipProvider>
@@ -769,7 +769,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                            <PopoverContent className={`mt-[2px] p-0`}>
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Industry" />
                                                                     <CommandEmpty>Industry not found.</CommandEmpty>
@@ -910,7 +910,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                 name="lastFundingStage"
                                                 render={({ field }) => (
                                                     <FormItem className='w-full cursor-pointer'>
-                                                        <Popover >
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild disabled={isVcIndustrySelected}>
                                                                 <div className={`flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ${isVcIndustrySelected ? `${disabledClasses} cursor-not-allowed ` : ""}`}  >
                                                                     <TooltipProvider>
@@ -934,7 +934,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}  >
+                                                            {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 `}  >
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                                     <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -1144,7 +1144,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                             name="contacts.designation"
                                                                             render={({ field }) => (
                                                                                 <FormItem className='w-full '>
-                                                                                    <Popover>
+                                                                                    <Popover modal={true}>
                                                                                         <PopoverTrigger asChild>
                                                                                             <FormControl>
                                                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -1155,7 +1155,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                                                 </Button>
                                                                                             </FormControl>
                                                                                         </PopoverTrigger>
-                                                                                        <PopoverContent className="w-[268px] p-0 ">
+                                                                                        <PopoverContent className="p-0 ">
                                                                                             <Command>
                                                                                                 <CommandInput className='w-full' placeholder="Search Designation" />
                                                                                                 <CommandEmpty>Designation not found.</CommandEmpty>
@@ -1242,7 +1242,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                             name="contacts.std_code"
                                                                             render={({ field }) => (
                                                                                 <FormItem className='mt-3'>
-                                                                                    <Popover >
+                                                                                    <Popover modal={true}>
                                                                                         <PopoverTrigger asChild>
                                                                                             <FormControl>
                                                                                                 <Button variant={"google"} className={`flex flex-row gap-2 ${commonClasses2}`} >
@@ -1253,7 +1253,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                                                                 </Button>
                                                                                             </FormControl>
                                                                                         </PopoverTrigger>
-                                                                                        <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                                        <PopoverContent className="p-0 ml-[114px]">
                                                                                             <Command >
                                                                                                 <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                                                 <CommandEmpty>Country code not found.</CommandEmpty>

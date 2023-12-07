@@ -551,7 +551,7 @@ const Accounts = ({ form, permissions }: {
                                         name="industries"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Popover>
+                                                <Popover modal={true}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex flex-row gap-2">
@@ -563,7 +563,7 @@ const Accounts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[230px] p-0">
+                                                    <PopoverContent className="p-0">
                                                         <Command>
                                                             <CommandInput placeholder="Search Industry" />
                                                             <CommandEmpty>No Industry found.</CommandEmpty>
@@ -658,7 +658,7 @@ const Accounts = ({ form, permissions }: {
                                         name="fundingStages"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Popover>
+                                                <Popover modal={true}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex flex-row gap-2">
@@ -667,7 +667,7 @@ const Accounts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[215px] p-0 mr-[24px]" >
+                                                    <PopoverContent className="p-0 mr-[24px]" >
                                                         <Command>
                                                             <CommandInput placeholder="Search Funding Stage" />
                                                             <CommandEmpty>No Funding Stage found.</CommandEmpty>
@@ -719,7 +719,7 @@ const Accounts = ({ form, permissions }: {
                                         name="creators"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Popover>
+                                                <Popover modal={true}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex flex-row gap-2">
@@ -731,7 +731,7 @@ const Accounts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[230px] p-0">
+                                                    <PopoverContent className="p-0">
                                                         <Command>
                                                             <CommandInput placeholder="Search Creator" />
                                                             <CommandEmpty>No Creator found.</CommandEmpty>

@@ -614,7 +614,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                     name="event_date"
                                                     render={({ field }) => (
                                                         <FormItem className="flex flex-col">
-                                                            <Popover>
+                                                            <Popover modal={true}>
                                                                 <PopoverTrigger asChild>
                                                                     <FormControl>
                                                                         <Button
@@ -630,7 +630,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-full p-0" align="center">
+                                                                <PopoverContent className="p-0" align="center">
                                                                     <Calendar
                                                                         mode="single"
                                                                         selected={field.value}
@@ -1079,7 +1079,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard)}
-                                                <Button type="button" onClick={() => saveAccountDetails()}>Save</Button>
+                                                <Button disabled={!areAccountDetailsValid} type="button" onClick={() => saveAccountDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
@@ -1136,7 +1136,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                     name="designation"
                                                     render={({ field }) => (
                                                         <FormItem className='w-full cursor-pointer'>
-                                                            <Popover>
+                                                            <Popover modal={true}>
                                                                 <PopoverTrigger asChild disabled={!isPayableEditMode} >
                                                                     <div className={`border border-[1px] border-gray-300 flex flex-row gap-[10px] py-[10px] items-center ${!isPayableEditMode ? `border-none pointer-events-none cursor-not-allowed ` : "rounded-[8px]"}`}>
                                                                         <div className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -1148,7 +1148,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                     </div>
 
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="mt-[8px] p-0 w-[33vw]" >
+                                                                <PopoverContent className="mt-[8px] p-0" >
                                                                     <Command>
                                                                         <CommandInput className='w-full' placeholder="Search Designation" />
                                                                         <CommandEmpty>Designation not found.</CommandEmpty>
@@ -1223,7 +1223,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                         name="std_code"
                                                         render={({ field }) => (
                                                             <FormItem >
-                                                                <Popover>
+                                                                <Popover modal={true}>
                                                                     <PopoverTrigger asChild>
                                                                         <FormControl>
                                                                             <Button type="button" variant={`${isPayableEditMode ? "google" : "ghost"}`} className={`flex flex-row gap-2 ${!isPayableEditMode ? `border-none cursor-not-allowed pointer-events-none ` : "rounded-[8px]"}`}>
@@ -1232,7 +1232,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                             </Button>
                                                                         </FormControl>
                                                                     </PopoverTrigger>
-                                                                    <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                    <PopoverContent className="p-0 ml-[114px]">
                                                                         <Command>
                                                                             <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                             <CommandEmpty>Country code not found.</CommandEmpty>

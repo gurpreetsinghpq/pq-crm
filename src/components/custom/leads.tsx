@@ -718,7 +718,7 @@ const Leads = ({ form, permissions }: {
                                             name="owners"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex flex-row gap-2">
@@ -730,7 +730,7 @@ const Leads = ({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
+                                                        <PopoverContent className="p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Owner" />
                                                                 <CommandEmpty>No Owner found.</CommandEmpty>
@@ -786,7 +786,7 @@ const Leads = ({ form, permissions }: {
                                             name="creators"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex flex-row gap-2">
@@ -798,7 +798,7 @@ const Leads = ({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
+                                                        <PopoverContent className="p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Creator" />
                                                                 <CommandEmpty>No Creator found.</CommandEmpty>

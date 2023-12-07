@@ -442,7 +442,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                     name="std_code"
                                                     render={({ field }) => (
                                                         <FormItem >
-                                                            <Popover >
+                                                            <Popover modal={true}>
                                                                 <PopoverTrigger asChild>
                                                                     <FormControl>
                                                                         <Button variant={"google"} className={`flex flex-row gap-2 ${commonClasses2}`} >
@@ -453,7 +453,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                <PopoverContent className="p-0 ml-[114px]">
                                                                     <Command >
                                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                         <CommandEmpty>Country code not found.</CommandEmpty>
@@ -515,7 +515,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                             name="reportingTo"
                                             render={({ field }) => (
                                                 <FormItem className='w-full '>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -526,7 +526,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[350px] p-0">
+                                                        <PopoverContent className=" p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search Reporting Manager" />
                                                                 <CommandEmpty>Reporting Manager not found.</CommandEmpty>
@@ -660,7 +660,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                             name="timeZone"
                                             render={({ field }) => (
                                                 <FormItem className='w-full col-span-2'>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -671,7 +671,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[713px] p-0">
+                                                        <PopoverContent className=" p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search Timezone" />
                                                                 <CommandEmpty>Search Time Zone.</CommandEmpty>

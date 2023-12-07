@@ -380,7 +380,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                                 name="std_code"
                                                 render={({ field }) => (
                                                     <FormItem >
-                                                        <Popover >
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild>
                                                                 <FormControl>
                                                                     <Button variant={"google"} className={`flex flex-row gap-2 ${commonClasses2}`} >
@@ -391,7 +391,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                                                     </Button>
                                                                 </FormControl>
                                                             </PopoverTrigger>
-                                                            <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                            <PopoverContent className="p-0 ml-[114px]">
                                                                 <Command >
                                                                     <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                     <CommandEmpty>Country code not found.</CommandEmpty>
@@ -515,7 +515,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                             name="timeZone"
                                             render={({ field }) => (
                                                 <FormItem className='w-full col-span-2'>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -526,7 +526,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[600px] p-0">
+                                                        <PopoverContent className="p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search Timezone" />
                                                                 <CommandEmpty>Search Time Zone.</CommandEmpty>

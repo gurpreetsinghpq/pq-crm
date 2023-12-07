@@ -851,7 +851,7 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
                                             name="activity"
                                             render={({ field }) => (
                                                 <FormItem className='w-full '>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button type='button' variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -862,7 +862,7 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[465px] p-0">
+                                                        <PopoverContent className=" p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search Activity" />
                                                                 <CommandEmpty>Activity not found.</CommandEmpty>

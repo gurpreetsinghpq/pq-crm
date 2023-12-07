@@ -447,7 +447,7 @@ function Users({ form, permissions }: {
                                             name="functions"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex flex-row gap-2">
@@ -456,7 +456,7 @@ function Users({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
+                                                        <PopoverContent className=" p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Function" />
                                                                 <CommandEmpty>No Function found.</CommandEmpty>
@@ -508,7 +508,7 @@ function Users({ form, permissions }: {
                                             name="profiles"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex flex-row gap-2">
@@ -520,7 +520,7 @@ function Users({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
+                                                        <PopoverContent className=" p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Profile" />
                                                                 <CommandEmpty>No Profile found.</CommandEmpty>

@@ -347,7 +347,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                         name="designation"
                                         render={({ field }) => (
                                             <FormItem className='w-full '>
-                                                <Popover>
+                                                <Popover modal={true}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -358,7 +358,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[270px] p-0 ">
+                                                    <PopoverContent className="p-0 ">
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Designation" />
                                                             <CommandEmpty>Designation not found.</CommandEmpty>
@@ -450,7 +450,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                     name="std_code"
                                     render={({ field }) => (
                                         <FormItem className='mt-3 w-max'>
-                                            <Popover>
+                                            <Popover modal={true}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
@@ -459,7 +459,7 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                <PopoverContent className="p-0 ml-[114px]">
                                                     <Command>
                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>

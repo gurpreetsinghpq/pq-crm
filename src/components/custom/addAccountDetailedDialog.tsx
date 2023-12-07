@@ -527,7 +527,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 name="industry"
                                 render={({ field }) => (
                                     <FormItem className='w-full '>
-                                        <Popover>
+                                        <Popover modal={true}>
                                             <PopoverTrigger asChild>
                                                 <FormControl>
                                                     <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -538,7 +538,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                     </Button>
                                                 </FormControl>
                                             </PopoverTrigger>
-                                            <PopoverContent className="w-[350px] p-0 ">
+                                            <PopoverContent className="p-0 ">
                                                 <Command>
                                                     <CommandInput className='w-full' placeholder="Search Industry" />
                                                     <CommandEmpty>Industry not found.</CommandEmpty>
@@ -633,7 +633,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 name="lastFundingStage"
                                 render={({ field }) => (
                                     <FormItem className='w-full '>
-                                        <Popover>
+                                        <Popover modal={true}>
                                             <PopoverTrigger asChild disabled={isVcIndustrySelected}>
                                                 <FormControl>
                                                     <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] disabled:opacity-1">
@@ -644,7 +644,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                     </Button>
                                                 </FormControl>
                                             </PopoverTrigger>
-                                            {!isVcIndustrySelected && <PopoverContent className="w-[350px] p-0 ">
+                                            {!isVcIndustrySelected && <PopoverContent className="p-0 ">
                                                 <Command>
                                                     <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                     <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -864,7 +864,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                         name="designation"
                                         render={({ field }) => (
                                             <FormItem className='w-full '>
-                                                <Popover>
+                                                <Popover modal={true}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -875,7 +875,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[200px] p-0 ml-[32px]">
+                                                    <PopoverContent className="p-0 ml-[32px]">
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Designation" />
                                                             <CommandEmpty>Designation not found.</CommandEmpty>
@@ -965,7 +965,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     name="std_code"
                                     render={({ field }) => (
                                         <FormItem className='mt-3 w-max'>
-                                            <Popover>
+                                            <Popover modal={true}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
@@ -974,7 +974,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                <PopoverContent className="p-0 ml-[114px]">
                                                     <Command>
                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>

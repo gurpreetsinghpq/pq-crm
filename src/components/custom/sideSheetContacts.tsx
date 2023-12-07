@@ -511,7 +511,12 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                         <SelectContent>
                                                             {
                                                                 TYPE.map((type, index) => {
-                                                                    return <SelectItem key={index} value={type.value}>
+                                                                    return <SelectItem 
+                                                                    disabled={((val)=>{
+                                                                        console.log("type",type.value)
+                                                                        return type.value==="accountsPayable"})()
+                                                                    }
+                                                                    key={index} value={type.value}>
                                                                         <div className="">
                                                                             <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!type.isDefault && 'border border-[1.5px] rounded-[8px]'} ${type.class}`}>
                                                                                 {type.label}
@@ -546,7 +551,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                         name="organisationName"
                                         render={({ field }) => (
                                             <FormItem className='w-full cursor-pointer'>
-                                                <Popover>
+                                                <Popover modal={true}>
                                                     <PopoverTrigger asChild >
                                                         <div className='flex flex-row gap-[10px] items-center  ' >
                                                             <TooltipProvider>
@@ -570,7 +575,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                         </div>
 
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="mt-[8px] p-0 w-[33vw]" >
+                                                    <PopoverContent className="mt-[8px] p-0" >
                                                         <Command>
                                                             <CommandInput onInput={(e) => { onChangeHandler(e.currentTarget.value) }} className='w-full flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50' placeholder="Search Organisation" />
 
@@ -628,7 +633,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                 name="designation"
                                                 render={({ field }) => (
                                                     <FormItem className='w-full cursor-pointer'>
-                                                        <Popover>
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild >
                                                                 <div className='flex flex-row gap-[10px] items-center  ' >
                                                                     <TooltipProvider>
@@ -652,7 +657,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className="mt-[8px] p-0 w-[33vw]" >
+                                                            <PopoverContent className="mt-[8px] p-0" >
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Designation" />
                                                                     <CommandEmpty>Designation not found.</CommandEmpty>
@@ -739,7 +744,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                     name="std_code"
                                                     render={({ field }) => (
                                                         <FormItem >
-                                                            <Popover>
+                                                            <Popover modal={true}>
                                                                 <PopoverTrigger asChild>
                                                                     <FormControl>
                                                                         <Button variant={"ghost"} className="flex flex-row gap-2">
@@ -751,7 +756,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                <PopoverContent className="p-0 ml-[114px]">
                                                                     <Command>
                                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                         <CommandEmpty>Country code not found.</CommandEmpty>

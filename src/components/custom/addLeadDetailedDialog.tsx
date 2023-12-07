@@ -540,32 +540,55 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                 control={form.control}
                                 name="roleType"
                                 render={({ field }) => (
-                                    <FormItem>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
-                                                    <SelectValue placeholder="Select Role Type" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent >
-                                                <div className='max-h-[200px] overflow-y-auto '>
-                                                    {
-                                                        roleType.map((roleType, index) => {
-                                                            return <SelectItem key={index} value={roleType.value}>
-                                                                {roleType.label}
-                                                            </SelectItem>
-                                                        })
-                                                    }
-                                                </div>
-                                            </SelectContent>
-                                        </Select>
-                                        {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                        {/* <FormMessage /> */}
+                                    <FormItem className='w-full '>
+                                        <Popover modal={true}>
+                                            <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button variant={"google"} className="flex flex-row gap-2 w-full px-[12px] ">
+                                                        <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                            {ROLETYPE.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Select Role Type</span>}
+                                                        </div>
+                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+
+                                            <PopoverContent className="p-0">
+                                                <Command>
+                                                    <CommandInput className='w-full' placeholder="Search Role Type" />
+                                                    <CommandEmpty>Role Type not found.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto '>
+                                                            {ROLETYPE.map((roleType) => (
+                                                                <CommandItem
+                                                                    value={roleType.value}
+                                                                    key={roleType.value}
+                                                                    onSelect={() => {
+                                                                        form.setValue("roleType", roleType.value, SET_VALUE_CONFIG)
+                                                                    }}
+                                                                >
+                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                        {roleType.label}
+                                                                        <Check
+                                                                            className={cn(
+                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                field.value === roleType.value
+                                                                                    ? "opacity-100"
+                                                                                    : "opacity-0"
+                                                                            )}
+                                                                        />
+                                                                    </div>
+                                                                </CommandItem>
+                                                            ))}
+                                                        </div>
+                                                    </CommandGroup>
+                                                </Command>
+                                            </PopoverContent>
+                                        </Popover>
                                     </FormItem>
                                 )}
                             />
+
                         </div>
                         <div className='flex flex-col mt-3 w-full'>
                             {<FormField
@@ -719,7 +742,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                         name="designation"
                                         render={({ field }) => (
                                             <FormItem className='w-full '>
-                                                <Popover>
+                                                <Popover modal={true}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -730,7 +753,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="w-[200px] p-0 ">
+                                                    <PopoverContent className=" p-0 ">
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Designation" />
                                                             <CommandEmpty>Designation not found.</CommandEmpty>
@@ -822,7 +845,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                     name="std_code"
                                     render={({ field }) => (
                                         <FormItem className='mt-3 w-max'>
-                                            <Popover>
+                                            <Popover modal={true}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button variant={"google"} className="flex flex-row gap-2">
@@ -831,7 +854,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                <PopoverContent className="p-0 ml-[114px]">
                                                     <Command>
                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>

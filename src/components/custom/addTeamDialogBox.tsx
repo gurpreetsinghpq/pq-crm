@@ -437,7 +437,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                                             name="teamLeader"
                                             render={({ field }) => (
                                                 <FormItem className='w-1/2 '>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -448,7 +448,7 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[290px] p-0">
+                                                        <PopoverContent className="p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search Team Leader" />
                                                                 <CommandEmpty>Team Leader not found.</CommandEmpty>

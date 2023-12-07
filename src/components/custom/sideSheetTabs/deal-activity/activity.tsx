@@ -317,7 +317,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                             name="contact"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
@@ -335,7 +335,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[360px] xl:w-[430px] 2xl:w-[465px] p-0">
+                                                        <PopoverContent className="  p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Account Contact" />
                                                                 <CommandEmpty>No Contact found.</CommandEmpty>
@@ -431,7 +431,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                             name="assignedTo"
                                             render={({ field }) => (
                                                 <FormItem className='w-full '>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
@@ -442,7 +442,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[360px] xl:w-[430px] 2xl:w-[465px] p-0">
+                                                        <PopoverContent className="  p-0">
                                                             <Command>
                                                                 <CommandInput className='w-full' placeholder="Search User" />
                                                                 <CommandEmpty>User not found.</CommandEmpty>
@@ -494,7 +494,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                     name="dueDate"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <Popover>
+                                                            <Popover modal={true}>
                                                                 <PopoverTrigger asChild>
                                                                     <FormControl>
                                                                         <FormControl>
@@ -511,7 +511,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                         </FormControl>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="2xl:w-[313px] p-0 flex flex-row justify-center" align="start">
+                                                                <PopoverContent className=" p-0 flex flex-row justify-center" align="start">
                                                                     <Calendar
                                                                         mode="single"
                                                                         selected={field.value}
@@ -544,7 +544,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                     name="dueTime"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <Popover>
+                                                            <Popover modal={true}>
                                                                 <PopoverTrigger asChild>
                                                                     <FormControl>
                                                                         <FormControl>
@@ -567,7 +567,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                         </FormControl>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-[200px] p-0 ml-[32px]">
+                                                                <PopoverContent className=" p-0 ml-[32px]">
                                                                     <Command>
                                                                         <CommandInput className='w-full' placeholder="Search Due Time" />
                                                                         <CommandEmpty>Due Time not found.</CommandEmpty>
@@ -696,7 +696,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                 name="entityName"
                                                 render={({ field }) => (
                                                     <FormItem className='w-1/2'>
-                                                        <Popover>
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild>
                                                                 <FormControl>
                                                                     <Button variant={"google"} className={`flex flex-row gap-2 w-full justify-between ${commonFontClassesAddDialog}`}>

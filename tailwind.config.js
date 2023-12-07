@@ -1,3 +1,5 @@
+const plugin = require('tailwindcss/plugin')
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -204,5 +206,17 @@ module.exports = {
   variants: {
     fill: ['hover', 'focus'],
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    plugin(function({ addUtilities }) {
+      const newUtilities = {
+        ".popover-content-width-same-as-its-trigger": {
+          width: "var(--radix-popover-trigger-width)",
+          "max-height": "var(--radix-popover-content-available-height)",
+        }
+      }
+
+      addUtilities(newUtilities, ['responsive', 'hover'])
+    })
+  ],
 }

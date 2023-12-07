@@ -1126,7 +1126,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 name="owners"
                                                 render={({ field }) => (
                                                     <FormItem className='w-full cursor-pointer'>
-                                                        <Popover>
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild >
                                                                 <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                                     <TooltipProvider>
@@ -1150,7 +1150,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                            <PopoverContent className={`mt-[2px] p-0`}>
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Owner" />
                                                                     <CommandEmpty>Owner not found.</CommandEmpty>
@@ -1198,7 +1198,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 name="closedBy"
                                                 render={({ field }) => (
                                                     <FormItem className='w-full cursor-pointer'>
-                                                        <Popover>
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild >
                                                                 <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                                     <TooltipProvider>
@@ -1222,7 +1222,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                            <PopoverContent className={`mt-[2px] p-0`}>
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search User" />
                                                                     <CommandEmpty>User not found.</CommandEmpty>
@@ -1269,7 +1269,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 name="fulfilledBy"
                                                 render={({ field }) => (
                                                     <FormItem className='w-full cursor-pointer'>
-                                                        <Popover>
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild >
                                                                 <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                                     <TooltipProvider>
@@ -1293,7 +1293,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                            <PopoverContent className={`mt-[2px] p-0`}>
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search User" />
                                                                     <CommandEmpty>User not found.</CommandEmpty>
@@ -1798,7 +1798,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                 name="industry"
                                                 render={({ field }) => (
                                                     <FormItem className='w-full cursor-pointer'>
-                                                        <Popover>
+                                                        <Popover modal={true}>
                                                             <PopoverTrigger asChild >
                                                                 <div className='flex  pl-[12px] py-[8px] mb-[8px]  flex-row gap-[8px] items-center  ' >
                                                                     <TooltipProvider>
@@ -1822,7 +1822,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}>
+                                                            <PopoverContent className={`mt-[2px] p-0`}>
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Industry" />
                                                                     <CommandEmpty>Industry not found.</CommandEmpty>
@@ -1987,7 +1987,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                 </div>
 
                                                             </PopoverTrigger>
-                                                            {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0 ${popoverSidesheetWidthClasses}`}  >
+                                                            {!isVcIndustrySelected && <PopoverContent className={`mt-[2px] p-0`}  >
                                                                 <Command>
                                                                     <CommandInput className='w-full' placeholder="Search Funding Stage" />
                                                                     <CommandEmpty>Funding Stage not found.</CommandEmpty>
@@ -2545,7 +2545,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                             name="contacts.designation"
                                                                             render={({ field }) => (
                                                                                 <FormItem className='w-full '>
-                                                                                    <Popover>
+                                                                                    <Popover modal={true}>
                                                                                         <PopoverTrigger asChild>
                                                                                             <FormControl>
                                                                                                 <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
@@ -2556,7 +2556,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                                                 </Button>
                                                                                             </FormControl>
                                                                                         </PopoverTrigger>
-                                                                                        <PopoverContent className="w-[268px] p-0 ">
+                                                                                        <PopoverContent className="p-0 ">
                                                                                             <Command>
                                                                                                 <CommandInput className='w-full' placeholder="Search Designation" />
                                                                                                 <CommandEmpty>Designation not found.</CommandEmpty>
@@ -2653,7 +2653,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                                                                 </Button>
                                                                                             </FormControl>
                                                                                         </PopoverTrigger>
-                                                                                        <PopoverContent className="w-[200px] p-0 ml-[114px]">
+                                                                                        <PopoverContent className="p-0 ml-[114px]">
                                                                                             <Command >
                                                                                                 <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                                                 <CommandEmpty>Country code not found.</CommandEmpty>

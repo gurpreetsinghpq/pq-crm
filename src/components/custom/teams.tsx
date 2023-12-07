@@ -334,7 +334,7 @@ function Teams({ form, permissions }: {
                                             name="teamLeaders"
                                             render={({ field }) => (
                                                 <FormItem>
-                                                    <Popover>
+                                                    <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
                                                                 <Button variant={"google"} className="flex flex-row gap-2">
@@ -346,7 +346,7 @@ function Teams({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="w-[230px] p-0">
+                                                        <PopoverContent className="p-0">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Team Leader" />
                                                                 <CommandEmpty>No Team Leader found.</CommandEmpty>
