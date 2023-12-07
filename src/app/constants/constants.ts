@@ -171,14 +171,8 @@ const BUDGET_RANGE: IBudgetRange = {
 }
 
 const DESIGNATION_SERVICE_CONTRACT = [
-    {
-        value: "manager",
-        label: "Manager",
-    },
-    {
-        value: "executive",
-        label: "Executive",
-    },
+    "Manager",
+    "Executive"
 ]
 
 const DESIGNATION = [

@@ -12,7 +12,7 @@ import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { areBillingAndShippingEqual, doesTypeIncludesMandatory, fetchAccountFromId, formatAddresses, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from "../../commonFunctions";
+import { areBillingAndShippingEqual, dirtyValues, doesTypeIncludesMandatory, fetchAccountFromId, formatAddresses, getToken, handleKeyPress, handleOnChangeNumericReturnNull } from "../../commonFunctions";
 import { ClientGetResponse, Contact, ContactsGetResponse, PatchOrganisation, ServiceContractGetResponse } from "@/app/interfaces/interface";
 import { beforeCancelDialog } from "../../addLeadDetailedDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -252,7 +252,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     "email": data.email || "",
                     "phone": data.phone || "",
                     "std_code": data.std_code || undefined,
-                    "designation": labelToValue(data.designation, DESIGNATION)
+                    "designation": data.designation
                 })
 
             }
@@ -280,12 +280,12 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         let updatedSchema
 
         if (value != "+91" && value != "+1") {
-            updatedSchema = FormSchema.extend({
+            updatedSchema = FormSchema2.extend({
                 phone: z.string().min(4).max(13).optional().nullable()
             })
         } else {
 
-            updatedSchema = FormSchema
+            updatedSchema = FormSchema2
         }
         setFormSchema2(updatedSchema)
 
@@ -430,15 +430,13 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     function saveContactDetails() {
         const formData2 = form2.getValues()
 
-        const dataToSend: Partial<Contact> = {
-            name: formData2.name,
-            designation: valueToLabel(formData2.designation, DESIGNATION),
-            email: formData2.email,
-            phone: formData2.phone,
-            std_code: formData2.std_code,
+        
+        const data = dirtyValues(form2.formState.dirtyFields, form2.getValues())
+        let dataToSend: Partial<Contact> = {
+            ...data,
             type: "Accounts Payable"
         }
-
+        console.log("dirty", FormSchema2)
         if (payableAccountId) {
             patchContactData(payableAccountId, dataToSend)
         } else {
@@ -447,11 +445,14 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         }
     }
 
+   
+
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
 
+            
             if (result.status == "1") {
                 toast({
                     title: "Account Details Updated!",
@@ -551,9 +552,9 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     }, [watcher])
     useEffect(() => {
         // console.log(form2.getValues())
-        form2.formState.isValid
-
-    }, [watcher2])
+        const result = formSchema2.safeParse(form2.getValues())
+        setAccountPayableDetailsValid(result.success)
+            }, [watcher2])
 
     return (
         <>
@@ -1157,7 +1158,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                     <div className={`border border-[1px] border-gray-300 flex flex-row gap-[10px] py-[10px] items-center ${!isPayableEditMode ? `border-none pointer-events-none cursor-not-allowed ` : "rounded-[8px]"}`}>
                                                                         <div className="flex  flex-row gap-2 w-full px-[14px] ">
                                                                             <div className={`w-full  flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses} `}>
-                                                                                {DESIGNATION_SERVICE_CONTRACT.find((val) => val.value === field.value)?.label || <span className={!isPayableEditMode ? ` ${disabledClassesBorderNone} text-gray-400` : "text-muted-foreground"}>Designation</span>}
+                                                                                {DESIGNATION_SERVICE_CONTRACT.find((val) => val === field.value) || <span className={!isPayableEditMode ? ` ${disabledClassesBorderNone} text-gray-400` : "text-muted-foreground"}>Designation</span>}
                                                                             </div>
                                                                             {isPayableEditMode && <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />}
                                                                         </div>
@@ -1172,19 +1173,19 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                                 {DESIGNATION_SERVICE_CONTRACT.map((designation) => (
                                                                                     <CommandItem
-                                                                                        value={designation.value}
-                                                                                        key={designation.value}
+                                                                                        value={designation}
+                                                                                        key={designation}
                                                                                         onSelect={() => {
-                                                                                            form2.setValue("designation", designation.value, SET_VALUE_CONFIG)
+                                                                                            form2.setValue("designation", designation, SET_VALUE_CONFIG)
                                                                                         }}
                                                                                     >
                                                                                         <PopoverClose asChild>
                                                                                             <div className="flex flex-row items-center justify-between w-full">
-                                                                                                {designation.label}
+                                                                                                {designation}
                                                                                                 <Check
                                                                                                     className={cn(
                                                                                                         "mr-2 h-4 w-4 text-purple-600",
-                                                                                                        field.value === designation.value
+                                                                                                        field.value === designation
                                                                                                             ? "opacity-100"
                                                                                                             : "opacity-0"
                                                                                                     )}
@@ -1319,7 +1320,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard2)}
-                                                <Button type="button" onClick={() => saveContactDetails()}>Save</Button>
+                                                <Button type="button" disabled={!areAccountPayableDetailsValid} onClick={() => saveContactDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>

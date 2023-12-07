@@ -294,9 +294,24 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                         title: "Contact Details Updated Successfully!",
                         variant: "dark"
                     })
-                } else {
+                } else if (result.error.email == "True" || result.error.phone == "True") {
+                    let errorMsg = "";
+    
+                    if (result.error.email === "True" && result.error.phone === "True") {
+                        errorMsg = "Email ID and Phone Number linked to another contact";
+                    } else if (result.error.email === "True") {
+                        errorMsg = "Email ID is linked to another contact";
+                    } else if (result.error.phone === "True") {
+                        errorMsg = "Phone Number is linked to another contact";
+                    }
                     toast({
-                        title: "Api failure!",
+                        title: errorMsg,
+                        variant: "destructive"
+                    })
+                }
+                else {
+                    toast({
+                        title: "Something went wrong, Please try again later!",
                         variant: "destructive"
                     })
                 }

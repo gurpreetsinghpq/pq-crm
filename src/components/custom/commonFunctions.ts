@@ -748,3 +748,33 @@ export function areBillingAndShippingEqual(data: AddressFields): boolean {
     data.billing_zipcode === data.shipping_zipcode
   );
 }
+
+//  // Map RHF's dirtyFields over the `data` received by `handleSubmit` and return the changed subset of that data.
+//  export function dirtyValues(dirtyFields: any | boolean, allValues: any): object {
+//   // If *any* item in an array was modified, the entire array must be submitted, because there's no way to indicate
+//   // "placeholders" for unchanged elements. `dirtyFields` is `true` for leaves.
+//   if (dirtyFields === true || Array.isArray(dirtyFields))
+//     return allValues;
+//   // Here, we have an object
+//   return Object.fromEntries(Object.keys(dirtyFields).map((key) => [key, dirtyValues(dirtyFields[key], allValues[key])]));
+// }
+
+export function dirtyValues<DirtyFields extends Record<string, unknown>, Values extends Record<keyof DirtyFields, unknown>>(
+  dirtyFields: DirtyFields,
+  values: Values
+): Partial<typeof values> {
+  const dirtyValue = Object.keys(dirtyFields).reduce((prev, key) => {
+    // Unsure when RFH sets this to `false`, but omit the field if so.
+    if (!dirtyFields[key]) return prev;
+
+    return {
+      ...prev,
+      [key]:
+        typeof dirtyFields[key] === 'object'
+          ? dirtyValues(dirtyFields[key] as DirtyFields, values[key] as Values)
+          : values[key],
+    };
+  }, {});
+
+  return dirtyValue;
+}
