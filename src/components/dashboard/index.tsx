@@ -261,6 +261,7 @@ export default function DashboardComponent() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const router = useRouter();
+    const [isSettingsClicked, setSettingsClicked] = useState<number>(0)
 
     const [isSmallScreen, setIsSmallScreen] = useState(
         typeof window !== 'undefined' ? window.innerWidth <= 1300 : false
@@ -621,11 +622,14 @@ export default function DashboardComponent() {
         AccountsForm.reset()
         ContactsForm.reset()
         
+        if(tabName===TITLES.USER_MANAGEMENT){
+            setSettingsClicked((prev)=>prev+1)
+        }
     }
     useEffect(()=>{
         // window.history.replaceState(null, '', 'dashboard')
         router.replace(`dashboard`, undefined)
-
+        
     },[currentTab])
     return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full ">
         <div className="sticky top-0 left-0 left z-[1] flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
@@ -960,7 +964,7 @@ export default function DashboardComponent() {
                 {currentTab === TITLES.DEALS && <Deals form={DealsForm} permissions={permissions["Deal"]} />}
                 {currentTab === TITLES.ACCOUNTS && <Accounts form={AccountsForm} permissions={permissions["Organisation"]} />}
                 {currentTab === TITLES.CONTACTS && <Contacts form={ContactsForm} permissions={permissions["Contact"]} />}
-                {currentTab === TITLES.USER_MANAGEMENT && <Settings usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]}  />}
+                {currentTab === TITLES.USER_MANAGEMENT && <Settings clicked={isSettingsClicked} usersForm={UsersForm} teamsForm={TeamsForm} profilesForm={ProfilesForm} permissions={permissions["User Management"]}  />}
                 {currentTab === TITLES.MY_ACCOUNT && <MyAccount myDetails={myDetails} parentTitles={TITLES} setCurrentParentTab={updateParentTitle} initialParentTitle={INITIAL_PARENT_TITLE} />}
 
             </div>

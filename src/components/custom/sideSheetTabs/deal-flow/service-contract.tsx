@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, CalendarIcon, Check, ChevronDown, ChevronRight, Cross, CrossIcon, Loader2, Phone, XCircleIcon } from "lucide-react";
+import { AlertCircle, CalendarIcon, Check, ChevronDown, ChevronRight, Cross, CrossIcon, Loader2, Phone, Upload, XCircleIcon } from "lucide-react";
 import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -454,11 +454,13 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
             if (result.status == "1") {
                 toast({
-                    title: "Account details updated!",
+                    title: "Account Details Updated!",
                     variant: "dark"
                 })
                 getAccountDetails()
-            } else {
+                setAccountEditMode(false)
+            }
+            else {
                 toast({
                     title: "Something went wrong, Please try again later!",
                     variant: "destructive"
@@ -487,7 +489,24 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 })
                 getContactDetails()
                 getAccountDetails()
-            } else {
+                setPayableEditMode(false)
+            }
+            else if (result.error.email == "True" || result.error.phone == "True") {
+                let errorMsg = "";
+
+                if (result.error.email === "True" && result.error.phone === "True") {
+                    errorMsg = "Email ID and Phone Number linked to another contact";
+                } else if (result.error.email === "True") {
+                    errorMsg = "Email ID is linked to another contact";
+                } else if (result.error.phone === "True") {
+                    errorMsg = "Phone Number is linked to another contact";
+                }
+                toast({
+                    title: errorMsg,
+                    variant: "destructive"
+                })
+            }
+            else {
                 toast({
                     title: "Something went wrong, Please try again later!",
                     variant: "destructive"
@@ -540,7 +559,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         <>
             <div className="flex flex-col items-start gap-4 flex-1 self-stretch">
                 <div className="flex flex-col items-start gap-4 self-stretch">
-                    <div className="flex p-1 sm:p-4 justify-between items-center self-stretch rounded-md shadow-md">
+                    <div className="flex p-1 sm:px-4 sm:pb-4 justify-between items-center self-stretch rounded-md shadow-md">
                         <div className="flex flex-row gap-[10px]">
                             <h2 className="text-gray-700 font-inter font-semibold text-base leading-6">Service Contract Status Tracking</h2>
 
@@ -562,10 +581,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                             }}>
                                 <DialogHeader>
                                     <DialogTitle className="  pb-[10px]">
-                                        <div className="text-lg">Upload and attach file</div>
-                                        <div className="text-gray-600 text-sm mt-[5px] font-normal w-[450px]">
-                                            Upload and attach file to this project.
-                                        </div>
+                                        <div className="text-lg">Upload and Attach File</div>
                                     </DialogTitle>
                                 </DialogHeader>
                                 <Form {...form3}>
@@ -655,7 +671,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     {formData === undefined ?
                                         <>
                                             <div className='rounded-[8px] p-[10px] border border-[1px] border-gray-200'>
-                                                <AlertCircle color="black" />
+                                                <Upload color="#344054" size={20} />
                                             </div>
                                             <div className="flex flex-col gap-[5px] items-center">
                                                 <div>
@@ -699,7 +715,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                         </Dialog>
                     </div>
                 </div>
-                {contractDraft.length > 0 ? <div className="flex flex-row w-full min-h-[200px]">
+                {contractDraft.length > 0 ? <div className="flex flex-row w-full min-h-[240px]">
                     <DataTable columns={columnsServiceContacts(sendESign, viewDocument)} data={contractDraft} filterObj={{}} page="serviceContracts" setChildDataHandler={() => { }} setIsMultiSelectOn={() => { }} setTableLeadRow={() => { }} manualPageSize={contractDraft.length} />
                 </div>
                     : <div className="flex justify-center items-center self-stretch">
@@ -1232,7 +1248,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                                                             </Button>
                                                                         </FormControl>
                                                                     </PopoverTrigger>
-                                                                    <PopoverContent className="p-0 ml-[114px]" style={{width:"200px"}}>
+                                                                    <PopoverContent className="p-0 ml-[114px]" style={{ width: "200px" }}>
                                                                         <Command>
                                                                             <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                             <CommandEmpty>Country code not found.</CommandEmpty>

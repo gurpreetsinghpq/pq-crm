@@ -713,10 +713,10 @@ export function formatAddresses(data: AddressFields) {
   const formattedBillingAddress = [
     billing_address,
     billing_address_l2,
-    billing_country,
     billing_city,
     billing_state,
     billing_zipcode,
+    billing_country,
   ]
     .filter((value) => value !== null && value !== undefined)
     .join(', ');
@@ -724,10 +724,10 @@ export function formatAddresses(data: AddressFields) {
   const formattedShippingAddress = [
     shipping_address,
     shipping_address_l2,
-    shipping_country,
     shipping_city,
     shipping_state,
     shipping_zipcode,
+    shipping_country,
   ]
     .filter((value) => value !== null && value !== undefined)
     .join(', ');

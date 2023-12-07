@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import UserManagement from './userManagement'
 import { Permission } from '@/app/interfaces/interface';
 import { UseFormReturn } from 'react-hook-form';
@@ -15,7 +15,7 @@ export const CURRENT_OPTION = {
     WEBHOOKS: "Webhooks",
 }
 
-function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
+function Settings({ usersForm, teamsForm, profilesForm, permissions, clicked }: {
     usersForm: UseFormReturn<{
         regions: string[];
         functions: string[];
@@ -35,17 +35,19 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
         queryParamString: string;
         dateRange?: any;
     }, any, undefined>,
-    permissions: Permission
+    permissions: Permission,
+    clicked: number
 }) {
     const [currentOption, setCurrentOption] = useState(CURRENT_OPTION.USER_MANAGEMENT)
-    const [isSettingPanelOpen, setSettingPanelOpen] = useState<boolean>(false)
+    const [isSettingPanelOpen, setSettingPanelOpen] = useState<boolean>(true)
+
+    useEffect(()=>{
+        setSettingPanelOpen(true)
+    },[clicked])
 
     return (
         <div className='flex flex-row relative flex-1'>
-            {isSettingPanelOpen && <div className='absolute flex flex-col min-w-[250px] gap-[16px] h-[100vh]  top-0 left-0 bottom-0 z-[999] px-[16px] py-[36px] bg-gray-50 border-[1px] border-gray-200'>
-                <div className='absolute top-[15px] right-[20px] bg-gray-100 p-[6px] rounded-[4px] hover:shadow-2xl cursor-pointer'>
-                    <ChevronLeft onClick={() => setSettingPanelOpen(false)}  color="#667085"/>
-                </div>
+            {isSettingPanelOpen && <div className='absolute flex flex-col min-w-[250px] gap-[16px] h-[100vh]  top-0 left-0 bottom-0 z-[1] px-[16px] py-[36px] bg-gray-50 border-[1px] border-gray-200'>
                 <div className='text-gray-900 text-md font-medium'>Settings</div>
                 <div className='flex flex-col gap-[4px] cursor-pointer rounded-[6px]'>
                     <div onClick={() => setCurrentOption(CURRENT_OPTION.USER_MANAGEMENT)} className='flex flex-row gap-[12px]'>
@@ -95,17 +97,14 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
                 </div>
 
             </div>}
-            <div className='flex flex-col flex-1'>
+            <div className='flex flex-col flex-1' >
                 <div className='flex flex-row '>
                     <div className='top flex flex-row items-center gap-[8px] px-[16px] py-[22px] border-b-[1px] border-gray-200 w-full'>
-                        <div className='flex flex-row cursor-pointer bg-gray-100 p-[6px] rounded-[4px] hover:shadow-2xl' onClick={() => setSettingPanelOpen(true)} >
-                            <ChevronRight color="#667085"/>
-                        </div>
                         <div className='p-[4px] ml-[15px]' >
                             <IconHomeLine size="20" />
                         </div>
                         <ChevronRight size={16} className='text-gray-300' />
-                        <div className='text-sm font-medium text-gray-600 px-[8px] py-[4px]'>
+                        <div className='text-sm font-medium text-gray-600 px-[8px] py-[4px] cursor-pointer hover:font-bold' onClick={()=>setSettingPanelOpen(true)}>
                             Settings
                         </div>
                         {currentOption != CURRENT_OPTION.USER_MANAGEMENT && <>
@@ -121,7 +120,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
                     </div>
 
                 </div>
-                <div onClick={()=>setSettingPanelOpen(false)} className='flex flex-col flex-1'>
+                <div className='flex flex-col flex-1' onClick={()=>setSettingPanelOpen(false)}>
                     {currentOption === CURRENT_OPTION.USER_MANAGEMENT && <UserManagement usersForm={usersForm} teamsForm={teamsForm} profilesForm={profilesForm} permissions={permissions} />}
                     {(currentOption === CURRENT_OPTION.APPS || currentOption === CURRENT_OPTION.INTEGRATION) && <Integrations currentOption={currentOption} />}
                 </div>

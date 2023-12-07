@@ -111,7 +111,7 @@ export function columnsServiceContacts(setChildDataHandler?: CallableFunction, v
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("file_type")}</div>,
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal uppercase">{row.getValue("file_type")}</div>,
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
             },

@@ -1,6 +1,6 @@
 import { IconAlert, IconPencil2 } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, Eye, Loader2, Trash2Icon, XCircle } from 'lucide-react'
+import { AlertCircle, Eye, Loader2, Trash2Icon, Upload, XCircle } from 'lucide-react'
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { extractFileNameFromUrl, fetchMyDetails, formatBytes } from '../../commonFunctions'
 import { getCookie } from 'cookies-next'
@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { UploadedFile } from '@/app/interfaces/interface'
 import { multiLineStyle2 } from '../../table/columns'
 
-function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisabled=false }: { entityId: number, title:string, isProposalDeck:boolean, isProposalDisabled?:boolean }) {
+function RequirementDeck({ entityId, title, isProposalDeck = false, isProposalDisabled = false }: { entityId: number, title: string, isProposalDeck: boolean, isProposalDisabled?: boolean }) {
 
     const [isAnyDocument, setIsAnyDocument] = useState<boolean>(false)
     const [selectedFile, setSelectedFile] = useState<{ name: string | null, size: number | null }>({ name: null, size: null });
@@ -29,7 +29,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
     const token_superuser = getCookie("token")
 
     useEffect(() => {
-        if(!isProposalDisabled){
+        if (!isProposalDisabled) {
             getAllPdf()
         }
     }, [])
@@ -37,7 +37,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
         // /v1/api/proposal/?prospect=2
 
         try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/${isProposalDeck? "proposal": "rdcapsule"}/?${isProposalDeck?'prospect': 'deal'}=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/${isProposalDeck ? "proposal" : "rdcapsule"}/?${isProposalDeck ? 'prospect' : 'deal'}=${entityId}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
 
             if (result.status == "1") {
@@ -72,37 +72,37 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                 // Handle the selected PDF file here
                 setSelectedFile({ name: selectedFile.name, size: selectedFile.size });
                 const formData = new FormData()
-                
+
                 let maxVersion = 0;
-                data.map((pdf)=>{
+                data.map((pdf) => {
                     const name = extractFileNameFromUrl(pdf.file)
-                    if(name){
+                    if (name) {
                         const match = name.match(/V(\d+)/);
                         if (match) {
                             const version = parseInt(match[1], 10);
                             maxVersion = Math.max(maxVersion, version);
-                          }
+                        }
                     }
                 })
                 const newVersion = maxVersion + 1;
-                const newTitle = `${title.replace(/\s/g, '')}_${isProposalDeck?"Proposal":"Capsule"}_V${newVersion}.pdf`
-                console.log("newTitle",newTitle, formData)
+                const newTitle = `${title.replace(/\s/g, '')}_${isProposalDeck ? "Proposal" : "Capsule"}_V${newVersion}.pdf`
+                console.log("newTitle", newTitle, formData)
 
                 formData.append('file', selectedFile, newTitle)
-                if(isProposalDeck){
+                if (isProposalDeck) {
                     formData.append('prospect', entityId.toString())
-                }else{
+                } else {
                     formData.append('deal', entityId.toString())
                 }
                 setIsUploading(true)
                 try {
-                    const dataResp = await fetch(`${baseUrl}/v1/api/${isProposalDeck? "proposal": "rdcapsule"}/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
+                    const dataResp = await fetch(`${baseUrl}/v1/api/${isProposalDeck ? "proposal" : "rdcapsule"}/`, { method: "POST", body: formData, headers: { "Authorization": `Token ${token_superuser}` } })
                     const result = await dataResp.json()
                     if (fileInputRef.current) {
                         fileInputRef.current.value = "";
                     }
                     setIsUploading(false)
-                    setSelectedFile({name:"", size:null})
+                    setSelectedFile({ name: "", size: null })
                     if (result.message === "success") {
                         toast({
                             title: "File uploaded Succesfully!",
@@ -138,13 +138,13 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
             <div className='flex-1 flex flex-col gap-[80px]'>
                 <div className='top'>
                     <div className='text-md font-semibold flex flex-row justify-center'>
-                        Open { isProposalDeck? "Proposal" : "Document"} Editor
+                        Open {isProposalDeck ? "Proposal" : "Document"} Editor
                     </div>
                     <div className='my-[16px] text-sm font-medium text-gray-700 flex flex-row justify-center text-center'>
-                        Click the Open Editor button to begin creating a {isProposalDeck?"Proposal Deck": "Requirement Deck"}.
+                        Click the Open Editor button to begin creating a {isProposalDeck ? "Proposal Deck" : "Requirement Deck"}.
                     </div>
                     <div className='flex flex-row justify-center'>
-                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open(`https://capsule.purplequarter.co/?tab=${isProposalDeck ?"Proposal":"Capsule" }`)}>
+                        <Button className='flex flex-row gap-[8px]' onClick={() => window.open(`https://capsule.purplequarter.co/?tab=${isProposalDeck ? "Proposal" : "Capsule"}`)}>
                             <IconPencil2 />
                             Open Editor
                         </Button>
@@ -155,7 +155,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                         {
                             <div className='flex flex-col gap-[12px] items-center'>
                                 <div className='w-[150px]'>
-                                    {isProposalDeck ? <img src="images/pdf-front-proposal.png" className='w-full h-full object-contain' /> :  <img src="images/pdf-front.png" className='w-full h-full object-contain' />}
+                                    {isProposalDeck ? <img src="images/pdf-front-proposal.png" className='w-full h-full object-contain' /> : <img src="images/pdf-front.png" className='w-full h-full object-contain' />}
 
                                 </div>
                                 <div className='text-gray-700 text-lg font-medium text-center'>
@@ -191,7 +191,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
             <div className='flex flex-col flex-1'>
                 <div id="file-upload-div" onClick={handleDivClick} className='px-[24px] py-[16px] rounded-[12px] bg-white-900 border border-gray-200 border-[1px] h-fit flex flex-col gap-[12px] items-center w-full cursor-pointer' >
                     <div className='rounded-[8px] p-[10px] border border-[1px] border-gray-200'>
-                        <AlertCircle color="black" />
+                        <Upload color="#344054" size={20} />
                     </div>
                     <div className='flex flex-col items-center '>
                         <div className='text-purple-700 text-sm font-semibold9'>
