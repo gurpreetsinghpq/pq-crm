@@ -974,7 +974,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="p-0 ml-[114px]">
+                                                <PopoverContent className="p-0 ml-[114px]" style={{width:"200px"}}>
                                                     <Command>
                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>
