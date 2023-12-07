@@ -25,7 +25,7 @@ import { TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { Check, CheckCircle, CheckCircle2, ChevronDown, Loader2, MinusCircleIcon, Phone, Type } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
+import { commonClasses, commonClasses2, commonFontClasses, contactListClasses, disabledClasses, disabledSidebarItem, preFilledClasses, requiredErrorClasses, selectFormMessageClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
@@ -81,7 +81,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     const [inputAccount, setInputAccount] = useState("")
     const [currentAccountName, setCurrentAccountName] = useState("")
     const [duplicateErrorMessage, setDuplicateErrorMessage] = useState<DuplicateError>(DUPLICATE_ERROR_MESSAGE_DEFAULT)
-
+    const [accountPayable, setAccountPayable] = useState<IValueLabel>()
     const data: ContactsGetResponse = row.original
     useEffect(() => {
         console.log(data)
@@ -95,6 +95,11 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         changeStdCode(type)
         console.log("data.name", data.organisation)
         setCurrentAccountName(data.organisation.name)
+        const typeIvalue: IValueLabel | undefined = TYPE.find((val)=>val.label === data.type)
+        if(typeIvalue?.label==="Accounts Payable"){
+            console.log("typeIvalue",typeIvalue)
+            setAccountPayable(typeIvalue)
+        }
     }, [])
 
     function closeSideSheet() {
@@ -249,15 +254,14 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             contactDetails["phone"] = phone
         }
 
-        
+
 
 
 
         const res = await getIsContactDuplicate(email, `${std_code}-${phone}`)
 
-        if(( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone || (contactDetailsById.email != email) && res?.email)
-        {
-            if (( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone) {
+        if ((`${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone || (contactDetailsById.email != email) && res?.email) {
+            if ((`${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone) {
                 setDuplicateErrorMessage({
                     email: false,
                     phone: res.phone
@@ -269,7 +273,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                     phone: false
                 })
             }
-            if(( `${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone && (contactDetailsById.email != email) && res?.email){
+            if ((`${contactDetailsById.std_code}-${contactDetailsById.phone}` != `${std_code}-${phone}`) && res?.phone && (contactDetailsById.email != email) && res?.email) {
                 setDuplicateErrorMessage({
                     email: res.email,
                     phone: res.phone
@@ -303,7 +307,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             }
         }
 
-        
+
 
 
 
@@ -494,7 +498,11 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                         </>
                                     }
                                     <div className="px-[16px] mt-[24px] text-md font-medium w-full flex flex-row ">
-                                        <FormField
+                                        {accountPayable ? <div>
+                                            { <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!accountPayable.isDefault && 'border border-[1.5px] rounded-[8px]'} ${accountPayable.class}`}>
+                                                {accountPayable.label}
+                                            </div>}
+                                        </div> : <FormField
                                             control={form.control}
                                             name="type"
                                             render={({ field }) => (
@@ -504,19 +512,16 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                         return field.onChange(val)
                                                     }} defaultValue={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger className={`border-gray-300 ${commonClasses} ${commonFontClasses}`}>
+                                                            <SelectTrigger
+                                                                className={`border-gray-300 ${commonClasses} ${commonFontClasses}`}>
                                                                 <SelectValue defaultValue={field.value} placeholder="Select Type" />
                                                             </SelectTrigger>
                                                         </FormControl>
                                                         <SelectContent>
                                                             {
-                                                                TYPE.map((type, index) => {
-                                                                    return <SelectItem 
-                                                                    disabled={((val)=>{
-                                                                        console.log("type",type.value)
-                                                                        return type.value==="accountsPayable"})()
-                                                                    }
-                                                                    key={index} value={type.value}>
+                                                                CONTACT_TYPE.map((type, index) => {
+                                                                    return <SelectItem
+                                                                        key={index} value={type.value}>
                                                                         <div className="">
                                                                             <div className={`flex flex-row gap-2 items-center  px-2 py-1 ${!type.isDefault && 'border border-[1.5px] rounded-[8px]'} ${type.class}`}>
                                                                                 {type.label}
@@ -534,7 +539,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                     <FormMessage className={selectFormMessageClasses} />
                                                 </FormItem>
                                             )}
-                                        />
+                                        />}
 
 
                                     </div>
@@ -550,9 +555,9 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                         control={form.control}
                                         name="organisationName"
                                         render={({ field }) => (
-                                            <FormItem className='w-full cursor-pointer'>
+                                            <FormItem className={`w-full ${!!accountPayable ? "cursor-not-allowed" : "cursor-pointer"}`}>
                                                 <Popover modal={true}>
-                                                    <PopoverTrigger asChild >
+                                                    <PopoverTrigger asChild className={`${!!accountPayable? disabledSidebarItem :""}`}>
                                                         <div className='flex flex-row gap-[10px] items-center  ' >
                                                             <TooltipProvider>
                                                                 <Tooltip>
@@ -632,9 +637,9 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                 control={form.control}
                                                 name="designation"
                                                 render={({ field }) => (
-                                                    <FormItem className='w-full cursor-pointer'>
+                                                    <FormItem className={`w-full ${!!accountPayable ? "cursor-not-allowed" : "cursor-pointer"}`}>
                                                         <Popover modal={true}>
-                                                            <PopoverTrigger asChild >
+                                                            <PopoverTrigger asChild className={`${!!accountPayable? disabledSidebarItem :""}`}>
                                                                 <div className='flex flex-row gap-[10px] items-center  ' >
                                                                     <TooltipProvider>
                                                                         <Tooltip>
@@ -756,7 +761,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="p-0 ml-[114px]">
+                                                                <PopoverContent className="p-0 ml-[114px]" style={{width:"200px"}}>
                                                                     <Command>
                                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                         <CommandEmpty>Country code not found.</CommandEmpty>
