@@ -222,7 +222,7 @@ function RequirementDeck({ entityId, title, isProposalDeck=false, isProposalDisa
                         Documents history
                     </div>
                     {
-                        data.length > 0 ? <div className='flex flex-col 2xl:max-h-[500px] overflow-y-auto gap-[10px]'>
+                        data.length > 0 ? <div className='flex flex-col max-h-[500px] overflow-y-auto gap-[10px]'>
                             {data.map((file) => <div className='flex flex-row p-[16px] gap-[16px] items-center border-[1px] border-gray-200 rounded-[12px]'>
                                 <img src="images/pdf-2.png" className='w-[32px] h-[40px]' />
                                 <div className='flex flex-col gap-[8px] flex-1'>
