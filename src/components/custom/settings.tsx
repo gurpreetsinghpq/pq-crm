@@ -61,7 +61,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions, clicked }: 
                         </div>
                     </div>
                     <div className='relative flex flex-col gap-[12px] text-sm font-semibold'>
-                        <div className={`w-full flex flex-row items-center gap-[12px] px-[16px] py-[8px] hover:bg-purple-600 hover:fill-current text-gray-700 hover:text-white-900 rounded flex flex-row ${(currentOption === CURRENT_OPTION.APPS || currentOption === CURRENT_OPTION.WEBHOOKS) && 'bg-purple-100 text-purple-600'}`}>
+                        <div className={`w-full flex flex-row bg-gray-50 items-center gap-[12px] px-[16px] py-[8px] hover:bg-purple-600 hover:fill-current text-gray-700 hover:text-white-900 rounded flex flex-row ${(currentOption === CURRENT_OPTION.APPS || currentOption === CURRENT_OPTION.WEBHOOKS) && 'bg-purple-100 text-purple-600'}`}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
                                 <path d="M5.99967 2L5.33301 5.33333M10.6663 2L9.99967 5.33333M14.6663 5.33333H1.33301M4.53301 14H11.4663C12.5864 14 13.1465 14 13.5743 13.782C13.9506 13.5903 14.2566 13.2843 14.4484 12.908C14.6663 12.4802 14.6663 11.9201 14.6663 10.8V5.2C14.6663 4.0799 14.6663 3.51984 14.4484 3.09202C14.2566 2.71569 13.9506 2.40973 13.5743 2.21799C13.1465 2 12.5864 2 11.4663 2H4.53301C3.4129 2 2.85285 2 2.42503 2.21799C2.0487 2.40973 1.74274 2.71569 1.55099 3.09202C1.33301 3.51984 1.33301 4.0799 1.33301 5.2V10.8C1.33301 11.9201 1.33301 12.4802 1.55099 12.908C1.74274 13.2843 2.0487 13.5903 2.42503 13.782C2.85285 14 3.4129 14 4.53301 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
@@ -69,8 +69,8 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions, clicked }: 
                                 Integration
                             </div>
                         </div>
-                        <div className='flex flex-col bg-white-900 rounded-[5px] py-[8px] mx-[12px] gap-[8px]'>
-                            <div className={`flex flex-col`}>
+                        <div className='flex flex-col rounded-[5px] py-[8px] mx-[12px] gap-[8px] mx-[24px]'>
+                            <div className={`bg-white-900 rounded-[6px] flex flex-col integration-cls-settings`}>
                                 <img src="" alt="" />
                                 <div className={`w-[160px] flex mx-[10px] flex-row items-center gap-[12px] px-[12px] py-[8px] hover:cursor-pointer hover:bg-purple-600 hover:fill-current text-gray-700 hover:text-white-900 rounded flex flex-row ${currentOption === CURRENT_OPTION.APPS && 'bg-purple-600 text-white-900'}`} onClick={() => setCurrentOption(CURRENT_OPTION.APPS)}>
                                     <div>
@@ -81,7 +81,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions, clicked }: 
                                     </div>
                                 </div>
                             </div>
-                            <div className='flex flex-col'>
+                            <div className='bg-white-900 rounded-[6px] flex flex-col integration-cls-settings'>
                                 <img src="" alt="" />
                                 <div className={`w-full flex mx-[10px] flex-row items-center gap-[12px] px-[12px] py-[8px] hover:cursor-pointer hover:bg-purple-600 hover:fill-current text-gray-700 hover:text-white-900 rounded flex flex-row ${disabledSidebarItem} ${currentOption === CURRENT_OPTION.WEBHOOKS && 'bg-purple-600 text-white-900'}`} onClick={() => setCurrentOption(CURRENT_OPTION.WEBHOOKS)}>
                                     <div>

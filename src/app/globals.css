@@ -288,3 +288,25 @@ body {
   background-color: #fff; 
   border-radius: 8px; 
 } 
+
+
+.integration-cls-settings{
+  position: relative;
+}
+
+.integration-cls-settings::before{
+  content: "";
+  position: absolute;
+  height: 70px;
+  width: 100px;
+  border-radius: 20px;
+  z-index: -1;
+  left: -10px;
+  bottom: 15px;
+  background-color: transparent;
+  border: 2px solid #D0D5DD;
+  border-right: none;
+  border-top: none;
+  border-top-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
