@@ -41,7 +41,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
     const [isSettingPanelOpen, setSettingPanelOpen] = useState<boolean>(false)
 
     return (
-        <div className='flex flex-row relative'>
+        <div className='flex flex-row relative flex-1'>
             {isSettingPanelOpen && <div className='absolute flex flex-col min-w-[250px] gap-[16px] h-[100vh]  top-0 left-0 bottom-0 z-[999] px-[16px] py-[36px] bg-gray-50 border-[1px] border-gray-200'>
                 <div className='absolute top-[15px] right-[20px] bg-gray-100 p-[6px] rounded-[4px] hover:shadow-2xl cursor-pointer'>
                     <ChevronLeft onClick={() => setSettingPanelOpen(false)}  color="#667085"/>
@@ -121,7 +121,7 @@ function Settings({ usersForm, teamsForm, profilesForm, permissions }: {
                     </div>
 
                 </div>
-                <div onClick={()=>setSettingPanelOpen(false)} >
+                <div onClick={()=>setSettingPanelOpen(false)} className='flex flex-col flex-1'>
                     {currentOption === CURRENT_OPTION.USER_MANAGEMENT && <UserManagement usersForm={usersForm} teamsForm={teamsForm} profilesForm={profilesForm} permissions={permissions} />}
                     {(currentOption === CURRENT_OPTION.APPS || currentOption === CURRENT_OPTION.INTEGRATION) && <Integrations currentOption={currentOption} />}
                 </div>
