@@ -191,7 +191,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
             const addressesAreEqual = areBillingAndShippingEqual(data);
 
-            console.log("isequal", addressesAreEqual)
             form.setValue("sameAsBillingAddress", addressesAreEqual ? true : undefined)
             if (addressesAreEqual) {
                 setSameAsBillingAddress(true)
@@ -213,7 +212,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
             if (result.status == "1") {
                 let data = structuredClone(result)
                 let dataToSave: ServiceContractGetResponse[] = data.data
-                console.log(dataToSave)
                 let sortedData = dataToSave.sort((a, b) => new Date(b.uploaded_at).getTime() - new Date(a.uploaded_at).getTime());
                 setContractDraft(sortedData)
             } else {
@@ -354,7 +352,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 if (document_type === "Signed Contract") {
                     const date_iso = form3.getValues("event_date").toISOString()
                     formDataLocal.append('event_date', date_iso)
-                    console.log("event_date", date_iso)
                 }
                 setFormData(formDataLocal)
             } else {
@@ -432,11 +429,15 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
         
         const data = dirtyValues(form2.formState.dirtyFields, form2.getValues())
+
+        if(data?.phone){
+            data["std_code"] = form2.getValues("std_code")
+        }
+
         let dataToSend: Partial<Contact> = {
             ...data,
             type: "Accounts Payable"
         }
-        console.log("dirty", FormSchema2)
         if (payableAccountId) {
             patchContactData(payableAccountId, dataToSend)
         } else {
@@ -1320,7 +1321,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard2)}
-                                                <Button type="button" disabled={!areAccountPayableDetailsValid} onClick={() => saveContactDetails()}>Save</Button>
+                                                <Button type="button" disabled={!areAccountPayableDetailsValid || !form2.formState.isDirty} onClick={() => saveContactDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
