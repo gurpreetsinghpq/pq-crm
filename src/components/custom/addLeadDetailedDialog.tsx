@@ -162,14 +162,16 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             phone = ""
             std_code = ""
         }
-
+        
+        const phoneDuplicateLocal = dummyContactData.find((contact)=>contact.phone===phone)
+        const emailDuplicateLocal = dummyContactData.find((contact)=>contact.email===email)
 
         const res = await getIsContactDuplicate(email, `${std_code}-${phone}`)
 
-        if (res?.phone || res?.email) {
+        if (res?.phone || res?.email || phoneDuplicateLocal || emailDuplicateLocal) {
             setDuplicateErrorMessage({
-                email: res.email,
-                phone: res.phone
+                email: res?.email || emailDuplicateLocal,
+                phone: res?.phone || phoneDuplicateLocal
             })
         } else {
             setDuplicateErrorMessage({

@@ -740,7 +740,7 @@ const Prospects = ({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="p-0">
+                                                        <PopoverContent className="p-0 !w-[230px]">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Owner" />
                                                                 <CommandEmpty>No Owner found.</CommandEmpty>
@@ -808,7 +808,7 @@ const Prospects = ({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="p-0">
+                                                        <PopoverContent className="p-0 !w-[230px]">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Creator" />
                                                                 <CommandEmpty>No Creator found.</CommandEmpty>

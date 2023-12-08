@@ -346,7 +346,7 @@ function Teams({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className="p-0">
+                                                        <PopoverContent className="p-0 !w-[230px]">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Team Leader" />
                                                                 <CommandEmpty>No Team Leader found.</CommandEmpty>

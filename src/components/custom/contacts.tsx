@@ -551,7 +551,7 @@ const Contacts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="p-0">
+                                                    <PopoverContent className="p-0 !w-[230px]">
                                                         <Command>
                                                             <CommandInput placeholder="Search Designation" />
                                                             <CommandEmpty>No Designation found.</CommandEmpty>
@@ -693,7 +693,7 @@ const Contacts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="p-0">
+                                                    <PopoverContent className="p-0 !w-[230px]">
                                                         <Command>
                                                             <CommandInput placeholder="Search Creator" />
                                                             <CommandEmpty>No Creator found.</CommandEmpty>

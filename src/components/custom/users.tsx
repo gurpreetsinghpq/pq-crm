@@ -456,7 +456,7 @@ function Users({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className=" p-0">
+                                                        <PopoverContent className=" p-0 !w-[230px]">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Function" />
                                                                 <CommandEmpty>No Function found.</CommandEmpty>
@@ -520,7 +520,7 @@ function Users({ form, permissions }: {
                                                                 </Button>
                                                             </FormControl>
                                                         </PopoverTrigger>
-                                                        <PopoverContent className=" p-0">
+                                                        <PopoverContent className=" p-0 !w-[230px]">
                                                             <Command>
                                                                 <CommandInput placeholder="Search Profile" />
                                                                 <CommandEmpty>No Profile found.</CommandEmpty>

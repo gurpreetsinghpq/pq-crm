@@ -563,7 +563,7 @@ const Accounts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="p-0">
+                                                    <PopoverContent className="p-0 !w-[230px]">
                                                         <Command>
                                                             <CommandInput placeholder="Search Industry" />
                                                             <CommandEmpty>No Industry found.</CommandEmpty>
@@ -667,7 +667,7 @@ const Accounts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="p-0 mr-[24px]" >
+                                                    <PopoverContent className="p-0 mr-[24px] !w-[215px]" >
                                                         <Command>
                                                             <CommandInput placeholder="Search Funding Stage" />
                                                             <CommandEmpty>No Funding Stage found.</CommandEmpty>
@@ -731,7 +731,7 @@ const Accounts = ({ form, permissions }: {
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="p-0">
+                                                    <PopoverContent className="p-0 !w-[230px]">
                                                         <Command>
                                                             <CommandInput placeholder="Search Creator" />
                                                             <CommandEmpty>No Creator found.</CommandEmpty>

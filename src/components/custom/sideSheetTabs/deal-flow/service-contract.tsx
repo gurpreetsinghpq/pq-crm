@@ -131,12 +131,12 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 setOpenAfterEsign(true)
                 getServiceContractsDataTable()
 
-            } else if(result.status=="0" && result.error.integration) {
+            } else if (result.status == "0" && result.error.integration) {
                 toast({
                     title: `Docusign Integration Required!`,
                     variant: "destructive"
                 })
-            } 
+            }
             else {
                 toast({
                     title: `Sorry some error have occured: ${result.message}`,
@@ -259,7 +259,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 form2.reset({
                     "name": data.name || "",
                     "email": data.email || "",
-                    "phone": data.phone || "",
+                    "phone": data.phone || null,
                     "std_code": data.std_code || undefined,
                     "designation": data.designation
                 })
@@ -302,7 +302,21 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
 
     function resetForm2() {
-        // form2.reset(form2Defaults)
+        if(contactData){
+            form2.reset({
+                "name": contactData.name || "",
+                "email": contactData.email || "",
+                "phone": contactData.phone || null,
+                "std_code": contactData.std_code || undefined,
+                "designation": contactData.designation
+            })
+        }else{
+            setFormSchema2(FormSchema2)
+            console.log("formschema", formSchema2)
+            form2.reset()
+            form2.setValue("phone", "", SET_VALUE_CONFIG)
+
+        }
     }
 
     function yesDiscard(): void {
@@ -438,10 +452,10 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     function saveContactDetails() {
         const formData2 = form2.getValues()
 
-        
+
         const data = dirtyValues(form2.formState.dirtyFields, form2.getValues())
 
-        if(data?.phone){
+        if (data?.phone) {
             data["std_code"] = form2.getValues("std_code")
         }
 
@@ -457,14 +471,14 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         }
     }
 
-   
+
 
     async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
 
-            
+
             if (result.status == "1") {
                 toast({
                     title: "Account Details Updated!",
@@ -501,7 +515,6 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     variant: "dark"
                 })
                 getContactDetails()
-                getAccountDetails()
                 setPayableEditMode(false)
             }
             else if (result.error.email == "True" || result.error.phone == "True") {
@@ -565,8 +578,14 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
     useEffect(() => {
         // console.log(form2.getValues())
         const result = formSchema2.safeParse(form2.getValues())
+        if (!result.success) {
+            const errorMap = result.error.formErrors.fieldErrors
+            console.log("errormap", errorMap, form2.formState.isValid, form2.formState.isDirty)
+        }else{
+            console.log("errormap", result, form2.formState.isValid, form2.formState.isDirty)
+        }
         setAccountPayableDetailsValid(result.success)
-            }, [watcher2])
+    }, [watcher2])
 
     return (
         <>
@@ -1332,7 +1351,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             <div className="flex flex-row gap-2 justify-end ">
                                                 {/* <DialogClose asChild> */}
                                                 {beforeCancelDialog(yesDiscard2)}
-                                                <Button type="button" disabled={!areAccountPayableDetailsValid || !form2.formState.isDirty} onClick={() => saveContactDetails()}>Save</Button>
+                                                <Button type="button" disabled={!(areAccountPayableDetailsValid && form2.formState.isDirty)} onClick={() => saveContactDetails()}>Save</Button>
                                             </div>
                                         </div>
                                     </>
