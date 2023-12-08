@@ -131,7 +131,13 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 setOpenAfterEsign(true)
                 getServiceContractsDataTable()
 
-            } else {
+            } else if(result.status=="0" && result.error.integration) {
+                toast({
+                    title: `"Docusign integration required!`,
+                    variant: "destructive"
+                })
+            } 
+            else {
                 toast({
                     title: `Sorry some error have occured: ${result.message}`,
                     variant: "destructive"
@@ -154,12 +160,17 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/contract/${id}/docu_view_document/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.blob()
+            console.log(result)
             const url = URL.createObjectURL(result);
             window.open(url)
             setDocumentLoading(false)
         }
         catch (err) {
             setDocumentLoading(false)
+            toast({
+                title: "Sorry some error have occured!",
+                variant: "destructive"
+            })
             console.log("error", err)
         }
     }
