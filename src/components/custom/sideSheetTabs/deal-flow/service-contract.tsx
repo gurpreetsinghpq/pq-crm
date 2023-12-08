@@ -159,10 +159,21 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         setDocumentLoading(true)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/contract/${id}/docu_view_document/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.blob()
-            console.log(result)
-            const url = URL.createObjectURL(result);
-            window.open(url)
+            if (!dataResp.ok) {
+                const err = await dataResp.json()
+                if (err.status == "0" && err.error.integration) {
+                    toast({
+                        title: `Docusign Integration Required!`,
+                        variant: "destructive"
+                    })
+                    // throw new Error(`Failed to fetch document: ${dataResp.status} ${dataResp.statusText}`);
+                }
+            }else{
+                const result = await dataResp.blob()
+                console.log(result)
+                const url = URL.createObjectURL(result);
+                window.open(url)
+            }
             setDocumentLoading(false)
         }
         catch (err) {
@@ -302,7 +313,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
 
     function resetForm2() {
-        if(contactData){
+        if (contactData) {
             form2.reset({
                 "name": contactData.name || "",
                 "email": contactData.email || "",
@@ -310,7 +321,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                 "std_code": contactData.std_code || undefined,
                 "designation": contactData.designation
             })
-        }else{
+        } else {
             setFormSchema2(FormSchema2)
             console.log("formschema", formSchema2)
             form2.reset()
@@ -581,7 +592,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
             console.log("errormap", errorMap, form2.formState.isValid, form2.formState.isDirty)
-        }else{
+        } else {
             console.log("errormap", result, form2.formState.isValid, form2.formState.isDirty)
         }
         setAccountPayableDetailsValid(result.success)
