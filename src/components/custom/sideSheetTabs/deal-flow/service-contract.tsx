@@ -133,7 +133,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
             } else if(result.status=="0" && result.error.integration) {
                 toast({
-                    title: `"Docusign integration required!`,
+                    title: `Docusign integration required!`,
                     variant: "destructive"
                 })
             } 
