@@ -156,7 +156,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     }
 
     useEffect(() => {
-        form2.trigger()
+        form.trigger()
     }, [formSchema])
 
     const watcher = form.watch()
@@ -628,59 +628,61 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="lastFundingStage"
-                                render={({ field }) => (
-                                    <FormItem className='w-full '>
-                                        <Popover modal={true}>
-                                            <PopoverTrigger asChild disabled={isVcIndustrySelected}>
-                                                <FormControl>
-                                                    <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] disabled:opacity-1">
-                                                        <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                            {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Round</span>}
-                                                        </div>
-                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            {!isVcIndustrySelected && <PopoverContent className="p-0 ">
-                                                <Command>
-                                                    <CommandInput className='w-full' placeholder="Search Funding Stage" />
-                                                    <CommandEmpty>Funding Stage not found.</CommandEmpty>
-                                                    <CommandGroup>
-                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                            {LAST_FUNDING_STAGE.map((lastFundingStage) => (
-                                                                <CommandItem
-                                                                    value={lastFundingStage.value}
-                                                                    key={lastFundingStage.value}
-                                                                    onSelect={() => {
-                                                                        form.setValue("lastFundingStage", lastFundingStage.value, SET_VALUE_CONFIG)
-                                                                    }}
-                                                                >
-                                                                    <PopoverClose asChild>
-                                                                        <div className="flex flex-row items-center justify-between w-full">
-                                                                            {lastFundingStage.label}
-                                                                            <Check
-                                                                                className={cn(
-                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                    field.value === lastFundingStage.value
-                                                                                        ? "opacity-100"
-                                                                                        : "opacity-0"
-                                                                                )}
-                                                                            />
-                                                                        </div>
-                                                                    </PopoverClose>
-                                                                </CommandItem>
-                                                            ))}
-                                                        </div>
-                                                    </CommandGroup>
-                                                </Command>
-                                            </PopoverContent>}
-                                        </Popover>
-                                    </FormItem>
-                                )}
-                            />
+                            <div className={`${isVcIndustrySelected?"cursor-not-allowed":""}`}>
+                                <FormField
+                                    control={form.control}
+                                    name="lastFundingStage"
+                                    render={({ field }) => (
+                                        <FormItem className='w-full '>
+                                            <Popover modal={true}>
+                                                <PopoverTrigger asChild disabled={isVcIndustrySelected}>
+                                                    <FormControl>
+                                                        <Button variant={"google"} className={`flex  flex-row gap-2 w-full px-[14px] disabled:opacity-1 `}>
+                                                            <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                {LAST_FUNDING_STAGE.find((val) => val.value === field.value)?.label || <span className={isVcIndustrySelected ? `${disabledClasses} text-gray-400` : "text-muted-foreground"} >Last Funding Round</span>}
+                                                            </div>
+                                                            <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                {!isVcIndustrySelected && <PopoverContent className="p-0 ">
+                                                    <Command>
+                                                        <CommandInput className='w-full' placeholder="Search Funding Stage" />
+                                                        <CommandEmpty>Funding Stage not found.</CommandEmpty>
+                                                        <CommandGroup>
+                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                {LAST_FUNDING_STAGE.map((lastFundingStage) => (
+                                                                    <CommandItem
+                                                                        value={lastFundingStage.value}
+                                                                        key={lastFundingStage.value}
+                                                                        onSelect={() => {
+                                                                            form.setValue("lastFundingStage", lastFundingStage.value, SET_VALUE_CONFIG)
+                                                                        }}
+                                                                    >
+                                                                        <PopoverClose asChild>
+                                                                            <div className="flex flex-row items-center justify-between w-full">
+                                                                                {lastFundingStage.label}
+                                                                                <Check
+                                                                                    className={cn(
+                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                        field.value === lastFundingStage.value
+                                                                                            ? "opacity-100"
+                                                                                            : "opacity-0"
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                        </PopoverClose>
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </div>
+                                                        </CommandGroup>
+                                                    </Command>
+                                                </PopoverContent>}
+                                            </Popover>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                             <FormField
                                 control={form.control}
                                 name="lastFundingAmount"
@@ -875,7 +877,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                             </Button>
                                                         </FormControl>
                                                     </PopoverTrigger>
-                                                    <PopoverContent className="p-0 ml-[32px]">
+                                                    <PopoverContent className="p-0">
                                                         <Command>
                                                             <CommandInput className='w-full' placeholder="Search Designation" />
                                                             <CommandEmpty>Designation not found.</CommandEmpty>
@@ -974,7 +976,7 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="p-0 ml-[114px]" style={{width:"200px"}}>
+                                                <PopoverContent className="p-0 ml-[114px]" style={{ width: "200px" }}>
                                                     <Command>
                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>
