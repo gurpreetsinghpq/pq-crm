@@ -570,7 +570,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                             <DialogTrigger asChild>
                                 <Button type="button" variant="default" className="gap-2">
                                     <Image src="/images/upload.svg" alt="upload image" height={20} width={20} />
-                                    <div className="text-white font-inter text-base font-semibold leading-6">
+                                    <div className="text-white font-inter text-base font-semibold leading-6 ">
                                         Upload Document
                                     </div>
                                 </Button>
@@ -586,7 +586,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                     </DialogTitle>
                                 </DialogHeader>
                                 <Form {...form3}>
-                                    <form className="flex flex-col">
+                                    <form className="flex flex-col w-[460px]">
                                         <div className="text-sm font-medium text-gray-700">
                                             Document Type
                                         </div>
