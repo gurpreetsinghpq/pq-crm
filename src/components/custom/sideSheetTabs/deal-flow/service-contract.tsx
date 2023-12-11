@@ -750,7 +750,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                                             Cancel
                                         </Button>
                                     </DialogClose>
-                                    <Button type="button" className="flex-1" disabled={formData === undefined} onClick={() => uploadFile()}>Attach File</Button>
+                                    <Button type="button" className="flex-1" disabled={(formData === undefined) || isUploading} onClick={() => uploadFile()}>Attach File</Button>
 
                                 </div>
 
