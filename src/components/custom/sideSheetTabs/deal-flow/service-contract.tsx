@@ -168,7 +168,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
                     })
                     // throw new Error(`Failed to fetch document: ${dataResp.status} ${dataResp.statusText}`);
                 }
-            }else{
+            } else {
                 const result = await dataResp.blob()
                 console.log(result)
                 const url = URL.createObjectURL(result);
@@ -665,7 +665,7 @@ function ServiceContract({ isDisabled = false, entityId, ids, title }: { isDisab
 
                                         {form3.getValues("document_type") === "Signed Contract" && <>
                                             <div className="text-sm mt-[16px] font-medium text-gray-700">
-                                                Signed Date
+                                                Effective Date
                                             </div>
                                             <div className='flex flex-col mt-3 w-full'>
                                                 <FormField
