@@ -290,7 +290,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
 
     const reasonMap: any = {
         "disqualified": ["Cash Component Reduced", "No Retainer Advance", "Service Fee Reduced", "No Exclusivity"],
-        "lost": ["Lost to Competition", "Internal Hiring"],
+        "lost": ["Lost to Competition", "Internal Hiring", "Account Incommunicado"],
         "deferred": ["On Interim Hold", "Requirements Changed"]
     }
 

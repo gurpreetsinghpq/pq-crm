@@ -295,7 +295,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     // },[Object.keys(form.formState.dirtyFields).length])
     const reasonMap: any = {
         "junk": ["Low Cash Component", "Equity Only Role", "Non-Tech Role", "Low Service Fee", "Role Type Changed", "Role Region Changed"],
-        "lost": ["Lost to Competition", "Internal Hiring"],
+        "lost": ["Lost to Competition", "Internal Hiring", "Account Incommunicado"],
         "deferred": ["Funding Awaited", "Hiring Freeze", "Role Deferred", "Internal Hiring"]
     }
 
