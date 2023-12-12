@@ -113,8 +113,8 @@ const Accounts = ({ form, permissions }: {
     const fundingStage = searchParams?.get("last_funding_stage") ?? null
     const createdBy = searchParams?.get("created_by") ?? null
     const searchString = searchParams?.get("name") ?? null
-    const createdAtFrom = searchParams?.get("created_at_from") ?? null
-    const createdAtTo = searchParams?.get("created_at_to") ?? null
+    const createdAtFrom = searchParams?.get("created_at_from") ?? setDateHours(watch.dateRange.range.from, false)
+    const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, true)
     const createdAtSort = searchParams?.get("created_at") ?? null
 
 

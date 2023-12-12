@@ -206,7 +206,6 @@ export default function DataTableServer<TData, TValue>({
       `${pathname}?${createQueryString({
         page: pageIndex + 1,
         limit: pageSize,
-        tab: pageName
       })}`,
       {
         scroll: false,

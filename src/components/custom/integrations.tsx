@@ -100,7 +100,7 @@ function Integrations({ currentOption }: { currentOption: string }) {
             {currentOption === CURRENT_OPTION.APPS && <div className='grid grid-cols-2 gap-[20px]'>
                 <div className='p-[24px] border-[1px] border-gray-300 flex items-start flex-row gap-[10px]'>
                     <div className='w-[82px] h-[82px] flex flex-row items-center justify-center p-[5px] mt-[10px]'>
-                        <img src="./images/docusign-icon.svg" className='object-contain object-top  h-full w-full' />
+                        <img src="/images/docusign-icon.svg" className='object-contain object-top  h-full w-full' />
                     </div>
                     <div className='flex flex-col gap-[32px]'>
                         <div className='flex flex-col gap-[12px]'>

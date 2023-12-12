@@ -18,8 +18,11 @@ import { cn } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { labelToValue, valueToLabel } from './sideSheet'
 import { toast } from '../ui/use-toast'
+import { useCurrentTabStore, useMyProfileStore } from '@/store/store'
+import { TITLES } from '../dashboard'
+import { useFormSchemaHook } from '@/hooks/useFormSchemaHook'
 
-const TITLES = {
+const LOCAL_TITLES = {
     PROFILE: "My Profile",
     PASSWORD: "Password",
 }
@@ -78,9 +81,11 @@ type PasswordShow = {
     confirmPassword: boolean,
     oldPassword: boolean
 }
-function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParentTitle }: { myDetails: UserProfile | undefined, setCurrentParentTab: CallableFunction, parentTitles: any, initialParentTitle: string }) {
-
-    const [currentTab, setCurrentTab] = useState(TITLES.PROFILE)
+function MyAccount() {
+    const {myDetails, setMyDetails} = useMyProfileStore()
+    // const {currentTab,setTab } = useCurrentTabStore()
+    const {setTab} = useFormSchemaHook()
+    const [currentLocalTab, setLocalCurrentTab] = useState(LOCAL_TITLES.PROFILE)
     const [formSchema, setFormSchema] = useState(FormSchema)
     const [errorChecks, setErrorChecks] = useState<Partial<ErrorChecks>>()
     const [showPassword, setShowPassword] = useState<PasswordShow>({
@@ -147,7 +152,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
     }, [formSchema])
 
     function getButtonState(tab: string): { variant?: ButtonVariants, color: string } {
-        if (currentTab === tab) {
+        if (currentLocalTab === tab) {
             return {
                 variant: "default",
                 color: "white"
@@ -207,7 +212,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                     title: `Details Updated Succesfully!`,
                     variant: "dark"
                 })
-                setCurrentParentTab(initialParentTitle, true)
+                setTab(TITLES.LEADS, true)
             } else {
                 if (result?.error?.email?.includes("user with this email already exists")) {
                     toast({
@@ -243,7 +248,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                     title: `Password Updated Succesfully!`,
                     variant: "dark"
                 })
-                setCurrentParentTab(initialParentTitle, true)
+                setTab(TITLES.LEADS, true)
             } else {
                 if (result?.error?.email?.includes("user with this email already exists")) {
                     toast({
@@ -308,12 +313,12 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                         Profile
                     </div>
                     <div className='flex flex-col gap-[4px]'>
-                        <Button onClick={() => setCurrentTab(TITLES.PROFILE)} variant={getButtonState(TITLES.PROFILE).variant} className='flex flex-row text-sm  gap-[12px] w-full justify-start'>
-                            <IconProfile color={getButtonState(TITLES.PROFILE).color} size="16" />
+                        <Button onClick={() => setLocalCurrentTab(LOCAL_TITLES.PROFILE)} variant={getButtonState(LOCAL_TITLES.PROFILE).variant} className='flex flex-row text-sm  gap-[12px] w-full justify-start'>
+                            <IconProfile color={getButtonState(LOCAL_TITLES.PROFILE).color} size="16" />
                             My Profile
                         </Button>
-                        <Button onClick={() => setCurrentTab(TITLES.PASSWORD)} variant={getButtonState(TITLES.PASSWORD).variant} className='flex flex-row text-sm  gap-[12px] w-full justify-start'>
-                            <IconLockUnblocked color={getButtonState(TITLES.PASSWORD).color} size="16" />
+                        <Button onClick={() => setLocalCurrentTab(LOCAL_TITLES.PASSWORD)} variant={getButtonState(LOCAL_TITLES.PASSWORD).variant} className='flex flex-row text-sm  gap-[12px] w-full justify-start'>
+                            <IconLockUnblocked color={getButtonState(LOCAL_TITLES.PASSWORD).color} size="16" />
                             Password
                         </Button>
                     </div>
@@ -322,7 +327,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
             </div>
             <div className='right flex flex-col flex-1 max-h-[100vh] overflow-y-auto' >
                 <div className='top flex flex-row items-center gap-[8px] px-[16px] py-[22px] border-b-[1px] border-gray-200 w-full'>
-                    <div className='p-[4px] cursor-pointer' onClick={() => setCurrentParentTab(initialParentTitle)}>
+                    <div className='p-[4px] cursor-pointer' onClick={() => setTab(TITLES.LEADS, true)}>
                         <IconHomeLine size="20" />
                     </div>
                     <ChevronRight size={16} className='text-gray-300' />
@@ -331,13 +336,13 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                     </div>
                     <ChevronRight size={16} className='text-gray-300' />
                     <div className='text-sm font-semibold text-gray-600 px-[16px] py-[8px] rounded-[6px] bg-gray-50'>
-                        {currentTab}
+                        {currentLocalTab}
                     </div>
                 </div>
                 <div className='bottom px-[48px] py-[28px]'>
-                    {currentTab === TITLES.PROFILE && <Form {...form}>
+                    {currentLocalTab === LOCAL_TITLES.PROFILE && <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} >
-                            <div className='text-lg font-semibold pb-[20px]'>{currentTab}</div>
+                            <div className='text-lg font-semibold pb-[20px]'>{currentLocalTab}</div>
                             <div className='h-[1px] w-full bg-gray-200'></div>
                             <div className='flex flex-col py-[24px]'>
                                 <div className='flex flex-row '>
@@ -567,7 +572,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                                 </div>
                                 <div className='h-[1px] w-full bg-gray-200 my-[20px]'></div>
                                 <div className='flex flex-row justify-end gap-[12px]'>
-                                    <Button type='button' variant={"google"} onClick={() => setCurrentParentTab(initialParentTitle)}>Cancel</Button>
+                                    <Button type='button' variant={"google"} onClick={() => setTab(TITLES.LEADS, true)}>Cancel</Button>
                                     <Button type='submit' disabled={!form.formState.isDirty || !form.formState.isValid}>Save</Button>
 
                                 </div>
@@ -575,9 +580,9 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
                         </form>
                     </Form>}
                     {
-                        currentTab === TITLES.PASSWORD && <Form {...form2}>
+                        currentLocalTab === LOCAL_TITLES.PASSWORD && <Form {...form2}>
                             <form onSubmit={form2.handleSubmit(onSubmit2)}>
-                                <div className='text-lg font-semibold pb-[20px]'>{currentTab}</div>
+                                <div className='text-lg font-semibold pb-[20px]'>{currentLocalTab}</div>
                                 <div className='h-[1px] w-full bg-gray-200'></div>
                                 <div className='flex flex-col py-[24px]'>
                                     <div className='flex flex-row '>
@@ -664,7 +669,7 @@ function MyAccount({ myDetails, setCurrentParentTab, parentTitles, initialParent
 
                                     <div className='h-[1px] w-full bg-gray-200 my-[20px]'></div>
                                     <div className='flex flex-row justify-end gap-[12px]'>
-                                        <Button type='button' variant={"google"} onClick={() => setCurrentParentTab(initialParentTitle)}>Cancel</Button>
+                                        <Button type='button' variant={"google"} onClick={() => setTab(TITLES.LEADS, true)}>Cancel</Button>
                                         <Button type='submit' disabled={!form2.formState.isDirty || !form2.formState.isValid || !errorChecks?.minChars || !errorChecks.oneSpecialChar}>Update Password</Button>
 
                                     </div>

@@ -155,7 +155,7 @@ function RequirementDeck({ entityId, title, isProposalDeck = false, isProposalDi
                         {
                             <div className='flex flex-col gap-[12px] items-center'>
                                 <div className='w-[150px]'>
-                                    {isProposalDeck ? <img src="images/pdf-front-proposal.png" className='w-full h-full object-contain' /> : <img src="images/pdf-front.png" className='w-full h-full object-contain' />}
+                                    {isProposalDeck ? <img src="/images/pdf-front-proposal.png" className='w-full h-full object-contain' /> : <img src="/images/pdf-front.png" className='w-full h-full object-contain' />}
 
                                 </div>
                                 <div className='text-gray-700 text-lg font-medium text-center'>
@@ -174,7 +174,7 @@ function RequirementDeck({ entityId, title, isProposalDeck = false, isProposalDi
                     </div>
                 </> : <div className='flex flex-col gap-[12px] items-center'>
                     <div className='w-[292px] h-[260px] flex flex-row justify-center w-full'>
-                        <img src="./images/empty-pdf-bg.png" className='object-cover' />
+                        <img src="/images/empty-pdf-bg.png" className='object-cover' />
                     </div>
                     <div className='text-gray-700 text-lg font-medium'>
                         No Document
@@ -224,7 +224,7 @@ function RequirementDeck({ entityId, title, isProposalDeck = false, isProposalDi
                     {
                         data.length > 0 ? <div className='flex flex-col max-h-[500px] overflow-y-auto gap-[10px]'>
                             {data.map((file) => <div className='flex flex-row p-[16px] gap-[16px] items-center border-[1px] border-gray-200 rounded-[12px]'>
-                                <img src="images/pdf-2.png" className='w-[32px] h-[40px]' />
+                                <img src="/images/pdf-2.png" className='w-[32px] h-[40px]' />
                                 <div className='flex flex-col gap-[8px] flex-1'>
                                     <div className='flex flex-col text-gray-700 text-sm font-semibold'>
                                         {extractFileNameFromUrl(file.file)}

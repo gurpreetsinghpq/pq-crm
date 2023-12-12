@@ -309,10 +309,12 @@ export const getToken = () => {
 export let TIMEZONE = ''
 export async function fetchTimeZone() {
   const myDetails = await fetchMyDetails();
+  console.log("layout file mydetails", myDetails)
   if (myDetails) {
     const timeZone = myDetails.time_zone;
     if (timeZone) {
       TIMEZONE = timeZone
+      console.log("layout file tz", TIMEZONE)
       return timeZone
     }
   }

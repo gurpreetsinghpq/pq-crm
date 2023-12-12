@@ -91,8 +91,8 @@ const Leads = ({ form, permissions }: {
     const isArchived = searchParams?.get("archived") ?? "False"
     const createdBy = searchParams?.get("created_by") ?? null
     const searchString = searchParams?.get("title") ?? null
-    const createdAtFrom = searchParams?.get("created_at_from") ?? null
-    const createdAtTo = searchParams?.get("created_at_to") ?? null
+    const createdAtFrom = searchParams?.get("created_at_from") ?? setDateHours(watch.dateRange.range.from, false)
+    const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, true)
     const createdAtSort = searchParams?.get("created_at") ?? null
     const roleRegion = searchParams?.get("role__region") ?? null
     const owner = searchParams?.get("owner") ?? null
@@ -225,6 +225,7 @@ const Leads = ({ form, permissions }: {
     }
 
     useEffect(() => {
+        console.log("filters lead", pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort)
         fetchLeadData()
     }, [pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
