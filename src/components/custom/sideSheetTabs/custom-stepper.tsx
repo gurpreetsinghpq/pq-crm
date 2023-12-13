@@ -45,7 +45,7 @@ function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, perm
                 {!details?.isLastChild && <div className='custom-stepper-grandchild w-[2px] bg-gray-200 rounded-[2px] flex-1'>
                 </div>}
             </div>
-            <div className={`mb-[20px] p-[16px] rounded-[10px] xl:min-w-[650px]  2xl:min-w-[800px] max-w-[800px] ${details.typeOfEntity != "changelog" && "border-[1px] border-gray-200 bg-white-900 shadow-xs"}`}>
+            <div className={`mb-[20px] p-[16px] rounded-[10px] lg:min-w-[600px] xl:min-w-[650px]  2xl:min-w-[800px] max-w-[800px] ${details.typeOfEntity != "changelog" && "border-[1px] border-gray-200 bg-white-900 shadow-xs"}`}>
                 {(details.typeOfEntity === "todo" || details.typeOfEntity === "activity") && <div className='flex flex-col gap-[18px]'>
                     <div className='flex flex-row justify-between'>
                         <div className='text-md font-semibold text-gray-700'>
@@ -399,6 +399,37 @@ export function getContacts(data: string[], isInline: boolean = false) {
                     <div className='flex flex-col gap-[5px] py-[8px]'>{data.slice(1).map((contact, index) => {
                         return <div key={index}>
                             {contact}
+                        </div>
+                    })}</div>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>}
+
+    </div>
+
+}
+
+export function getContactsV2(data: {
+    id: number
+    name: string;
+    email: string;
+    std_code: string;
+    phone: string;
+    designation: string;
+}[], isInline: boolean = false) {
+    return <div className='flex flex-row gap-[8px] items-center' style={{ display: isInline ? "inline" : "block" }}>
+        <span className='text-gray-700'>
+            {data[0].name} {data.length > 1 && <>,</>}
+        </span>
+        {data.length > 1 && <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <span className='text-purple-700 text-sm font-medium underline cursor-pointer'>+{data.length - 1}</span>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                    <div className='flex flex-col gap-[5px] py-[8px]'>{data.slice(1).map((contact, index) => {
+                        return <div key={index}>
+                            {contact.name}
                         </div>
                     })}</div>
                 </TooltipContent>

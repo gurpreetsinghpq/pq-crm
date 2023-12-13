@@ -1,5 +1,5 @@
 "use client"
-import Accounts from '@/components/custom/accounts'
+import Activities from '@/components/custom/activities'
 import { TIMEZONE } from '@/components/custom/commonFunctions'
 import Deals from '@/components/custom/deals'
 import Leads from '@/components/custom/leads'
@@ -9,11 +9,11 @@ import { usePermissionStore } from '@/store/store'
 import React from 'react'
 
 function page() {
-  const {AccountsForm} =useFormSchemaHook()
+  const {ActivitiesForm} =useFormSchemaHook()
   const {permissions} = usePermissionStore()
   return (
     <div className='w-full flex flex-col flex-1'>
-        <Accounts form={AccountsForm} permissions={permissions["Organisation"]}/>
+        <Activities form={ActivitiesForm} />
     </div>
   )
 }

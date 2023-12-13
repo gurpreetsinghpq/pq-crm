@@ -1984,6 +1984,20 @@ const MODE: IValueLabel[] = [
     },
 ];
 
+const ALL_MODE: IValueLabel[] = [
+    {
+        value: "allModes",
+        label: "All Modes"
+    },
+    ...MODE
+    
+]
+
+// const ALL_ENTITY_TYPE: IValueLabel[] = [
+//     ...MODE
+    
+// ]
+
 const ROLE_STATUS: IValueLabel[] = [
     {
         value: "open",
@@ -2356,8 +2370,9 @@ const TIME_OPTIONS: IValueLabel[] = [
 
 
 const ENTITY_TYPE: IValueLabel[] = [
-    { value: "lead", label: "Lead" },
-    { value: "prospect", label: "Prospect" }
+    { value: "lead", label: "Leads" },
+    { value: "prospect", label: "Prospects" },
+    { value: "client", label: "Accounts" }
 ]
 
 const DOCUMENT_TYPE: IValueLabel[] = [
@@ -2370,6 +2385,37 @@ const SIDESHEET_TAB_TYPE = {
     ACTIVITY: "Activity",
     NOTES: "Notes"
 }
+const ACTIVITY_STATUSES:IValueLabel[]  = [{
+    value: "completed",
+    label: "Completed",
+    icon: Verified,
+    class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-success-600 bg-success-50 text-success-600"
+},
+{
+    value: "inProgress",
+    label: "In Progress",
+    icon: InProgress,
+    class: "pl-[10px] pr-[12px] rounded-[16px] border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-purple-600 bg-purple-50 text-purple-700"
+},
+{
+    value: "cancelled",
+    label: "Cancelled",
+    icon: Lost,
+    class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
+},
+{
+    value: "overdue",
+    label: "Over Due",
+    icon: Lost,
+    class: "pl-[10px] pr-[12px] rounded-[16px] border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
+},]
+const ALL_ACTIVITY_STATUSES:IValueLabel[] = [
+    {
+        value:"allStatuses",
+        label:"All Statuses"
+    },
+    ...ACTIVITY_STATUSES,
+]
 
 const STEPPER_STATUS: IValueLabel[] = [
     {
@@ -2378,30 +2424,7 @@ const STEPPER_STATUS: IValueLabel[] = [
         icon: Unverified,
         class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-gray-600 bg-gray-50 text-gray-700 "
     },
-    {
-        value: "completed",
-        label: "Completed",
-        icon: Verified,
-        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-success-600 bg-success-50 text-success-600"
-    },
-    {
-        value: "inProgress",
-        label: "In Progress",
-        icon: InProgress,
-        class: "pl-[10px] pr-[12px] rounded-[16px] border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-purple-600 bg-purple-50 text-purple-700"
-    },
-    {
-        value: "cancelled",
-        label: "Cancelled",
-        icon: Lost,
-        class: "border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
-    },
-    {
-        value: "overdue",
-        label: "Over Due",
-        icon: Lost,
-        class: "pl-[10px] pr-[12px] rounded-[16px] border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-error-600 bg-error-50 text-error-700"
-    },
+    ...ACTIVITY_STATUSES,
     {
         value: "junk",
         label: "Junk",
@@ -2428,4 +2451,4 @@ const DATE_DROPDOWN_CUMMULATIVE: DropdownOption[] = [
 
 const EMPTY_FILTER_QUERY: FilterQuery = { filterFieldName: '', value: null }
 
-export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY, ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, TEAM_LEADERS, ALL_TEAM_LEADERS, REPORTING_MANAGERS, SET_VALUE_CONFIG, SIDE_SHEET_TABS, ACTIVITY_TYPE, MODE, ROLE_STATUS, NEXT_STEP, ROLE_URGENCY, OPEN_TO_RETAINER_MODEL, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, COLLATERAL_SHARED, RESPONSE_RECEIVED, OPEN_TO_ENGAGE, ROLE_CLARITY, WILLING_TO_PAY, EXPECTED_SERVICE_FEE_RANGE, PROPOSAL_SHARED, RELATED_TO, PROSPECT_STATUS_NOTES, DEAL_STATUS, NEGOTIATION_BLOCKER, SERVICE_CONTRACT_DRAFT_SHARED, ACTIVITY_STATUS, REMINDER, TIME_OPTIONS, ENTITY_TYPE, SIDESHEET_TAB_TYPE, STEPPER_STATUS, TIME_ZONES, ALL_STATUS_MERGED, DEAL_STATUSES, ALL_DEAL_STATUSES, DUPLICATE_ERROR_MESSAGE_DEFAULT, EMPTY_FILTER_QUERY, SIDE_SHEET_TABS_ACCOUNTS, ACTIVITY_TYPE_ACCOUNTS, DATE_DROPDOWN_CUMMULATIVE, CONTRACT_DRAFT_STATUSES, CONTACT_TYPE, DOCUMENT_TYPE, DESIGNATION_SERVICE_CONTRACT }
+export { ROLETYPE, REGION, DESIGNATION, BUDGET_RANGE, TYPE, LEAD_SOURCE, OWNERS, CREATORS, STATUSES, SOURCES, REGIONS, COUNTRY_CODE, TIME_TO_FILL, INDUSTRY, INDUSTRIES, DOMAINS, ALL_DOMAINS, SIZE_OF_COMPANY, ALL_SIZE_OF_COMPANY, LAST_FUNDING_STAGE, ALL_LAST_FUNDING_STAGE, RETAINER_ADVANCE, LAST_FUNDING_AMOUNT, EXCLUSIVITY, SERVICE_FEE_RANGE, CURRENCIES, SEGMENT, ALL_SEGMENTS, ALL_DESIGNATIONS, ALL_TYPES, PROSPECT_STATUSES, ALL_PROSPECT_STATUSES, CLOSEDBY, PROFILE, FUNCTION, ALL_PROFILES, ALL_FUNCTIONS, TEAM_LEADERS, ALL_TEAM_LEADERS, REPORTING_MANAGERS, SET_VALUE_CONFIG, SIDE_SHEET_TABS, ACTIVITY_TYPE, MODE, ROLE_STATUS, NEXT_STEP, ROLE_URGENCY, OPEN_TO_RETAINER_MODEL, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, COLLATERAL_SHARED, RESPONSE_RECEIVED, OPEN_TO_ENGAGE, ROLE_CLARITY, WILLING_TO_PAY, EXPECTED_SERVICE_FEE_RANGE, PROPOSAL_SHARED, RELATED_TO, PROSPECT_STATUS_NOTES, DEAL_STATUS, NEGOTIATION_BLOCKER, SERVICE_CONTRACT_DRAFT_SHARED, ACTIVITY_STATUS, REMINDER, TIME_OPTIONS, ENTITY_TYPE, SIDESHEET_TAB_TYPE, STEPPER_STATUS, TIME_ZONES, ALL_STATUS_MERGED, DEAL_STATUSES, ALL_DEAL_STATUSES, DUPLICATE_ERROR_MESSAGE_DEFAULT, EMPTY_FILTER_QUERY, SIDE_SHEET_TABS_ACCOUNTS, ACTIVITY_TYPE_ACCOUNTS, DATE_DROPDOWN_CUMMULATIVE, CONTRACT_DRAFT_STATUSES, CONTACT_TYPE, DOCUMENT_TYPE, DESIGNATION_SERVICE_CONTRACT, ACTIVITY_STATUSES, ALL_MODE, ALL_ACTIVITY_STATUSES }

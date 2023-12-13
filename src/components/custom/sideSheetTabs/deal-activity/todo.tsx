@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import CustomStepper from '../custom-stepper'
 import { SIDESHEET_TAB_TYPE, STEPPER_STATUS } from '@/app/constants/constants'
 import { ActivityPatchBody, Permission, Stepper, TodoListGetResponse } from '@/app/interfaces/interface'
-import { getToken } from '../../commonFunctions'
+import { getToken, markStatusOfActivity, rescheduleActivity } from '../../commonFunctions'
 import { Loader2 } from 'lucide-react'
 import { toast } from '@/components/ui/use-toast'
 
@@ -43,34 +43,13 @@ function Todo({ entityId, isAccounts=false}: { entityId: number, isAccounts?:boo
         }
     }
 
-    async function markStatusOfActivity(entityId:number, status:string){
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/update_status/`, { method: "PATCH", body: JSON.stringify({status}), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            toast({
-                title: `Activity Marked as ${status} Succesfully!`,
-                variant: "dark"
-            })
-            fetchTodoList()
-            console.log("todo",result)
-        } catch (err) {
-            console.log(err)
-        }
+    async function markStatus(entityId:number, status:string){
+        markStatusOfActivity(entityId, status, fetchTodoList)
     }
 
-    async function rescheduleActivity(entityId:number, data:ActivityPatchBody){
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/`, { method: "PATCH", body: JSON.stringify(data), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            toast({
-                title: `Activity Rescheduled`,
-                variant: "dark"
-            })
-            fetchTodoList()
-            console.log("todo",result)
-        } catch (err) {
-            console.log(err)
-        }
+
+    async function reschedule(entityId:number, data:ActivityPatchBody){
+        rescheduleActivity(entityId, data, fetchTodoList)
     }
 
     useEffect(() => {
@@ -82,7 +61,7 @@ function Todo({ entityId, isAccounts=false}: { entityId: number, isAccounts?:boo
             {
                 todoList ? todoList.length>0? todoList.map((val, index) => {
                     return <div className='custom-stepper'>
-                        <CustomStepper key={val.id} markStatusOfActivity={markStatusOfActivity} rescheduleActivity={rescheduleActivity} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
+                        <CustomStepper key={val.id} markStatusOfActivity={markStatus} rescheduleActivity={reschedule} details={{ ...val, isLastChild: index === todoList.length - 1 ? true : false }} />
                     </div>
                 }) : <> No data found </> : <> <Loader2 className="mr-2 h-4 w-4 animate-spin " size={80} /></>
             }

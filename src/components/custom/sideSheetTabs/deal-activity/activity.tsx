@@ -1,4 +1,4 @@
-import { commonClasses, commonFontClassesAddDialog, commonNumericIconClasses } from '@/app/constants/classes'
+import { commonClasses, commonFontClasses, commonFontClassesAddDialog, commonNumericIconClasses } from '@/app/constants/classes'
 import { ACTIVITY_STATUS, ACTIVITY_TYPE, COLLATERAL_SHARED, DEAL_STATUS, ENTITY_TYPE, EXPECTED_SERVICE_FEE_RANGE, MODE, NEGOTIATION_BLOCKER, NEXT_STEP, OPEN_TO_ENGAGE, OPEN_TO_MIN_SERVICE_OR_FLAT_FEE, OPEN_TO_RETAINER_MODEL, PROPOSAL_SHARED, PROSPECT_STATUS_NOTES, REMINDER, RESPONSE_RECEIVED, ROLE_CLARITY, ROLE_STATUS, ROLE_URGENCY, SERVICE_CONTRACT_DRAFT_SHARED, SET_VALUE_CONFIG, TIME_OPTIONS, WILLING_TO_PAY } from '@/app/constants/constants'
 import { IconActivityType, IconAssignedTo, IconCalendar, IconClock, IconContacts, IconDueDateAndTime, IconMode, IconMode2, IconNextStep, IconReminder } from '@/components/icons/svgIcons'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { format, min } from 'date-fns'
-import { Check, ChevronDown } from 'lucide-react'
+import { Check, ChevronDown, Loader2 } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -21,6 +21,7 @@ import { TIMEZONE, calculateMinuteDifference, compareTimeStrings, fetchMyDetails
 import { toast } from '@/components/ui/use-toast'
 import { labelToValue, valueToLabel } from '../../sideSheet'
 import { beforeCancelDialog } from '../../addLeadDetailedDialog'
+import { useDebounce } from '@/hooks/useDebounce'
 
 
 
@@ -45,23 +46,30 @@ const FormSchema = z.object({
     // }),
     // entityName: z.string({
     // }),
+    entityType: z.string({}).optional(),
+    selectEntity: z.string({}).optional()
 
 })
 
 
 
-function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null }, isAccounts = false }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction }, isAccounts?: boolean }) {
+function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null }, isAccounts = false, addDialog=undefined }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction }, isAccounts?: boolean, addDialog?:{isAddDialog: boolean, setOpen:CallableFunction }   }) {
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
     const [myDetails, setMyDetails] = React.useState<UserProfile>()
+    const [entityData, setEntityData] = React.useState<any>([])
+    const [currentEntityName, setCurrentEntityName] = React.useState("")
+    const [inputAccount, setInputAccount] = React.useState("")
+    const [loading, setLoading] = React.useState<boolean>(false)
+    const [contacts, setContacts] = React.useState<any>([])
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             type: undefined,
             mode: undefined,
-            reminder: "-1"
-
+            reminder: "-1",
+            entityType: "lead"
         }
     })
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -101,11 +109,13 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             type: valueToLabel(data.type, ACTIVITY_TYPE) || "",
             assigned_to: Number(form.getValues("assignedTo"))
         }
-        if (isAccounts) {
+        if(entityId===-1){
+            dataToSend["lead"] = Number(form.getValues("selectEntity"))
+        }
+        else if (isAccounts) {
             dataToSend["organisation"] = entityId
         } else {
             dataToSend["lead"] = entityId
-
         }
 
 
@@ -228,7 +238,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
             }
 
-        }else{
+        } else {
             getMyDetails()
             // form.setValue("assignedTo", )
         }
@@ -236,11 +246,12 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         if (isAccounts) {
             form.setValue("type", "coldOutreach")
         }
+        const CONTACTS_FROM_PARENT: any = contactFromParents || []
+        setContacts(CONTACTS_FROM_PARENT)
     }, [])
-    console.log(form.getValues())
-    const CONTACTS_FROM_PARENT: any = contactFromParents
 
-    console.log("contactFromParents", contactFromParents)
+    console.log(form.getValues())
+    
 
     function reschedule() {
         const formattedDueDate = formattedDueDateToSend()
@@ -252,16 +263,205 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             })
             editMode.setOpen && editMode.setOpen(false)
         }
-
-
     }
+
+    function onChangeHandler(data: string) {
+        setInputAccount(data)
+    }
+
+    async function fetchDataAccToEntity(entity: string, textToSearch: string) {
+        let keyToSearch = "title"
+        switch (entity) {
+            case "client":
+                keyToSearch = "name"
+                break
+            case "lead":
+                keyToSearch = "title"
+                break
+            case "prospect":
+                keyToSearch = "lead__title"
+                break
+        }
+        const nameQueryParam = textToSearch ? `&${keyToSearch}=${encodeURIComponent(textToSearch)}` : '';
+        try {
+            const dataResp = await fetch(`${baseUrl}/v1/api/${entity}/?page=1&limit=15${nameQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const result = await dataResp.json()
+            setLoading(false)
+            let data = structuredClone(result.data)
+            setEntityData(data)
+        }
+        catch (err) {
+            console.log("error", err)
+            setLoading(false)
+        }
+    }
+
+    const debouncedSearchableFilters = useDebounce(inputAccount, 500)
+
+    const watch = form.watch()
+
+    useEffect(() => {
+
+        if (inputAccount.length === 0) {
+            setEntityData([])
+        }
+
+        fetchDataAccToEntity(form.getValues("entityType") || "", debouncedSearchableFilters)
+
+    }, [debouncedSearchableFilters, watch.entityType])
+
 
     return (
         <Form {...form}>
             <form className='w-full' onSubmit={form.handleSubmit(onSubmit)} >
                 <div className={`flex flex-col rounded-[8px] bg-white-900 ${!editMode.isEditMode && "border-[1px] border-gray-200"}`}>
-                    <div className='px-[28px] py-[24px] w-full '>
+                    <div className='px-[28px] py-[24px] w-full max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll'>
                         <div className=' flex flex-col gap-[28px]'>
+                            {addDialog?.isAddDialog && <div className='flex flex-col'>
+                                <div className='flex flex-row items-center mb-[20px]'>
+                                    <div className='text-purple-700 text-sm font-bold'>
+                                        Related to
+                                    </div>
+                                    <div className='h-[1px] bg-gray-200 flex-1'>
+                                    </div>
+                                </div>
+                                <div className='flex flex-row gap-[16px] w-full mb-[15px]'>
+                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                        <div className='text-md text-gray-500 font-normal'>Entity Type</div>
+                                    </div>
+                                    <div className='flex-1 w-full'>
+                                        <FormField
+                                            control={form.control}
+                                            name="entityType"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <Select disabled={editMode.isEditMode} onValueChange={(value) => {
+                                                        setInputAccount("")
+                                                        setEntityData([])
+                                                        setContacts([])
+                                                        setCurrentEntityName("")
+                                                        form.setValue("selectEntity", "")
+                                                        return field.onChange(value)
+                                                    }} defaultValue={field.value} key={field.value}>
+                                                        <FormControl>
+                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
+                                                                <SelectValue placeholder="Select" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {
+                                                                ENTITY_TYPE.map((mode, index) => {
+                                                                    return <SelectItem key={index} value={mode.value}>
+                                                                        {mode.label}
+                                                                    </SelectItem>
+                                                                })
+                                                            }
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                    {/* <FormMessage /> */}
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                                <div className='flex flex-row gap-[16px] w-full'>
+                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                        <div className='text-md text-gray-500 font-normal'>Select Entity</div>
+                                    </div>
+                                    <div className='flex-1 w-full'>
+                                        <FormField
+                                            control={form.control}
+                                            name="selectEntity"
+                                            render={({ field }) => (
+                                                <FormItem className={`w-full`}>
+                                                    <Popover modal={true}>
+                                                        <PopoverTrigger asChild>
+                                                            <div className='flex flex-row gap-[10px] items-center  w-full' >
+                                                                {/* <div className="flex  flex-row gap-2 w-full px-[14px] "> */}
+                                                                {/* <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}> */}
+                                                                {/* </div> */}
+                                                                {/* <ChevronDown className="h-4 w-4 opacity-50" color="#344054" /> */}
+                                                                {/* </div> */}
+                                                                <Button variant={"google"} className='flex flex-row text-md justify-between w-full'>
+                                                                    {currentEntityName || <span className='text-muted-foreground '>Search</span>}
+                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                </Button>
+                                                            </div>
+
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="mt-[8px] p-0" >
+                                                            <Command>
+                                                                <CommandInput onInput={(e) => { onChangeHandler(e.currentTarget.value) }} className='w-full flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50' placeholder="Search Entity" />
+
+                                                                {loading ? <div className='p-[16px] flex flex-row justify-center items-center min-h-[150px]'>
+                                                                    <Loader2 className="mr-2 h-10 w-10 animate-spin" />
+                                                                </div> :
+                                                                    <>
+                                                                        {(entityData && entityData.length > 0) ?
+                                                                            <div>
+                                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                    {entityData.map((entity: any) => {
+                                                                                        let entityKey = "title"
+                                                                                        const entityType = form.getValues("entityType")
+                                                                                        let entityName = ""
+                                                                                        let contactData:any = []
+                                                                                        switch (entityType) {
+                                                                                            case "client":
+                                                                                                entityName = entity?.name
+                                                                                                contactData = entity?.contacts
+                                                                                                break
+                                                                                            case "lead":
+                                                                                                entityName = entity?.title
+                                                                                                contactData = entity?.organisation?.contacts
+                                                                                                break
+                                                                                            case "prospect":
+                                                                                                entityName = entity?.lead?.title
+                                                                                                contactData = entity?.organisation?.contacts
+                                                                                                break
+                                                                                        }
+                                                                                        
+
+                                                                                        return <div
+                                                                                            key={entity.id.toString()}
+                                                                                            onClick={() => {
+                                                                                                form.setValue("selectEntity", entity.id.toString(), SET_VALUE_CONFIG)
+                                                                                                setCurrentEntityName(entityName)
+                                                                                                setContacts(contactData)
+                                                                                            }}
+                                                                                            className="relative flex cursor-default hover:bg-accent items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground "
+                                                                                        >
+                                                                                            <PopoverClose asChild>
+                                                                                                <div className="flex flex-row items-center justify-between w-full">
+                                                                                                    {entityName}
+                                                                                                    <Check
+                                                                                                        className={cn(
+                                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                                            field.value === entity.id.toString()
+                                                                                                                ? "opacity-100"
+                                                                                                                : "opacity-0"
+                                                                                                        )}
+                                                                                                    />
+                                                                                                </div>
+                                                                                            </PopoverClose>
+                                                                                        </div>
+                                                                                    }
+                                                                                    )}
+                                                                                </div>
+                                                                            </div> : <div className='py-6 text-center text-sm'>Entity not found.</div>}
+                                                                    </>
+                                                                }
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                            </div>}
                             <div className='max-w-[800px] flex flex-col gap-[16px]'>
                                 <div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
@@ -320,11 +520,11 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                     <Popover modal={true}>
                                                         <PopoverTrigger asChild>
                                                             <FormControl>
-                                                                <Button variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
+                                                                <Button disabled={addDialog?.isAddDialog && !watch.selectEntity} variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
                                                                     {
                                                                         field?.value?.length > 0 ? (
                                                                             getContacts(field.value.map(contactId => {
-                                                                                const contact = CONTACTS_FROM_PARENT.find((contact: any) => contact.id === contactId);
+                                                                                const contact = contacts.find((contact: any) => contact.id === contactId);
                                                                                 return contact ? contact.name : null;
                                                                             }))
                                                                         ) : (
@@ -341,7 +541,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                 <CommandEmpty>No Contact found.</CommandEmpty>
                                                                 <CommandGroup>
                                                                     <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {CONTACTS_FROM_PARENT.map((contact: any, index: any) => (
+                                                                        {(contacts && contacts.length>0) && contacts.map((contact: any, index: any) => (
                                                                             <CommandItem
                                                                                 value={contact.id}
                                                                                 key={contact.id}
@@ -520,12 +720,12 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                             const today = getDateAccToTimezone();
                                                                             const tempToday = structuredClone(today);
                                                                             tempToday.setHours(0, 0, 0, 0);
-                                                                    
+
                                                                             // Calculate the date 60 days ago
                                                                             const sixtyDaysAgo = new Date();
                                                                             sixtyDaysAgo.setDate(today.getDate() - 60);
                                                                             sixtyDaysAgo.setHours(0, 0, 0, 0);
-                                                                            return date < sixtyDaysAgo 
+                                                                            return date < sixtyDaysAgo
                                                                         }
                                                                         }
 
@@ -567,39 +767,39 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                         </FormControl>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className=" p-0 ml-[32px]">
+                                                                <PopoverContent className=" p-0 !w-[180px]">
                                                                     <Command>
                                                                         <CommandInput className='w-full' placeholder="Search Due Time" />
                                                                         <CommandEmpty>Due Time not found.</CommandEmpty>
                                                                         <CommandGroup>
                                                                             <div className='flex flex-col max-h-[200px] overflow-y-auto'>
                                                                                 {TIME_OPTIONS
-                                                                                // .filter((timeOption) => {
-                                                                                //     const today = getDateAccToTimezone()
-                                                                                //     const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate"), today) : false
-                                                                                //     return !shouldDisable
-                                                                                // })
-                                                                                .map((timeOption) => {
-                                                                                    return (<CommandItem
-                                                                                        value={timeOption.label}
-                                                                                        key={timeOption.value}
-                                                                                        onSelect={() => {
-                                                                                            form.setValue("dueTime", timeOption.value, SET_VALUE_CONFIG)
-                                                                                        }}
-                                                                                    >
-                                                                                        <div className={`flex flex-row items-center justify-between w-full `}>
-                                                                                            {timeOption.label}
-                                                                                            <Check
-                                                                                                className={cn(
-                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                    field.value === timeOption.value
-                                                                                                        ? "opacity-100"
-                                                                                                        : "opacity-0"
-                                                                                                )}
-                                                                                            />
-                                                                                        </div>
-                                                                                    </CommandItem>)
-                                                                                })}
+                                                                                    // .filter((timeOption) => {
+                                                                                    //     const today = getDateAccToTimezone()
+                                                                                    //     const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate"), today) : false
+                                                                                    //     return !shouldDisable
+                                                                                    // })
+                                                                                    .map((timeOption) => {
+                                                                                        return (<CommandItem
+                                                                                            value={timeOption.label}
+                                                                                            key={timeOption.value}
+                                                                                            onSelect={() => {
+                                                                                                form.setValue("dueTime", timeOption.value, SET_VALUE_CONFIG)
+                                                                                            }}
+                                                                                        >
+                                                                                            <div className={`flex flex-row items-center justify-between w-full `}>
+                                                                                                {timeOption.label}
+                                                                                                <Check
+                                                                                                    className={cn(
+                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                        field.value === timeOption.value
+                                                                                                            ? "opacity-100"
+                                                                                                            : "opacity-0"
+                                                                                                    )}
+                                                                                                />
+                                                                                            </div>
+                                                                                        </CommandItem>)
+                                                                                    })}
                                                                             </div>
                                                                         </CommandGroup>
                                                                     </Command>
@@ -759,7 +959,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                     const { disableDueDate, dueDate, today } = disableDueToInvalidDate()
                                     const reminder = form.getValues("reminder")
                                     let shouldDisableDueToReminder = disableReminderOnInvalidDateAndTime(reminder)
-                                    const disable = !form.formState.isDirty 
+                                    const disable = !form.formState.isDirty
                                     console.log("disable due date", dueDate < today, "due date: ", dueDate, " today: ", today)
                                     return disable
 
@@ -796,7 +996,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             dif = Math.round((dif / 1000) / 60);
 
             console.log(dueDate, currentDate, dif)
-            shouldDisable = !(Number(reminder) <dif)
+            shouldDisable = !(Number(reminder) < dif)
         } else {
             shouldDisable = false
         }

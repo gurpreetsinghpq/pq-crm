@@ -1,9 +1,9 @@
 "use client"
 import React, { useEffect, useRef, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
-import { IconAccounts2, IconContacts, IconDashboard, IconDealsHome, IconLeads, IconLineChart, IconPq, IconProspects, IconSettings } from '../icons/svgIcons'
+import { IconAccounts2, IconActivity, IconContacts, IconDashboard, IconDealsHome, IconLeads, IconLineChart, IconPq, IconProspects, IconSettings } from '../icons/svgIcons'
 import { TITLES } from '../dashboard';
-import { useCurrentTabStore, usePermissionStore } from '@/store/store';
+import { useCurrentTabStore, usePermissionStore, useSettingStore } from '@/store/store';
 import { disabledSidebarItem } from '@/app/constants/classes';
 import { ArrowDown, ArrowUp } from 'lucide-react';
 import { useFormSchemaHook } from '@/hooks/useFormSchemaHook';
@@ -13,11 +13,12 @@ function MainSidebar() {
     const { setTab } = useFormSchemaHook()
     const [showScrollButton, setShowScrollButton] = useState(true);
     const [isSmallScreen, setIsSmallScreen] = useState(
-        typeof window !== 'undefined' ? window.innerWidth <= 1300 : false
+        typeof window !== 'undefined' ? window.innerWidth <= 1560 : false
     )
 
     const { currentTab, setCurrentTab } = useCurrentTabStore()
     const { permissions, setPermissions } = usePermissionStore()
+    const { isSettingsClicked, setSettingsClicked } = useSettingStore()
     const sidebarRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -188,6 +189,20 @@ function MainSidebar() {
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>}
+                {<TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Link href={'/dashboard/activity'}
+                                onClick={() => setTab(TITLES.ACTIVITIES)}
+                                className={`h-12 w-12 hover:cursor-pointer mt-4  p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.ACTIVITIES && 'bg-purple-600'}`}>
+                                <IconActivity color="#F4EBFF" />
+                            </Link>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" sideOffset={5}>
+                            Activity
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>}
                 <div className="h-1 w-2/3 my-[24px] border-t-2 border-purple-800"></div>
 
                 {<TooltipProvider>
@@ -195,7 +210,10 @@ function MainSidebar() {
                         <TooltipTrigger asChild>
                             <Link
                                 href={'/dashboard/settings'}
-                                onClick={() => setTab(TITLES.USER_MANAGEMENT)} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
+                                onClick={() => {
+                                    setTab(TITLES.USER_MANAGEMENT)
+                                    setSettingsClicked(isSettingsClicked+1)
+                                }} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
                                 <IconSettings />
                             </Link>
                         </TooltipTrigger>

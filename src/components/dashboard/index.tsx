@@ -43,7 +43,8 @@ export const TITLES = {
     CONTACTS: "Contacts",
     USER_MANAGEMENT: "User Management",
     MY_ACCOUNT: "My Account",
-    My_DASHBOARD: "My Dashboard"
+    My_DASHBOARD: "My Dashboard",
+    ACTIVITIES: "Activities"
 }
 
 export const TITLE_MAP_W_PERMISSION_KEY = new Map([
@@ -63,6 +64,7 @@ export const TITLE_MAP_W_ROUTE = new Map([
     ["contacts", TITLES.CONTACTS],
     ["settings" ,TITLES.USER_MANAGEMENT],
     ["my-account" ,TITLES.MY_ACCOUNT],
+    ["activity" ,TITLES.ACTIVITIES],
 ])
 
 let INITIAL_PARENT_TITLE = ''

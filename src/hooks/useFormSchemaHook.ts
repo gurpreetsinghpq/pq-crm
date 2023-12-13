@@ -29,8 +29,6 @@ const LeadFormSchema = z.object({
     queryParamString: z.string()
 })
 
-
-
 const ProspectFormSchema = z.object({
     owners: z.array(z.string()).refine((value) => value.some((item) => item), {
         message: "You have to select at least one Owner.",
@@ -155,6 +153,24 @@ const TeamsFormSchema = z.object({
 })
 
 const ProfilesFormSchema = z.object({
+    search: z.string(),
+    dateRange: z.any(),
+    queryParamString: z.string()
+})
+
+const ActivityFormSchema = z.object({
+    assignees: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Assignee.",
+    }),
+    creators: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Creator.",
+    }),
+    modes: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one Mode.",
+    }),
+    statuses: z.array(z.string()).refine((value) => value.some((item) => item), {
+        message: "You have to select at least one status.",
+    }),
     search: z.string(),
     dateRange: z.any(),
     queryParamString: z.string()
@@ -319,6 +335,25 @@ export function useFormSchemaHook(){
             }
         }
     })
+    
+    const ActivitiesForm = useForm<z.infer<typeof ActivityFormSchema>>({
+        resolver: zodResolver(ActivityFormSchema),
+        defaultValues: {
+            search: "",
+            queryParamString: undefined,
+            dateRange: {
+                "range": {
+                    "from": fromAllTime,
+                    "to": toAllTime
+                },
+                rangeCompare: undefined
+            },
+            assignees: ["allAssignees"],
+            creators: ["allCreators"],
+            modes: ["allModes"],
+            statuses: ["In Progress"]
+        }
+    })
 
     const router = useRouter();
 
@@ -330,6 +365,7 @@ export function useFormSchemaHook(){
         DealsForm.reset()
         AccountsForm.reset()
         ContactsForm.reset()
+        ActivitiesForm.reset()
 
         setCurrentTab(tabName)
         
@@ -359,9 +395,12 @@ export function useFormSchemaHook(){
             else if(tabName===TITLES.MY_ACCOUNT){
                 router.push(`/dashboard/my-account`)
             }
+            else if(tabName===TITLES.ACTIVITIES){
+                router.push(`/dashboard/activity`)
+            }
         }
         
     }
 
-    return {LeadForm, ProspectForm, DealsForm, AccountsForm, ContactsForm, UsersForm, TeamsForm, ProfilesForm, setTab}
+    return {LeadForm, ProspectForm, DealsForm, AccountsForm, ContactsForm, UsersForm, TeamsForm, ProfilesForm, ActivitiesForm, setTab}
 }

@@ -1,5 +1,5 @@
 import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, ActivityAccToEntityOrganisation, AddressFields, ClientGetResponse, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ActivityPatchBody, AddressFields, ClientGetResponse, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 
@@ -779,4 +779,33 @@ export function dirtyValues<DirtyFields extends Record<string, unknown>, Values 
   }, {});
 
   return dirtyValue;
+}
+
+export async function markStatusOfActivity(entityId:number, status:string ,cb:CallableFunction){
+  try {
+      const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/update_status/`, { method: "PATCH", body: JSON.stringify({status}), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+      const result = await dataResp.json()
+      toast({
+          title: `Activity Marked as ${status} Succesfully!`,
+          variant: "dark"
+      })
+      cb()
+      console.log("todo",result)
+  } catch (err) {
+      console.log(err)
+  }
+}
+export async function rescheduleActivity(entityId:number, data:ActivityPatchBody, cb:CallableFunction){
+  try {
+      const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/`, { method: "PATCH", body: JSON.stringify(data), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+      const result = await dataResp.json()
+      toast({
+          title: `Activity Rescheduled`,
+          variant: "dark"
+      })
+      cb()
+      console.log("todo",result)
+  } catch (err) {
+      console.log(err)
+  }
 }

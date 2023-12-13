@@ -888,8 +888,12 @@ export interface ActivityAccToEntity {
         name: string;
         id: number;
     };
-    assigned_to: null;
-    status: null;
+    assigned_to: {
+        name: string;
+        id: number;
+    } | null;
+    notes: NotesHistory
+    status: null | string;
     title: string;
     type: string;
     mode: string;
@@ -897,11 +901,15 @@ export interface ActivityAccToEntity {
     reminder: number;
     created_at: string;
     closed_at: string | null;
-    lead: number;
+    lead: {
+        id: number,
+        entity_name: string
+    };    
     contact: number[];
     isLastChild?: boolean;
     typeOfEntity?: string
 }
+
 
 export interface ActivityAccToEntityOrganisation {
     id: number;

@@ -113,7 +113,7 @@ const FormSchemaWhenNegotiation = z.object({
     }),
 })
 
-function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFromParents: any, entityId: number, isAccounts?: boolean }) {
+function Notes({ contactFromParents, entityId, isAccounts = false, activityDetails=undefined }: { contactFromParents: any, entityId: number, isAccounts?: boolean, activityDetails?:ActivityAccToEntity | undefined }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema)
 
@@ -136,6 +136,18 @@ function Notes({ contactFromParents, entityId, isAccounts = false }: { contactFr
 
     useEffect(() => {
         getActivityList()
+        if(activityDetails?.id){
+            form.setValue("activity", activityDetails.id.toString(), SET_VALUE_CONFIG)
+            if (activityDetails?.contacts) {
+                form.setValue("contact", activityDetails.contacts.map(val => val.id.toString()), SET_VALUE_CONFIG)
+            }
+            if (activityDetails?.mode) {
+                form.setValue("mode", activityDetails.mode, SET_VALUE_CONFIG)
+            }
+            if (activityDetails?.type) {
+                form.setValue("activityType", activityDetails.type, SET_VALUE_CONFIG)
+            }
+        }
     }, [])
 
     const isFirstForm = (form.getValues("activityType")?.toLowerCase() === "cold outreach") && (form.getValues("mode")?.toLowerCase() === "call" || form.getValues("mode")?.toLowerCase() === "video call" || form.getValues("mode")?.toLowerCase() === "in-person")
@@ -251,6 +263,10 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
             role_urgency: valueToLabel(form.getValues("roleUrgency") || "", ROLE_URGENCY) || null,
             related_to: valueToLabel(form.getValues("relatedTo") || "", RELATED_TO) || null,
             remarks: form.getValues("remarks")
+        }
+
+        if(activityDetails?.id){
+            dataToSend["activity"] = Number(activityDetails.id)
         }
 
         // if(isAccounts){
@@ -840,7 +856,7 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
                     <div className='px-[28px] py-[24px] w-full '>
                         <div className=' flex flex-col gap-[28px]'>
                             <div className='max-w-[800px] flex flex-col gap-[16px]'>
-                                <div className='flex flex-row gap-[16px] w-full'>
+                                {!activityDetails?.id &&<div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                         <IconActivityType />
                                         <div className='text-md text-gray-500 font-normal'>Activity </div>
@@ -899,8 +915,8 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
                                             )}
                                         />
                                     </div>
-                                </div>
-                                {isAnyForm && <> <div className='flex flex-row gap-[16px] w-full'>
+                                </div>}
+                                {(isAnyForm && !activityDetails?.id) && <> <div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                         <IconActivityType />
                                         <div className='text-md text-gray-500 font-normal'>Activity Type</div>
@@ -949,77 +965,6 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
 
                                                 )}
                                             />
-                                            {/* <FormField
-                                            control={form.control}
-                                            name="contact"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Popover>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button  variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog}`}>
-                                                                    {
-                                                                        field?.value?.length > 0 ? (
-                                                                            getContacts(field.value.map(contactId => {
-                                                                                const contact = CONTACTS_FROM_PARENT.find((contact: any) => {
-                                                                                    console.log("contact", contact.id , contactId, contact.id == contactId)
-                                                                                    return contact.id == contactId
-                                                                                });
-                                                                                return contact ? contact.name : null;
-                                                                            }))
-                                                                        ) : (
-                                                                            <span className='text-muted-foreground'>Select Account Contact</span>
-                                                                        )
-                                                                    }
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="w-[430px] p-0">
-                                                            <Command>
-                                                                <CommandInput placeholder="Search Account Contact" />
-                                                                <CommandEmpty>No Contact found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {CONTACTS_FROM_PARENT.map((contact: any, index: any) => (
-                                                                            <CommandItem
-                                                                                value={contact.id}
-                                                                                key={contact.id}
-                                                                                onSelect={() => {
-                                                                                    console.log(field.value)
-                                                                                    if (field?.value?.length > 0) {
-                                                                                        if (field?.value?.includes(contact.id)) {
-                                                                                            form.setValue("contact", [...field.value.filter((value: string) => value !== contact.id)])
-                                                                                        } else {
-                                                                                            form.setValue("contact", [...field.value, contact.id])
-                                                                                        }
-                                                                                    } else {
-                                                                                        form.setValue("contact", [contact.id])
-                                                                                    }
-
-                                                                                }}
-                                                                            >
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {contact.name}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value?.includes(contact.id)
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
-                                                                                        )}
-                                                                                    />
-                                                                                </div>
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </div>
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        /> */}
                                         </div>
                                     </div>
                                     <div className='flex flex-row gap-[16px] w-full'>

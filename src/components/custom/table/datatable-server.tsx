@@ -199,6 +199,16 @@ export default function DataTableServer<TData, TValue>({
         })}`
       )
     }
+
+    const duedate = sorting.find(val=>val.id==="due_date")
+    if(duedate){
+      router.push(
+        `${pathname}?${createQueryString({
+          page:pageIndex+1,
+          due_date: duedate.id ? duedate?.desc ? "1": "0" : null
+        })}`
+      )
+    }
   },[sorting])
 
   useEffect(() => {
@@ -308,8 +318,8 @@ export default function DataTableServer<TData, TValue>({
   return (
     <div className="flex flex-col flex-1">
       <div className="border-[1px] border-gray-200 flex-1 " ref={tbl}>
-        {tbl.current?.offsetHeight && (<div style={{ height: pageName === 'teamsDialog' ? "200px" : `${tbl.current?.offsetHeight - 3}px` }} className={` overflow-y-scroll`}>
-          <Table className="flex-1 " onChange={handleTableChange} >
+        {tbl.current?.offsetHeight && (<div style={{ height: pageName === 'teamsDialog' ? "200px" : `${tbl.current?.offsetHeight - 3}px`}} className={` overflow-y-scroll`}>
+          <Table className="flex-1 " onChange={handleTableChange}>
             <TableHeader className="bg-gray-50 sticky top-0 left-0">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
