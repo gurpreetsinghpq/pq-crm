@@ -10,16 +10,16 @@ import {
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 
-import { EMPTY_FILTER_QUERY, REGIONS, SOURCES, STATUSES, REGIONS as regions, SOURCES as sources, STATUSES as statuses } from "@/app/constants/constants"
+import { EMPTY_FILTER_QUERY, REGIONS, SET_VALUE_CONFIG, SOURCES, STATUSES, REGIONS as regions, SOURCES as sources, STATUSES as statuses } from "@/app/constants/constants"
 import { FilterQuery, IValueLabel, LeadInterface, Permission } from "@/app/interfaces/interface"
 import { cn } from "@/lib/utils"
 import { DialogClose } from "@radix-ui/react-dialog"
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 import { Check, Loader2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { IconArchive, IconArchive2, IconInbox, IconLeads } from "../icons/svgIcons"
-import { DateRangePicker, getThisMonth } from "../ui/date-range-picker"
+import { DateRangePicker, getAllTime, getThisMonth } from "../ui/date-range-picker"
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from "../ui/dialog"
 import { Form, FormControl, FormField, FormItem } from "../ui/form"
 import { Input } from "../ui/input"
@@ -39,6 +39,7 @@ import DataTableServer from "./table/datatable-server"
 import useCreateQueryString from "@/hooks/useCreateQueryString"
 import { useCreateFilterQueryString } from "@/hooks/useCreateFilterQueryString"
 import { useDebounce } from "@/hooks/useDebounce"
+import useDidMountEffect from "@/hooks/useDidMountEffect"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
@@ -73,6 +74,7 @@ const Leads = ({ form, permissions }: {
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
     const [isMultiSelectOn, setIsMultiSelectOn] = useState<boolean>(false)
+    // const [refreshReset, setRefreshReset] = useState<number>(0)
     
     const [isNetworkError, setIsNetworkError] = useState<boolean>(false)
     const [tableLeadLength, setTableLength] = useState<any>()
@@ -538,7 +540,9 @@ const Leads = ({ form, permissions }: {
                                     </DropdownMenuTrigger> */}
                                         {/* <DropdownMenuContent className="w-56"> */}
                                         <DateRangePicker
-                                            onUpdate={(values) => form.setValue("dateRange", values)}
+                                            onUpdate={(values) => {
+                                                form.setValue("dateRange", values, SET_VALUE_CONFIG)
+                                            }}
                                             initialDateFrom={form.getValues("dateRange").range.from}
                                             initialDateTo={form.getValues("dateRange").range.to}
                                             queryParamString={form.getValues("queryParamString")}

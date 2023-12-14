@@ -190,7 +190,7 @@ export function columnsContacts(setChildDataHandler: CallableFunction): ColumnDe
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="text-gray-600 font-normal">{getClassOfType(row.getValue("type"))}</div>,
+            cell: ({ row }) => <div className="text-gray-600 font-normal">{row.getValue("type") ? getClassOfType(row.getValue("type")) : "—"}</div>,
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
             },

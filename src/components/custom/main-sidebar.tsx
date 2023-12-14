@@ -98,7 +98,8 @@ function MainSidebar() {
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div onClick={() => setTab(TITLES.My_DASHBOARD)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.My_DASHBOARD && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}>
+                            {/* <div onClick={() => setTab(TITLES.My_DASHBOARD)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.My_DASHBOARD && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}> */}
+                            <div onClick={() => setTab(TITLES.My_DASHBOARD)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${disabledSidebarItem}`}>
                                 <IconDashboard size={24} />
                             </div>
                         </TooltipTrigger>

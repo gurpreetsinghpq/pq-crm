@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { getAllTime, getLast7Days } from "@/components/ui/date-range-picker";
 import { TITLES } from "@/components/dashboard";
 import { useCurrentTabStore, useSettingStore } from "@/store/store";
+import { useEffect } from "react";
 
 const LeadFormSchema = z.object({
     owners: z.array(z.string()).refine((value) => value.some((item) => item), {
@@ -176,13 +177,13 @@ const ActivityFormSchema = z.object({
     queryParamString: z.string()
 })
 
+const { fromAllTime, toAllTime } = getAllTime()
 export function useFormSchemaHook(){
 
     const { from, to } = getLast7Days()
-    const { fromAllTime, toAllTime } = getAllTime()
-    const {currentTab, setCurrentTab} = useCurrentTabStore()
     const {isSettingsClicked, setSettingsClicked} = useSettingStore()
-
+    const {currentTab, setCurrentTab} = useCurrentTabStore()
+    // console.log("filters lead formschema hook", fromAllTime, toAllTime)
     const LeadForm = useForm<z.infer<typeof LeadFormSchema>>({
         resolver: zodResolver(LeadFormSchema),
         defaultValues: {

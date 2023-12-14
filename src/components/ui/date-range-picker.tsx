@@ -22,7 +22,7 @@ import { useSearchParams } from 'next/navigation'
 
 export interface DateRangePickerProps {
     /** Click handler for applying the updates from DateRangePicker. */
-    onUpdate?: (values: { range: DateRange, rangeCompare?: DateRange }) => void
+    onUpdate?: (values: { range: DateRange, rangeCompare?: DateRange, currentSelectedOption?: string }) => void
     /** Initial value for start date */
     initialDateFrom?: Date | string
     /** Initial value for end date */
@@ -38,7 +38,8 @@ export interface DateRangePickerProps {
     /** Option for showing compare feature */
     showCompare?: boolean
     queryParamString?: string | undefined,
-    classFromParent?: string
+    classFromParent?: string,
+    refreshReset?: number
 }
 
 const formatDate = (date: Date, locale: string = 'en-us'): string => {
@@ -87,11 +88,11 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
     locale = 'en-US',
     showCompare = false,
     queryParamString = undefined,
-    classFromParent = ""
+    classFromParent = "",
+    refreshReset = undefined
 
 }): JSX.Element => {
         const [isOpen, setIsOpen] = useState(false)
-
         const searchParams = useSearchParams()
         const queryParamIds = searchParams.get("ids")
         let queryParam: string | undefined = undefined
@@ -120,10 +121,28 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
         const openedRangeCompareRef = useRef<DateRange | undefined>();
 
         const [selectedPreset, setSelectedPreset] = useState<string | undefined>(undefined)
+        const [lastSelectedValue, setLastSelected] = useState<string | undefined>(undefined)
 
         const [isSmallScreen, setIsSmallScreen] = useState(
             typeof window !== 'undefined' ? window.innerWidth < 960 : false
         )
+        function resetValues() {
+            // const { from, to } = getLast7Days(queryParamString)
+            const { fromAllTime: from, toAllTime: to } = getAllTime()
+
+            setRange({
+                from: from,
+                to: to
+            })
+            setRangeCompare(
+                initialCompareFrom
+                    ? {
+                        from: from,
+                        to: to
+                    }
+                    : undefined
+            )
+        }
 
         useEffect(() => {
             const handleResize = (): void => {
@@ -137,6 +156,29 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                 window.removeEventListener('resize', handleResize)
             }
         }, [])
+
+        useEffect(() => {
+            if (refreshReset) {
+                // const { fromAllTime: from, toAllTime: to } = getAllTime()
+                // const range = {
+                //     from: from,
+                //     to: to
+                // }
+                // const rangeCompare =
+                //     initialCompareFrom
+                //         ? {
+                //             from: from,
+                //             to: to
+                //         }
+                //         : undefined
+
+                // onUpdate?.({ range, rangeCompare, currentSelectedOption: selectedPreset });
+                // setSelectedPreset("allTime")
+                // setLastSelected("allTime")
+                // }
+            }
+        }, [refreshReset])
+
 
         const getPresetRange = (presetName: string): DateRange => {
             const preset = PRESETS.find(({ name }) => name === presetName)
@@ -225,7 +267,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     break;
 
             }
-
             return { from, to }
         }
 
@@ -255,12 +296,14 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             for (const preset of PRESETS) {
                 const presetRange = getPresetRange(preset.name)
 
-                const normalizedRangeFrom = new Date(range.from.setHours(0, 0, 0, 0))
+                const normalizedRangeFrom = new Date(range.from);
+                normalizedRangeFrom.setHours(0, 0, 0, 0);
                 const normalizedPresetFrom = new Date(
                     presetRange.from.setHours(0, 0, 0, 0)
                 )
 
-                const normalizedRangeTo = new Date(range.to?.setHours(0, 0, 0, 0) ?? 0)
+                const normalizedRangeTo = new Date(range.to ?? 0);
+                normalizedRangeTo.setHours(0, 0, 0, 0);
                 const normalizedPresetTo = new Date(
                     presetRange.to?.setHours(0, 0, 0, 0) ?? 0
                 )
@@ -270,7 +313,6 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     normalizedRangeTo.getTime() === normalizedPresetTo.getTime()
                 ) {
                     setSelectedPreset(preset.name)
-                    console.log(preset.name)
                     return
                 }
             }
@@ -278,22 +320,7 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
             setSelectedPreset(undefined)
         }
 
-        const resetValues = (): void => {
-            const { from, to } = getLast7Days(queryParamString)
 
-            setRange({
-                from: from,
-                to: to
-            })
-            setRangeCompare(
-                initialCompareFrom
-                    ? {
-                        from: from,
-                        to: to
-                    }
-                    : undefined
-            )
-        }
 
         useEffect(() => {
             checkPreset()
@@ -372,7 +399,14 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                         </div>
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent align={align} className={`!w-auto !sm:max-h-[50vh] !xl:max-h-[70vh] !2xl:max-h-fit overflow-y-auto ${classFromParent}`}>
+                <PopoverContent onPointerDownOutside={(e) => {
+                    if (lastSelectedValue) {
+                        setPreset(lastSelectedValue)
+                    } else {
+                        resetValues()
+                    }
+                }
+                } align={align} className={`!w-auto !sm:max-h-[50vh] !xl:max-h-[70vh] !2xl:max-h-fit overflow-y-auto ${classFromParent}`}>
                     <div >
 
                         <div className="flex py-2">
@@ -545,7 +579,11 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                             <Button
                                 onClick={() => {
                                     setIsOpen(false)
-                                    resetValues()
+                                    if (lastSelectedValue) {
+                                        setPreset(lastSelectedValue)
+                                    } else {
+                                        resetValues()
+                                    }
                                 }}
                                 variant="ghost"
                             >
@@ -558,7 +596,8 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                                         !areRangesEqual(range, openedRangeRef.current) ||
                                         !areRangesEqual(rangeCompare, openedRangeCompareRef.current)
                                     ) {
-                                        onUpdate?.({ range, rangeCompare });
+                                        setLastSelected(selectedPreset)
+                                        onUpdate?.({ range, rangeCompare, currentSelectedOption: selectedPreset });
                                     }
                                 }}
                             >
@@ -583,7 +622,6 @@ export function getThisMonth(queryParamString: string | undefined = undefined) {
         let to = new Date()
         from.setTime(0);
         to.setHours(23, 59, 59, 999);
-        console.log("if", queryParamString, from, to)
         return { from, to }
     } else {
         let today = new Date()
@@ -599,7 +637,6 @@ export function getThisMonth(queryParamString: string | undefined = undefined) {
         from.setDate(1)
         from.setHours(0, 0, 0, 0)
         to.setHours(23, 59, 59, 999)
-        console.log("else", queryParamString, from, to)
         return { from, to }
 
     }
@@ -610,8 +647,8 @@ export function getAllTime() {
     from.setTime(0);
     to.setHours(23, 59, 59, 999);
     return { fromAllTime: from, toAllTime: to }
-
 }
+
 export function getLast7Days(queryParamString: string | undefined = undefined) {
     let from = new Date()
     let to = new Date()

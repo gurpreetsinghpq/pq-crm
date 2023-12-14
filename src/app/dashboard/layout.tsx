@@ -174,7 +174,7 @@ export default function DashboardLayout({
                         <MainSidebar />
                     </div>
                     <div className="flex flex-1 right flex-col">
-                        {(currentTab !== TITLES.MY_ACCOUNT && currentTab !== TITLES.USER_MANAGEMENT) ? <div className={`top w-full flex flex-row justify-between items-center px-6 py-5 ${currentTab !== TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2"}`} >
+                        {(currentTab !== TITLES.MY_ACCOUNT && currentTab !== TITLES.USER_MANAGEMENT) ? <div className={`top w-full flex flex-row justify-between items-center px-6 py-[10px] ${currentTab !== TITLES.USER_MANAGEMENT ? "border-b-2 border-gray-100 " : "pb-2"}`} >
                             <div className="text-xl   ">
                                 {currentTab}
                             </div>
@@ -190,7 +190,7 @@ export default function DashboardLayout({
                                                     }
                                                 </div>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent className="min-w-[479px] mr-[30px] p-0" side="bottom" >
+                                            <DropdownMenuContent className="w-[679px] mr-[30px] p-0" side="bottom" >
                                                 {/* <DropdownMenuItem className="p-0 border-b-[1px] border-gray-200 hover:bg-white-900"> */}
                                                 <div>
                                                     <div className="inset-shadow  px-[24px] py-[16px] w-full flex flex-col">
