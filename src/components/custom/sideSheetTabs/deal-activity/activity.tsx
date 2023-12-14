@@ -314,7 +314,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             setEntityData([])
         }
 
-        fetchDataAccToEntity(form.getValues("entityType") || "", debouncedSearchableFilters)
+        if(addDialog?.isAddDialog){
+            fetchDataAccToEntity(form.getValues("entityType") || "", debouncedSearchableFilters)
+        }
 
     }, [debouncedSearchableFilters, watch.entityType])
 
