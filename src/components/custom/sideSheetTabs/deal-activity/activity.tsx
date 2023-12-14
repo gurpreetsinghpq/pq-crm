@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PopoverClose } from '@radix-ui/react-popover'
-import { format, min } from 'date-fns'
+import { add, format, min } from 'date-fns'
 import { Check, ChevronDown, Loader2 } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
@@ -53,7 +53,7 @@ const FormSchema = z.object({
 
 
 
-function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null }, isAccounts = false, addDialog=undefined }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction }, isAccounts?: boolean, addDialog?:{isAddDialog: boolean, setOpen:CallableFunction }   }) {
+function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null }, isAccounts = false, addDialog = undefined }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction }, isAccounts?: boolean, addDialog?: { isAddDialog: boolean, yesDiscard: CallableFunction | null, fetchActivityData: CallableFunction | null } }) {
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
@@ -109,8 +109,12 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             type: valueToLabel(data.type, ACTIVITY_TYPE) || "",
             assigned_to: Number(form.getValues("assignedTo"))
         }
-        if(entityId===-1){
-            dataToSend["lead"] = Number(form.getValues("selectEntity"))
+        if (entityId === -1) {
+            if(form.getValues("entityType")==="client"){
+                dataToSend["organisation"] = Number(form.getValues("selectEntity"))
+            }else{
+                dataToSend["lead"] = Number(form.getValues("selectEntity"))
+            }
         }
         else if (isAccounts) {
             dataToSend["organisation"] = entityId
@@ -128,7 +132,10 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                     variant: "dark"
                 })
                 form.reset()
-                console.log(result)
+                if(addDialog?.fetchActivityData && addDialog?.yesDiscard){
+                    addDialog.fetchActivityData()
+                    addDialog.yesDiscard()
+                }
             } else {
                 toast({
                     title: result?.error?.message || "Failed to create activity",
@@ -251,7 +258,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
     }, [])
 
     console.log(form.getValues())
-    
+
 
     function reschedule() {
         const formattedDueDate = formattedDueDateToSend()
@@ -270,6 +277,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
     }
 
     async function fetchDataAccToEntity(entity: string, textToSearch: string) {
+        setLoading(true)
         let keyToSearch = "title"
         switch (entity) {
             case "client":
@@ -312,553 +320,547 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
 
     return (
-        <Form {...form}>
-            <form className='w-full' onSubmit={form.handleSubmit(onSubmit)} >
-                <div className={`flex flex-col rounded-[8px] bg-white-900 ${!editMode.isEditMode && "border-[1px] border-gray-200"}`}>
-                    <div className='px-[28px] py-[24px] w-full max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll'>
-                        <div className=' flex flex-col gap-[28px]'>
-                            {addDialog?.isAddDialog && <div className='flex flex-col'>
-                                <div className='flex flex-row items-center mb-[20px]'>
-                                    <div className='text-purple-700 text-sm font-bold'>
-                                        Related to
+        <>
+            <Form {...form}>
+                <form className='w-full' onSubmit={form.handleSubmit(onSubmit)} >
+                    <div className={`flex flex-col rounded-[8px] bg-white-900 ${!editMode.isEditMode && "border-[1px] border-gray-200"}`}>
+                        <div className={`px-[28px] py-[24px] w-full ${ addDialog?.isAddDialog ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll" : ""}`}>
+                            <div className=' flex flex-col gap-[28px]'>
+                                {addDialog?.isAddDialog && <div className='flex flex-col'>
+                                    <div className='flex flex-row items-center mb-[20px]'>
+                                        <div className='text-purple-700 text-sm font-bold'>
+                                            Related to
+                                        </div>
+                                        <div className='h-[1px] bg-gray-200 flex-1'>
+                                        </div>
                                     </div>
-                                    <div className='h-[1px] bg-gray-200 flex-1'>
-                                    </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full mb-[15px]'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <div className='text-md text-gray-500 font-normal'>Entity Type</div>
-                                    </div>
-                                    <div className='flex-1 w-full'>
-                                        <FormField
-                                            control={form.control}
-                                            name="entityType"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Select disabled={editMode.isEditMode} onValueChange={(value) => {
-                                                        setInputAccount("")
-                                                        setEntityData([])
-                                                        setContacts([])
-                                                        setCurrentEntityName("")
-                                                        form.setValue("selectEntity", "")
-                                                        return field.onChange(value)
-                                                    }} defaultValue={field.value} key={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
-                                                                <SelectValue placeholder="Select" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                ENTITY_TYPE.map((mode, index) => {
-                                                                    return <SelectItem key={index} value={mode.value}>
-                                                                        {mode.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                    {/* <FormMessage /> */}
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <div className='text-md text-gray-500 font-normal'>Select Entity</div>
-                                    </div>
-                                    <div className='flex-1 w-full'>
-                                        <FormField
-                                            control={form.control}
-                                            name="selectEntity"
-                                            render={({ field }) => (
-                                                <FormItem className={`w-full`}>
-                                                    <Popover modal={true}>
-                                                        <PopoverTrigger asChild>
-                                                            <div className='flex flex-row gap-[10px] items-center  w-full' >
-                                                                {/* <div className="flex  flex-row gap-2 w-full px-[14px] "> */}
-                                                                {/* <div className={`w-full flex-1 text-align-left text-md flex  ${commonClasses} ${commonFontClasses}`}> */}
-                                                                {/* </div> */}
-                                                                {/* <ChevronDown className="h-4 w-4 opacity-50" color="#344054" /> */}
-                                                                {/* </div> */}
-                                                                <Button variant={"google"} className='flex flex-row text-md justify-between w-full'>
-                                                                    {currentEntityName || <span className='text-muted-foreground '>Search</span>}
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                                </Button>
-                                                            </div>
-
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="mt-[8px] p-0" >
-                                                            <Command>
-                                                                <CommandInput onInput={(e) => { onChangeHandler(e.currentTarget.value) }} className='w-full flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50' placeholder="Search Entity" />
-
-                                                                {loading ? <div className='p-[16px] flex flex-row justify-center items-center min-h-[150px]'>
-                                                                    <Loader2 className="mr-2 h-10 w-10 animate-spin" />
-                                                                </div> :
-                                                                    <>
-                                                                        {(entityData && entityData.length > 0) ?
-                                                                            <div>
-                                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                    {entityData.map((entity: any) => {
-                                                                                        let entityKey = "title"
-                                                                                        const entityType = form.getValues("entityType")
-                                                                                        let entityName = ""
-                                                                                        let contactData:any = []
-                                                                                        switch (entityType) {
-                                                                                            case "client":
-                                                                                                entityName = entity?.name
-                                                                                                contactData = entity?.contacts
-                                                                                                break
-                                                                                            case "lead":
-                                                                                                entityName = entity?.title
-                                                                                                contactData = entity?.organisation?.contacts
-                                                                                                break
-                                                                                            case "prospect":
-                                                                                                entityName = entity?.lead?.title
-                                                                                                contactData = entity?.organisation?.contacts
-                                                                                                break
-                                                                                        }
-                                                                                        
-
-                                                                                        return <div
-                                                                                            key={entity.id.toString()}
-                                                                                            onClick={() => {
-                                                                                                form.setValue("selectEntity", entity.id.toString(), SET_VALUE_CONFIG)
-                                                                                                setCurrentEntityName(entityName)
-                                                                                                setContacts(contactData)
-                                                                                            }}
-                                                                                            className="relative flex cursor-default hover:bg-accent items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground "
-                                                                                        >
-                                                                                            <PopoverClose asChild>
-                                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                                    {entityName}
-                                                                                                    <Check
-                                                                                                        className={cn(
-                                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                                            field.value === entity.id.toString()
-                                                                                                                ? "opacity-100"
-                                                                                                                : "opacity-0"
-                                                                                                        )}
-                                                                                                    />
-                                                                                                </div>
-                                                                                            </PopoverClose>
-                                                                                        </div>
-                                                                                    }
-                                                                                    )}
-                                                                                </div>
-                                                                            </div> : <div className='py-6 text-center text-sm'>Entity not found.</div>}
-                                                                    </>
+                                    <div className='flex flex-row gap-[16px] w-full mb-[15px]'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className='text-md text-gray-500 font-normal'>Entity Type</div>
+                                        </div>
+                                        <div className='flex-1 w-full'>
+                                            <FormField
+                                                control={form.control}
+                                                name="entityType"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select disabled={editMode.isEditMode} onValueChange={(value) => {
+                                                            setInputAccount("")
+                                                            setEntityData([])
+                                                            setContacts([])
+                                                            setCurrentEntityName("")
+                                                            form.setValue("contact",[])
+                                                            form.setValue("selectEntity", "")
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value} key={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
+                                                                    <SelectValue placeholder="Select" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    ENTITY_TYPE.map((mode, index) => {
+                                                                        return <SelectItem key={index} value={mode.value}>
+                                                                            {mode.label}
+                                                                        </SelectItem>
+                                                                    })
                                                                 }
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            </div>}
-                            <div className='max-w-[800px] flex flex-col gap-[16px]'>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconActivityType />
-                                        <div className='text-md text-gray-500 font-normal'>Activity Type</div>
-                                    </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <FormField
-                                            control={form.control}
-                                            name="type"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Select disabled={editMode.isEditMode} onValueChange={(value) => {
-                                                        return field.onChange(value)
-                                                    }} defaultValue={field.value} key={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
-                                                                <SelectValue placeholder="Select Activity Type" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                ACTIVITY_TYPE.map((activityType, index) => {
-                                                                    if (isAccounts) {
-                                                                        if (activityType.value != "coldOutreach") {
-                                                                            return
-                                                                        }
-                                                                    }
-                                                                    return <SelectItem key={index} value={activityType.value}>
-                                                                        {activityType.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
-                                                    You can manage email addresses in your{" "}
-                                                </FormDescription> */}
-                                                    {/* <FormMessage /> */}
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconContacts size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Contact</div>
-                                    </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <FormField
-                                            control={form.control}
-                                            name="contact"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Popover modal={true}>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button disabled={addDialog?.isAddDialog && !watch.selectEntity} variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
-                                                                    {
-                                                                        field?.value?.length > 0 ? (
-                                                                            getContacts(field.value.map(contactId => {
-                                                                                const contact = contacts.find((contact: any) => contact.id === contactId);
-                                                                                return contact ? contact.name : null;
-                                                                            }))
-                                                                        ) : (
-                                                                            <span className='text-muted-foreground'>Select Account Contact</span>
-                                                                        )
-                                                                    }
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="  p-0">
-                                                            <Command>
-                                                                <CommandInput placeholder="Search Account Contact" />
-                                                                <CommandEmpty>No Contact found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {(contacts && contacts.length>0) && contacts.map((contact: any, index: any) => (
-                                                                            <CommandItem
-                                                                                value={contact.id}
-                                                                                key={contact.id}
-                                                                                onSelect={() => {
-                                                                                    console.log(field.value)
-                                                                                    if (field?.value?.length > 0) {
-                                                                                        if (field?.value?.includes(contact.id)) {
-                                                                                            form.setValue("contact", [...field.value.filter((value: number) => value !== contact.id)])
-                                                                                        } else {
-                                                                                            form.setValue("contact", [...field.value, contact.id])
-                                                                                        }
-                                                                                    } else {
-                                                                                        form.setValue("contact", [contact.id])
-                                                                                    }
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <div className='text-md text-gray-500 font-normal'>Select Entity</div>
+                                        </div>
+                                        <div className='flex-1 w-full'>
+                                            <FormField
+                                                control={form.control}
+                                                name="selectEntity"
+                                                render={({ field }) => (
+                                                    <FormItem className={`w-full`}>
+                                                        <Popover modal={true}>
+                                                            <PopoverTrigger asChild>
+                                                                <div className='flex flex-row gap-[10px] items-center  w-full' >
+                                                                    <Button type='button' variant={"google"} className='flex flex-row text-md font-normal justify-between w-full'>
+                                                                        {currentEntityName || <span className='text-muted-foreground '>Search</span>}
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                    </Button>
+                                                                </div>
 
-                                                                                }}
-                                                                            >
-                                                                                <div className="flex flex-row items-center justify-between w-full">
-                                                                                    {contact.name}
-                                                                                    <Check
-                                                                                        className={cn(
-                                                                                            "mr-2 h-4 w-4 text-purple-600",
-                                                                                            field.value?.includes(contact.id)
-                                                                                                ? "opacity-100"
-                                                                                                : "opacity-0"
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="mt-[8px] p-0" >
+                                                                <Command>
+                                                                    <CommandInput onInput={(e) => { onChangeHandler(e.currentTarget.value) }} className='w-full flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50' placeholder="Search Entity" />
+
+                                                                    {loading ? <div className='p-[16px] flex flex-row justify-center items-center min-h-[150px]'>
+                                                                        <Loader2 className="mr-2 h-10 w-10 animate-spin" />
+                                                                    </div> :
+                                                                        <>
+                                                                            {(entityData && entityData.length > 0) ?
+                                                                                <div>
+                                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                        {entityData.map((entity: any) => {
+                                                                                            let entityKey = "title"
+                                                                                            const entityType = form.getValues("entityType")
+                                                                                            let entityName = ""
+                                                                                            let contactData: any = []
+                                                                                            switch (entityType) {
+                                                                                                case "client":
+                                                                                                    entityName = entity?.name
+                                                                                                    contactData = entity?.contacts
+                                                                                                    break
+                                                                                                case "lead":
+                                                                                                    entityName = entity?.title
+                                                                                                    contactData = entity?.organisation?.contacts
+                                                                                                    break
+                                                                                                case "prospect":
+                                                                                                    entityName = entity?.lead?.title
+                                                                                                    contactData = entity?.lead?.organisation?.contacts
+                                                                                                    break
+                                                                                            }
+
+
+                                                                                            return <div
+                                                                                                key={entity.id.toString()}
+                                                                                                onClick={() => {
+                                                                                                    form.setValue("selectEntity", entity.id.toString(), SET_VALUE_CONFIG)
+                                                                                                    setCurrentEntityName(entityName)
+                                                                                                    form.setValue("contact",[])
+                                                                                                    setContacts( contactData)
+                                                                                                }}
+                                                                                                className="relative flex cursor-default hover:bg-accent items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground "
+                                                                                            >
+                                                                                                <PopoverClose asChild>
+                                                                                                    <div className="flex flex-row items-center justify-between w-full">
+                                                                                                        {entityName}
+                                                                                                        <Check
+                                                                                                            className={cn(
+                                                                                                                "mr-2 h-4 w-4 text-purple-600",
+                                                                                                                field.value === entity.id.toString()
+                                                                                                                    ? "opacity-100"
+                                                                                                                    : "opacity-0"
+                                                                                                            )}
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                </PopoverClose>
+                                                                                            </div>
+                                                                                        }
                                                                                         )}
-                                                                                    />
-                                                                                </div>
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </div>
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
+                                                                                    </div>
+                                                                                </div> : <div className='py-6 text-center text-sm'>Entity not found.</div>}
+                                                                        </>
+                                                                    }
+                                                                </Command>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconMode2 size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Mode</div>
-                                    </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <FormField
-                                            control={form.control}
-                                            name="mode"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <Select disabled={editMode.isEditMode} onValueChange={(value) => {
-                                                        return field.onChange(value)
-                                                    }} defaultValue={field.value} key={field.value}>
-                                                        <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
-                                                                <SelectValue placeholder="Select Mode" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                MODE.map((mode, index) => {
-                                                                    return <SelectItem key={index} value={mode.value}>
-                                                                        {mode.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
+                                </div>}
+                                <div className='max-w-[800px] flex flex-col gap-[16px]'>
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconActivityType />
+                                            <div className='text-md text-gray-500 font-normal'>Activity Type</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="type"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select disabled={editMode.isEditMode} onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value} key={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
+                                                                    <SelectValue placeholder="Select Activity Type" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    ACTIVITY_TYPE.map((activityType, index) => {
+                                                                        if (isAccounts) {
+                                                                            if (activityType.value != "coldOutreach") {
+                                                                                return
+                                                                            }
+                                                                        }
+                                                                        return <SelectItem key={index} value={activityType.value}>
+                                                                            {activityType.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    {/* <FormMessage /> */}
-                                                </FormItem>
-                                            )}
-                                        />
+                                                        {/* <FormMessage /> */}
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconAssignedTo size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Assigned To</div>
-                                    </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <FormField
-                                            control={form.control}
-                                            name="assignedTo"
-                                            render={({ field }) => (
-                                                <FormItem className='w-full '>
-                                                    <Popover modal={true}>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
-                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Choose</span>}
-                                                                    </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className="  p-0">
-                                                            <Command>
-                                                                <CommandInput className='w-full' placeholder="Search User" />
-                                                                <CommandEmpty>User not found.</CommandEmpty>
-                                                                <CommandGroup>
-                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                        {userList && userList?.length > 0 && userList.map((reportingManager) => (
-                                                                            <CommandItem
-                                                                                value={reportingManager.label}
-                                                                                key={reportingManager.value}
-                                                                                onSelect={() => {
-                                                                                    form.setValue("assignedTo", reportingManager.value, SET_VALUE_CONFIG)
-                                                                                }}
-                                                                            >
-                                                                                <PopoverClose asChild>
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconContacts size="24" color="#98A2B3" />
+                                            <div className='text-md text-gray-500 font-normal'>Contact</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="contact"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Popover modal={true}>
+                                                            <PopoverTrigger asChild>
+                                                                <FormControl>
+                                                                    <Button disabled={addDialog?.isAddDialog && !watch.selectEntity} variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
+                                                                        {
+                                                                            field?.value?.length > 0 ? (
+                                                                                getContacts(field.value.map(contactId => {
+                                                                                    const contact = contacts.find((contact: any) => contact.id === contactId);
+                                                                                    return contact ? contact.name : null;
+                                                                                }))
+                                                                            ) : (
+                                                                                <span className='text-muted-foreground'>Select Account Contact</span>
+                                                                            )
+                                                                        }
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                    </Button>
+                                                                </FormControl>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="  p-0">
+                                                                <Command>
+                                                                    <CommandInput placeholder="Search Account Contact" />
+                                                                    <CommandEmpty>No Contact found.</CommandEmpty>
+                                                                    <CommandGroup>
+                                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                            {(contacts && contacts.length > 0) && contacts.map((contact: any, index: any) => (
+                                                                                <CommandItem
+                                                                                    value={contact.id}
+                                                                                    key={contact.id}
+                                                                                    onSelect={() => {
+                                                                                        console.log(field.value)
+                                                                                        if (field?.value?.length > 0) {
+                                                                                            if (field?.value?.includes(contact.id)) {
+                                                                                                form.setValue("contact", [...field.value.filter((value: number) => value !== contact.id)])
+                                                                                            } else {
+                                                                                                form.setValue("contact", [...field.value, contact.id])
+                                                                                            }
+                                                                                        } else {
+                                                                                            form.setValue("contact", [contact.id])
+                                                                                        }
+
+                                                                                    }}
+                                                                                >
                                                                                     <div className="flex flex-row items-center justify-between w-full">
-                                                                                        {reportingManager.label}
+                                                                                        {contact.name}
                                                                                         <Check
                                                                                             className={cn(
                                                                                                 "mr-2 h-4 w-4 text-purple-600",
-                                                                                                field.value === reportingManager.value
+                                                                                                field.value?.includes(contact.id)
                                                                                                     ? "opacity-100"
                                                                                                     : "opacity-0"
                                                                                             )}
                                                                                         />
                                                                                     </div>
-                                                                                </PopoverClose>
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </div>
-                                                                </CommandGroup>
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </div>
+                                                                    </CommandGroup>
+                                                                </Command>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconDueDateAndTime size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Due Date & Time</div>
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconMode2 size="24" color="#98A2B3" />
+                                            <div className='text-md text-gray-500 font-normal'>Mode</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="mode"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <Select disabled={editMode.isEditMode} onValueChange={(value) => {
+                                                            return field.onChange(value)
+                                                        }} defaultValue={field.value} key={field.value}>
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode.isEditMode && "bg-gray-100"}`}>
+                                                                    <SelectValue placeholder="Select Mode" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    MODE.map((mode, index) => {
+                                                                        return <SelectItem key={index} value={mode.value}>
+                                                                            {mode.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
+                                                    You can manage email addresses in your{" "}
+                                                </FormDescription> */}
+                                                        {/* <FormMessage /> */}
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <div className='flex flex-row gap-[16px] '>
-                                            <div className='w-[70%]'>
-                                                <FormField
-                                                    control={form.control}
-                                                    name="dueDate"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <Popover modal={true}>
-                                                                <PopoverTrigger asChild>
-                                                                    <FormControl>
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconAssignedTo size="24" color="#98A2B3" />
+                                            <div className='text-md text-gray-500 font-normal'>Assigned To</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="assignedTo"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full '>
+                                                        <Popover modal={true}>
+                                                            <PopoverTrigger asChild>
+                                                                <FormControl>
+                                                                    <Button variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
+                                                                        <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                            {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Choose</span>}
+                                                                        </div>
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                    </Button>
+                                                                </FormControl>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className="  p-0">
+                                                                <Command>
+                                                                    <CommandInput className='w-full' placeholder="Search User" />
+                                                                    <CommandEmpty>User not found.</CommandEmpty>
+                                                                    <CommandGroup>
+                                                                        <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                            {userList && userList?.length > 0 && userList.map((reportingManager) => (
+                                                                                <CommandItem
+                                                                                    value={reportingManager.label}
+                                                                                    key={reportingManager.value}
+                                                                                    onSelect={() => {
+                                                                                        form.setValue("assignedTo", reportingManager.value, SET_VALUE_CONFIG)
+                                                                                    }}
+                                                                                >
+                                                                                    <PopoverClose asChild>
+                                                                                        <div className="flex flex-row items-center justify-between w-full">
+                                                                                            {reportingManager.label}
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 text-purple-600",
+                                                                                                    field.value === reportingManager.value
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                        </div>
+                                                                                    </PopoverClose>
+                                                                                </CommandItem>
+                                                                            ))}
+                                                                        </div>
+                                                                    </CommandGroup>
+                                                                </Command>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconDueDateAndTime size="24" color="#98A2B3" />
+                                            <div className='text-md text-gray-500 font-normal'>Due Date & Time</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <div className='flex flex-row gap-[16px] '>
+                                                <div className='w-[70%]'>
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="dueDate"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <Popover modal={true}>
+                                                                    <PopoverTrigger asChild>
                                                                         <FormControl>
-                                                                            <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                                <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                                    {field.value ? (
-                                                                                        format(field.value, "PPP")
-                                                                                    ) : (
-                                                                                        <span className='text-muted-foreground'>Pick a date</span>
-                                                                                    )}
-                                                                                </div>
-                                                                                <IconCalendar size="24" color="#98A2B3" />
-                                                                            </Button>
+                                                                            <FormControl>
+                                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                                        {field.value ? (
+                                                                                            format(field.value, "PPP")
+                                                                                        ) : (
+                                                                                            <span className='text-muted-foreground'>Pick a date</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <IconCalendar size="24" color="#98A2B3" />
+                                                                                </Button>
+                                                                            </FormControl>
                                                                         </FormControl>
-                                                                    </FormControl>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent className=" p-0 flex flex-row justify-center" align="start">
-                                                                    <Calendar
-                                                                        mode="single"
-                                                                        selected={field.value}
-                                                                        onSelect={field.onChange}
-                                                                        disabled={(date) => {
-                                                                            const today = getDateAccToTimezone();
-                                                                            const tempToday = structuredClone(today);
-                                                                            tempToday.setHours(0, 0, 0, 0);
+                                                                    </PopoverTrigger>
+                                                                    <PopoverContent className=" p-0 flex flex-row justify-center" align="start">
+                                                                        <Calendar
+                                                                            mode="single"
+                                                                            selected={field.value}
+                                                                            onSelect={field.onChange}
+                                                                            disabled={(date) => {
+                                                                                const today = getDateAccToTimezone();
+                                                                                const tempToday = structuredClone(today);
+                                                                                tempToday.setHours(0, 0, 0, 0);
 
-                                                                            // Calculate the date 60 days ago
-                                                                            const sixtyDaysAgo = new Date();
-                                                                            sixtyDaysAgo.setDate(today.getDate() - 60);
-                                                                            sixtyDaysAgo.setHours(0, 0, 0, 0);
-                                                                            return date < sixtyDaysAgo
-                                                                        }
-                                                                        }
+                                                                                // Calculate the date 60 days ago
+                                                                                const sixtyDaysAgo = new Date();
+                                                                                sixtyDaysAgo.setDate(today.getDate() - 60);
+                                                                                sixtyDaysAgo.setHours(0, 0, 0, 0);
+                                                                                return date < sixtyDaysAgo
+                                                                            }
+                                                                            }
 
-                                                                        initialFocus
-                                                                    />
+                                                                            initialFocus
+                                                                        />
 
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                            <div className='w-[30%]'>
-                                                <FormField
-                                                    control={form.control}
-                                                    name="dueTime"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <Popover modal={true}>
-                                                                <PopoverTrigger asChild>
-                                                                    <FormControl>
+                                                                    </PopoverContent>
+                                                                </Popover>
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                                <div className='w-[30%]'>
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="dueTime"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <Popover modal={true}>
+                                                                    <PopoverTrigger asChild>
                                                                         <FormControl>
-                                                                            <Button disabled={(() => {
-                                                                                const today = getDateAccToTimezone()
-                                                                                today.setHours(0, 0, 0, 0);
-                                                                                const dueDate = form.getValues("dueDate")
-                                                                                const disable = dueDate == undefined
-                                                                                return disable
-                                                                            })()} variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                                <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                                    {field.value ? (
-                                                                                        field.value
-                                                                                    ) : (
-                                                                                        <span className='text-muted-foreground'>HH:MM</span>
-                                                                                    )}
-                                                                                </div>
-                                                                                <IconClock size="24" color="#98A2B3" />
-                                                                            </Button>
+                                                                            <FormControl>
+                                                                                <Button disabled={(() => {
+                                                                                    const today = getDateAccToTimezone()
+                                                                                    today.setHours(0, 0, 0, 0);
+                                                                                    const dueDate = form.getValues("dueDate")
+                                                                                    const disable = dueDate == undefined
+                                                                                    return disable
+                                                                                })()} variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                                        {field.value ? (
+                                                                                            field.value
+                                                                                        ) : (
+                                                                                            <span className='text-muted-foreground'>HH:MM</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <IconClock size="24" color="#98A2B3" />
+                                                                                </Button>
+                                                                            </FormControl>
                                                                         </FormControl>
-                                                                    </FormControl>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent className=" p-0 !w-[180px]">
-                                                                    <Command>
-                                                                        <CommandInput className='w-full' placeholder="Search Due Time" />
-                                                                        <CommandEmpty>Due Time not found.</CommandEmpty>
-                                                                        <CommandGroup>
-                                                                            <div className='flex flex-col max-h-[200px] overflow-y-auto'>
-                                                                                {TIME_OPTIONS
-                                                                                    // .filter((timeOption) => {
-                                                                                    //     const today = getDateAccToTimezone()
-                                                                                    //     const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate"), today) : false
-                                                                                    //     return !shouldDisable
-                                                                                    // })
-                                                                                    .map((timeOption) => {
-                                                                                        return (<CommandItem
-                                                                                            value={timeOption.label}
-                                                                                            key={timeOption.value}
-                                                                                            onSelect={() => {
-                                                                                                form.setValue("dueTime", timeOption.value, SET_VALUE_CONFIG)
-                                                                                            }}
-                                                                                        >
-                                                                                            <div className={`flex flex-row items-center justify-between w-full `}>
-                                                                                                {timeOption.label}
-                                                                                                <Check
-                                                                                                    className={cn(
-                                                                                                        "mr-2 h-4 w-4 text-purple-600",
-                                                                                                        field.value === timeOption.value
-                                                                                                            ? "opacity-100"
-                                                                                                            : "opacity-0"
-                                                                                                    )}
-                                                                                                />
-                                                                                            </div>
-                                                                                        </CommandItem>)
-                                                                                    })}
-                                                                            </div>
-                                                                        </CommandGroup>
-                                                                    </Command>
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        </FormItem>
-                                                    )}
-                                                />
+                                                                    </PopoverTrigger>
+                                                                    <PopoverContent className=" p-0 !w-[180px]">
+                                                                        <Command>
+                                                                            <CommandInput className='w-full' placeholder="Search Due Time" />
+                                                                            <CommandEmpty>Due Time not found.</CommandEmpty>
+                                                                            <CommandGroup>
+                                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto'>
+                                                                                    {TIME_OPTIONS
+                                                                                        // .filter((timeOption) => {
+                                                                                        //     const today = getDateAccToTimezone()
+                                                                                        //     const shouldDisable = currentTime ? compareTimeStrings(timeOption.value, currentTime, form.getValues("dueDate"), today) : false
+                                                                                        //     return !shouldDisable
+                                                                                        // })
+                                                                                        .map((timeOption) => {
+                                                                                            return (<CommandItem
+                                                                                                value={timeOption.label}
+                                                                                                key={timeOption.value}
+                                                                                                onSelect={() => {
+                                                                                                    form.setValue("dueTime", timeOption.value, SET_VALUE_CONFIG)
+                                                                                                }}
+                                                                                            >
+                                                                                                <div className={`flex flex-row items-center justify-between w-full `}>
+                                                                                                    {timeOption.label}
+                                                                                                    <Check
+                                                                                                        className={cn(
+                                                                                                            "mr-2 h-4 w-4 text-purple-600",
+                                                                                                            field.value === timeOption.value
+                                                                                                                ? "opacity-100"
+                                                                                                                : "opacity-0"
+                                                                                                        )}
+                                                                                                    />
+                                                                                                </div>
+                                                                                            </CommandItem>)
+                                                                                        })}
+                                                                                </div>
+                                                                            </CommandGroup>
+                                                                        </Command>
+                                                                    </PopoverContent>
+                                                                </Popover>
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className='flex flex-row gap-[16px] w-full'>
-                                    <div className='flex flex-row gap-[8px] items-center w-[40%]'>
-                                        <IconReminder size="24" color="#98A2B3" />
-                                        <div className='text-md text-gray-500 font-normal'>Reminder</div>
-                                    </div>
-                                    <div className='flex-1 w-[60%]'>
-                                        <FormField
-                                            control={form.control}
-                                            name="reminder"
-                                            render={({ field }) => {
-                                                return <FormItem>
-                                                    <Select
-                                                        disabled={(() => {
-                                                            const dueDate = form.getValues("dueDate")
-                                                            const dueTime = form.getValues("dueTime")
-                                                            return !dueTime
-                                                        })()}
-                                                        onValueChange={(value) => {
-                                                            return field.onChange(value)
-                                                        }} defaultValue={field.value} key={field.value} >
-                                                        <FormControl>
-                                                            <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
-                                                                <SelectValue placeholder="Select Reminder" />
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                REMINDER.map((reminder, index) => {
-                                                                    let shouldDisable = disableReminderOnInvalidDateAndTime(reminder.value)
-                                                                    return <SelectItem disabled={shouldDisable} key={index} value={reminder.value}>
-                                                                        {reminder.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {/* <FormDescription>
+                                    <div className='flex flex-row gap-[16px] w-full'>
+                                        <div className='flex flex-row gap-[8px] items-center w-[40%]'>
+                                            <IconReminder size="24" color="#98A2B3" />
+                                            <div className='text-md text-gray-500 font-normal'>Reminder</div>
+                                        </div>
+                                        <div className='flex-1 w-[60%]'>
+                                            <FormField
+                                                control={form.control}
+                                                name="reminder"
+                                                render={({ field }) => {
+                                                    return <FormItem>
+                                                        <Select
+                                                            disabled={(() => {
+                                                                const dueDate = form.getValues("dueDate")
+                                                                const dueTime = form.getValues("dueTime")
+                                                                return !dueTime
+                                                            })()}
+                                                            onValueChange={(value) => {
+                                                                return field.onChange(value)
+                                                            }} defaultValue={field.value} key={field.value} >
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                    <SelectValue placeholder="Select Reminder" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    REMINDER.map((reminder, index) => {
+                                                                        let shouldDisable = disableReminderOnInvalidDateAndTime(reminder.value)
+                                                                        return <SelectItem disabled={shouldDisable} key={index} value={reminder.value}>
+                                                                            {reminder.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {/* <FormDescription>
                                                     You can manage email addresses in your{" "}
                                                 </FormDescription> */}
-                                                    {/* <FormMessage /> */}
-                                                </FormItem>
-                                            }
-                                            }
-                                        />
+                                                        {/* <FormMessage /> */}
+                                                    </FormItem>
+                                                }
+                                                }
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                {/* <div className='flex flex-row gap-[16px] w-full'>
+                                    {/* <div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                         <IconReminder size="24" color="#98A2B3" />
                                         <div className='text-md text-gray-500 font-normal'>Related To</div>
@@ -945,36 +947,43 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                         </div>
                                     </div>
                                 </div> */}
-                            </div>
+                                </div>
 
+                            </div>
                         </div>
-                    </div>
-                    <div className="bg-gray-200 h-[1px]  mt-8" />
-                    {editMode.isEditMode ?
-                        <div className='flex flex-row gap-2 w-full justify-end p-[24px]'>
-                            {editMode.yesDiscard && beforeCancelDialog(editMode.yesDiscard)}
-                            {editMode?.rescheduleActivity && <Button onClick={() => reschedule()} type='button'
-                                disabled={(() => {
-                                    // return false
-                                    const { disableDueDate, dueDate, today } = disableDueToInvalidDate()
-                                    const reminder = form.getValues("reminder")
-                                    let shouldDisableDueToReminder = disableReminderOnInvalidDateAndTime(reminder)
-                                    const disable = !form.formState.isDirty
-                                    console.log("disable due date", dueDate < today, "due date: ", dueDate, " today: ", today)
-                                    return disable
+                        <div className="bg-gray-200 h-[1px]  mt-8" />
+                        {editMode.isEditMode ?
+                            <div className='flex flex-row gap-2 w-full justify-end p-[24px]'>
+                                {editMode.yesDiscard && beforeCancelDialog(editMode.yesDiscard)}
+                                {editMode?.rescheduleActivity && <Button onClick={() => reschedule()} type='button'
+                                    disabled={(() => {
+                                        // return false
+                                        const { disableDueDate, dueDate, today } = disableDueToInvalidDate()
+                                        const reminder = form.getValues("reminder")
+                                        let shouldDisableDueToReminder = disableReminderOnInvalidDateAndTime(reminder)
+                                        const disable = !form.formState.isDirty
+                                        console.log("disable due date", dueDate < today, "due date: ", dueDate, " today: ", today)
+                                        return disable
 
-                                })()} >
-                                Update
-                            </Button>}
-                        </div> :
-                        <>
-                            <div className="flex flex-row gap-2 justify-end p-[16px]">
-                                <Button type='submit' disabled={!form.formState.isValid}>Save </Button>
-                            </div>
-                        </>}
-                </div>
-            </form>
-        </Form>
+                                    })()} >
+                                    Update
+                                </Button>}
+                            </div> :
+                            <>
+                                <div className="flex flex-row gap-2 justify-end p-[16px]">
+                                    {
+                                        addDialog?.yesDiscard && beforeCancelDialog(addDialog.yesDiscard)
+                                    }
+                                    <Button type='submit' disabled={!form.formState.isValid}>Save </Button>
+                                </div>
+                            </>}
+                    </div>
+                </form>
+            </Form>
+            {(loading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
+                <Loader2 className="mr-2 h-20 w-20 animate-spin" color='#7F56D9' />
+            </div>}
+        </>
     )
 
     function disableReminderOnInvalidDateAndTime(reminder: string) {

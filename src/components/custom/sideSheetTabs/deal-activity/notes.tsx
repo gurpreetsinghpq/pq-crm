@@ -113,7 +113,7 @@ const FormSchemaWhenNegotiation = z.object({
     }),
 })
 
-function Notes({ contactFromParents, entityId, isAccounts = false, activityDetails=undefined }: { contactFromParents: any, entityId: number, isAccounts?: boolean, activityDetails?:ActivityAccToEntity | undefined }) {
+function Notes({ contactFromParents, entityId, isAccounts = false, activityDetails=undefined }: { contactFromParents: any, entityId: number, isAccounts?: boolean, activityDetails?: {details:ActivityAccToEntity, fetchData:CallableFunction, yesDiscard: CallableFunction} }) {
 
     const [formSchema, setFormSchema] = useState<any>(FormSchema)
 
@@ -136,16 +136,17 @@ function Notes({ contactFromParents, entityId, isAccounts = false, activityDetai
 
     useEffect(() => {
         getActivityList()
-        if(activityDetails?.id){
-            form.setValue("activity", activityDetails.id.toString(), SET_VALUE_CONFIG)
-            if (activityDetails?.contacts) {
-                form.setValue("contact", activityDetails.contacts.map(val => val.id.toString()), SET_VALUE_CONFIG)
+        const details = activityDetails?.details
+        if(details?.id){
+            form.setValue("activity", details.id.toString(), SET_VALUE_CONFIG)
+            if (details?.contacts) {
+                form.setValue("contact", details.contacts.map(val => val.id.toString()), SET_VALUE_CONFIG)
             }
-            if (activityDetails?.mode) {
-                form.setValue("mode", activityDetails.mode, SET_VALUE_CONFIG)
+            if (details?.mode) {
+                form.setValue("mode", details.mode, SET_VALUE_CONFIG)
             }
-            if (activityDetails?.type) {
-                form.setValue("activityType", activityDetails.type, SET_VALUE_CONFIG)
+            if (details?.type) {
+                form.setValue("activityType", details.type, SET_VALUE_CONFIG)
             }
         }
     }, [])
@@ -265,8 +266,8 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
             remarks: form.getValues("remarks")
         }
 
-        if(activityDetails?.id){
-            dataToSend["activity"] = Number(activityDetails.id)
+        if(activityDetails?.details?.id){
+            dataToSend["activity"] = Number(activityDetails.details.id)
         }
 
         // if(isAccounts){
@@ -276,13 +277,24 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/note/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            toast({
-                title: "Note Created Succesfully!",
-                variant: "dark"
-            })
-            console.log(result)
-            form.reset()
-            getActivityList()
+            if(result.status=="1"){
+                toast({
+                    title: "Note Created Succesfully!",
+                    variant: "dark"
+                })
+                form.reset()
+                getActivityList()
+                if(activityDetails?.fetchData){
+                    activityDetails.fetchData()
+                    activityDetails.yesDiscard()
+                }
+            }
+            else{
+                toast({
+                    title: "Sorry some error have occured!",
+                    variant: "destructive"
+                })
+            }
 
         } catch (err) {
             console.log(err)
@@ -851,12 +863,12 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
 
     return (
         <Form {...form} >
-            <form className='w-full mb-10' onSubmit={form.handleSubmit(onSubmit)}>
-                <div className='flex flex-col rounded-[8px] bg-white-900 border-[1px] border-gray-200'>
-                    <div className='px-[28px] py-[24px] w-full '>
+            <form className={`w-full mb-10`} onSubmit={form.handleSubmit(onSubmit)}>
+                <div className={`flex flex-col rounded-[8px] bg-white-900 ${!activityDetails?.details?.id ? "border-[1px] border-gray-200" : ""} `}>
+                    <div className={`px-[28px] w-full ${ activityDetails?.details?.id ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll" : "py-[24px]"}`}>
                         <div className=' flex flex-col gap-[28px]'>
                             <div className='max-w-[800px] flex flex-col gap-[16px]'>
-                                {!activityDetails?.id &&<div className='flex flex-row gap-[16px] w-full'>
+                                {!activityDetails?.details?.id &&<div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                         <IconActivityType />
                                         <div className='text-md text-gray-500 font-normal'>Activity </div>
@@ -916,7 +928,7 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
                                         />
                                     </div>
                                 </div>}
-                                {(isAnyForm && !activityDetails?.id) && <> <div className='flex flex-row gap-[16px] w-full'>
+                                {(isAnyForm && !activityDetails?.details?.id) && <> <div className='flex flex-row gap-[16px] w-full'>
                                     <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                         <IconActivityType />
                                         <div className='text-md text-gray-500 font-normal'>Activity Type</div>
@@ -1413,7 +1425,7 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
 
                     <div className="bg-gray-200 h-[1px]  mt-8" />
                     <div className="flex flex-row gap-2 justify-end p-[16px]">
-                        {/* <Button variant={"google"} >Cancel</Button> */}
+                        <Button type='button' variant={"google"} onClick={()=>activityDetails?.yesDiscard()}>Cancel</Button>
                         <Button disabled={!form.formState.isValid}>Save </Button>
                     </div>
                 </div>

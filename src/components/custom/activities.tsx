@@ -156,7 +156,7 @@ const Activities = ({ form }: {
         setIsLoading(true)
         try {
 
-            const nameQueryParam = searchString ? `&title=${encodeURIComponent(searchString)}` : '';
+            const nameQueryParam = searchString ? `&q=${encodeURIComponent(searchString)}` : '';
             const modeQueryParam = mode ? `&mode=${encodeURIComponent(mode)}` : '';
             const designationQueryParam = designation ? `&designation=${encodeURIComponent(designation)}` : '';
             const createdAtFromQueryParam = `&created_at_from=${setDateHours(watch.dateRange.range.from, false)}`;
@@ -164,7 +164,7 @@ const Activities = ({ form }: {
             const dueDateSoryQueryParam = dueDateSort ? `&due_date=${encodeURIComponent(dueDateSort)}` : '';
             const createdByQueryParam = createdBy ? `&created_by=${encodeURIComponent(createdBy)}` : '';
             const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
-            const assigneeQueryParam = assignee ? `&assignee=${encodeURIComponent(assignee)}` : '';
+            const assigneeQueryParam = assignee ? `&assigned_to=${encodeURIComponent(assignee)}` : '';
 
             const dataResp = await fetch(`${baseUrl}/v1/api/activity/?page=${pageAsNumber}&limit=${perPageAsNumber}${assigneeQueryParam}${modeQueryParam}${statusQueryParam}${designationQueryParam}${modeQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdByQueryParam}${dueDateSoryQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
@@ -214,7 +214,7 @@ const Activities = ({ form }: {
 
     useEffect(() => {
         fetchActivityData()
-    }, [pageAsNumber, per_page, status, searchString, createdAtFrom, createdAtTo, dueDateSort, type, designation, createdBy, mode])
+    }, [pageAsNumber, per_page, status, searchString, createdAtFrom, createdAtTo, dueDateSort, type, designation, createdBy, mode, assignee])
 
     useEffect(() => {
         setDealFilter()
@@ -398,7 +398,7 @@ const Activities = ({ form }: {
             });
     }
 
-    const addAccountDialogButton = () => AddActivity()
+    const addAccountDialogButton = AddActivity
 
     const TABS = {
         TODO: "To-Do",
@@ -417,8 +417,8 @@ const Activities = ({ form }: {
     return <div className="flex flex-col flex-1">
         <div className="flex flex-row px-[24px] py-[5px] border-b-2 border-gray-100">
             <div className="flex flex-row gap-[8px] px-[7px] py-[6px] rounded-[8px] bg-gray-100">
-                {tabs.map((tab) => {
-                    return <div onClick={() => {
+                {tabs.map((tab, index) => {
+                    return <div key={index} onClick={() => {
                         setActiveStatus(tab.label)
                         form.setValue("statuses", [tab.value])
                     }} className={`px-[12px] py-[4px] cursor-pointer text-md ${activeStatus === tab.label ? "bg-purple-600 rounded-[8px] font-semibold text-white-900" : "text-gray-600 font-normal"}`}>
@@ -474,7 +474,7 @@ const Activities = ({ form }: {
                             </div>} */}
                         </div>
                         <div className="right flex flex-row gap-4 ">
-                            {!form.getValues("queryParamString") && addAccountDialogButton()}
+                             <AddActivity fetchActivityData={fetchActivityData}/>
 
                         </div>
                     </div>
@@ -794,16 +794,16 @@ const Activities = ({ form }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTableServer columns={columnsActivities(markStatus, reschedule, setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Activities"} pageCount={totalPageCount} />
+                    <DataTableServer columns={columnsActivities(markStatus, reschedule, fetchActivityData,  setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Activities"} pageCount={totalPageCount} />
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconContacts size="20" color="#667085" />
                     </div>
                         <div>
-                            <p className="text-md text-gray-900 font-semibold">{isInbox ? "No Contacts" : "No Archive Contacts"}</p>
+                            <p className="text-md text-gray-900 font-semibold"> No Activities </p>
 
                         </div>
-                        {isInbox && addAccountDialogButton()}</>}
+                        {isInbox && <AddActivity fetchActivityData={fetchActivityData}/>}</>}
                 </div>)
             }
             {childData?.row?.original?.notes && <SideSheetActivityNotes parentData={{ childData, setChildDataHandler }}/>}

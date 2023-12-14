@@ -9,7 +9,7 @@ import Activity from './sideSheetTabs/deal-activity/activity'
 import Image from 'next/image'
 
 
-function AddActivity() {
+function AddActivity({fetchActivityData}:{fetchActivityData:CallableFunction}) {
     const [open, setOpen] = useState<boolean>(false)
     function yesDiscard(isAdd: boolean = false) {
         setOpen(false)
@@ -33,7 +33,7 @@ function AddActivity() {
                     </DialogHeader>
                     <div className='flex flex-col gap-[32px] min-w-[780px] '>
                         <div>
-                            <Activity contactFromParents={null} entityId={-1} addDialog={{isAddDialog:true, setOpen:setOpen}} />
+                            <Activity contactFromParents={null} entityId={-1} addDialog={{isAddDialog:true, yesDiscard, fetchActivityData}} />
                         </div>
                     </div>
                 </div>

@@ -26,7 +26,7 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export function columnsActivities(markStatus: (entityId: number, status: string) => Promise<void>, rescheduleActivity: (entityId: number, data: ActivityPatchBody) => Promise<void>, setChildDataHandler?: CallableFunction, isInbox?: boolean, permissions?: Permission): ColumnDef<ActivityAccToEntity>[] {
+export function columnsActivities(markStatus: (entityId: number, status: string) => Promise<void>, rescheduleActivity: (entityId: number, data: ActivityPatchBody) => Promise<void>, fetchData: CallableFunction, setChildDataHandler?: CallableFunction ): ColumnDef<ActivityAccToEntity>[] {
     return [
         {
             accessorKey: "title",
@@ -44,7 +44,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
         },
         {
             accessorKey: "entity",
-            accessorFn: (originalRow, index) => originalRow?.lead?.entity_name,
+            accessorFn: (originalRow, index) => originalRow?.lead?.entity_name || originalRow?.organisation?.entity_name,
             header: ({ column }) => {
                 return (
                     <div
@@ -250,7 +250,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                                 (details.status === "Completed" || details.status === "Cancelled") && <>
                                     {
                                         !details.notes ? <>
-                                            <AddNote activityDetails={details} contactFromParents={details.contacts}/>
+                                            <AddNote activityDetails={{details, fetchData}} contactFromParents={details.contacts}/>
                                         </> : <>
                                             <DropdownMenuItem onClick={()=>setChildDataHandler && setChildDataHandler('row', row)}>
                                                 <div className="text-gray-700 text-sm font-medium flex flex-row items-center gap-[8px]" >

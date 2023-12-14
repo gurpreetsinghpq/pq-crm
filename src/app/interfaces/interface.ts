@@ -904,7 +904,11 @@ export interface ActivityAccToEntity {
     lead: {
         id: number,
         entity_name: string
-    };    
+    } | null;
+    organisation: {
+        id: number,
+        entity_name: string
+    } | null;
     contact: number[];
     isLastChild?: boolean;
     typeOfEntity?: string

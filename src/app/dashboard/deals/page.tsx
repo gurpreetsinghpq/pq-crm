@@ -12,7 +12,7 @@ function page() {
   const {permissions} = usePermissionStore()
   return (
     <div className='w-full flex flex-col flex-1'>
-        <Deals form={DealsForm} permissions={permissions["Deals"]}/>
+        <Deals form={DealsForm} permissions={permissions["Deal"]}/>
     </div>
   )
 }

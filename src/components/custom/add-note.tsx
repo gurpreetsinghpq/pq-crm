@@ -9,10 +9,10 @@ import Image from 'next/image'
 import Notes from './sideSheetTabs/deal-activity/notes'
 
 
-function AddNote({  activityDetails, contactFromParents }: { activityDetails: ActivityAccToEntity, contactFromParents: any }) {
+function AddNote({  activityDetails, contactFromParents }: { activityDetails: {details:ActivityAccToEntity, fetchData:CallableFunction}, contactFromParents: any }) {
     const [open, setOpen] = useState<boolean>(false)
     function yesDiscard(isAdd: boolean = false) {
-        setOpen(false)
+        setOpen(isAdd)
     }
     return (
 
@@ -37,7 +37,7 @@ function AddNote({  activityDetails, contactFromParents }: { activityDetails: Ac
                     </DialogHeader>
                     <div className='flex flex-col gap-[32px] min-w-[780px] '>
                         <div>
-                            <Notes contactFromParents={contactFromParents} entityId={-1} isAccounts={false} key={activityDetails.id} activityDetails={activityDetails} />
+                            <Notes contactFromParents={contactFromParents} entityId={-1} isAccounts={false} key={activityDetails?.details?.id} activityDetails={{details:activityDetails.details, fetchData:activityDetails.fetchData, yesDiscard}} />
                         </div>
                     </div>
                 </div>
