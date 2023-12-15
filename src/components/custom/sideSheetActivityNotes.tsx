@@ -19,6 +19,8 @@ function SideSheetActivityNotes({ parentData }: { parentData: { childData: IChil
         notes["title"] = activity.title
         notes["activity_type"] = activity.type
         notes["mode"] = activity.mode
+        notes["due_date"] = activity.due_date
+        notes["contacts"] = activity.contacts
         activity["typeOfEntity"] = "activity"
         const data: HistoryAllMode = [activity, notes]
         setHistoryNotesList(data)
