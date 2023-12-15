@@ -110,9 +110,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             assigned_to: Number(form.getValues("assignedTo"))
         }
         if (entityId === -1) {
-            if(form.getValues("entityType")==="client"){
+            if (form.getValues("entityType") === "client") {
                 dataToSend["organisation"] = Number(form.getValues("selectEntity"))
-            }else{
+            } else {
                 dataToSend["lead"] = Number(form.getValues("selectEntity"))
             }
         }
@@ -132,7 +132,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                     variant: "dark"
                 })
                 form.reset()
-                if(addDialog?.fetchActivityData && addDialog?.yesDiscard){
+                if (addDialog?.fetchActivityData && addDialog?.yesDiscard) {
                     addDialog.fetchActivityData()
                     addDialog.yesDiscard()
                 }
@@ -314,7 +314,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             setEntityData([])
         }
 
-        if(addDialog?.isAddDialog){
+        if (addDialog?.isAddDialog) {
             fetchDataAccToEntity(form.getValues("entityType") || "", debouncedSearchableFilters)
         }
 
@@ -326,10 +326,10 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             <Form {...form}>
                 <form className='w-full' onSubmit={form.handleSubmit(onSubmit)} >
                     <div className={`flex flex-col rounded-[8px] bg-white-900 ${!editMode.isEditMode && "border-[1px] border-gray-200"}`}>
-                        <div className={`px-[28px] py-[24px] w-full ${ addDialog?.isAddDialog ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll" : ""}`}>
+                        <div className={`px-[28px] py-[24px] w-full ${addDialog?.isAddDialog ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll" : ""}`}>
                             <div className=' flex flex-col gap-[28px]'>
                                 {addDialog?.isAddDialog && <div className='flex flex-col'>
-                                    <div className='flex flex-row items-center mb-[20px]'>
+                                    <div className='flex flex-row items-center mb-[20px] gap-[10px]'>
                                         <div className='text-purple-700 text-sm font-bold'>
                                             Related to
                                         </div>
@@ -351,7 +351,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                             setEntityData([])
                                                             setContacts([])
                                                             setCurrentEntityName("")
-                                                            form.setValue("contact",[])
+                                                            form.setValue("contact", [])
                                                             form.setValue("selectEntity", "")
                                                             return field.onChange(value)
                                                         }} defaultValue={field.value} key={field.value}>
@@ -432,8 +432,8 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                                                 onClick={() => {
                                                                                                     form.setValue("selectEntity", entity.id.toString(), SET_VALUE_CONFIG)
                                                                                                     setCurrentEntityName(entityName)
-                                                                                                    form.setValue("contact",[])
-                                                                                                    setContacts( contactData)
+                                                                                                    form.setValue("contact", [])
+                                                                                                    setContacts(contactData)
                                                                                                 }}
                                                                                                 className="relative flex cursor-default hover:bg-accent items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground "
                                                                                             >
@@ -467,6 +467,13 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                     </div>
                                 </div>}
                                 <div className='max-w-[800px] flex flex-col gap-[16px]'>
+                                    {addDialog?.isAddDialog && <div className='flex flex-row items-center mb-[20px] gap-[10px]'>
+                                        <div className='text-purple-700 text-sm font-bold'>
+                                        Activity Details
+                                        </div>
+                                        <div className='h-[1px] bg-gray-200 flex-1'>
+                                        </div>
+                                    </div>}
                                     <div className='flex flex-row gap-[16px] w-full'>
                                         <div className='flex flex-row gap-[8px] items-center w-[40%]'>
                                             <IconActivityType />
