@@ -156,10 +156,15 @@ export default function DataTableServer<TData, TValue>({
   const perPageAsNumber = Number(per_page)
   const fallbackPerPage = isNaN(perPageAsNumber) ? 10 : perPageAsNumber
   const createdAtSort = searchParams?.get("created_at")
+  const dueDateSort = searchParams?.get("due_date")
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "created_at" ?? "",
       desc: createdAtSort === "1",
+    },
+    {
+      id: "due_date" ?? "",
+      desc: dueDateSort === "1",
     },
   ])
 

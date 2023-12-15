@@ -108,7 +108,7 @@ const Activities = ({ form }: {
     const searchString = searchParams?.get("name") ?? null
     const createdAtFrom = searchParams?.get("created_at_from") ?? setDateHours(watch.dateRange.range.from, false)
     const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, true)
-    const dueDateSort = searchParams?.get("due_date") ?? null
+    const dueDateSort = searchParams?.get("due_date") ?? "0"
     const designation = searchParams?.get("designation") ?? null
     const type = searchParams?.get("type") ?? null
     const createdBy = searchParams?.get("created_by") ?? null
@@ -343,6 +343,7 @@ const Activities = ({ form }: {
         //         form.setValue("creators", removeUndefinedFromArray(data))
         //     }
         // }
+
         getUserList()
     }, [])
 

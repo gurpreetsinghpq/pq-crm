@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
-import { ArrowUpDown, Ban, CheckCircle, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
+import { ArrowUp, ArrowUpDown, Ban, CheckCircle, ChevronDown, ChevronDownIcon, MoreVertical, MoveUp } from "lucide-react"
 import { TIMEZONE, getActive, getName, markStatusOfActivity, rescheduleActivity } from "../commonFunctions"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { DialogClose } from "@radix-ui/react-dialog"
@@ -142,19 +142,20 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
         },
         {
             accessorKey: "due_date",
-
+            accessorFn: (originalRow)=> originalRow.due_date,
             header: ({ column }) => {
                 return (
                     <div
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => {
+                            column.toggleSorting( column.getIsSorted() === "asc")
+                        }}
                         className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
                     >
                         Due Date/Time
-                        {<IconArrowDown size={20} />}
+                        <IconArrowDown size={20} />
                     </div>
                 )
             },
-
             cell: ({ row }) => <div className=" font-normal">
                 {multiLine(row.getValue("due_date"))}
 
@@ -180,9 +181,8 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                 return true
             },
             sortingFn: (a, b) => {
-                return +new Date(a.getValue("created_at")) - +new Date(b.getValue("created_at"));
+                return +new Date(a.getValue("due_date")) - +new Date(b.getValue("due_date"));
             },
-
 
         },
         {
