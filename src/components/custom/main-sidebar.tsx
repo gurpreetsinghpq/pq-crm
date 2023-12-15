@@ -200,7 +200,7 @@ function MainSidebar() {
                             </Link>
                         </TooltipTrigger>
                         <TooltipContent side="right" sideOffset={5}>
-                            Activity
+                            Activities
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>}
@@ -213,7 +213,7 @@ function MainSidebar() {
                                 href={'/dashboard/settings'}
                                 onClick={() => {
                                     setTab(TITLES.USER_MANAGEMENT)
-                                    setSettingsClicked(isSettingsClicked+1)
+                                    setSettingsClicked(isSettingsClicked + 1)
                                 }} className={`h-12 w-12 hover:cursor-pointer p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.USER_MANAGEMENT && 'bg-purple-600'} ${!(permissions["User Management"]?.access && permissions["User Management"]?.view) && disabledSidebarItem}`}>
                                 <IconSettings />
                             </Link>
