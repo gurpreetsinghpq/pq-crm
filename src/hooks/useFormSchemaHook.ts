@@ -177,10 +177,10 @@ const ActivityFormSchema = z.object({
     queryParamString: z.string()
 })
 
-const { fromAllTime, toAllTime } = getAllTime()
 export function useFormSchemaHook(){
-
+    
     const { from, to } = getLast7Days()
+    const { fromAllTime, toAllTime } = getAllTime()
     const {isSettingsClicked, setSettingsClicked} = useSettingStore()
     const {currentTab, setCurrentTab} = useCurrentTabStore()
     // console.log("filters lead formschema hook", fromAllTime, toAllTime)

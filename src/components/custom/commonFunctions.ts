@@ -800,7 +800,7 @@ export async function rescheduleActivity(entityId:number, data:ActivityPatchBody
       const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/`, { method: "PATCH", body: JSON.stringify(data), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
       const result = await dataResp.json()
       toast({
-          title: `Activity Rescheduled`,
+          title: `Activity Rescheduled Successfully`,
           variant: "dark"
       })
       cb()

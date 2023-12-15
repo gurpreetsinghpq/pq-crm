@@ -40,7 +40,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                     </div>
                 )
             },
-            cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title") || <span className="text-gray-400">—</span>}</span>
+            cell: ({ row }) => <span className="text-gray-900 text-sm w-fit">{row.getValue("title") || <span className="text-gray-400">—</span>}</span>
         },
         {
             accessorKey: "entity",
@@ -54,7 +54,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("entity") || <span className="text-gray-400">—</span>}</div>,
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal w-fit">{row.getValue("entity") || <span className="text-gray-400">—</span>}</div>,
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
             },
@@ -82,7 +82,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
             header: ({ column }) => {
                 return (
                     <div
-                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center w-[150px]"
                     >
                         Status
                     </div>
