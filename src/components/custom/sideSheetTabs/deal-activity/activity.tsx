@@ -326,7 +326,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             <Form {...form}>
                 <form className='w-full' onSubmit={form.handleSubmit(onSubmit)} >
                     <div className={`flex flex-col rounded-[8px] bg-white-900 ${!editMode.isEditMode && "border-[1px] border-gray-200"}`}>
-                        <div className={`px-[28px] py-[24px] w-full ${addDialog?.isAddDialog ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll" : ""}`}>
+                        <div className={`px-[28px] py-[24px] w-full ${addDialog?.isAddDialog ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-[500px] overflow-y-scroll" : ""}`}>
                             <div className=' flex flex-col gap-[28px]'>
                                 {addDialog?.isAddDialog && <div className='flex flex-col'>
                                     <div className='flex flex-row items-center mb-[20px] gap-[10px]'>
