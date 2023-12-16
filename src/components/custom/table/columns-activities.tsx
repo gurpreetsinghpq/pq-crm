@@ -65,30 +65,13 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
             header: ({ column }) => {
                 return (
                     <div
-                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center min-w-[100px]"
                     >
                         Mode
                     </div>
                 )
             },
             cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("mode")}</div>,
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
-            },
-        },
-        {
-            accessorKey: "status",
-            accessorFn: (originalRow) => originalRow.status,
-            header: ({ column }) => {
-                return (
-                    <div
-                        className="text-xs text-gray-600 flex flex-row gap-2 items-center w-[150px]"
-                    >
-                        Status
-                    </div>
-                )
-            },
-            cell: ({ row }) => <div>{getClassOfStatus(row.getValue("status"))}</div>,
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
             },
@@ -124,6 +107,24 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                 return value.includes(rowData?.id?.toString())
             },
         },
+        {
+            accessorKey: "status",
+            accessorFn: (originalRow) => originalRow.status,
+            header: ({ column }) => {
+                return (
+                    <div
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center w-[150px]"
+                    >
+                        Status
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div>{getClassOfStatus(row.getValue("status"))}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
+        },
+        
         {
             accessorKey: "created_by",
             header: ({ column }) => {
