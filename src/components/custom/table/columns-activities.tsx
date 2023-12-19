@@ -241,7 +241,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                         <DropdownMenuContent align="end">
                             {(details.status === "Over Due" || details.status === "In Progress") && <>
                                 {
-                                    details.id && <>
+                                    (details.id && details.status === "In Progress")  && <>
                                         <RescheduleActivity rescheduleActivity={rescheduleActivity} key={details.id} data={details} entityId={details.id} contactFromParents={details.contacts} isReassign={true}/>
                                     </>
                                 }

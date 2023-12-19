@@ -66,7 +66,7 @@ function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, perm
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         {
-                                            details.id && <>
+                                            (details.id && details.status === "In Progress" )&& <>
                                                 <RescheduleActivity rescheduleActivity={rescheduleActivity} key={details.id} data={details} entityId={details.id} contactFromParents={details.contacts} isReassign={true} />
                                             </>
                                         }
