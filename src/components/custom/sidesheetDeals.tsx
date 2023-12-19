@@ -1032,7 +1032,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                                                             }
                                                             } defaultValue={field.value}>
                                                                 <FormControl>
-                                                                    <SelectTrigger className={`border-gray-300 ${commonClasses}`}>
+                                                                    <SelectTrigger disabled={rowState?.status==="Lost" } className={`border-gray-300 ${commonClasses}`}>
                                                                         <SelectValue defaultValue={field.value} placeholder="Select a Status" />
                                                                     </SelectTrigger>
                                                                 </FormControl>

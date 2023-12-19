@@ -25,7 +25,7 @@ import { Tooltip } from '@radix-ui/react-tooltip'
 import { commonFontClassesAddDialog, contactListClasses, disabledClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
-import { doesTypeIncludesMandatory, getIsContactDuplicate, getToken, handleKeyPress, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { doesTypeIncludesMandatory, getIsContactDuplicate, getToken, handleAlphaNumericKeyPress, handleKeyPress, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 
 
@@ -519,7 +519,8 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
                                 render={({ field }) => (
                                     <FormItem >
                                         <FormControl>
-                                            <Input type="text" className={` ${commonClasses}`} placeholder="Organisation Name" {...field} />
+                                            {/* <Input type="text" className={` ${commonClasses}`} placeholder="Organisation Name" {...field} /> */}
+                                            <Input onKeyPress={handleAlphaNumericKeyPress} disabled={true} type="text" className={` ${commonClasses}`} placeholder="Organisation Name" {...field} />
 
                                         </FormControl>
                                     </FormItem>

@@ -21,7 +21,7 @@ import { Client, ClientCompleteInterface, ContactDetail, ContactPostBody, Duplic
 import { PopoverClose } from '@radix-ui/react-popover'
 import { commonFontClassesAddDialog, preFilledClasses } from '@/app/constants/classes'
 import { valueToLabel } from './sideSheet'
-import { doesTypeIncludesMandatory, getIsContactDuplicate, getToken, handleKeyPress, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { doesTypeIncludesMandatory, getIsContactDuplicate, getToken, handleAlphaNumericKeyPress, handleKeyPress, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { beforeCancelDialog } from './addLeadDetailedDialog'
 
 
@@ -302,7 +302,8 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} />
+                                        {/* <Input onKeyPress={handleAlphaNumericKeyPress} disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} /> */}
+                                        <Input onKeyPress={handleAlphaNumericKeyPress} disabled={true} type="text" className={`mt-3 ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} />
 
                                     </FormControl>
                                 </FormItem>

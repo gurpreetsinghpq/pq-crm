@@ -399,6 +399,9 @@ export function useFormSchemaHook(){
             else if(tabName===TITLES.ACTIVITIES){
                 router.push(`/dashboard/activity`)
             }
+            else if(tabName===TITLES.My_DASHBOARD){
+                router.push(`/dashboard/my-dashboard`)
+            }
         }
         
     }

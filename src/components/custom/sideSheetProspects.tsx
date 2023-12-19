@@ -1000,7 +1000,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                             }
                                                             } defaultValue={field.value}>
                                                                 <FormControl>
-                                                                    <SelectTrigger className={`border-gray-300 ${commonClasses}`}>
+                                                                    <SelectTrigger disabled={rowState?.status==="Lost" || rowState?.status==="Disqualified" } className={`border-gray-300 ${commonClasses}`}>
                                                                         <SelectValue defaultValue={field.value} placeholder="Select a Status" />
                                                                     </SelectTrigger>
                                                                 </FormControl>
@@ -1036,7 +1036,7 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
                                                         <FormItem className='w-full'>
                                                             <Select onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                                 <FormControl>
-                                                                    <SelectTrigger className={`border-gray-300 shadow ${commonClasses}`}>
+                                                                    <SelectTrigger disabled={rowState?.status==="Lost" || rowState?.status==="Disqualified" } className={`border-gray-300 shadow ${commonClasses}`}>
                                                                         <SelectValue defaultValue={field.value} placeholder="Select Reason" />
                                                                     </SelectTrigger>
                                                                 </FormControl>

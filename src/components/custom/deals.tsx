@@ -108,9 +108,9 @@ const Deals = ({ form, permissions }: {
     const fulfilledBy = searchParams?.get("lead__fullfilled_by") ?? null
     const searchString = searchParams?.get("lead__title") ?? null
     const createdAtFrom = searchParams?.get("created_at_from") ?? setDateHours(watch.dateRange.range.from, false)
-    const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, false)
+    const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, true)
     const createdAtSort = searchParams?.get("created_at") ?? null
-    const roleRegion = searchParams?.get("lead__role__region") ?? null
+    // const roleRegion = searchParams?.get("lead__role__region") ?? null
     const owner = searchParams?.get("owner") ?? null
     const status = searchParams?.get("status") ?? null
     const source = searchParams?.get("lead__source") ?? null
@@ -158,12 +158,12 @@ const Deals = ({ form, permissions }: {
             const createdAtToQueryParam = `&created_at_to=${setDateHours(watch.dateRange.range.to, true)}`;
             const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
             const isArchivedQueryParam = isArchived ? `&archived=${encodeURIComponent(isArchived)}` : '';
-            const roleRegionQueryParam = roleRegion ? `&lead__role__region=${encodeURIComponent(roleRegion)}` : '';
+            // const roleRegionQueryParam = roleRegion ? `&lead__role__region=${encodeURIComponent(roleRegion)}` : '';
             const ownerQueryParam = owner ? `&owner=${encodeURIComponent(owner)}` : '';
             const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
             const sourceQueryParam = source ? `&lead__source=${encodeURIComponent(source)}` : '';
 
-            const dataResp = await fetch(`${baseUrl}/v1/api/deal/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${fulfilledByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${roleRegionQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/deal/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${fulfilledByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: DealsGetResponse[] = structuredClone(result.data)
 
@@ -187,16 +187,20 @@ const Deals = ({ form, permissions }: {
     }
 
     useEffect(() => {
+        console.log("filters watch.dateRange", watch.dateRange)
+        setDealFilter()
+    }, [watch.sources, watch.statuses, watch.owners, watch.fulfilledBy, JSON.stringify(watch.dateRange)])
+
+    useEffect(() => {
+        console.log("filters", pageAsNumber, per_page, isArchived, status, source, owner, fulfilledBy, searchString, createdAtFrom, createdAtTo, createdAtSort)
         fetchDealData()
-    }, [pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, fulfilledBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
+    }, [pageAsNumber, per_page, isArchived, status, source, owner, fulfilledBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
     useEffect(() => {
         createFilterQueryString([{ filterFieldName: "archived", value: !isInbox ? "True" : "False" }])
     }, [isInbox])
 
-    useEffect(() => {
-        setDealFilter()
-    }, [watch.sources, watch.statuses, watch.owners, watch.fulfilledBy, JSON.stringify(watch.dateRange),])
+    
 
     function setDealFilter() {
         let regionsQueryParam: FilterQuery = EMPTY_FILTER_QUERY

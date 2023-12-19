@@ -102,7 +102,7 @@ const Prospects = ({ form, permissions }: {
     const createdBy = searchParams?.get("created_by") ?? null
     const searchString = searchParams?.get("lead__title") ?? null
     const createdAtFrom = searchParams?.get("created_at_from") ?? setDateHours(watch.dateRange.range.from, false)
-    const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, false)
+    const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, true)
     const createdAtSort = searchParams?.get("created_at") ?? null
     const roleRegion = searchParams?.get("lead__role__region") ?? null
     const owner = searchParams?.get("owner") ?? null
@@ -155,7 +155,7 @@ const Prospects = ({ form, permissions }: {
             const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
             const sourceQueryParam = source ? `&lead__source=${encodeURIComponent(source)}` : '';
            
-            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${roleRegionQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}${roleRegionQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: ProspectsGetResponse[] = structuredClone(result.data)
            
@@ -177,18 +177,18 @@ const Prospects = ({ form, permissions }: {
         }
         
     }
+    useEffect(() => {
+        setProspectFilter()
+    }, [watch.regions, watch.sources, watch.creators, watch.statuses, watch.owners, JSON.stringify(watch.dateRange), ])
 
     useEffect(() => {
         fetchProspectData()
-    }, [pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
+    }, [pageAsNumber, per_page, isArchived, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort, roleRegion])
 
     useEffect(() => {
         createFilterQueryString([{ filterFieldName: "archived", value: !isInbox ? "True" : "False" }])
     }, [isInbox])
 
-    useEffect(() => {
-        setProspectFilter()
-    }, [watch.regions, watch.sources, watch.creators, watch.statuses, watch.owners, JSON.stringify(watch.dateRange), ])
 
     function setProspectFilter() {
         let regionsQueryParam: FilterQuery = EMPTY_FILTER_QUERY

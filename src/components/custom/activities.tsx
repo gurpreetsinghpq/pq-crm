@@ -57,8 +57,17 @@ import SideSheetActivityNotes from "./sideSheetActivityNotes"
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
+const TABS = {
+    TODO: "To-Do",
+    COMPLETED: "Completed",
+    CANCELLED: "Cancelled"
+}
 
-
+const tabs: IValueLabel[] = [
+    { value: "In Progress", label: TABS.TODO },
+    { value: "Completed", label: TABS.COMPLETED },
+    { value: "Cancelled", label: TABS.CANCELLED }
+];
 
 // let tableLeadLength = 0
 
@@ -85,6 +94,7 @@ const Activities = ({ form }: {
     const watch = form.watch()
 
     const [data, setActivityData] = useState<ActivityAccToEntity[]>([])
+    const [table, setTable] = useState<any>()
 
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [isMultiSelectOn, setIsMultiSelectOn] = useState<boolean>(false)
@@ -96,6 +106,7 @@ const Activities = ({ form }: {
     const [isUserDataLoading, setIsUserDataLoading] = useState<boolean>(true)
     const [userList, setUserList] = useState<IValueLabel[]>()
     const [accountList, setAccountList] = useState<IValueLabel[]>()
+    const [activeStatus, setActiveStatus] = useState<string>(TABS.TODO)
 
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -133,7 +144,7 @@ const Activities = ({ form }: {
         }
     }
 
-    
+
     function setTableLeadRow(data: any) {
         const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
         setIsMultiSelectOn(selectedRows.length !== 0)
@@ -141,12 +152,12 @@ const Activities = ({ form }: {
         setSelectedRowIds(ids)
         setTableLength(data.rows.length)
     }
-    
-    async function markStatus(entityId:number, status:string){
+
+    async function markStatus(entityId: number, status: string) {
         markStatusOfActivity(entityId, status, fetchActivityData)
     }
 
-    async function reschedule(entityId:number, data:ActivityPatchBody){
+    async function reschedule(entityId: number, data: ActivityPatchBody) {
         rescheduleActivity(entityId, data, fetchActivityData)
     }
 
@@ -219,6 +230,7 @@ const Activities = ({ form }: {
     useEffect(() => {
         setDealFilter()
     }, [watch.assignees, watch.creators, watch.modes, watch.search, JSON.stringify(watch.dateRange), watch.statuses])
+
 
     function setDealFilter() {
         let assigneesQueryParam: FilterQuery = EMPTY_FILTER_QUERY
@@ -401,19 +413,6 @@ const Activities = ({ form }: {
 
     const addAccountDialogButton = AddActivity
 
-    const TABS = {
-        TODO: "To-Do",
-        COMPLETED: "Completed",
-        CANCELLED: "Cancelled"
-    }
-
-    const tabs: IValueLabel[] = [
-        { value: "In Progress", label: TABS.TODO },
-        { value: "Completed", label: TABS.COMPLETED },
-        { value: "Cancelled", label: TABS.CANCELLED }
-    ];
-
-    const [activeStatus, setActiveStatus] = useState<string>(TABS.TODO)
 
     return <div className="flex flex-col flex-1">
         <div className="flex flex-row px-[24px] py-[5px] border-b-2 border-gray-100">
@@ -475,7 +474,7 @@ const Activities = ({ form }: {
                             </div>} */}
                         </div>
                         <div className="right flex flex-row gap-4 ">
-                             <AddActivity fetchActivityData={fetchActivityData}/>
+                            <AddActivity fetchActivityData={fetchActivityData} />
 
                         </div>
                     </div>
@@ -795,7 +794,7 @@ const Activities = ({ form }: {
                 isLoading ? (<div className="flex flex-row h-[60vh] justify-center items-center">
                     <Loader />
                 </div>) : data?.length > 0 ? <div className="tbl w-full flex flex-1 flex-col">
-                    <DataTableServer columns={columnsActivities(markStatus, reschedule, fetchActivityData,  setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Activities"} pageCount={totalPageCount} />
+                    <DataTableServer columns={columnsActivities(markStatus, reschedule, fetchActivityData, setChildDataHandler)} data={data} filterObj={form.getValues()} setTableLeadRow={setTableLeadRow} setChildDataHandler={setChildDataHandler} setIsMultiSelectOn={setIsMultiSelectOn} pageName={"Activities"} pageCount={totalPageCount} hidden={(()=>{return activeStatus===TABS.TODO ? {customFields:["next_step"]} : undefined})()}/>
                 </div> : (<div className="flex flex-col gap-6 items-center p-10 ">
                     {isNetworkError ? <div>Sorry there was a network error please try again later...</div> : <><div className="h-12 w-12 mt-4 p-3 hover:bg-black-900 hover:fill-current text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
                         <IconContacts size="20" color="#667085" />
@@ -804,10 +803,10 @@ const Activities = ({ form }: {
                             <p className="text-md text-gray-900 font-semibold"> No Activities </p>
 
                         </div>
-                        {isInbox && <AddActivity fetchActivityData={fetchActivityData}/>}</>}
+                        {isInbox && <AddActivity fetchActivityData={fetchActivityData} />}</>}
                 </div>)
             }
-            {childData?.row?.original?.notes && <SideSheetActivityNotes parentData={{ childData, setChildDataHandler }}/>}
+            {childData?.row?.original?.notes && <SideSheetActivityNotes parentData={{ childData, setChildDataHandler }} />}
         </div>
 
 

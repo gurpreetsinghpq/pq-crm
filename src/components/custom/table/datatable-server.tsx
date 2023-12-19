@@ -109,6 +109,7 @@ type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & DealsInterfa
 interface HiddenIf {
   threeDots?: boolean,
   multiCheckBoxes?:boolean,
+  customFields?: string[]
 }
 
 const emptyFilterQuery: FilterQuery = { filterFieldName: '', value: null }
@@ -122,7 +123,7 @@ interface DataTableProps<TData, TValue> {
   setIsMultiSelectOn: CallableFunction,
   pageName: string,
   hidden?: HiddenIf,
-  pageCount?: number
+  pageCount?: number,
 }
 let accountFilteredData: FilterQuery[] = []
   
@@ -135,9 +136,9 @@ export default function DataTableServer<TData, TValue>({
   setIsMultiSelectOn,
   pageName,
   hidden = {
-    threeDots: false
+    threeDots: false,
   },
-  pageCount
+  pageCount,
 }: DataTableProps<TData, TValue>) {
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -299,6 +300,15 @@ export default function DataTableServer<TData, TValue>({
         return {
           "select":false
         }
+      })
+    }
+    if(hidden?.customFields && hidden.customFields.length>0){
+      hidden.customFields.map((field)=>{
+        setColumnVisibility(()=>{
+          return {
+            [field]:false
+          }
+        })
       })
     }
   }, [])

@@ -23,7 +23,7 @@ import { TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 import { Tooltip } from '@radix-ui/react-tooltip'
 import { commonClasses, commonFontClassesAddDialog, contactListClasses, preFilledClasses } from '@/app/constants/classes'
 import { PopoverClose } from '@radix-ui/react-popover'
-import { doesTypeIncludesMandatory, getIsContactDuplicate, getMandatoryFromType, getToken, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { doesTypeIncludesMandatory, getIsContactDuplicate, getMandatoryFromType, getToken, handleAlphaNumericKeyPress, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import Link from 'next/link'
 
 
@@ -480,7 +480,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                             render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
-                                        <Input disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} />
+                                        {/* <Input onKeyPress={handleAlphaNumericKeyPress} disabled={details?.name ? true : false} type="text" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} /> */}
+                                        <Input onKeyPress={handleAlphaNumericKeyPress} disabled={true} type="text" className={`mt-3 ${commonFontClassesAddDialog} ${commonClasses} ${details?.name && preFilledClasses}`} placeholder="Organisation Name" {...field} />
 
                                     </FormControl>
                                 </FormItem>

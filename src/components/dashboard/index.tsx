@@ -65,6 +65,8 @@ export const TITLE_MAP_W_ROUTE = new Map([
     ["settings" ,TITLES.USER_MANAGEMENT],
     ["my-account" ,TITLES.MY_ACCOUNT],
     ["activity" ,TITLES.ACTIVITIES],
+    ["my-dashboard" ,TITLES.My_DASHBOARD],
+    
 ])
 
 let INITIAL_PARENT_TITLE = ''

@@ -53,7 +53,7 @@ const FormSchema = z.object({
 
 
 
-function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null }, isAccounts = false, addDialog = undefined }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction }, isAccounts?: boolean, addDialog?: { isAddDialog: boolean, yesDiscard: CallableFunction | null, fetchActivityData: CallableFunction | null } }) {
+function Activity({ contactFromParents, entityId, editMode = { isEditMode: false, data: null, yesDiscard: null }, isAccounts = false, addDialog = undefined }: { contactFromParents: any, entityId: number, editMode?: { isEditMode: boolean, data: any, yesDiscard: CallableFunction | null, rescheduleActivity?: (entityId: number, data: ActivityPatchBody) => Promise<void>, setOpen?: CallableFunction, isReassign?: boolean }, isAccounts?: boolean, addDialog?: { isAddDialog: boolean, yesDiscard: CallableFunction | null, fetchActivityData: CallableFunction | null } }) {
     const [userList, setUserList] = React.useState<IValueLabel[]>()
     const [isUserDataLoading, setIsUserDataLoading] = React.useState<boolean>(true)
     const [currentTime, setCurrentTime] = React.useState<string>()
@@ -264,10 +264,16 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         const formattedDueDate = formattedDueDateToSend()
         const reminder = Number(form.getValues("reminder"))
         if (editMode.rescheduleActivity) {
-            editMode.rescheduleActivity(editMode.data.id, {
-                due_date: formattedDueDate,
-                reminder: reminder
-            })
+            if (editMode.isReassign) {
+                editMode.rescheduleActivity(editMode.data.id, {
+                    assigned_to: Number(form.getValues("assignedTo"))
+                })
+            } else {
+                editMode.rescheduleActivity(editMode.data.id, {
+                    due_date: formattedDueDate,
+                    reminder: reminder
+                })
+            }
             editMode.setOpen && editMode.setOpen(false)
         }
     }
@@ -469,7 +475,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                 <div className='max-w-[800px] flex flex-col gap-[16px]'>
                                     {addDialog?.isAddDialog && <div className='flex flex-row items-center mb-[20px] gap-[10px]'>
                                         <div className='text-purple-700 text-sm font-bold'>
-                                        Activity Details
+                                            Activity Details
                                         </div>
                                         <div className='h-[1px] bg-gray-200 flex-1'>
                                         </div>
@@ -495,7 +501,14 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                             </FormControl>
                                                             <SelectContent>
                                                                 {
-                                                                    ACTIVITY_TYPE.map((activityType, index) => {
+                                                                    ACTIVITY_TYPE.filter((val) => {
+                                                                        if (form.getValues("entityType") === "client") {
+                                                                            return val.value === "coldOutreach"
+                                                                        } else {
+                                                                            return val
+                                                                        }
+                                                                    }
+                                                                    ).map((activityType, index) => {
                                                                         if (isAccounts) {
                                                                             if (activityType.value != "coldOutreach") {
                                                                                 return
@@ -645,7 +658,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                         <Popover modal={true}>
                                                             <PopoverTrigger asChild>
                                                                 <FormControl>
-                                                                    <Button variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
+                                                                    <Button variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${(editMode.isEditMode && !editMode.isReassign) && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
                                                                         <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                             {userList && userList?.length > 0 && userList?.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>Choose</span>}
                                                                         </div>
@@ -709,7 +722,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                     <PopoverTrigger asChild>
                                                                         <FormControl>
                                                                             <FormControl>
-                                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                                <Button variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${editMode?.isReassign ? "bg-gray-100 pointer-events-none" : ""}`}>
                                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                                         {field.value ? (
                                                                                             format(field.value, "PPP")
@@ -765,7 +778,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                                     const dueDate = form.getValues("dueDate")
                                                                                     const disable = dueDate == undefined
                                                                                     return disable
-                                                                                })()} variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                                })()} variant={"google"} className={`flex flex-row gap-2 w-full px-[14px] ${editMode?.isReassign ? "bg-gray-100 pointer-events-none" : ""}`}>
                                                                                     <div className='w-full flex-1 text-align-left text-md flex  '>
                                                                                         {field.value ? (
                                                                                             field.value
@@ -844,7 +857,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                 return field.onChange(value)
                                                             }} defaultValue={field.value} key={field.value} >
                                                             <FormControl>
-                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses}`}>
+                                                                <SelectTrigger className={`${commonFontClassesAddDialog} ${commonClasses} ${editMode?.isReassign ? "bg-gray-100 pointer-events-none" : ""}`}>
                                                                     <SelectValue placeholder="Select Reminder" />
                                                                 </SelectTrigger>
                                                             </FormControl>

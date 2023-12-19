@@ -26,22 +26,8 @@ function getClassOfStatus(statusName: string) {
     return render
 }
 
-export function columnsActivities(markStatus: (entityId: number, status: string) => Promise<void>, rescheduleActivity: (entityId: number, data: ActivityPatchBody) => Promise<void>, fetchData: CallableFunction, setChildDataHandler?: CallableFunction ): ColumnDef<ActivityAccToEntity>[] {
+export function columnsActivities(markStatus: (entityId: number, status: string) => Promise<void>, rescheduleActivity: (entityId: number, data: ActivityPatchBody) => Promise<void>, fetchData: CallableFunction, setChildDataHandler?: CallableFunction): ColumnDef<ActivityAccToEntity>[] {
     return [
-        {
-            accessorKey: "title",
-            accessorFn: (originalRow) => originalRow.title,
-            header: ({ column }) => {
-                return (
-                    <div
-                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                    >
-                        Name
-                    </div>
-                )
-            },
-            cell: ({ row }) => <span className="text-gray-900 text-sm w-fit">{row.getValue("title") || <span className="text-gray-400">—</span>}</span>
-        },
         {
             accessorKey: "entity",
             accessorFn: (originalRow, index) => originalRow?.lead?.entity_name || originalRow?.organisation?.entity_name,
@@ -51,14 +37,43 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                         className="text-xs text-gray-600 flex flex-row gap-2 items-center"
                     >
                         Entity
+
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal w-fit">{row.getValue("entity") || <span className="text-gray-400">—</span>}</div>,
+            cell: ({ row }) => {
+                const record = row.original
+                return <div className="text-sm w-fit flex flex-col">
+                    <div className="text-gray-900 font-medium">
+                        {/* <div className="text-gray-600">
+                            {`(${record.entity_type})`}
+                        </div> */}
+                        {record.entity_type}
+                    </div>
+                    <div className="text-gray-600 font-normal">
+                        {row.getValue("entity") || <span className="text-gray-400">—</span>}
+                    </div>
+                </div>
+            },
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
             },
         },
+        {
+            accessorKey: "title",
+            accessorFn: (originalRow) => originalRow.title,
+            header: ({ column }) => {
+                return (
+                    <div
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Activity
+                    </div>
+                )
+            },
+            cell: ({ row }) => <span className="text-gray-600 font-normal text-sm w-fit">{row.getValue("title") || <span className="text-gray-400">—</span>}</span>
+        },
+       
         {
             accessorKey: "mode",
             accessorFn: (originalRow) => originalRow.mode,
@@ -124,7 +139,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                 return value.includes(row.getValue(id))
             },
         },
-        
+
         {
             accessorKey: "created_by",
             header: ({ column }) => {
@@ -143,12 +158,12 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
         },
         {
             accessorKey: "due_date",
-            accessorFn: (originalRow)=> originalRow.due_date,
+            accessorFn: (originalRow) => originalRow.due_date,
             header: ({ column }) => {
                 return (
                     <div
                         onClick={() => {
-                            column.toggleSorting( column.getIsSorted() === "asc")
+                            column.toggleSorting(column.getIsSorted() === "asc")
                         }}
                         className="text-xs text-gray-600 flex flex-row gap-2 items-center cursor-pointer"
                     >
@@ -199,7 +214,7 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                 )
             }, cell: ({ row }) => <div className={`text-gray-600  text-sm font-normal`}>{row.getValue("next_step") ?
                 <div className="flex flex-row gap-[20px] items-center cursor-pointer">
-                    <div className="flex-1">
+                    <div className="shrink-0">
                         {row.original.notes && <IconNotes color='#7F56D9' size={16} />}
                     </div>
                     {row.getValue("next_step")}
@@ -227,6 +242,11 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                             {(details.status === "Over Due" || details.status === "In Progress") && <>
                                 {
                                     details.id && <>
+                                        <RescheduleActivity rescheduleActivity={rescheduleActivity} key={details.id} data={details} entityId={details.id} contactFromParents={details.contacts} isReassign={true}/>
+                                    </>
+                                }
+                                {
+                                    details.id && <>
                                         <RescheduleActivity rescheduleActivity={rescheduleActivity} key={details.id} data={details} entityId={details.id} contactFromParents={details.contacts} />
                                     </>
                                 }
@@ -251,9 +271,9 @@ export function columnsActivities(markStatus: (entityId: number, status: string)
                                 (details.status === "Completed" || details.status === "Cancelled") && <>
                                     {
                                         !details.notes ? <>
-                                            <AddNote activityDetails={{details, fetchData}} contactFromParents={details.contacts}/>
+                                            <AddNote activityDetails={{ details, fetchData }} contactFromParents={details.contacts} />
                                         </> : <>
-                                            <DropdownMenuItem onClick={()=>setChildDataHandler && setChildDataHandler('row', row)}>
+                                            <DropdownMenuItem onClick={() => setChildDataHandler && setChildDataHandler('row', row)}>
                                                 <div className="text-gray-700 text-sm font-medium flex flex-row items-center gap-[8px]" >
                                                     <div>
                                                         <IconNotes color='#7F56D9' size={16} />

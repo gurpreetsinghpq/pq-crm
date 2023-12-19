@@ -865,7 +865,7 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
         <Form {...form} >
             <form className={`w-full mb-10`} onSubmit={form.handleSubmit(onSubmit)}>
                 <div className={`flex flex-col rounded-[8px] bg-white-900 ${!activityDetails?.details?.id ? "border-[1px] border-gray-200" : ""} `}>
-                    <div className={`px-[28px] w-full ${ activityDetails?.details?.id ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-fit overflow-y-scroll" : "py-[24px]"}`}>
+                    <div className={`px-[28px] w-full ${ activityDetails?.details?.id ? "max-h-[300px] xl:max-h-[400px] 2xl:max-h-[400px] overflow-y-scroll" : "py-[24px]"}`}>
                         <div className=' flex flex-col gap-[28px]'>
                             <div className='max-w-[800px] flex flex-col gap-[16px]'>
                                 {!activityDetails?.details?.id &&<div className='flex flex-row gap-[16px] w-full'>
@@ -1368,7 +1368,7 @@ const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow 
                                 </div>}
                             </div>}
 
-                            <div className='flex flex-col gap-[24px]'>
+                            <div className={`flex flex-col gap-[24px] ${activityDetails?.details.id ? "pb-[6px]" : "" } `}>
                                 <div className='flex flex-row gap-[10px] items-center'>
                                     <div className='text-purple-700 text-sm font-bold'>Next Step</div>
                                     <div className="bg-gray-200 h-[1px] flex-1" ></div>

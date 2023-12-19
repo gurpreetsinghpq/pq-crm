@@ -75,6 +75,7 @@ export interface LeadInterface {
         name: string
     };
     updated_by: string;
+    lead_aging:string;
     owner: {
         id: number;
         name: string;
@@ -876,6 +877,7 @@ export interface TodoListGetResponse {
 
 export interface ActivityAccToEntity {
     id: number;
+    entity_type:string;
     contacts: {
         id: number
         name: string;
@@ -1061,8 +1063,9 @@ export interface ActivityHistory {
 
 }
 export interface ActivityPatchBody {
-    reminder: number,
-    due_date: string
+    reminder?: number,
+    due_date?: string,
+    assigned_to?: number
 }
 export interface MyDetailsGetResponse {
     id: number;

@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
-import { getActive, getName } from "../commonFunctions"
+import { daysAgo, getActive, getName } from "../commonFunctions"
 import { multiLine } from "./columns"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { DialogClose } from "@radix-ui/react-dialog"
@@ -183,6 +183,23 @@ export function columnsProspects(setChildDataHandler: CallableFunction, patchArc
             },
             cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("budget_range")}</div>
         },
+        // {
+        //     accessorKey: "prospect_ageing",
+        //     accessorFn: (originalRow, index) => originalRow.created_at,
+        //     header: ({ column }) => {
+        //         return (
+        //             <div
+        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+        //             >
+        //                 Prospect Ageing
+        //             </div>
+        //         )
+        //     },
+        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{daysAgo(row.getValue("prospect_ageing"))}</div>,
+        //     filterFn: (row, id, value) => {
+        //         return value.includes(row.getValue(id))
+        //     },
+        // },
         {
             accessorKey: "owner",
             header: ({ column }) => {

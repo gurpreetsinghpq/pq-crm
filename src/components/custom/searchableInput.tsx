@@ -4,12 +4,13 @@ import { ClientCompleteInterface } from '@/app/interfaces/interface'
 import { IconBuildings } from '../icons/svgIcons'
 import { Loader2 } from 'lucide-react'
 import { doesInputOrgExists } from './addLeadDialog'
+import { handleAlphaNumericKeyPress, handleAlphaNumericPaste } from './commonFunctions'
 
 function SearchableInput({ data, loading, page, checkPageAndLink, onChangeHandler, setIsExpanded, inputAccount }: { data: ClientCompleteInterface[], loading: boolean, page: string, checkPageAndLink: (details: ClientCompleteInterface) => void, onChangeHandler: (data: string) => void, setIsExpanded: CallableFunction, inputAccount: string }) {
     
     return (
         <div className='flex flex-col relative h-fit'>
-            <Input placeholder='Search Account' className='hover:border-purple-300 hover:shadow-custom1 focus:shadow-custom1' onChange={(e) => { onChangeHandler(e.currentTarget.value) }} />
+            <Input onKeyPress={handleAlphaNumericKeyPress} onPaste={handleAlphaNumericPaste} placeholder='Search Account' className='hover:border-purple-300 hover:shadow-custom1 focus:shadow-custom1' onChange={(e) => { onChangeHandler(e.currentTarget.value) }} />
             {inputAccount.length > 0 && <div className=' relative mt-[5px] z-[100] flex flex-col left-0 w-full bg-white-900 px-[0px] py-[0px] flex h-fit w-full rounded-[8px] border border-[1px] border-gray-300 border-solid shadow-xs bg-background p-[14px] text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:placeholder:text-gray-400'>
                 {
                     loading ?

@@ -2,6 +2,8 @@ import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
 import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ActivityPatchBody, AddressFields, ClientGetResponse, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
+import { ChangeEvent } from "react";
+import { getAllTime } from "../ui/date-range-picker";
 
 export function handleOnChangeNumeric(
   event: React.ChangeEvent<HTMLInputElement>,
@@ -657,10 +659,14 @@ export function removeUndefinedFromArray(arr: (string | undefined)[]): string[] 
 
 
 export function setDateHours(date: Date, isEnd: boolean) {
+  const dateLocal = structuredClone(date)
+  const from  = new Date(dateLocal.setHours(0, 0, 0, 0)).toISOString()
+  const to = new Date(dateLocal.setHours(23, 59, 59, 999)).toISOString()
+
   if (isEnd) {
-    return new Date(date.setHours(23, 59, 0, 0)).toISOString()
+    return to
   } else {
-    return new Date(date.setHours(0, 0, 0, 0)).toISOString()
+    return from
   }
 }
 
@@ -799,13 +805,57 @@ export async function rescheduleActivity(entityId:number, data:ActivityPatchBody
   try {
       const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/`, { method: "PATCH", body: JSON.stringify(data), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
       const result = await dataResp.json()
+      const isReassign = data.assigned_to
       toast({
-          title: `Activity Rescheduled Successfully`,
+          title: `Activity ${isReassign? "Reassigned" : "Rescheduled" } Successfully`,
           variant: "dark"
       })
       cb()
       console.log("todo",result)
   } catch (err) {
       console.log(err)
+  }
+}
+export const handleAlphaNumericKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  // Get the pressed key
+  const pressedKey = event.key;
+
+  // Use a regular expression to allow only alphanumeric characters and spaces
+  const isAlphanumeric = /^[a-zA-Z0-9 ]$/.test(pressedKey);
+
+  // If the pressed key is not alphanumeric or a space, prevent the input
+  if (!isAlphanumeric) {
+    event.preventDefault();
+  }
+};
+
+export const handleAlphaNumericPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+  // Get the pasted text
+  const pastedText = event.clipboardData.getData('text');
+
+  // Use a regular expression to filter out disallowed characters
+  const sanitizedText = pastedText.replace(/[^a-zA-Z0-9@ ]/g, '');
+
+  // Update the input value with the sanitized text
+  document.execCommand('insertText', false, sanitizedText);
+
+  // Prevent the default paste behavior
+  event.preventDefault();
+};
+
+export function daysAgo(isoDateString: string): string {
+  const currentDate = new Date();
+  const providedDate = new Date(isoDateString);
+  console.log("currentDate", currentDate,providedDate)
+  // Calculate the difference in milliseconds
+  const timeDifference = currentDate.getTime() - providedDate.getTime();
+
+  // Convert the difference to days
+  const daysDifference = Math.floor(timeDifference / (1000 * 3600 * 24));
+
+  if (daysDifference === 0) {
+    return '0 day';
+  } else {
+    return `${daysDifference} ${daysDifference>1? "days": "day"}`;
   }
 }

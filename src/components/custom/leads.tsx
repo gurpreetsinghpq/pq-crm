@@ -189,7 +189,8 @@ const Leads = ({ form, permissions }: {
             const ownerQueryParam = owner ? `&owner=${encodeURIComponent(owner)}` : '';
             const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
             const sourceQueryParam = source ? `&source=${encodeURIComponent(source)}` : '';
-            const dataResp = await fetch(`${baseUrl}/v1/api/lead/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${roleRegionQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            // roleRegionQueryParam needed to be added if required
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}${roleRegionQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: LeadInterface[] = structuredClone(result.data)
             dataFromApi = data
@@ -225,20 +226,21 @@ const Leads = ({ form, permissions }: {
         }
 
     }
+    
+    useEffect(() => {
+        setLeadFilter()
+    }, [watch.regions, watch.sources, watch.creators, watch.statuses, watch.owners, JSON.stringify(watch.dateRange), ])
 
     useEffect(() => {
-        console.log("filters lead", pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort)
+        // roleRegion was added in dependency
         fetchLeadData()
-    }, [pageAsNumber, per_page, isArchived, roleRegion, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
+    }, [pageAsNumber, per_page, isArchived, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort, roleRegion])
 
 
     useEffect(() => {
         createFilterQueryString([{ filterFieldName: "archived", value: !isInbox ? "True" : "False" }])
     }, [isInbox])
 
-    useEffect(() => {
-        setLeadFilter()
-    }, [watch.regions, watch.sources, watch.creators, watch.statuses, watch.owners, JSON.stringify(watch.dateRange), ])
 
     function setLeadFilter() {
         let regionsQueryParam: FilterQuery = EMPTY_FILTER_QUERY
@@ -412,17 +414,17 @@ const Leads = ({ form, permissions }: {
             });
     }
 
-    const addLeadDialogButton = () => <AddLeadDialog fetchLeadData={fetchLeadData} page={"leads"}>
+    function addLeadDialogButton(){return ( <AddLeadDialog fetchLeadData={fetchLeadData} page={"leads"}>
         <Button disabled={!permissions?.add || isLoading} className="flex flex-row gap-2">
             <Image src="/images/plus.svg" alt="plus lead" height={20} width={20} />
             Add Lead
         </Button>
-    </AddLeadDialog>
+    </AddLeadDialog>)}
 
     return <div className="flex flex-col flex-1">
         <div className="bottom flex-1 flex flex-col">
             <Form {...form}>
-                <form>
+                <form autoComplete="off">
                     <div className="flex flex-row place-content-between top px-6 py-5 border-b-2 border-gray-100">
                         <div className="w-1/2 flex flex-row gap-4 items-center">
                             <FormField

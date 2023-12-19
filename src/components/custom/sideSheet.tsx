@@ -886,7 +886,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                             }
                                                             } defaultValue={field.value}>
                                                                 <FormControl>
-                                                                    <SelectTrigger className={`border-gray-300 ${commonClasses2}`}>
+                                                                    <SelectTrigger disabled={rowState?.status==="Lost" || rowState?.status==="Junk" }  className={`border-gray-300 ${commonClasses2}`}>
                                                                         <SelectValue defaultValue={field.value} placeholder="Select a Status" />
                                                                     </SelectTrigger>
                                                                 </FormControl>
@@ -921,7 +921,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                                                     render={({ field }) => (
                                                         <FormItem className='w-full'>
                                                             <FormControl>
-                                                                <Select onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
+                                                                <Select disabled={rowState?.status==="Lost" || rowState?.status==="Junk" } onValueChange={field.onChange} defaultValue={field.value} key={field.value}>
                                                                     <SelectTrigger className={`border-gray-300 shadow ${commonClasses}`}>
                                                                         <SelectValue placeholder="Select Reason" />
                                                                     </SelectTrigger>

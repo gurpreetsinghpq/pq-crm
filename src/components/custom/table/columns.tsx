@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
-import { TIMEZONE, getActive, getName } from "../commonFunctions"
+import { TIMEZONE, daysAgo, getActive, getName } from "../commonFunctions"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { DialogClose } from "@radix-ui/react-dialog"
 
@@ -147,6 +147,23 @@ export function columns(setChildDataHandler?: CallableFunction, patchArchiveLead
             },
             cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("budget_range")}</div>
         },
+        // {
+        //     accessorKey: "lead_ageing",
+        //     accessorFn: (originalRow, index) => originalRow.lead_aging,
+        //     header: ({ column }) => {
+        //         return (
+        //             <div
+        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+        //             >
+        //                 Lead Ageing
+        //             </div>
+        //         )
+        //     },
+        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("lead_ageing")}</div>,
+        //     filterFn: (row, id, value) => {
+        //         return value.includes(row.getValue(id))
+        //     },
+        // },
         {
             accessorKey: "owner",
             header: ({ column }) => {
