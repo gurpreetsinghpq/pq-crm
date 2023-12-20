@@ -96,7 +96,7 @@ const Leads = ({ form, permissions }: {
     const createdAtFrom = searchParams?.get("created_at_from") ?? setDateHours(watch.dateRange.range.from, false)
     const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, true)
     const createdAtSort = searchParams?.get("created_at") ?? null
-    const roleRegion = searchParams?.get("role__region") ?? null
+    // const roleRegion = searchParams?.get("role__region") ?? null
     const owner = searchParams?.get("owner") ?? null
     const status = searchParams?.get("status") ?? null
     const source = searchParams?.get("source") ?? null
@@ -185,12 +185,12 @@ const Leads = ({ form, permissions }: {
             const createdAtToQueryParam = `&created_at_to=${setDateHours(watch.dateRange.range.to, true)}`;
             const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
             const isArchivedQueryParam = isArchived ? `&archived=${encodeURIComponent(isArchived)}` : '';
-            const roleRegionQueryParam = roleRegion ? `&role__region=${encodeURIComponent(roleRegion)}` : '';
+            // const roleRegionQueryParam = roleRegion ? `&role__region=${encodeURIComponent(roleRegion)}` : '';
             const ownerQueryParam = owner ? `&owner=${encodeURIComponent(owner)}` : '';
             const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
             const sourceQueryParam = source ? `&source=${encodeURIComponent(source)}` : '';
             // roleRegionQueryParam needed to be added if required
-            const dataResp = await fetch(`${baseUrl}/v1/api/lead/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}${roleRegionQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/lead/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: LeadInterface[] = structuredClone(result.data)
             dataFromApi = data
@@ -215,8 +215,7 @@ const Leads = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            // const userList: any = await fetchUserDataListForDrodpdown()
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {
@@ -233,7 +232,7 @@ const Leads = ({ form, permissions }: {
     useEffect(() => {
         // roleRegion was added in dependency
         fetchLeadData()
-    }, [pageAsNumber, per_page, isArchived, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort, roleRegion])
+    }, [pageAsNumber, per_page, isArchived, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
 
     useEffect(() => {
@@ -553,7 +552,7 @@ const Leads = ({ form, permissions }: {
                                         {/* </DropdownMenuContent>
                                 </DropdownMenu> */}
                                     </div>
-                                    <div className="">
+                                    {/* <div className="">
                                         <FormField
                                             control={form.control}
                                             name="regions"
@@ -588,7 +587,7 @@ const Leads = ({ form, permissions }: {
                                                 </DropdownMenu>
                                             }}
                                         />
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <FormField
                                             control={form.control}

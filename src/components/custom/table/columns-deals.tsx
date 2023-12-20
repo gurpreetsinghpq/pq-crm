@@ -183,23 +183,23 @@ export function columnsDeals(setChildDataHandler: CallableFunction, patchArchive
             },
             cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("deal_value")}</div>
         },
-        // {
-        //     accessorKey: "deal_ageing",
-        //     accessorFn: (originalRow, index) => originalRow.created_at,
-        //     header: ({ column }) => {
-        //         return (
-        //             <div
-        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-        //             >
-        //                 Deal Ageing
-        //             </div>
-        //         )
-        //     },
-        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{daysAgo(row.getValue("deal_ageing"))}</div>,
-        //     filterFn: (row, id, value) => {
-        //         return value.includes(row.getValue(id))
-        //     },
-        // },
+        {
+            accessorKey: "deal_ageing",
+            accessorFn: (originalRow, index) => originalRow.deal_aging,
+            header: ({ column }) => {
+                return (
+                    <div
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Deal Ageing
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("deal_ageing")}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
+        },
         {
             accessorKey: "owner",
             header: ({ column }) => {

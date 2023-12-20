@@ -110,25 +110,25 @@ export function columnsProspects(setChildDataHandler: CallableFunction, patchArc
             },
             cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title")}</span>
         },
-        {
-            accessorKey: "region",
-            accessorFn: (originalRow, index) => originalRow.lead.role.region,
-            header: ({ column }) => {
-                return (
-                    <div
-                        // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                    >
-                        Region
-                        {/* <IconArrowDown size={20} /> */}
-                    </div>
-                )
-            },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>,
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
-            },
-        },
+        // {
+        //     accessorKey: "region",
+        //     accessorFn: (originalRow, index) => originalRow.lead.role.region,
+        //     header: ({ column }) => {
+        //         return (
+        //             <div
+        //                 // onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+        //             >
+        //                 Region
+        //                 {/* <IconArrowDown size={20} /> */}
+        //             </div>
+        //         )
+        //     },
+        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>,
+        //     filterFn: (row, id, value) => {
+        //         return value.includes(row.getValue(id))
+        //     },
+        // },
         {
             accessorKey: "source",
             accessorFn: (originalRow, index) => originalRow.lead.source,
@@ -183,23 +183,23 @@ export function columnsProspects(setChildDataHandler: CallableFunction, patchArc
             },
             cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("budget_range")}</div>
         },
-        // {
-        //     accessorKey: "prospect_ageing",
-        //     accessorFn: (originalRow, index) => originalRow.created_at,
-        //     header: ({ column }) => {
-        //         return (
-        //             <div
-        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-        //             >
-        //                 Prospect Ageing
-        //             </div>
-        //         )
-        //     },
-        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{daysAgo(row.getValue("prospect_ageing"))}</div>,
-        //     filterFn: (row, id, value) => {
-        //         return value.includes(row.getValue(id))
-        //     },
-        // },
+        {
+            accessorKey: "prospect_ageing",
+            accessorFn: (originalRow, index) => originalRow.prospect_aging,
+            header: ({ column }) => {
+                return (
+                    <div
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Prospect Ageing
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("prospect_ageing")}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
+        },
         {
             accessorKey: "owner",
             header: ({ column }) => {

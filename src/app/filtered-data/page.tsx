@@ -152,8 +152,7 @@ function filteredData() {
   async function getUserList() {
     setIsUserDataLoading(true)
     try {
-      // const userList: any = await fetchUserDataListForDrodpdown()
-      const userList: any = await fetchUserDataList()
+      const userList: any = await fetchUserDataListForDrodpdown()
       setIsUserDataLoading(false)
       setUserList(userList)
     } catch (err) {

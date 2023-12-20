@@ -104,7 +104,7 @@ const Prospects = ({ form, permissions }: {
     const createdAtFrom = searchParams?.get("created_at_from") ?? setDateHours(watch.dateRange.range.from, false)
     const createdAtTo = searchParams?.get("created_at_to") ?? setDateHours(watch.dateRange.range.to, true)
     const createdAtSort = searchParams?.get("created_at") ?? null
-    const roleRegion = searchParams?.get("lead__role__region") ?? null
+    // const roleRegion = searchParams?.get("lead__role__region") ?? null
     const owner = searchParams?.get("owner") ?? null
     const status = searchParams?.get("status") ?? null
     const source = searchParams?.get("lead__source") ?? null
@@ -150,12 +150,12 @@ const Prospects = ({ form, permissions }: {
             const createdAtToQueryParam = `&created_at_to=${setDateHours(watch.dateRange.range.to, true)}`;
             const createdAtSortQueryParam = createdAtSort ? `&created_at=${encodeURIComponent(createdAtSort)}` : '';
             const isArchivedQueryParam = isArchived ? `&archived=${encodeURIComponent(isArchived)}` : '';
-            const roleRegionQueryParam = roleRegion ? `&lead__role__region=${encodeURIComponent(roleRegion)}` : '';
+            // const roleRegionQueryParam = roleRegion ? `&lead__role__region=${encodeURIComponent(roleRegion)}` : '';
             const ownerQueryParam = owner ? `&owner=${encodeURIComponent(owner)}` : '';
             const statusQueryParam = status ? `&status=${encodeURIComponent(status)}` : '';
             const sourceQueryParam = source ? `&lead__source=${encodeURIComponent(source)}` : '';
            
-            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}${roleRegionQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+            const dataResp = await fetch(`${baseUrl}/v1/api/prospect/?page=${pageAsNumber}&limit=${perPageAsNumber}${isArchivedQueryParam}${createdByQueryParam}${nameQueryParam}${createdAtFromQueryParam}${createdAtToQueryParam}${createdAtSortQueryParam}${ownerQueryParam}${statusQueryParam}${sourceQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: ProspectsGetResponse[] = structuredClone(result.data)
            
@@ -183,7 +183,7 @@ const Prospects = ({ form, permissions }: {
 
     useEffect(() => {
         fetchProspectData()
-    }, [pageAsNumber, per_page, isArchived, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort, roleRegion])
+    }, [pageAsNumber, per_page, isArchived, status, source, owner, createdBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
     useEffect(() => {
         createFilterQueryString([{ filterFieldName: "archived", value: !isInbox ? "True" : "False" }])
@@ -351,8 +351,7 @@ const Prospects = ({ form, permissions }: {
     async function getUserList() {
         setIsUserDataLoading(true)
         try {
-            // const userList: any = await fetchUserDataListForDrodpdown()
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setIsUserDataLoading(false)
             setUserList(userList)
         } catch (err) {
@@ -559,7 +558,7 @@ const Prospects = ({ form, permissions }: {
                                         {/* </DropdownMenuContent>
                                 </DropdownMenu> */}
                                     </div>
-                                    <div className="">
+                                    {/* <div className="">
                                         <FormField
                                             control={form.control}
                                             name="regions"
@@ -594,7 +593,7 @@ const Prospects = ({ form, permissions }: {
                                                 </DropdownMenu>
                                             }}
                                         />
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <FormField
                                             control={form.control}

@@ -188,8 +188,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
 
     async function getUserList() {
         try {
-            // const userList: any = await fetchUserDataListForDrodpdown()
-            const userList: any = await fetchUserDataList()
+            const userList: any = await fetchUserDataListForDrodpdown()
             setUserList(userList)
         } catch (err) {
             console.error("user fetch error", err)

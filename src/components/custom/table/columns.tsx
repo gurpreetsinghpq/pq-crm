@@ -84,23 +84,23 @@ export function columns(setChildDataHandler?: CallableFunction, patchArchiveLead
             },
             cell: ({ row }) => <span className="text-gray-900 text-sm">{row.getValue("title")}</span>
         },
-        {
-            accessorKey: "region",
-            accessorFn: (originalRow, index) => originalRow.role.region,
-            header: ({ column }) => {
-                return (
-                    <div
-                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-                    >
-                        Region
-                    </div>
-                )
-            },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>,
-            filterFn: (row, id, value) => {
-                return value.includes(row.getValue(id))
-            },
-        },
+        // {
+        //     accessorKey: "region",
+        //     accessorFn: (originalRow, index) => originalRow.role.region,
+        //     header: ({ column }) => {
+        //         return (
+        //             <div
+        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+        //             >
+        //                 Region
+        //             </div>
+        //         )
+        //     },
+        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("region")}</div>,
+        //     filterFn: (row, id, value) => {
+        //         return value.includes(row.getValue(id))
+        //     },
+        // },
         {
             accessorKey: "source",
             header: ({ column }) => {
@@ -147,23 +147,23 @@ export function columns(setChildDataHandler?: CallableFunction, patchArchiveLead
             },
             cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("budget_range")}</div>
         },
-        // {
-        //     accessorKey: "lead_ageing",
-        //     accessorFn: (originalRow, index) => originalRow.lead_aging,
-        //     header: ({ column }) => {
-        //         return (
-        //             <div
-        //                 className="text-xs text-gray-600 flex flex-row gap-2 items-center"
-        //             >
-        //                 Lead Ageing
-        //             </div>
-        //         )
-        //     },
-        //     cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("lead_ageing")}</div>,
-        //     filterFn: (row, id, value) => {
-        //         return value.includes(row.getValue(id))
-        //     },
-        // },
+        {
+            accessorKey: "lead_ageing",
+            accessorFn: (originalRow, index) => originalRow.lead_aging,
+            header: ({ column }) => {
+                return (
+                    <div
+                        className="text-xs text-gray-600 flex flex-row gap-2 items-center"
+                    >
+                        Lead Ageing
+                    </div>
+                )
+            },
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("lead_ageing")}</div>,
+            filterFn: (row, id, value) => {
+                return value.includes(row.getValue(id))
+            },
+        },
         {
             accessorKey: "owner",
             header: ({ column }) => {

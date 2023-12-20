@@ -400,6 +400,7 @@ export interface ProspectsGetResponse {
         name: string;
         is_active: boolean;
     };
+    prospect_aging:string;
     lead: {
         id: number;
         created_by: {
@@ -1202,6 +1203,7 @@ export interface DealsGetResponse {
         id: number;
         is_active: boolean;
     };
+    deal_aging:string
     prospect: {
         id: number;
         created_by: {
