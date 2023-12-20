@@ -261,6 +261,21 @@ export default function DashboardLayout({
                                                                             </>
                                                                         }
                                                                         {
+                                                                            val.type.toLowerCase() === "activity reassigned" &&
+                                                                            <>
+                                                                                <div className="text-sm font-medium text-[#696F8C]">
+                                                                                    <span className="text-gray-600 font-semibold">{val?.data_json?.reassigned_by}</span> assigned <span className="bg-gray-100 text-gray-600 rounded-[7px] border border-[1px] border-gray-300 px-[6px] py-[5px]"> {val.data.title}</span> activity to
+                                                                                    <span className="block mt-[5px]">
+                                                                                        <span className="text-gray-600 font-semibold">{val.data.assigned_to.name}</span> <span className="text-sm font-medium text-[#696F8C]"> scheduled on </span>
+                                                                                        <span className="text-gray-700 font-semibold">{multiLineStyle2(val.data.due_date, true)}</span> with <span className="text-gray-600 font-semibold">{getContacts(val.data.contacts.map(val => val.name), true)}</span>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div className="text-xs text-[#696F8C] font-medium">
+                                                                                    {timeSince(val.data.created_at)}
+                                                                                </div>
+                                                                            </>
+                                                                        }
+                                                                        {
                                                                             val.type.toLowerCase().includes("owner assigned") &&
                                                                             <>
                                                                                 <div className="text-sm font-medium text-[#696F8C]">

@@ -1166,6 +1166,9 @@ export interface NotificationGetResponse {
 
         contact: number[];
     };
+    data_json:{
+        reassigned_by:string
+    }
     type: string;
     is_viewed: boolean;
     archived: boolean;
