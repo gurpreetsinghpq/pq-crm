@@ -89,22 +89,19 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
     function changeStdCode() {
         const value = form.getValues("std_code")
         let updatedSchema
-        console.log("std_code", value, value != "+91")
         if (value != "+91" && value != "+1") {
             updatedSchema = FormSchema.extend({
                 phone: z.string().min(4).max(13).optional().nullable()
             })
         } else {
-            console.log("neh")
             updatedSchema = FormSchema
         }
         setFormSchema(updatedSchema)
-        console.log("updatedSchema", updatedSchema)
     }
 
     useEffect(() => {
-        console.log("formschema", formSchema)
-        console.log("formschema errors", form.formState.errors)
+        formSchema
+        form.formState.errors
         form.trigger()
     }, [formSchema])
 
@@ -145,7 +142,6 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             region: valueToLabel(form.getValues("region") || "", REGION) || "",
             time_zone: form.getValues("timeZone")
         }
-        console.log("isUpdate", isUpdate, dataToSend)
 
         if (form.getValues("phone")) {
             const mobileNumber = `${form.getValues("std_code")} ${form.getValues("phone")}`
@@ -165,7 +161,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                     title: `User ${isUpdate ? "Updated" : "Created"} Succesfully!`,
                     variant: "dark"
                 })
-                console.log(result)
+
                 yesDiscard(true)
                 if (isUpdate) {
                     fetchTimeZone()
@@ -228,7 +224,6 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                     title: `Email Resent Succesfully!`,
                     variant: "dark"
                 })
-                console.log(result)
                 yesDiscard(true)
             } else {
                 toast({
@@ -261,7 +256,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             const phone = data?.mobile?.split(" ")
             let stdCode = null
             let mobile = null
-            if(phone && phone?.length>0){
+            if (phone && phone?.length > 0) {
                 stdCode = phone[0]
                 mobile = phone[1]
             }
@@ -278,7 +273,6 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             if (data?.time_zone) {
                 form.setValue("timeZone", data.time_zone)
             }
-            console.log("function", labelToValue(data.function, ALL_FUNCTIONS))
 
         } else {
             setOpen(false)
@@ -297,8 +291,6 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
             form.formState.isValid
             form.formState.isDirty
             form.formState.errors
-            console.log("form.formState.isValid", form.formState.isValid, "form.formState.isDirty", form.formState.isDirty, "form.formState.errors", form.formState.errors)
-            console.log(form.getValues())
         })
         return () => subscription.unsubscribe()
     }, [form.watch])
@@ -349,7 +341,6 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                 </DialogTrigger>
                 <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
                     if (e.key === "Escape") {
-                        console.log("this should not be called");
                         yesDiscard()
                     }
                 }}>
@@ -453,7 +444,7 @@ function AddUserDialogBox({ children, permissions, parentData = undefined, setIs
                                                                         </Button>
                                                                     </FormControl>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="p-0 ml-[114px]" style={{width:"200px"}}>
+                                                                <PopoverContent className="p-0 ml-[114px]" style={{ width: "200px" }}>
                                                                     <Command >
                                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                                         <CommandEmpty>Country code not found.</CommandEmpty>

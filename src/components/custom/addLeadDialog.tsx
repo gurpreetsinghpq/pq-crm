@@ -37,7 +37,6 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
     const debouncedSearchableFilters = useDebounce(inputAccount, 500)
     
     useEffect(() => {
-        console.log("fetchclientdata", debouncedSearchableFilters)
         if(inputAccount.length===0){
             setAccountData([])
         }
@@ -57,7 +56,6 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
         setDetails(undefined)
         setFilteredLeadData([])
         setAccountData([])
-        console.log("datafromchild")
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -75,7 +73,6 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
             dataFromApi = fdata
         }
         catch (err) {
-            console.log("error", err)
             setLoading(false)
         }
         try {
@@ -89,7 +86,6 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
             leadDataFromApi = fdata
         }
         catch (err) {
-            console.log(err)
         }
     }
 
@@ -177,7 +173,6 @@ const AddLeadDialog = ({ children, fetchLeadData, page }: { children: any, fetch
                 </DialogTrigger>
                 <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
                     if (e.key === "Escape") {
-                        console.log("this should not be called");
                         dataFromChild(true)
                     }
                 }}>
@@ -276,6 +271,5 @@ export default AddLeadDialog
 
 export function doesInputOrgExists(inputAccount: string) {
     const res = !dataFromApi.find((data) => data.name.toLowerCase() === inputAccount.toLowerCase())
-    console.log(res)
     return res
 }

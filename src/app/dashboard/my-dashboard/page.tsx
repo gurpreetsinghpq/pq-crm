@@ -137,7 +137,6 @@ const LEAD_BREAKDOWN = [
 ]
 
 const renderColorfulLegendText = (value: string, entry: any) => {
-  console.log("entry", entry)
   return (
     <span style={{ padding: "6px" }} className='text-sm font-normal text-black-100 w-[200px]'>
       <span>

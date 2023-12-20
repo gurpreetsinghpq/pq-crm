@@ -211,7 +211,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         mode: "all"
     })
 
-    console.log("formSchema initial", formSchema)
 
     useEffect(() => {
         form.formState.touchedFields
@@ -315,7 +314,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
                 result = FormSchema2Optional.safeParse(contacts)
             }
         }
-        console.log("safe prase 2 ", result)
         if (result.success) {
             setContactFieldValid(true)
         } else {
@@ -354,7 +352,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
-                console.log(result)
 
                 if (result.status == "1") {
                     setAddDialogOpen(false)
@@ -540,7 +537,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         }
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
-            console.log("errormap", errorMap)
             // Initialize error counters
             let requiredErrorsCount = 0;
             let invalidErrorsCount = 0;
@@ -564,10 +560,8 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 
             setNumberOfErrors(errorState)
             if (isPromoteToProspect) {
-                console.log("isPromoteToProspect if", isPromoteToProspect)
                 setPromoteToProspectErrors(true)
             } else {
-                console.log("isPromoteToProspect else", isPromoteToProspect)
                 setPromoteToProspectErrors(false)
             }
         } else {
@@ -579,8 +573,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
     }
 
     function onSubmit() {
-
-        console.log(numberOfErrors)
         patchData()
     }
 
@@ -784,8 +776,6 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         safeprs()
         setShowErrors(true)
 
-        console.log("showErrors setter", true)
-
     }
 
     function parseCurrencyValue(inputString: string) {
@@ -810,19 +800,15 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 
     useEffect(() => {
         if (watcher.contacts?.std_code?.length > 0) {
-            console.log("status code watcher")
             const status = form.getValues("statuses")
             updateFormSchemaOnStatusChange(status)
-            console.log("status code watcher", form.getFieldState("contacts"))
         }
     }, [watcher.contacts?.std_code])
 
     // console.log("isPromoteToProspectClicked",isPromoteToProspectClicked)
-    console.log("isPromoteToProspectErrors", isPromoteToProspectErrors)
     useEffect(() => {
         // console.log(formSchema, isPromoteToProspectClicked)
         if (isPromoteToProspectClicked) {
-            console.log("promote to prospect clickeed")
             safeprs(true)
             form.trigger()
         } else {
@@ -2600,10 +2586,8 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            console.log(result)
             if (result.status == "1") {
                 const { data: { segment } } = result
-                console.log(data)
                 setRowState((prevState) => {
                     return {
                         ...prevState,

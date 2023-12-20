@@ -70,7 +70,6 @@ export default function DashboardLayout({
         const path = removeFirstPath(pathname)
         const pathMapped = TITLE_MAP_W_ROUTE.get(path) ?? ""
         const tabNameAsPerPermissionObject = TITLE_MAP_W_PERMISSION_KEY.get(pathMapped)
-        console.log("replacepath",path,  pathMapped)
         if ((tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view) || (pathMapped === TITLES.MY_ACCOUNT) || (pathMapped === TITLES.ACTIVITIES) || (pathMapped === TITLES.My_DASHBOARD)) {
             INITIAL_PARENT_TITLE = pathMapped
             setTab(pathMapped, true)

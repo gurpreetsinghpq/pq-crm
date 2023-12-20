@@ -23,7 +23,6 @@ function page() {
     try {
       const dataResp = await fetch(`${baseUrl}/hook_docusign/oauth?code=${code}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
       const result = await dataResp.json()
-      console.log("windowobj", windowObj)
       setLoading(false)
       if(windowObj.setWindowState){
         windowObj?.setWindowState(result)

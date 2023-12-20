@@ -79,7 +79,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
     const [formSchema, setFormSchema] = useState(FormSchema)
 
     function setTableLeadRow(dataLocal: any, selectedData: any) {
-        console.log("table", table)
         // const selectedRows = dataLocal.rows.filter((val: any) => val.getIsSelected())
         const selectedRowsLocal = selectedData.rows.filter((val: any) => val.getIsSelected())
 
@@ -88,11 +87,8 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
         setSelectedRowIds(ids)
         setTableLength(dataLocal.rows.length)
         setSelectedRows(selectedRowsLocal.map((row: any) => row.original))
-        console.log(dataLocal)
 
         // if(data){
-            console.log("compare data", table?.getSelectedRowModel())
-            console.log("compare", parentData?.childData.row.original.members.length, selectedRowsLocal)
         // }
         // if(parentData?.childData.row.original.members.length != selectedRows?.length){
         //     if(isUpdated===false){
@@ -108,17 +104,14 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
 
 
 
-    console.log(selectedRows)
 
     function changeStdCode(value: string) {
         let updatedSchema
-        console.log(value, value != "+91")
         if (value != "+91") {
             updatedSchema = FormSchema.extend({
                 phone: z.string().min(4).max(13)
             })
         } else {
-            console.log("neh")
             updatedSchema = FormSchema
         }
         setFormSchema(updatedSchema)
@@ -159,7 +152,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                         title: `Team ${isUpdate ? "Updated" : "Created"} Succesfully!`,
                         variant: "dark"
                     })
-                    console.log(result)
                     yesDiscard(true)
                 } else {
                     toast({
@@ -181,7 +173,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
             const result = await dataResp.json()
             let data: UsersGetResponse[] = structuredClone(result.data)
             let dataFromApi = data
-            console.log(data)
             setUserData(dataFromApi)
             setIsLoading(false)
             // if (filteredData.length == 0) {
@@ -230,7 +221,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
             setOpen(parentData?.open)
             const { childData: { row }, setChildDataHandler } = parentData
             const data: TeamGetResponse = row.original
-            console.log("parentdata", data)
             form.setValue("teamName", data?.name)
             setSelectedOnEditModeRows(data.members)
             form.setValue("teamLeader", data.leader.id.toString())
@@ -282,7 +272,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                         title: `Team Deleted Succesfully!`,
                         variant: "dark"
                     })
-                    console.log(result)
                     yesDiscard()
                 } else {
                     const result = await dataResp.json()
@@ -292,7 +281,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                             title: `Team Deleted Succesfully!`,
                             variant: "dark"
                         })
-                        console.log(result)
 
                     } else {
                         toast({
@@ -316,19 +304,15 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
 
 
     function resetSelectedFields(selectedRow: any) {
-        console.log(selectedRow, selectedRows)
         let deselectObj: any = {}
         selectedRows?.map((val: any) => {
-            console.log(val)
             if (val.id === selectedRow.id) {
                 deselectObj[val.id] = false
             } else {
                 deselectObj[val.id] = true
             }
         })
-        console.log(deselectObj)
         table.setRowSelection((val: any) => {
-            console.log(val)
             return deselectObj
         })
     }
@@ -371,7 +355,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                 </DialogTrigger>
                 <DialogContent className="p-0" onPointerDownOutside={(e) => e.preventDefault()} onKeyDown={(e) => {
                     if (e.key === "Escape") {
-                        console.log("this should not be called");
                         yesDiscard()
                     }
                 }}>
@@ -560,7 +543,6 @@ function AddTeamDialogBox({ children, permissions, parentData = undefined, setIs
                                                             </div>
                                                             {
                                                                 selectedRows && selectedRows?.length > 0 ? (filteredData && filteredData?.length > 0 ? filteredData?.map((val) => {
-                                                                    console.log("inside", val)
                                                                     return <>
                                                                         <div className='flex flex-col px-[24px] py-[16px] border-b-[1px] border-gray-200'>
                                                                             <div className='text-sm font-medium text-gray-900'>{val.first_name} {val.last_name}</div>

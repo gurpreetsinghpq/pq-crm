@@ -127,13 +127,11 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
 
     function changeStdCode(value: string) {
         let updatedSchema
-        console.log(value, value != "+91")
         if (value != "+91") {
             updatedSchema = FormSchema.extend({
                 phone: z.string().min(4).max(13)
             })
         } else {
-            console.log("neh")
             updatedSchema = FormSchema
         }
         setFormSchema(updatedSchema)
@@ -151,7 +149,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
     }
 
     async function addProfile(isUpdate: boolean = false) {
-        console.log(form.getValues())
         const preProcessData: any = removeKeyAndConvertNaToFalse(form.getValues())
         // Object.keys(preProcessData).map((key)=>{
         //     const keys = ["access", "view", "change", "add"]
@@ -163,7 +160,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
         const finalData: any = preProcessData
 
         Object.keys(finalData).map((key) => {
-            console.log(key)
             accessCategory?.map(val => {
                 if (val.name.toLowerCase() === "organisation") {
                     finalData["Accounts"] = {
@@ -207,7 +203,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
                     title: `Profile ${isUpdate ? "Updated" : "Created"} Succesfully!`,
                     variant: "dark"
                 })
-                console.log(result)
                 yesDiscard(true)
             } else {
                 toast({
@@ -237,15 +232,12 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
             const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/${parentData?.childData.row.original.id}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: SpecificProfileGetResponse = structuredClone(result.data)
-            console.log(data.permissions)
             const superRes = data.permissions.map((obj) => {
                 const name: string = obj.access_category.name
                 let k: any = Object.keys(FormSchema.shape).find(field => field.includes(name.split(" ").join("")))
                 if (name.toLowerCase() === "organisation") {
                     k = "Accounts"
                 }
-                console.log(k,)
-                console.log(k)
                 if (k) {
                     let dataToSet: {
                         access: boolean,
@@ -298,7 +290,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
 
                     let dataToSetFinal: any = dataToSet
                     form.setValue(keyName, dataToSetFinal)
-                    console.log("form value update", keyName, dataToSetFinal)
                     return dataToSet.all
                 }
             })
@@ -306,7 +297,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
                 form.setValue("allTheFields", superRes.every(val => val === true))
             }
             form.setValue("profileName", data.name)
-            console.log("formvalue", form.getValues())
             setData(data)
         }
         catch (err) {
@@ -320,7 +310,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
         if (parentData?.open) {
             fetchProfileDetails()
         }
-        console.log()
     }, [])
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -331,7 +320,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
             const dataResp = await fetch(`${baseUrl}/v1/api/rbac/category-access/`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: AccessCategoryGetResponse[] = structuredClone(result.data)
-            console.log(data)
             setAccessCategory(data)
         }
         catch (err) {
@@ -508,7 +496,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
 
     async function deactivateProfile() {
         const id = parentData?.childData.row.id
-        console.log("profile id", id)
         const dataResp = await fetch(`${baseUrl}/v1/api/rbac/profile/${id}/`, { method: "DELETE", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
         if (dataResp.status === 204) {
             toast({
@@ -524,7 +511,6 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
                     title: `Profile Deleted Succesfully!`,
                     variant: "dark"
                 })
-                console.log(result)
 
             } else {
                 toast({

@@ -187,12 +187,10 @@ const Deals = ({ form, permissions }: {
     }
 
     useEffect(() => {
-        console.log("filters watch.dateRange", watch.dateRange)
         setDealFilter()
     }, [watch.sources, watch.statuses, watch.owners, watch.fulfilledBy, JSON.stringify(watch.dateRange)])
 
     useEffect(() => {
-        console.log("filters", pageAsNumber, per_page, isArchived, status, source, owner, fulfilledBy, searchString, createdAtFrom, createdAtTo, createdAtSort)
         fetchDealData()
     }, [pageAsNumber, per_page, isArchived, status, source, owner, fulfilledBy, searchString, createdAtFrom, createdAtTo, createdAtSort])
 
@@ -397,7 +395,6 @@ const Deals = ({ form, permissions }: {
     }
 
     function archiveApi() {
-        console.log(selectedRowIds)
         if (!selectedRowIds) {
             // Handle the case where selectedRowIds is undefined or empty
             console.log("No rows selected for archiving.");

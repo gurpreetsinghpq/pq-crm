@@ -74,7 +74,6 @@ function setPassword() {
     const searchParams = useSearchParams()
 
     async function setPasswordApi() {
-        console.log("hu")
         setIsLoading(true)
 
         const queryParamUid = searchParams.get("uid")
@@ -92,7 +91,6 @@ function setPassword() {
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/users/set_password/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
-                console.log(result)
                 setIsLoading(false)
                 setIsPasswordSet(true)
                 setStarted(true)

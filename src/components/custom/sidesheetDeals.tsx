@@ -325,7 +325,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
                 result = FormSchema2Optional.safeParse(contacts)
             }
         }
-        console.log("safe prase 2 ", result)
         if (result.success) {
             setContactFieldValid(true)
         } else {
@@ -365,7 +364,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
-                console.log(result)
 
                 if (result.status == "1") {
                     setAddDialogOpen(false)
@@ -390,10 +388,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
             }
         }
 
-
-
-
-        console.log("finalData", dataToSend)
         // setAddDialogOpen(false)
         // resetForm2()
     }
@@ -411,8 +405,7 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
         form.setValue("contacts.designation", undefined)
         form.setValue("contacts.type", undefined)
     }
-    console.log(form.formState.errors)
-
+    
     useEffect(() => {
         const subscription = form.watch(() => {
             safeparse2()
@@ -436,7 +429,6 @@ function SideSheetDeals({ parentData, permissions }: { parentData: { childData: 
     async function promoteToDeal() {
         setPromoteToDealClicked(true)
         setShowErrors(true)
-        console.log("showErrors setter", true)
         const status = rowState?.status
         if (status) {
             updateFormSchemaOnStatusChange(status, true)

@@ -79,8 +79,8 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
     useEffect(() => {
         const subscription = form.watch(() => {
-            console.log("form.formState.errors", form.formState.errors)
-            console.log("form.formState.isValid", form.formState.isValid)
+             form.formState.errors
+             form.formState.isValid
         })
         return () => subscription.unsubscribe()
     }, [form.watch])
@@ -195,7 +195,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         });
         const currentTime = formatter.format(new Date())
         setCurrentTime(currentTime)
-        console.log("timezone", currentTime);
+        
 
     }
 
@@ -219,7 +219,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             form.setValue("mode", labelToValue(editMode?.data?.mode, MODE) || "")
             form.setValue("contact", editMode?.data?.contact)
             const reminderToSet = Number(editMode?.data?.reminder) == 0 ? -1 : editMode?.data?.reminder
-            console.log("REMINDER", reminderToSet, editMode.data.id)
+            
             form.setValue("reminder", reminderToSet?.toString())
             const dueDateFromEdit: string = editMode?.data?.due_date
             if (dueDateFromEdit) {
@@ -234,11 +234,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                 let dueTime = formatter.format(dateObject)
                 const dueDate = new Date(new Date(dueDateFromEdit).toLocaleString("en-us", { timeZone: TIMEZONE }))
                 // dueDate.setHours(0,0,0,0)
-                console.log("dueDateFromEdit", dueDateFromEdit, dueDate, TIMEZONE)
-                console.log("duetimeformatted", dueTime)
+                
                 dueTime = dueTime === "24:00" ? "00:00" : dueTime
-                console.log("duetimeformatted", dueTime)
-
+                
                 form.setValue("dueTime", dueTime)
                 form.setValue("dueDate", dueDate)
 
@@ -257,7 +255,6 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         setContacts(CONTACTS_FROM_PARENT)
     }, [])
 
-    console.log(form.getValues())
 
 
     function reschedule() {
@@ -570,7 +567,6 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                                     value={contact.id}
                                                                                     key={contact.id}
                                                                                     onSelect={() => {
-                                                                                        console.log(field.value)
                                                                                         if (field?.value?.length > 0) {
                                                                                             if (field?.value?.includes(contact.id)) {
                                                                                                 form.setValue("contact", [...field.value.filter((value: number) => value !== contact.id)])
@@ -984,7 +980,6 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                         const reminder = form.getValues("reminder")
                                         let shouldDisableDueToReminder = disableReminderOnInvalidDateAndTime(reminder)
                                         const disable = !form.formState.isDirty
-                                        console.log("disable due date", dueDate < today, "due date: ", dueDate, " today: ", today)
                                         return disable
 
                                     })()} >
@@ -1026,7 +1021,6 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             let dif = (+dueDate - +currentDate);
             dif = Math.round((dif / 1000) / 60);
 
-            console.log(dueDate, currentDate, dif)
             shouldDisable = !(Number(reminder) < dif)
         } else {
             shouldDisable = false
@@ -1040,7 +1034,6 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         const dueTime = structuredClone(form.getValues("dueTime"))
         if (dueDate && dueTime) {
             const [hours, minutes] = dueTime.split(":").map(Number)
-            console.log("duedate pre", dueDate)
             dueDate.setHours(hours)
             dueDate.setMinutes(minutes)
             dueDate.setSeconds(0)

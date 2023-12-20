@@ -57,19 +57,12 @@ function forgotPassword() {
 
 
     async function forgotMailApi() {
-        console.log("hu")
         setIsLoading(true)
-
-
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-
-
-
         try {
 
             const dataResp = await fetch(`${baseUrl}/v1/api/password_reset/`, { method: "POST", body: JSON.stringify(form.getValues()), headers: { "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            console.log(result)
             setIsLoading(false)
             if (result.status == 1) {
                 setIsForgotMail(true)

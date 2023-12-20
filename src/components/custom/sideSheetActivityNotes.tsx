@@ -9,7 +9,6 @@ function SideSheetActivityNotes({ parentData }: { parentData: { childData: IChil
     function closeSideSheet() {
         setChildDataHandler('row', undefined)
     }
-    console.log("row.original", row.original)
     const [historyNotesList, setHistoryNotesList] = useState<HistoryAllMode>()
 
     useEffect(() => {
@@ -24,7 +23,6 @@ function SideSheetActivityNotes({ parentData }: { parentData: { childData: IChil
         activity["typeOfEntity"] = "activity"
         const data: HistoryAllMode = [activity, notes]
         setHistoryNotesList(data)
-        console.log("data",data)
 
     }, [])
 
@@ -48,7 +46,6 @@ function SideSheetActivityNotes({ parentData }: { parentData: { childData: IChil
                     <div className='flex flex-col p-[24px] w-full'>
                         {
                             historyNotesList && historyNotesList.length > 0 ? historyNotesList.map((val, index) => {
-                                console.log("historyAllMode", val)
                                 return <div className='custom-stepper w-full'>
                                     <CustomStepper details={{ ...val, isLastChild: index === historyNotesList.length - 1 ? true : false }} />
                                 </div>

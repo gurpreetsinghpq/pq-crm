@@ -357,7 +357,6 @@ const Contacts = ({ form, permissions }: {
         console.log(selectedRowIds)
         if (!selectedRowIds) {
             // Handle the case where selectedRowIds is undefined or empty
-            console.log("No rows selected for archiving.");
             return;
         }
 
@@ -367,7 +366,6 @@ const Contacts = ({ form, permissions }: {
             .then((resp) => {
                 // All patching operations are complete
                 // You can run your code here
-                console.log("All patching operations are done");
                 fetchLeadData()
 
             })

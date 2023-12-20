@@ -102,19 +102,13 @@ function AddContactDetailedDialog({ inputAccount, dataFromChild, details, filter
 
 
     const watcher1 = form.watch()
-    const watcher2 = form2.watch()
 
     useEffect(() => {
         // console.log(form.getValues())
-        console.log(form.formState.isValid, form2.formState.isValid)
+        form.formState.isValid, form2.formState.isValid
     }, [watcher1])
-    useEffect(() => {
-        console.log(form2.getValues())
-
-    }, [watcher2])
 
     useEffect(() => {
-        console.log("details", details, "inputAccount", inputAccount)
         if (details?.name) {
             form.setValue("organisationName", details?.name, SET_VALUE_CONFIG)
         } else {

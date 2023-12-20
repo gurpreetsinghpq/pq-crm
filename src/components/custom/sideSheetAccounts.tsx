@@ -150,7 +150,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
 
 
     useEffect(() => {
-        console.log("sidesheetaccounts", data)
         setDummyContactData(data.contacts)
         form.setValue("domain", labelToValue(data.domain || "", DOMAINS))
         form.setValue("size", labelToValue(data.size || "", SIZE_OF_COMPANY))
@@ -203,7 +202,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         } else {
             updatedSchema = FormSchema
         }
-        console.log("updatedSchema", updatedSchema, FormSchema)
         if (addDialogOpen) {
             const std_code = form.getValues("contacts.std_code")
             const isMandatory = type ? doesTypeIncludesMandatory(type) : false
@@ -244,7 +242,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         } else {
             updatedSchema = updatedSchema.omit({ contacts: true })
         }
-        console.log("updatedSchema", updatedSchema)
         setFormSchema(updatedSchema)
     }
 
@@ -252,7 +249,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         const result = formSchema.safeParse(form.getValues())
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
-            console.log("errormap", errorMap)
             // Initialize error counters
             let requiredErrorsCount = 0;
             let invalidErrorsCount = 0;
@@ -274,7 +270,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             };
             setNumberOfErrors(errorState)
 
-            console.log("errors", errorState)
         }
     }
 
@@ -292,7 +287,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     useEffect(() => {
         if (addDialogOpen) {
             safeparse2()
-            console.log("formSchema safeparse", formSchema)
         }
     }, [formSchema])
 
@@ -335,7 +329,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                 result = FormSchema2Optional.safeParse(contacts)
             }
         }
-        console.log("safe prase 2 ", result)
         if (result.success) {
             setContactFieldValid(true)
         } else {
@@ -356,7 +349,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         form.setValue("contacts.designation", undefined)
         form.setValue("contacts.type", undefined)
     }
-    console.log(form.formState.errors)
     useEffect(() => {
         // console.log(reasonMap[form.getValues("reasons")])
     }, [form.watch()])
@@ -437,8 +429,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             registered_name: form.getValues("registeredName") || null
         }
 
-        console.log("datatosend", orgData)
-
         const orgId = data.id
 
         patchOrgData(orgId, orgData)
@@ -454,16 +444,13 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     }
 
     function onSubmit() {
-        console.log("submitted")
         // safeprs()
-        console.log(numberOfErrors)
         patchData()
     }
 
 
 
     function preprocess() {
-        console.log("preprocess")
         safeprs()
     }
 
@@ -488,8 +475,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
     useEffect(() => {
         if (watcher.contacts?.std_code?.length > 0) {
             updateFormSchema()
-            console.log("status code watcher", form.getFieldState("contacts"))
-
         }
     }, [watcher.contacts?.std_code])
 
@@ -510,7 +495,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/org_name/`, { method: "PATCH", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            console.log(result)
             if (result.status == "1") {
                 toast({
                     title: "Account Name Updated Successfully!",
@@ -588,7 +572,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
-                console.log(result)
 
                 if (result.status == "1") {
                     setAddDialogOpen(false)
@@ -613,11 +596,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
             }
         }
 
-
-
-
-
-        console.log("finalData", dataToSend)
         // setAddDialogOpen(false)
         // resetForm2()
     }
@@ -1416,7 +1394,6 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            console.log(result)
             if (result.status == "1") {
                 toast({
                     title: "Account Details Updated Successfully!",

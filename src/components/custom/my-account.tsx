@@ -131,23 +131,20 @@ function MyAccount() {
     function changeStdCode() {
         const value = form.getValues("std_code")
         let updatedSchema
-        console.log("std_code", value, value != "+91")
         if (value != "+91" && value != "+1") {
             updatedSchema = FormSchema.extend({
                 phone: z.string().min(4).max(13).optional()
             })
         } else {
-            console.log("neh")
             updatedSchema = FormSchema
         }
         setFormSchema(updatedSchema)
-        console.log("updatedSchema", updatedSchema)
     }
 
 
     useEffect(() => {
-        console.log("formschema", formSchema)
-        console.log("formschema errors", form.formState.errors)
+        formSchema
+        form.formState.errors
         form.trigger()
     }, [formSchema])
 
@@ -172,7 +169,6 @@ function MyAccount() {
         const result = FormSchema2.safeParse(form2.getValues());
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors.password
-            console.log(errorMap)
         }
         if (form2.getValues("password")?.length >= 8) {
             setErrorChecks((prev) => { return { ...prev, minChars: true } })
@@ -288,19 +284,15 @@ function MyAccount() {
             if (data?.time_zone) {
                 form.setValue("timeZone", data.time_zone)
             }
-            console.log("myDetails data", myDetails, labelToValue(data.function, ALL_FUNCTIONS), labelToValue(data.region || "", REGION))
-
         }
     }, [myDetails])
 
 
     function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log("form data", data)
         updateMyDetails()
 
     }
     function onSubmit2(data: z.infer<typeof FormSchema2>) {
-        console.log("form data", data)
         updatePassword()
 
     }

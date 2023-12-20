@@ -61,7 +61,6 @@ function setPassword() {
 
         const token = searchParams.get("token")
 
-        console.log("token", token)
         if (token) {
             const formData = form.getValues()
             const { password } = formData
@@ -104,7 +103,6 @@ function setPassword() {
         const result = FormSchema.safeParse(form.getValues());
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors.password
-            console.log(errorMap)
         }
         if (form.getValues("password")?.length >= 8) {
             setErrorChecks((prev) => { return { ...prev, minChars: true } })

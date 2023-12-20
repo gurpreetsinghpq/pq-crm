@@ -36,7 +36,6 @@ function LinkInvalid() {
           title: `Email Resent Succesfully!`,
           variant: "dark"
         })
-        console.log(result)
       } else {
         toast({
           title: "Api Failure!",

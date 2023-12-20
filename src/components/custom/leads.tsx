@@ -204,7 +204,6 @@ const Leads = ({ form, permissions }: {
                 setSelectedRowIds([])
             }
             setIsNetworkError(false)
-            console.log('dataFromApi',dataFromApi)
         }
         catch (err) {
             setIsLoading(false)
@@ -393,10 +392,8 @@ const Leads = ({ form, permissions }: {
     }
 
     function archiveApi() {
-        console.log(selectedRowIds)
         if (!selectedRowIds) {
             // Handle the case where selectedRowIds is undefined or empty
-            console.log("No rows selected for archiving.");
             return;
         }
 

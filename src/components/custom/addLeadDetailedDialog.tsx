@@ -119,19 +119,12 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     const watcher2 = form2.watch()
 
     useEffect(() => {
-        // console.log(form.getValues())
-
-    }, [watcher1])
-    useEffect(() => {
         // console.log(form2.getValues())
         form2.formState.isValid
-        console.log(form2.formState.errors)
-        console.log("form2.formState.isValid", form2.formState.isValid)
-        console.log("formSchema2", formSchema2)
+        form2.formState.errors
     }, [watcher2])
 
     useEffect(() => {
-        console.log("details", details)
         if (details?.name) {
             form.setValue("organisationName", details?.name, SET_VALUE_CONFIG)
         } else {
@@ -145,14 +138,10 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
     }, [])
 
-    console.log(dummyContactData)
-
-
     async function addContact() {
-        console.log(form2.getValues())
         const finalData = form2.getValues()
         const ftype = type.find((role) => role.value === finalData.type)?.label
-        console.log(finalData.type)
+
         const fDesignation = designation.find((des) => des.value === finalData.designation)?.label
         let name = finalData.name
         let email = finalData.email
@@ -162,9 +151,9 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             phone = ""
             std_code = ""
         }
-        
-        const phoneDuplicateLocal = dummyContactData.find((contact)=>contact.phone===phone)
-        const emailDuplicateLocal = dummyContactData.find((contact)=>contact.email===email)
+
+        const phoneDuplicateLocal = dummyContactData.find((contact) => contact.phone === phone)
+        const emailDuplicateLocal = dummyContactData.find((contact) => contact.email === email)
 
         const res = await getIsContactDuplicate(email, `${std_code}-${phone}`)
 
@@ -180,7 +169,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             })
             setDummyContactData((prevValues: any) => {
                 const list = [{ name, email, type: ftype, designation: fDesignation, isLocallyAdded: true, contactId: guidGenerator(), phone, std_code }, ...prevValues]
-                console.log("list", list, form2.getValues())
                 return list
             })
             setShowContactForm(false)
@@ -238,8 +226,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
             const dataArr = val.title?.split(" ").join("").split("-")
             if (dataArr) {
                 const [orgNameL, regL, roleL] = dataArr
-                console.log(orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase())
-                console.log(orgNameL.toLowerCase(), formData.organisationName.toLowerCase(), regionAcronym?.toLowerCase(), regL.toLowerCase(), roleTypeAcronym?.toLowerCase(), roleL.toLowerCase())
                 if (orgNameL.toLowerCase() === formData.organisationName.toLowerCase() && regionAcronym?.toLowerCase() === regL.toLowerCase() && roleTypeAcronym?.toLowerCase() === roleL.toLowerCase()) {
                     incrementalNumber++
                 }
@@ -279,7 +265,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
         const token_superuser = getToken()
 
-        console.log(dataToSend)
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/lead/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
@@ -310,7 +295,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
 
     function activateToUpdateForm(item: any) {
         const finalData = item
-        console.log(finalData)
         const ftype = TYPE.find((type) => type.label === finalData.type)?.value
         // console.log(finalData.contactType)
         const fDesignation = DESIGNATION.find((des) => des.label === finalData.designation)?.value
@@ -332,7 +316,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
         form2.setValue("std_code", std_code, SET_VALUE_CONFIG)
         form2.setValue("phone", phone, SET_VALUE_CONFIG)
         form2.setValue("contactId", item.contactId, SET_VALUE_CONFIG)
-        console.log("formSchema2", formSchema2)
         setShowContactForm(true)
         setFormInUpdateState(true)
     }
@@ -445,8 +428,8 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
     }
 
     useEffect(() => {
-        console.log("form2.formState.errors", form2.formState.errors)
-        console.log("form2.formState.errors", form2.formState.isValid)
+        form2.formState.errors
+        form2.formState.isValid
         form2.trigger()
     }, [formSchema2])
 
@@ -857,7 +840,7 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="p-0 ml-[114px]" style={{width:"200px"}}>
+                                                <PopoverContent className="p-0 ml-[114px]" style={{ width: "200px" }}>
                                                     <Command>
                                                         <CommandInput className='w-full' placeholder="Search Country Code" />
                                                         <CommandEmpty>Country code not found.</CommandEmpty>
@@ -868,7 +851,6 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                                                                         value={cc.label}
                                                                         key={cc.label}
                                                                         onSelect={() => {
-                                                                            console.log("std_code", cc.value)
                                                                             form2.setValue("std_code", cc.value, SET_VALUE_CONFIG)
                                                                             changeStdCode()
                                                                         }}

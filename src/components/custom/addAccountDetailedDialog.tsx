@@ -171,7 +171,6 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
     }, [formSchema2])
 
     useEffect(() => {
-        console.log("details", details)
         if (details?.name) {
             form.setValue("organisationName", details?.name, SET_VALUE_CONFIG)
         } else {
@@ -188,10 +187,8 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
 
 
     async function addContact() {
-        console.log(form2.getValues())
         const finalData = form2.getValues()
         const ftype = type.find((role) => role.value === finalData.type)?.label
-        console.log(finalData.type)
         const fDesignation = designation.find((des) => des.value === finalData.designation)?.label
         let phone = form2.getValues("phone")
         let std_code = form2.getValues("std_code")
@@ -326,7 +323,6 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            console.log(result)
             dataFromChild()
             form.reset()
             resetForm2()
@@ -346,7 +342,6 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
 
     function activateToUpdateForm(item: any) {
         const finalData = item
-        console.log(finalData)
         const ftype = TYPE.find((type) => type.label === finalData.type)?.value
         // console.log(finalData.contactType)
         const fDesignation = DESIGNATION.find((des) => des.label === finalData.designation)?.value
@@ -368,7 +363,6 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         form2.setValue("std_code", std_code, SET_VALUE_CONFIG)
         form2.setValue("phone", phone, SET_VALUE_CONFIG)
         form2.setValue("contactId", item.contactId, SET_VALUE_CONFIG)
-        console.log(form2.getValues())
         setShowContactForm(true)
         setFormInUpdateState(true)
     }

@@ -426,7 +426,6 @@ const Accounts = ({ form, permissions }: {
     }
 
     function archiveApi() {
-        console.log(selectedRowIds)
         if (!selectedRowIds) {
             // Handle the case where selectedRowIds is undefined or empty
             console.log("No rows selected for archiving.");

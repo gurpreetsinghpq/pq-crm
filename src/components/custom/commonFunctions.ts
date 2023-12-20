@@ -311,12 +311,10 @@ export const getToken = () => {
 export let TIMEZONE = ''
 export async function fetchTimeZone() {
   const myDetails = await fetchMyDetails();
-  console.log("layout file mydetails", myDetails)
   if (myDetails) {
     const timeZone = myDetails.time_zone;
     if (timeZone) {
       TIMEZONE = timeZone
-      console.log("layout file tz", TIMEZONE)
       return timeZone
     }
   }
@@ -348,8 +346,6 @@ export function compareTimeStrings(timeVlaue: string, currentTime: string, dueDa
   // Create Date objects for the current date and the two time strings
   if (dueDate) {
     if (dueDate.toDateString() === currentDate.toDateString()) {
-
-      console.log("disbaled", dueDate, currentDate)
       const timeParts1: string[] = timeVlaue.split(":");
       const timeParts2: string[] = currentTime.split(":");
       const time1: Date = new Date(
@@ -739,7 +735,6 @@ export function formatAddresses(data: AddressFields) {
   ]
     .filter((value) => value !== null && value !== undefined)
     .join(', ');
-    console.log("formattedBillingAddress", `${formattedBillingAddress}`,`${formattedShippingAddress}`)
   return {
     billing: formattedBillingAddress,
     shipping: formattedShippingAddress,
@@ -796,7 +791,6 @@ export async function markStatusOfActivity(entityId:number, status:string ,cb:Ca
           variant: "dark"
       })
       cb()
-      console.log("todo",result)
   } catch (err) {
       console.log(err)
   }
@@ -811,7 +805,6 @@ export async function rescheduleActivity(entityId:number, data:ActivityPatchBody
           variant: "dark"
       })
       cb()
-      console.log("todo",result)
   } catch (err) {
       console.log(err)
   }
@@ -846,7 +839,6 @@ export const handleAlphaNumericPaste = (event: React.ClipboardEvent<HTMLInputEle
 export function daysAgo(isoDateString: string): string {
   const currentDate = new Date();
   const providedDate = new Date(isoDateString);
-  console.log("currentDate", currentDate,providedDate)
   // Calculate the difference in milliseconds
   const timeDifference = currentDate.getTime() - providedDate.getTime();
 

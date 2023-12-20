@@ -84,20 +84,16 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     const [accountPayable, setAccountPayable] = useState<IValueLabel>()
     const data: ContactsGetResponse = row.original
     useEffect(() => {
-        console.log(data)
 
         setRowState((prevState) => ({
             ...prevState,
             name: data.name
         }))
         const type = labelToValue(data.type, TYPE)
-        console.log("type", type)
         changeStdCode(type)
-        console.log("data.name", data.organisation)
         setCurrentAccountName(data.organisation.name)
         const typeIvalue: IValueLabel | undefined = TYPE.find((val)=>val.label === data.type)
         if(typeIvalue?.label==="Accounts Payable"){
-            console.log("typeIvalue",typeIvalue)
             setAccountPayable(typeIvalue)
         }
     }, [])
@@ -135,7 +131,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     const debouncedSearchableFilters = useDebounce(inputAccount, 500)
 
     useEffect(() => {
-        console.log("fetchclientdata", debouncedSearchableFilters)
         if (inputAccount.length === 0) {
             setAccountData([])
         }
@@ -171,7 +166,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         safeparse2()
         form.formState.isValid
         form.formState.isDirty
-        console.log("formstate isvalid", form.formState.isValid, "formstate isdirty", form.formState.isDirty)
 
     }, [watcher])
 
@@ -197,11 +191,10 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
     function safeparse2() {
         const result = FormSchema.safeParse(form.getValues())
-        console.log("safe prase 2 ", result)
+        
         if (result.success) {
             setContactFieldValid(true)
         } else {
-            console.log("safe prase 2 ", result.error.errors)
             setContactFieldValid(false)
         }
     }
@@ -288,7 +281,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             try {
                 const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/${contactId}/`, { method: "PATCH", body: JSON.stringify(contactDetails), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
                 const result = await dataResp.json()
-                console.log(result)
                 if (result.status == "1") {
                     toast({
                         title: "Contact Details Updated Successfully!",
@@ -344,18 +336,14 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
     function safeprs() {
         const result = FormSchema.safeParse(form.getValues())
-        console.log(result)
         if (!result.success) {
             const errorMap = result.error.formErrors.fieldErrors
-            console.log(errorMap)
             setNumberOfErrors(Object.keys(errorMap).length)
         }
     }
 
     function onSubmit() {
-        console.log("submitted")
         // safeprs()
-        console.log(numberOfErrors)
         patchData()
     }
 
@@ -370,7 +358,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
     };
 
     function preprocess() {
-        console.log("preprocess")
         safeprs()
     }
 
@@ -392,18 +379,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         }
     }
 
-    // Example usage:
-    const inputString = "INR 2,320,434.35";
-    const parsed = parseCurrencyValue(inputString);
-
-    if (parsed) {
-        console.log("Currency Code:", parsed.getCurrencyCode());
-        console.log("Numeric Value:", parsed.getNumericValue());
-    } else {
-        console.log("Invalid input string.");
-    }
-
-    console.log(formSchema)
 
     function changeStdCode(type: string | undefined = undefined) {
         const value = form.getValues("std_code")
@@ -412,7 +387,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
         if (type) {
             setIsPhoneMandatory(isMandatory)
         }
-        console.log(value, value != "+91")
         if (isMandatory) {
             if (value != "+91" && value != "+1") {
                 updatedSchema = FormSchema.extend({
@@ -448,7 +422,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
             }
         }
         setFormSchema(updatedSchema)
-        console.log("updatedschema", updatedSchema)
     }
 
     function updateContactName(): void {
@@ -787,7 +760,6 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
                                                                                         value={cc.label}
                                                                                         key={cc.label}
                                                                                         onSelect={() => {
-                                                                                            console.log("std_code", cc.value)
                                                                                             form.setValue("std_code", cc.value, SET_VALUE_CONFIG)
                                                                                             changeStdCode()
 
@@ -873,69 +845,7 @@ function SideSheetContacts({ parentData, permissions, accountList }: { parentDat
 
     )
 
-    function handleOnChangeNumeric(event: React.ChangeEvent<HTMLInputElement>, field: any, isSeparator: boolean = true) {
-        const cleanedValue = event.target.value.replace(/[,\.]/g, '')
-        console.log(cleanedValue)
-        if (isSeparator) {
-            return field.onChange((+cleanedValue).toLocaleString())
-        } else {
-            return field.onChange((+cleanedValue).toString())
-        }
-    }
-
-    async function patchOrgData(orgId: number, orgData: Partial<PatchOrganisation>) {
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/client/${orgId}/`, { method: "PATCH", body: JSON.stringify(orgData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            if (result.message === "success") {
-            }
-        }
-        catch (err) {
-            console.log("error", err)
-        }
-    }
-
-
-    async function patchRoleData(roleId: number, roleDetailsData: Partial<PatchOrganisation>) {
-        try {
-            const dataResp = await fetch(`${baseUrl}/v1/api/role_detail/${roleId}/`, { method: "PATCH", body: JSON.stringify(roleDetailsData), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-            const result = await dataResp.json()
-            if (result.message === "success") {
-            }
-        }
-        catch (err) {
-            console.log("error", err)
-        }
-    }
-    async function patchContactData(contacts: Contact[]) {
-        try {
-            for (const contact of contacts) {
-                const dataResp = await fetch(`${baseUrl}/v1/api/client/contact/`, {
-                    method: "POST",
-                    body: JSON.stringify(contact),
-                    headers: {
-                        "Authorization": `Token ${token_superuser}`,
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                const result = await dataResp.json();
-                if (result.message === "success") {
-                    // Handle success for each contact if needed
-                }
-            }
-        } catch (err) {
-            console.log("error", err);
-        }
-    }
-
-    function requiredErrorComponent() {
-        return <div className={`${requiredErrorClasses} flex flex-row gap-[5px] items-center`}>
-            Required
-            <IconRequiredError size={16} />
-        </div>
-    }
+    
 
 }
 

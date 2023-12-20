@@ -82,20 +82,15 @@ function Profiles({ form, permissions }: {
 
 
     function setChildDataHandler(key: keyof IChildData, data: any) {
-        console.log("setChildDataHandler", key, data)
         setChildData((prev) => {
             return { ...prev, [key]: data }
         })
         if (!data) {
-            console.log("if ran")
             fetchProfileData()
         }
     }
 
 
-    React.useEffect(() => {
-        console.log(childData)
-    }, [childData?.row])
     function setTableLeadRow(data: any) {
         const selectedRows = data.rows.filter((val: any) => val.getIsSelected())
         setIsMultiSelectOn(selectedRows.length !== 0)
