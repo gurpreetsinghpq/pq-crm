@@ -544,7 +544,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                         <Popover modal={true}>
                                                             <PopoverTrigger asChild>
                                                                 <FormControl>
-                                                                    <Button disabled={addDialog?.isAddDialog && !watch.selectEntity} variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`}>
+                                                                    <Button disabled={addDialog?.isAddDialog && !watch.selectEntity} variant={"google"} className={`flex flex-row gap-2 w-full justify-between px-[12px] ${commonFontClassesAddDialog} ${editMode.isEditMode && "bg-gray-100 pointer-events-none cursor-not-allowed"}`} tabIndex={editMode.isEditMode ? -1 : 0}>
                                                                         {
                                                                             field?.value?.length > 0 ? (
                                                                                 getContacts(field.value.map(contactId => {
