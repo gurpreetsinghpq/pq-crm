@@ -109,7 +109,8 @@ type FilterObject = LeadInterfaceFilter & ProspectInterfaceFilter & DealsInterfa
 interface HiddenIf {
   threeDots?: boolean,
   multiCheckBoxes?:boolean,
-  customFields?: string[]
+  customFields?: string[],
+  paginationSelectedCount?:boolean
 }
 
 const emptyFilterQuery: FilterQuery = { filterFieldName: '', value: null }
@@ -408,7 +409,7 @@ export default function DataTableServer<TData, TValue>({
         </div>
       </div> */}
       {pageName !== "teamsDialog" && <div className="pl-[16px] pr-[16px] py-4">
-        <DataTablePagination table={table} />
+        <DataTablePagination table={table} hidden={{paginationSelectedCount:hidden.paginationSelectedCount}}/>
       </div>}
     </div>
   )
