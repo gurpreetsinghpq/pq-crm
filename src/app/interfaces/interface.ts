@@ -75,7 +75,7 @@ export interface LeadInterface {
         name: string
     };
     updated_by: string;
-    lead_aging:string;
+    lead_aging:number;
     owner: {
         id: number;
         name: string;
@@ -400,7 +400,7 @@ export interface ProspectsGetResponse {
         name: string;
         is_active: boolean;
     };
-    prospect_aging:string;
+    prospect_aging:number;
     lead: {
         id: number;
         created_by: {
@@ -1203,7 +1203,7 @@ export interface DealsGetResponse {
         id: number;
         is_active: boolean;
     };
-    deal_aging:string
+    deal_aging:number
     prospect: {
         id: number;
         created_by: {

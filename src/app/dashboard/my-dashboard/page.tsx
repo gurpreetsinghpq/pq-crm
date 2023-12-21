@@ -138,12 +138,12 @@ const LEAD_BREAKDOWN = [
 
 const renderColorfulLegendText = (value: string, entry: any) => {
   return (
-    <span style={{ padding: "6px" }} className='text-sm font-normal text-black-100 w-[200px]'>
-      <span>
+    <span style={{ padding: "6px",  }} className='text-sm font-normal text-black-100'>
+      <span className='w-[80px] xl:w-[100px] inline-block'>
         {value}
       </span>
       <span className='ml-auto'>
-        {` - ${parseInt(`${entry.payload.percent * 100}`)}%`}
+        {`${parseInt(`${entry.payload.percent * 100}`)}%`}
       </span>
     </span>
   );
@@ -153,6 +153,9 @@ function page() {
 
   const [currentTab, setCurrentTab] = useState<string>(TABS.LEADS)
 
+  // + {{number}} , - {{number}} when showing comparision
+  // daterange picker
+  // roundoff to to one decimal point
 
   return (
     <div className='flex flex-row w-full flex-1 min-h-[100vh] '>

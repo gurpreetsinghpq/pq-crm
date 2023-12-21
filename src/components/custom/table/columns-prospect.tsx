@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { ColumnDef, Row } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, ChevronDownIcon, MoreVertical } from "lucide-react"
-import { daysAgo, getActive, getName } from "../commonFunctions"
+import { daysAgo, formatDays, getActive, getName } from "../commonFunctions"
 import { multiLine } from "./columns"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { DialogClose } from "@radix-ui/react-dialog"
@@ -195,7 +195,7 @@ export function columnsProspects(setChildDataHandler: CallableFunction, patchArc
                     </div>
                 )
             },
-            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{row.getValue("prospect_ageing")}</div>,
+            cell: ({ row }) => <div className="text-gray-600 text-sm font-normal">{formatDays(row.getValue("prospect_ageing"))}</div>,
             filterFn: (row, id, value) => {
                 return value.includes(row.getValue(id))
             },

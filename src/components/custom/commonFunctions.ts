@@ -851,3 +851,12 @@ export function daysAgo(isoDateString: string): string {
     return `${daysDifference} ${daysDifference>1? "days": "day"}`;
   }
 }
+
+export function formatDays(days: number): string {
+
+  if (days === 0) {
+    return '—';
+  } else {
+    return `${days} ${days>1? "days": "day"}`;
+  }
+}
