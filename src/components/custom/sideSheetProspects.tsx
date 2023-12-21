@@ -513,12 +513,12 @@ function SideSheetProspects({ parentData, permissions }: { parentData: { childDa
         }
         const orgData: Partial<PatchOrganisation> = {
             name: form.getValues("orgnaisationName"),
-            industry: valueToLabel(form.getValues("industry") || "", INDUSTRY),
-            domain: valueToLabel(form.getValues("domain") || "", DOMAINS),
-            size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY),
-            last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE),
-            last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT),
-            segment: LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym,
+            industry: valueToLabel(form.getValues("industry") || "", INDUSTRY) || null,
+            domain: valueToLabel(form.getValues("domain") || "", DOMAINS) || null,
+            size: valueToLabel(form.getValues("size") || "", SIZE_OF_COMPANY) || null,
+            last_funding_stage: valueToLabel(form.getValues("lastFundingStage") || "", LAST_FUNDING_STAGE) || null,
+            last_funding_amount: valueToLabel(form.getValues("lastFundingAmount") || "", LAST_FUNDING_AMOUNT) || null,
+            segment: LAST_FUNDING_STAGE.find((stage) => form.getValues("lastFundingStage") === stage.value)?.acronym || null,
             registered_name: form.getValues("registeredName"),
             govt_id: form.getValues("gstinVatGstNo")
         }
