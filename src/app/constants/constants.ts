@@ -120,7 +120,7 @@ const USA_MENA_APAC_BUDGET: IValueLabel[] = [
     },
     {
         value: "usd250Kto500k",
-        label: "USD 250k to 500K"
+        label: "USD 250k to 500k"
     },
     {
         value: "aboveUsd500k",

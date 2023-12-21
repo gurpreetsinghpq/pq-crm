@@ -2675,16 +2675,16 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 
 }
 export function labelToValue(lookup: string, arr: IValueLabel[]) {
-    return arr.find((item) => item.label === lookup)?.value
+    return arr.find((item) => item.label.toLowerCase() === lookup.toLowerCase())?.value
 }
 export function labelToValueArray(lookup: string[], arr: IValueLabel[]) {
-    return lookup.map((lp) => arr.find((item) => item.label === lp)?.value)
+    return lookup.map((lp) => arr.find((item) => item.label.toLowerCase() === lp.toLowerCase())?.value)
 }
 export function valueToLabel(lookup: string, arr: IValueLabel[]) {
-    return arr.find((item) => item.value === lookup)?.label
+    return arr.find((item) => item.value.toLowerCase() === lookup.toLowerCase())?.label
 }
 export function valueToLabelArray(lookup: string[], arr: IValueLabel[]) {
-    return lookup.map((lp) => arr.find((item) => item.value === lp)?.label)
+    return lookup.map((lp) => arr.find((item) => item.value.toLowerCase() === lp.toLowerCase())?.label)
 }
 export function valueToAcronym(lookup: string, arr: IValueLabel[]) {
     return arr.find((item) => item.value === lookup)?.acronym
