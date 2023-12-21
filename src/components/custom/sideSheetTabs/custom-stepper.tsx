@@ -376,7 +376,7 @@ function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, perm
                                 </div>
                                 <div className='flex flex-row gap-[5px]'>
                                     <IconUserEdit2 size="20px" color="#98A2B3" />
-                                    <div className='text-gray-700 text-sm font-normal'>{details.changed_by?.name}</div>
+                                    <div className='text-gray-700 text-sm font-normal'>{(details.field_name==="is_created" && details.changed_by===null)? "API" : details.changed_by?.name}</div>
                                 </div>
                             </div>
 
