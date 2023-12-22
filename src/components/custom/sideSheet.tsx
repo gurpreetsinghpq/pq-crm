@@ -582,7 +582,7 @@ function SideSheet({ parentData, permissions }: { parentData: { childData: IChil
 
     function updateFormSchemaOnStatusChange(value: string, isPromoteToProspect: boolean = false, changeReason: boolean = false, type: string | undefined = undefined) {
         let updatedSchema
-        if (value.toLowerCase() !== "unverified") {
+        if (value.toLowerCase() !== "unverified" && !(value.toLowerCase() === "junk" && form.getValues("reasons")==="False Info")) {
             if (value.toLowerCase() === "verified") {
                 updatedSchema = FormSchema.extend({
                     reasons: z.string().optional(),
