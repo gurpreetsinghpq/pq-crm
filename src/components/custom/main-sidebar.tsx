@@ -99,7 +99,7 @@ function MainSidebar() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             {/* <Link href={'/dashboard/my-dashboard'} onClick={() => setTab(TITLES.My_DASHBOARD)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.My_DASHBOARD && 'bg-purple-600'} ${!(permissions["Lead"]?.access && permissions["Lead"]?.view) && disabledSidebarItem}`}> */}
-                            <Link href={'/dashboard/my-dashboard'} onClick={() => setTab(TITLES.My_DASHBOARD)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.My_DASHBOARD && 'bg-purple-600'} ${ disabledSidebarItem}`}>
+                            <Link href={'/dashboard/my-dashboard'} onClick={() => setTab(TITLES.My_DASHBOARD)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${currentTab === TITLES.My_DASHBOARD && 'bg-purple-600'} `}>
                             {/* <div onClick={() => setTab(TITLES.My_DASHBOARD)} className={`h-12 w-12 hover:cursor-pointer mt-4 p-3 hover:bg-purple-600 hover:fill-current text-white-900 hover:text-white-900 rounded flex flex-row justify-center ${disabledSidebarItem}`}> */}
                                 <IconDashboard size={24} />
                             </Link>

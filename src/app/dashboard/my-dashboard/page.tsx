@@ -69,7 +69,7 @@ const ChartCard = ({ title, numberOfEntity, percentage, data }: { title: string,
     <div className='text-sm text-gray-600 font-medium'>{title}</div>
     <div className='text-2xl text-black-100'>{numberOfEntity}</div>
     <div className='flex flex-row text-xs font-normal gap-[5px]'>
-      <div className='text-black-100'>{`${percentage}%`}</div>
+      <div className='text-black-100'>{`+${percentage}%`}</div>
       <div className='text-gray-500'>from last week</div>
     </div>
     <ResponsiveContainer width="100%" height="100%" className={`py-[10px]`}>
