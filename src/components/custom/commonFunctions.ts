@@ -877,7 +877,7 @@ export function calculatePercentageChange(values: number[]): string {
   //     : (currentWeekValue !== 0 ? Infinity : 0); // Handles division by zero
 
   if (previousValue === 0 && currentValue === 0) {
-    return `0%`;
+    return `0% change`;
   }
   else if(previousValue === 0){
     return `Greater than 1000% increase`
@@ -887,5 +887,5 @@ export function calculatePercentageChange(values: number[]): string {
 
   const sign = percentageChange >= 0 ? "+" : "-";
 
-  return `${sign}${Math.abs(percentageChange).toFixed(0)}%`;
+  return `${sign}${Math.abs(percentageChange).toFixed(0)}% change`;
 }

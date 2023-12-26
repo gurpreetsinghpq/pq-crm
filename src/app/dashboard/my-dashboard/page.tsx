@@ -4,7 +4,7 @@ import { LEAD_PROSPECT_STATUS } from '@/app/constants/constants';
 import { DashboardLeads, DashboardProspect, DashboardSidebarLead, DashboardSidebarProspect, IValueLabel } from '@/app/interfaces/interface';
 import { calculatePercentageChange, timeSince } from '@/components/custom/commonFunctions';
 import MainSidebar from '@/components/custom/main-sidebar'
-import { IconCalendar, IconHourGlass, IconPercent2, IconStopWatch } from '@/components/icons/svgIcons';
+import { IconCalendar, IconHourGlass, IconLeads, IconPercent2, IconProspects, IconStopWatch } from '@/components/icons/svgIcons';
 import { getDateDetails } from '@/components/ui/date-range-picker';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -115,10 +115,10 @@ const SideBarCard = ({ icon, title, value = "", subtitle }: { icon: any, title: 
         </div>
         <div className='flex flex-row items-baseline gap-[5px]'>
           <div className='text-[24px] text-black-100 font-semibold'>
-            {value}
+            {value === "-" ? "—" : value}
           </div>
           {subtitle && <div className='text-gray-500 text-xs font-normal'>
-            {subtitle}
+            {subtitle === "-" ? "—" : subtitle}
           </div>}
         </div>
       </div>
@@ -154,7 +154,7 @@ type PieChartCustom = {
 
 
 function doesPiechartContainsDataToViz(pieChartData: PieChartCustom[]) {
-  pieChartData.some((val) => {val.value !== 0})
+  pieChartData.some((val) => { val.value !== 0 })
   return pieChartData.some((val) => val.value != 0)
 }
 
@@ -348,7 +348,7 @@ function page() {
                           <FormControl>
                             <SelectTrigger className={`${commonFontClasses} `}>
                               <SelectValue placeholder={"Date Range"} />
-                              
+
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -508,7 +508,7 @@ function page() {
                 <>
                   <SideBarCard icon={<IconStopWatch />} title='Avg. Lead Verification Time' value={sidebarLeads?.avt} subtitle='Days/Lead' />
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Lead Closure Time' value={sidebarLeads?.act} subtitle='Days/Lead' />
-                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${sidebarLeads?.lpcr}%`} />
+                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${sidebarLeads?.lpcr === "-" ? "—" : sidebarLeads?.lpcr}%`} />
                 </>
               }
             </div>
@@ -516,8 +516,8 @@ function page() {
               <div className='text-sm font-semibold'>
                 Recent Leads
               </div>
-              <div className='px-[16px] py-[24px] border-[1px] border-gray-300 rounded-[16px] flex flex-col gap-[20px]'>
-                {sidebarLeads?.recent_leads && sidebarLeads.recent_leads.map((recentLead) => {
+              <div className='px-[16px] py-[24px] border-[1px] border-gray-300 rounded-[16px] flex flex-col gap-[20px] '>
+                {(sidebarLeads?.recent_leads && sidebarLeads?.recent_leads.length > 0) ? sidebarLeads?.recent_leads.map((recentLead) => {
                   return <div className='flex flex-row justify-between text-xs text-black-100 font-medium'>
                     <div className='flex flex-col gap-[6px]'>
                       <div>
@@ -542,7 +542,12 @@ function page() {
                       {timeSince(recentLead.created_at)}
                     </div>
                   </div>
-                })}
+                }) : <div className='flex flex-col justify-center items-center gap-[10px] text-gray-900 text-md font-semibold'>
+                  <div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                    <IconLeads size="20" />
+                  </div>
+                  No Leads
+                </div>}
               </div>
             </div>
           </>}
@@ -551,7 +556,7 @@ function page() {
               {
                 <>
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Lead' />
-                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${sidebarProspects?.pdcr}%`} />
+                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${sidebarProspects?.pdcr === "-" ? "—" : sidebarProspects?.pdcr}%`} />
                 </>
               }
             </div>
@@ -560,7 +565,7 @@ function page() {
                 Recent Prospects
               </div>
               <div className='px-[16px] py-[24px] border-[1px] border-gray-300 rounded-[16px] flex flex-col gap-[20px]'>
-                {sidebarProspects?.recent_prospects && sidebarProspects.recent_prospects.map((recentProspect) => {
+                {(sidebarProspects?.recent_prospects && sidebarProspects?.recent_prospects.length > 0) ? sidebarProspects.recent_prospects.map((recentProspect) => {
                   return <div className='flex flex-row justify-between text-xs text-black-100 font-medium'>
                     <div className='flex flex-col gap-[6px]'>
                       <div>
@@ -587,7 +592,12 @@ function page() {
                       {timeSince(recentProspect.created_at)}
                     </div>
                   </div>
-                })}
+                }) : <div className='flex flex-col justify-center items-center gap-[10px] text-gray-900 text-md font-semibold'>
+                  <div className="h-12 w-12 mt-4 p-3  text-gray-700 border-[1px] rounded-[10px] border-gray-200 flex flex-row justify-center">
+                    <IconProspects size="20" />
+                  </div>
+                  No Prospects
+                </div>}
               </div>
             </div>
           </>}
