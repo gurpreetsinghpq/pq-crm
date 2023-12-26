@@ -593,7 +593,7 @@ function page() {
           </>}
         </div>
       </div>
-      {(leadLoading || prospectLoading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
+      {(leadLoading || prospectLoading || sidebarLeadLoading || sidebarProspectLoading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
         <Loader2 className="mr-2 h-20 w-20 animate-spin" color='#7F56D9' />
       </div>}
     </>

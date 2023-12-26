@@ -877,7 +877,7 @@ export function calculatePercentageChange(values: number[]): string {
   //     : (currentWeekValue !== 0 ? Infinity : 0); // Handles division by zero
 
   if (previousValue === 0 && currentValue === 0) {
-    return `No change`;
+    return `0%`;
   }
   else if(previousValue === 0){
     return `Greater than 1000% increase`
