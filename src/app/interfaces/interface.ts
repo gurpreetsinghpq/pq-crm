@@ -8,6 +8,7 @@ export interface IValueLabel {
     acronym?: string
     mandatory?: boolean
     currency?: string
+    title?:string
 }
 
 export interface Client {
@@ -75,7 +76,7 @@ export interface LeadInterface {
         name: string
     };
     updated_by: string;
-    lead_aging:number;
+    lead_aging: number;
     owner: {
         id: number;
         name: string;
@@ -111,7 +112,7 @@ export interface LeadInterface {
         name: string;
         registered_name: string | null;
         govt_id: string | null;
-        
+
         industry: string | null;
         domain: string | null;
         size: string | null;
@@ -339,7 +340,7 @@ export interface AddressFields {
     shipping_city: string | null
     shipping_state: string | null
     shipping_zipcode: string | null
-  }
+}
 
 export interface ContactsGetResponse {
     id: number;
@@ -400,7 +401,7 @@ export interface ProspectsGetResponse {
         name: string;
         is_active: boolean;
     };
-    prospect_aging:number;
+    prospect_aging: number;
     lead: {
         id: number;
         created_by: {
@@ -878,7 +879,7 @@ export interface TodoListGetResponse {
 
 export interface ActivityAccToEntity {
     id: number;
-    entity_type:string;
+    entity_type: string;
     contacts: {
         id: number
         name: string;
@@ -1167,8 +1168,8 @@ export interface NotificationGetResponse {
 
         contact: number[];
     };
-    data_json:{
-        reassigned_by:string
+    data_json: {
+        reassigned_by: string
     }
     type: string;
     is_viewed: boolean;
@@ -1203,7 +1204,7 @@ export interface DealsGetResponse {
         id: number;
         is_active: boolean;
     };
-    deal_aging:number
+    deal_aging: number
     prospect: {
         id: number;
         created_by: {
@@ -1385,3 +1386,36 @@ export interface IntegrationStatus {
     "created_at": string,
     "auth_type": string
 }
+
+export interface DashboardSidebarLead {
+    "recent_leads": {
+        "title": string,
+        "status": string,
+        "created_at": string
+    }[],
+    "avt": string,
+    "act": string,
+    "lpcr": string
+}
+
+export interface DashboardSidebarProspect {
+    "recent_prospects": {
+        "title": string,
+        "status": string,
+        "created_at": string
+    }[],
+    "act": string,
+    "pdcr": string
+}
+
+export interface DashboardProspect {
+    "status": {
+        "Qualified": number
+        "Disqualified": number
+        "Lost": number
+        "Deferred": number
+    }[],
+    "created": number[],
+    "owned": number[]
+}
+export type DashboardLeads = DashboardProspect

@@ -1,5 +1,5 @@
 import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ActivityPatchBody, AddressFields, ClientGetResponse, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ActivityPatchBody, AddressFields, ClientGetResponse, DashboardSidebarLead, DashboardSidebarProspect, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 import { ChangeEvent } from "react";
@@ -168,6 +168,8 @@ export async function fetchActivityListAccToEntity(entityId: number) {
     return err
   }
 }
+
+
 
 export async function fetchAccountFromId(entityId: number) {
   try {
@@ -656,7 +658,7 @@ export function removeUndefinedFromArray(arr: (string | undefined)[]): string[] 
 
 export function setDateHours(date: Date, isEnd: boolean) {
   const dateLocal = structuredClone(date)
-  const from  = new Date(dateLocal.setHours(0, 0, 0, 0)).toISOString()
+  const from = new Date(dateLocal.setHours(0, 0, 0, 0)).toISOString()
   const to = new Date(dateLocal.setHours(23, 59, 59, 999)).toISOString()
 
   if (isEnd) {
@@ -782,31 +784,31 @@ export function dirtyValues<DirtyFields extends Record<string, unknown>, Values 
   return dirtyValue;
 }
 
-export async function markStatusOfActivity(entityId:number, status:string ,cb:CallableFunction){
+export async function markStatusOfActivity(entityId: number, status: string, cb: CallableFunction) {
   try {
-      const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/update_status/`, { method: "PATCH", body: JSON.stringify({status}), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-      const result = await dataResp.json()
-      toast({
-          title: `Activity Marked as ${status} Succesfully!`,
-          variant: "dark"
-      })
-      cb()
+    const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/update_status/`, { method: "PATCH", body: JSON.stringify({ status }), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    toast({
+      title: `Activity Marked as ${status} Succesfully!`,
+      variant: "dark"
+    })
+    cb()
   } catch (err) {
-      console.log(err)
+    console.log(err)
   }
 }
-export async function rescheduleActivity(entityId:number, data:ActivityPatchBody, cb:CallableFunction){
+export async function rescheduleActivity(entityId: number, data: ActivityPatchBody, cb: CallableFunction) {
   try {
-      const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/`, { method: "PATCH", body: JSON.stringify(data), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
-      const result = await dataResp.json()
-      const isReassign = data.assigned_to
-      toast({
-          title: `Activity ${isReassign? "Reassigned" : "Rescheduled" } Successfully`,
-          variant: "dark"
-      })
-      cb()
+    const dataResp = await fetch(`${baseUrl}/v1/api/activity/${entityId}/`, { method: "PATCH", body: JSON.stringify(data), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
+    const result = await dataResp.json()
+    const isReassign = data.assigned_to
+    toast({
+      title: `Activity ${isReassign ? "Reassigned" : "Rescheduled"} Successfully`,
+      variant: "dark"
+    })
+    cb()
   } catch (err) {
-      console.log(err)
+    console.log(err)
   }
 }
 export const handleAlphaNumericKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -848,7 +850,7 @@ export function daysAgo(isoDateString: string): string {
   if (daysDifference === 0) {
     return '0 day';
   } else {
-    return `${daysDifference} ${daysDifference>1? "days": "day"}`;
+    return `${daysDifference} ${daysDifference > 1 ? "days" : "day"}`;
   }
 }
 
@@ -857,6 +859,33 @@ export function formatDays(days: number): string {
   if (days === 0) {
     return '—';
   } else {
-    return `${days} ${days>1? "days": "day"}`;
+    return `${days} ${days > 1 ? "days" : "day"}`;
   }
+}
+
+
+export function calculatePercentageChange(values: number[]): string {
+  if (values.length <= 2) {
+    throw new Error("Array must contain atleast two values.");
+  }
+
+  const currentValue = values[0];
+  const previousValue = values[1];
+
+  // const percentageChange = previousWeekValue !== 0
+  //     ? ((currentWeekValue - previousWeekValue) / Math.abs(previousWeekValue)) * 100
+  //     : (currentWeekValue !== 0 ? Infinity : 0); // Handles division by zero
+
+  if (previousValue === 0 && currentValue === 0) {
+    return `No change`;
+  }
+  else if(previousValue === 0){
+    return `Greater than 1000% increase`
+  }
+  // const percentageChange = (currentValue - previousValue) / ((currentValue + previousValue) / 2) * 100
+  const percentageChange = ((currentValue - previousValue) / (previousValue )) * 100
+
+  const sign = percentageChange >= 0 ? "+" : "-";
+
+  return `${sign}${Math.abs(percentageChange).toFixed(0)}%`;
 }

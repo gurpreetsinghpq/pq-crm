@@ -658,3 +658,125 @@ export function getLast7Days(queryParamString: string | undefined = undefined) {
     return { from: from, to: to }
 
 }
+
+export function getThisWeek() {
+    const from = new Date()
+    const to = new Date()
+    const first = from.getDate() - from.getDay()
+    from.setDate(first)
+    from.setHours(0, 0, 0, 0)
+    to.setHours(23, 59, 59, 999)
+    return { from, to }
+}
+export function getDateDetails(date: string) {
+    const from = new Date()
+    const to = new Date()
+    const first = from.getDate() - from.getDay()
+
+    switch (date) {
+        case 'today':
+            from.setHours(0, 0, 0, 0)
+            to.setHours(23, 59, 59, 999)
+            break
+        case 'yesterday':
+            from.setDate(from.getDate() - 1)
+            from.setHours(0, 0, 0, 0)
+            to.setDate(to.getDate() - 1)
+            to.setHours(23, 59, 59, 999)
+            break
+        case 'last7':
+            from.setDate(from.getDate() - 6)
+            from.setHours(0, 0, 0, 0)
+            to.setHours(23, 59, 59, 999)
+            break
+        case 'last14':
+            from.setDate(from.getDate() - 13)
+            from.setHours(0, 0, 0, 0)
+            to.setHours(23, 59, 59, 999)
+            break
+        case 'last30':
+            from.setDate(from.getDate() - 29)
+            from.setHours(0, 0, 0, 0)
+            to.setHours(23, 59, 59, 999)
+            break
+        case 'thisWeek':
+            const currentDay = from.getDay();
+            const startOfWeek = new Date(from);
+            startOfWeek.setDate(from.getDate() - currentDay + (currentDay === 0 ? -6 : 1)); // If it's Sunday, subtract 6 days, otherwise, subtract the current day number
+
+            from.setTime(startOfWeek.getTime());
+            from.setHours(0, 0, 0, 0);
+
+            to.setDate(startOfWeek.getDate() + 6);
+            to.setHours(23, 59, 59, 999);
+            break;
+        case 'lastWeek':
+            from.setDate(from.getDate() - 7 - from.getDay())
+            to.setDate(to.getDate() - to.getDay() - 1)
+            from.setHours(0, 0, 0, 0)
+            to.setHours(23, 59, 59, 999)
+            break
+        case 'thisMonth':
+            from.setDate(1);
+            from.setHours(0, 0, 0, 0);
+            to.setMonth(from.getMonth() + 1, 0); // Set to the last day of the current month
+            to.setHours(23, 59, 59, 999);
+            break;
+        case 'lastMonth':
+            from.setMonth(from.getMonth() - 1)
+            from.setDate(1)
+            from.setHours(0, 0, 0, 0)
+            to.setDate(0)
+            to.setHours(23, 59, 59, 999)
+            break
+        case 'thisQuarter':
+            const currentMonth = from.getMonth(); // In this example, currentMonth will be 8 (September)
+            const quarterStartMonth = currentMonth - (currentMonth % 3); // Quarter start month will be 6 (July)
+            const quarterStartDate = new Date(from.getFullYear(), quarterStartMonth, 1, 0, 0, 0, 0);
+            const lastDayOfQuarter = new Date(from.getFullYear(), quarterStartMonth + 3, 0, 23, 59, 59, 999); // The last day of the quarter is the last day of September
+
+            from.setTime(quarterStartDate.getTime()); // Start date will be July 1, 2023, 00:00:00.000
+            to.setTime(lastDayOfQuarter.getTime());    // End date will be September 30, 2023, 23:59:59.999
+
+            break;
+        case 'thisYear':
+            from.setMonth(0);
+            from.setDate(1);
+            from.setHours(0, 0, 0, 0);
+            to.setHours(23, 59, 59, 999);
+            break;
+        case 'lastYear':
+            from.setFullYear(from.getFullYear() - 1);
+            from.setMonth(0);
+            from.setDate(1);
+            to.setFullYear(to.getFullYear() - 1);
+            to.setMonth(11);
+            to.setDate(31);
+            to.setHours(23, 59, 59, 999);
+            break;
+        case 'allTime':
+            from.setTime(0);
+            to.setHours(23, 59, 59, 999);
+            break;
+        case 'thisFiscalYear':
+            const fiscalYearStartMonth = 3; // Assuming the fiscal year starts in April (0-indexed)
+            let fiscalYearStartYear = from.getFullYear();
+
+            // If the current month is January, February, or March, consider the last fiscal year
+            if (from.getMonth() < 3) {
+                fiscalYearStartYear -= 1;
+            }
+
+            const fiscalYearStartDate = new Date(fiscalYearStartYear, fiscalYearStartMonth, 1, 0, 0, 0, 0);
+            const lastDayOfFiscalYear = new Date(fiscalYearStartYear + 1, fiscalYearStartMonth, 0, 23, 59, 59, 999);
+
+            from.setTime(fiscalYearStartDate.getTime());
+            to.setTime(lastDayOfFiscalYear.getTime());
+            break;
+
+    }
+    const formattedFromDate = `${from.getDate()} ${from.toLocaleString('default', { month: 'short' })} ${from.getFullYear()}`;
+    const formattedToDate = `${to.getDate()} ${to.toLocaleString('default', { month: 'short' })} ${to.getFullYear()}`;
+
+    return `${formattedFromDate} - ${formattedToDate}`;
+}
