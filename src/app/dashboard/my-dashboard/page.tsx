@@ -555,7 +555,7 @@ function page() {
             <div className='flex flex-col gap-[16px]'>
               {
                 <>
-                  <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Lead' />
+                  <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Prospect' />
                   <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${sidebarProspects?.pdcr === "-" ? "—" : sidebarProspects?.pdcr}%`} />
                 </>
               }
