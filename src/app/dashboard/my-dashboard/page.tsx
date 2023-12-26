@@ -154,7 +154,8 @@ type PieChartCustom = {
 
 
 function doesPiechartContainsDataToViz(pieChartData: PieChartCustom[]) {
-  return pieChartData.every((val) => val.value != 0)
+  pieChartData.some((val) => {val.value !== 0})
+  return pieChartData.some((val) => val.value != 0)
 }
 
 function page() {
