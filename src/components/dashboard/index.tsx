@@ -165,7 +165,7 @@ export default function DashboardComponent() {
         
     },[currentTab])
     return <>{tokenDashboard && TIMEZONE ? <div className="flex flex-row h-full w-full">
-        <div className="text-teal-700 bg-teal-50 border-teal-600"></div>
+        <div className="text-teal-700 bg-teal-50 border-teal-600 text-pink-600 bg-pink-50 border-pink-500"></div>
         <div className="right flex flex-col w-full h-full">
            
             <div className="bottom flex flex-col flex-1">

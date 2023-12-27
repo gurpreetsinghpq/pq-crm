@@ -37,7 +37,7 @@ const FieldSchemaModified = z.object({
     all: z.boolean(),
     access: z.boolean(),
     add: z.string(),
-    view: z.string(),
+    view: z.boolean(),
     change: z.string(),
 });
 
@@ -75,7 +75,7 @@ const defaultModifiedFormSchema = {
     all: false,
     access: false,
     add: "NA",
-    view: "NA",
+    view: false,
     change: "NA"
 }
 
@@ -180,7 +180,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
         // uncomment this later
         // const keysToDelete = ["profileName", "allTheFields"]
         // to be reomved
-        const keysToDelete = ["profileName", "allTheFields", "Insights", "Dashboard"]
+        const keysToDelete = ["profileName", "allTheFields", "Insights"]
         keysToDelete.map((keyName) => {
             delete finalData[keyName]
         })
@@ -263,7 +263,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
                                 access: obj.access,
                                 add: "NA",
                                 change: "NA",
-                                view: "NA",
+                                view: obj.view,
                                 all: obj.access && obj.view
                             }
                             break;
@@ -360,7 +360,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
             setCheckFields(false)
             const superRes = Object.keys(FormSchema.shape)
                 // to be removed
-                .filter((keyName) =>  keyName !== "Insights" && keyName!=="Dashboard")
+                .filter((keyName) =>  keyName !== "Insights")
                 .filter((val) => val !== "profileName").map((fieldName: any) => {
                     const fieldData = form.getValues(fieldName)
                     const keys = ["access", "add", "view", "change"]
@@ -403,7 +403,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
         const defaultModifiedValue = {
             access: val,
             add: "NA",
-            view: "NA",
+            view: val,
             change: "NA",
             all: val,
         }
@@ -443,7 +443,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
                     all: !val,
                     access: !val,
                     add: "NA",
-                    view: "NA",
+                    view: !val,
                     change: "NA"
                 }, SET_VALUE_CONFIG)
             }
@@ -644,7 +644,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
 
                                                     Object.keys(FormSchema.shape)
                                                         // to be removed 
-                                                        .filter((keyName) => keyName !== "Insights" && keyName !== "Dashboard" )
+                                                        .filter((keyName) => keyName !== "Insights")
                                                         .map((key: any) => {
                                                             // const dataOfKey = formDefaultState[obj]
                                                             if (formDefaultState) {

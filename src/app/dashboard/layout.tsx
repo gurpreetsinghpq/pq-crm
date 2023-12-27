@@ -70,7 +70,7 @@ export default function DashboardLayout({
         const path = removeFirstPath(pathname)
         const pathMapped = TITLE_MAP_W_ROUTE.get(path) ?? ""
         const tabNameAsPerPermissionObject = TITLE_MAP_W_PERMISSION_KEY.get(pathMapped)
-        if ((tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view) || (pathMapped === TITLES.MY_ACCOUNT) || (pathMapped === TITLES.ACTIVITIES) || (pathMapped === TITLES.My_DASHBOARD)) {
+        if ((tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view) || (pathMapped === TITLES.MY_ACCOUNT) || (pathMapped === TITLES.ACTIVITIES)) {
             INITIAL_PARENT_TITLE = pathMapped
             setTab(pathMapped, true)
         }
@@ -90,6 +90,10 @@ export default function DashboardLayout({
             } else if (permissionsObject["User Management"].access && permissionsObject["User Management"].view) {
                 INITIAL_PARENT_TITLE = TITLES.USER_MANAGEMENT
                 setTab(TITLES.USER_MANAGEMENT, true)
+            }
+            else if (permissionsObject["Dashboard"].access && permissionsObject["Dashboard"].view) {
+                INITIAL_PARENT_TITLE = TITLES.My_DASHBOARD
+                setTab(TITLES.My_DASHBOARD, true)
             }
         }
 
@@ -167,7 +171,7 @@ export default function DashboardLayout({
 
     return (
         <>
-            {tokenDashboard && TIMEZONE  ?
+            {tokenDashboard && TIMEZONE ?
                 <div className="flex flex-row h-full w-full">
                     <div className="h-full flex flex-col">
                         <MainSidebar />
@@ -343,7 +347,7 @@ export default function DashboardLayout({
                                                     </div>
                                                 </div>
                                             </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => setTab(TITLES.MY_ACCOUNT,true)} className="border-b-[1px] border-gray-200">
+                                            <DropdownMenuItem onClick={() => setTab(TITLES.MY_ACCOUNT, true)} className="border-b-[1px] border-gray-200">
                                                 <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px] ">
                                                     <IconUser />
                                                     Profile

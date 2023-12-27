@@ -134,6 +134,11 @@ module.exports = {
       },
       header: {
         100: "#141414"
+      },
+      pink: {
+        50: "#FDF2FA",
+        500: "#EE46BC",
+        600: "#DD2590",
       }
     },
     container: {
@@ -209,7 +214,7 @@ module.exports = {
   },
   plugins: [
     require("tailwindcss-animate"),
-    plugin(function({ addUtilities }) {
+    plugin(function ({ addUtilities }) {
       const newUtilities = {
         ".popover-content-width-same-as-its-trigger": {
           width: "var(--radix-popover-trigger-width)",
