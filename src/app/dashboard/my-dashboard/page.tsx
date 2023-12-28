@@ -16,7 +16,7 @@ import { getCookie } from 'cookies-next';
 import { Loader2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer, PieChart, Pie, Tooltip as TooltipRe } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer, PieChart, Pie, Tooltip as TooltipRe, Cell } from 'recharts';
 import { z } from 'zod';
 
 const TABS = {
@@ -149,7 +149,7 @@ const FormSchema = z.object({
 type PieChartCustom = {
   name: string,
   value: number,
-  fill: string
+  fill: any
 }
 
 
@@ -190,6 +190,23 @@ function page() {
     fetchDashboardProspects(watch.dateRange)
   }, [watch.dateRange])
 
+  const unverifiedColor = { start: "#FF7A00", end: "#FFD439" }
+  const verifiedColor = { start: "#F49062", end: "#FD371F" }
+  const junkColor = { start: "#4B73FF", end: "#7CF7FF" }
+  const deferredColor = { start: "#6A11CB", end: "#2575FC" }
+  const lostColor = { start: "#C7EAFD", end: "#E8198B" }
+
+  const COLORS = {
+    Unverified: unverifiedColor,
+    Disqualified: unverifiedColor,
+    Verified: verifiedColor,
+    Qualified: verifiedColor,
+    Junk: junkColor,
+    Deferred: deferredColor,
+    Lost: lostColor,
+  }
+
+
 
   function getFillColor(status: string) {
     switch (status) {
@@ -227,7 +244,8 @@ function page() {
       setLeadLoading(false)
       const pieChartData: PieChartCustom[] = Object.keys(data.status[0]).map((k) => {
         const d = data.status[0]
-        const fillColor = getFillColor(k)
+        // const fillColor = getFillColor(k)
+        const fillColor = COLORS[k as keyof typeof COLORS]
         const dx = {
           name: k,
           value: Number(d[k as keyof typeof data.status[0]]),
@@ -255,7 +273,7 @@ function page() {
       setProspectLoading(false)
       const pieChartData: PieChartCustom[] = Object.keys(data.status[0]).map((k) => {
         const d = data.status[0]
-        const fillColor = getFillColor(k)
+        const fillColor = COLORS[k as keyof typeof COLORS]
         const dx = {
           name: k,
           value: Number(d[k as keyof typeof data.status[0]]),
@@ -409,14 +427,33 @@ function page() {
                     {(piechartLead && doesPiechartContainsDataToViz(piechartLead)) ? <div className='w-full h-full'>
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart >
-                          <Pie
+                          <defs>
+                            {piechartLead.map((entry, index) => (
+                              <linearGradient id={`myGradient${index}`}>
+                                <stop
+                                  offset="0%"
+                                  stopColor={entry.fill.start}
+                                />
+                                <stop
+                                  offset="100%"
+                                  stopColor={entry.fill.end}
+                                />
+                              </linearGradient>
+                            ))}
+                          </defs>
+                          {/* <Pie
                             dataKey="value"
                             data={piechartLead}
                             cx="50%"
                             cy="50%"
                             outerRadius={100}
                             fill="#8884d8"
-                          />
+                          /> */}
+                          <Pie data={piechartLead} dataKey="value">
+                            {piechartLead.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={`url(#myGradient${index})`} />
+                            ))}
+                          </Pie>
                           <Legend
                             iconType="circle"
                             layout="vertical"
@@ -473,24 +510,43 @@ function page() {
                   <div className='text-black-100 font-semibold'>Prospects State Distribution</div>
                   {(piechartProspect && doesPiechartContainsDataToViz(piechartProspect)) ? <div className='w-full h-full'>
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart >
-                        <Pie
-                          dataKey="value"
-                          data={piechartProspect}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          fill="#8884d8"
-                        />
-                        <Legend
-                          iconType="circle"
-                          layout="vertical"
-                          verticalAlign='middle'
-                          align='right'
-                          iconSize={6}
-                          formatter={renderColorfulLegendText}
-                        />
-                      </PieChart>
+                    <PieChart >
+                          <defs>
+                            {piechartProspect.map((entry, index) => (
+                              <linearGradient id={`myGradient${index}`}>
+                                <stop
+                                  offset="0%"
+                                  stopColor={entry.fill.start}
+                                />
+                                <stop
+                                  offset="100%"
+                                  stopColor={entry.fill.end}
+                                />
+                              </linearGradient>
+                            ))}
+                          </defs>
+                          {/* <Pie
+                            dataKey="value"
+                            data={piechartLead}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            fill="#8884d8"
+                          /> */}
+                          <Pie data={piechartProspect} dataKey="value">
+                            {piechartProspect.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={`url(#myGradient${index})`} />
+                            ))}
+                          </Pie>
+                          <Legend
+                            iconType="circle"
+                            layout="vertical"
+                            verticalAlign='middle'
+                            align='right'
+                            iconSize={6}
+                            formatter={renderColorfulLegendText}
+                          />
+                        </PieChart>
                     </ResponsiveContainer>
                   </div> : <div className='text-gray-900 text-md font-semibold h-full w-full flex flex-col justify-center items-center'>No Data to Viz.</div>}
                 </div>
