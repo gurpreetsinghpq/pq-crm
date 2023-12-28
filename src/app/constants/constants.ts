@@ -2394,7 +2394,7 @@ const ACTIVITY_STATUSES:IValueLabel[]  = [{
 {
     value: "inProgress",
     label: "In Progress",
-    icon: InProgress,
+    icon: InProgress2,
     class: "pl-[10px] pr-[12px] rounded-[16px] border border-[1px] py-[4px] pl-[10px] pr-[12px] text-sm font-medium border-purple-600 bg-purple-50 text-purple-700"
 },
 {
