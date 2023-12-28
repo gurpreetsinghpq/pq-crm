@@ -355,7 +355,7 @@ export default function DashboardLayout({
                                             </DropdownMenuItem>
                                             {(permissions["User Management"]?.access && permissions["User Management"]?.view) && <DropdownMenuItem onClick={() => setTab(TITLES.USER_MANAGEMENT, true)} className="border-b-[1px] border-gray-200">
                                                 <div className="flex flex-row gap-[8px] items-center px-[16px] py-[8px] ">
-                                                    <IconSettings color="#344054" />
+                                                    <IconSettings size="20" color="#344054" />
                                                     Settings
                                                 </div>
                                             </DropdownMenuItem>}
