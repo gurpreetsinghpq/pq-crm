@@ -180,7 +180,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
         // uncomment this later
         // const keysToDelete = ["profileName", "allTheFields"]
         // to be reomved
-        const keysToDelete = ["profileName", "allTheFields", "Insights"]
+        const keysToDelete = ["profileName", "allTheFields"]
         keysToDelete.map((keyName) => {
             delete finalData[keyName]
         })
@@ -360,7 +360,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
             setCheckFields(false)
             const superRes = Object.keys(FormSchema.shape)
                 // to be removed
-                .filter((keyName) =>  keyName !== "Insights")
+                // .filter((keyName) =>  keyName !== "Insights")
                 .filter((val) => val !== "profileName").map((fieldName: any) => {
                     const fieldData = form.getValues(fieldName)
                     const keys = ["access", "add", "view", "change"]
@@ -644,7 +644,7 @@ function AddProfileDialogBox({ children, permissions, parentData = undefined, se
 
                                                     Object.keys(FormSchema.shape)
                                                         // to be removed 
-                                                        .filter((keyName) => keyName !== "Insights")
+                                                        // .filter((keyName) => keyName !== "Insights")
                                                         .map((key: any) => {
                                                             // const dataOfKey = formDefaultState[obj]
                                                             if (formDefaultState) {

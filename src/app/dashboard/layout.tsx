@@ -70,7 +70,7 @@ export default function DashboardLayout({
         const path = removeFirstPath(pathname)
         const pathMapped = TITLE_MAP_W_ROUTE.get(path) ?? ""
         const tabNameAsPerPermissionObject = TITLE_MAP_W_PERMISSION_KEY.get(pathMapped)
-        if ((tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view) || (pathMapped === TITLES.MY_ACCOUNT) || (pathMapped === TITLES.ACTIVITIES)) {
+        if ((tabNameAsPerPermissionObject && permissionsObject[tabNameAsPerPermissionObject]?.access && permissionsObject[tabNameAsPerPermissionObject]?.view) || (pathMapped === TITLES.MY_ACCOUNT) || (pathMapped === TITLES.ACTIVITIES )) {
             INITIAL_PARENT_TITLE = pathMapped
             setTab(pathMapped, true)
         }
@@ -94,6 +94,10 @@ export default function DashboardLayout({
             else if (permissionsObject["Dashboard"].access && permissionsObject["Dashboard"].view) {
                 INITIAL_PARENT_TITLE = TITLES.My_DASHBOARD
                 setTab(TITLES.My_DASHBOARD, true)
+            }
+            else if (permissionsObject["Insight"].access && permissionsObject["Insight"].view) {
+                INITIAL_PARENT_TITLE = TITLES.INSIGHTS
+                setTab(TITLES.INSIGHTS, true)
             }
         }
 

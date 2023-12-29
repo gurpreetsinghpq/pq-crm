@@ -8,7 +8,7 @@ export interface IValueLabel {
     acronym?: string
     mandatory?: boolean
     currency?: string
-    title?:string
+    title?: string
 }
 
 export interface Client {
@@ -1408,14 +1408,90 @@ export interface DashboardSidebarProspect {
     "pdcr": string
 }
 
+export type InsightSidebarLead = DashboardSidebarLead
+export type InsightSidebarProspect = DashboardSidebarProspect
+
 export interface DashboardProspect {
-    "status": {
-        "Qualified": number
-        "Disqualified": number
-        "Lost": number
-        "Deferred": number
-    }[],
+    "status": DashboardProspectStatus[],
     "created": number[],
     "owned": number[]
 }
-export type DashboardLeads = DashboardProspect
+
+interface DashboardProspectStatus {
+    "Qualified": number
+    "Disqualified": number
+    "Lost": number
+    "Deferred": number
+}
+
+export interface DashboardLeads {
+    "status": DashboardLeadsStatus[],
+    "created": number[],
+    "owned": number[]
+}
+
+interface DashboardLeadsStatus {
+    "Unverified": number
+    "Verified": number
+    "Lost": number
+    "Junk": number
+    "Deferred": number
+}
+
+export interface InsightLeads {
+    pb: {
+        status: DashboardLeadsStatus
+        avt: string  
+        act: string
+        lpcr: string
+        user_name: string
+    }[],
+    status: DashboardLeadsStatus[]
+    inbound_source: InboundSource[]
+    outbound_source: OutboundSource[]
+    lptp: number[]
+    total_leads: number[]
+}
+
+export interface InsightProspects {
+    pb: {
+        status: DashboardLeadsStatus
+        avt: string  
+        act: string
+        lpcr: string
+        user_name: string
+    }[],
+    status: DashboardProspectStatus[]
+    inbound_source: InboundSource[]
+    outbound_source: OutboundSource[]
+    pptd: number[]
+    total_prospects: number[]
+}
+
+interface InboundSource {
+    "Referral": number
+    "LinkedIn": number
+    "Social Media": number
+}
+
+interface OutboundSource {
+    "Events": number
+    "Email Campaign": number
+    "LinkedIn": number
+    "Hoardings/Billboards": number
+    "RA/BDA": number
+    "VC/PE": number
+    "Lead Gen Partner": number
+}
+
+
+export interface InsightUserDropdown {
+    value: string
+    label: string
+    function: string
+    profile: {
+        id: number
+        name: string
+    }
+
+}

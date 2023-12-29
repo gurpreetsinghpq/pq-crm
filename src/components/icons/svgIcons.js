@@ -3,6 +3,11 @@ import { ArrowRightSquare, Award, CloudRain, PercentIcon, Wallet, Webhook, Webho
 import React from 'react';
 import { number } from 'zod';
 
+const CircleIcon = ({ size = "10", color="black" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 10 10" fill="none">
+    <circle cx="5" cy="5" r="4" fill={color} />
+  </svg>
+);
 const UnverifiedIcon = ({ size = "10" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 10 10" fill="none">
     <circle cx="5" cy="5" r="4" fill="#667085" />
@@ -1093,5 +1098,6 @@ export const IconMinus = (props) => <MinusIcon {...props} />;
 export const IconPlus = (props) => <PlusIcon {...props} />;
 export const IconStopWatch = (props) => <StopWatchIcon {...props} />;
 export const IconHourGlass = (props) => <HourGlassIcon {...props} />;
+export const IconCircle = (props) => <CircleIcon {...props} />;
 
 

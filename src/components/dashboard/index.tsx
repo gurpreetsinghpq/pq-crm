@@ -44,7 +44,8 @@ export const TITLES = {
     USER_MANAGEMENT: "User Management",
     MY_ACCOUNT: "My Account",
     My_DASHBOARD: "My Dashboard",
-    ACTIVITIES: "Activities"
+    ACTIVITIES: "Activities",
+    INSIGHTS: "Insights"
 }
 
 export const TITLE_MAP_W_PERMISSION_KEY = new Map([
@@ -54,6 +55,8 @@ export const TITLE_MAP_W_PERMISSION_KEY = new Map([
     [TITLES.ACCOUNTS, "Organisation"],
     [TITLES.CONTACTS, "Contact"],
     [TITLES.USER_MANAGEMENT, "User Management"],
+    [TITLES.My_DASHBOARD, "Dashboard"],
+    [TITLES.INSIGHTS, "Insight"],
 ])
 
 export const TITLE_MAP_W_ROUTE = new Map([
@@ -66,6 +69,7 @@ export const TITLE_MAP_W_ROUTE = new Map([
     ["my-account" ,TITLES.MY_ACCOUNT],
     ["activity" ,TITLES.ACTIVITIES],
     ["my-dashboard" ,TITLES.My_DASHBOARD],
+    ["insights" ,TITLES.INSIGHTS],
     
 ])
 

@@ -208,30 +208,55 @@ function page() {
 
 
 
+  // old fill colors for piechart
+  // function getFillColor(status: string) {
+  //   switch (status) {
+  //     case "Verified":
+  //     case "Qualified":
+  //       return "#BAEDBD"
+
+  //       break;
+  //     case "Unverified":
+  //     case "Disqualified":
+  //       return "#95A4FC"
+  //       break;
+  //     case "Junk":
+  //       return "#B1E3FF"
+  //       break;
+  //     case "Lost":
+  //       return "#FF999B"
+  //       break;
+  //     case "Deferred":
+  //       return "#A8C5DA"
+  //       break;
+  //     default:
+  //       return ""
+  //   }
+
+  // }
   function getFillColor(status: string) {
     switch (status) {
       case "Verified":
       case "Qualified":
-        return "#BAEDBD"
+        return "#079455"
 
         break;
       case "Unverified":
       case "Disqualified":
-        return "#95A4FC"
+        return "#475467"
         break;
       case "Junk":
-        return "#B1E3FF"
+        return "#7F56D9"
         break;
       case "Lost":
-        return "#FF999B"
+        return "#D92D20"
         break;
       case "Deferred":
-        return "#A8C5DA"
+        return "#DC6803"
         break;
       default:
         return ""
     }
-
   }
 
   async function fetchDashboardLeads(dateRange: string) {
@@ -239,13 +264,13 @@ function page() {
     try {
       const dataResp = await fetch(`${baseUrl}/v1/api/dashboard/lead/mydashboard_lead/?date_filter=${dateRange}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
       const result = await dataResp.json()
-      let data: DashboardProspect = structuredClone(result.data)
+      let data: DashboardLeads = structuredClone(result.data)
       setDashboardLeads(data)
       setLeadLoading(false)
       const pieChartData: PieChartCustom[] = Object.keys(data.status[0]).map((k) => {
         const d = data.status[0]
-        // const fillColor = getFillColor(k)
-        const fillColor = COLORS[k as keyof typeof COLORS]
+        const fillColor = getFillColor(k)
+        // const fillColor = COLORS[k as keyof typeof COLORS]
         const dx = {
           name: k,
           value: Number(d[k as keyof typeof data.status[0]]),
@@ -427,7 +452,8 @@ function page() {
                     {(piechartLead && doesPiechartContainsDataToViz(piechartLead)) ? <div className='w-full h-full'>
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart >
-                          <defs>
+                          {/* gradient color start */}
+                          {/* <defs>
                             {piechartLead.map((entry, index) => (
                               <linearGradient id={`myGradient${index}`}>
                                 <stop
@@ -440,20 +466,21 @@ function page() {
                                 />
                               </linearGradient>
                             ))}
-                          </defs>
-                          {/* <Pie
+                          </defs> */}
+                          {/* <Pie data={piechartLead} dataKey="value">
+                            {piechartLead.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={`url(#myGradient${index})`} />
+                              ))}
+                            </Pie> */}
+                          {/* gradient color end */}
+                          <Pie
                             dataKey="value"
                             data={piechartLead}
                             cx="50%"
                             cy="50%"
                             outerRadius={100}
                             fill="#8884d8"
-                          /> */}
-                          <Pie data={piechartLead} dataKey="value">
-                            {piechartLead.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={`url(#myGradient${index})`} />
-                            ))}
-                          </Pie>
+                          />
                           <Legend
                             iconType="circle"
                             layout="vertical"
@@ -510,43 +537,45 @@ function page() {
                   <div className='text-black-100 font-semibold'>Prospects State Distribution</div>
                   {(piechartProspect && doesPiechartContainsDataToViz(piechartProspect)) ? <div className='w-full h-full'>
                     <ResponsiveContainer width="100%" height="100%">
-                    <PieChart >
-                          <defs>
-                            {piechartProspect.map((entry, index) => (
-                              <linearGradient id={`myGradient${index}`}>
-                                <stop
-                                  offset="0%"
-                                  stopColor={entry.fill.start}
-                                />
-                                <stop
-                                  offset="100%"
-                                  stopColor={entry.fill.end}
-                                />
-                              </linearGradient>
-                            ))}
-                          </defs>
-                          {/* <Pie
-                            dataKey="value"
-                            data={piechartLead}
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            fill="#8884d8"
-                          /> */}
-                          <Pie data={piechartProspect} dataKey="value">
-                            {piechartProspect.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={`url(#myGradient${index})`} />
-                            ))}
-                          </Pie>
-                          <Legend
-                            iconType="circle"
-                            layout="vertical"
-                            verticalAlign='middle'
-                            align='right'
-                            iconSize={6}
-                            formatter={renderColorfulLegendText}
-                          />
-                        </PieChart>
+                      <PieChart >
+                        {/* gradient color start */}
+                        {/* <defs>
+                          {piechartProspect.map((entry, index) => (
+                            <linearGradient id={`myGradient${index}`}>
+                              <stop
+                                offset="0%"
+                                stopColor={entry.fill.start}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor={entry.fill.end}
+                              />
+                            </linearGradient>
+                          ))}
+                        </defs> */}
+                        {/* <Pie data={piechartProspect} dataKey="value">
+                          {piechartProspect.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={`url(#myGradient${index})`} />
+                          ))}
+                        </Pie> */}
+                        {/* gradient color end */}
+                        <Pie
+                                dataKey="value"
+                                data={piechartLead}
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={100}
+                                fill="#8884d8"
+                              />
+                        <Legend
+                          iconType="circle"
+                          layout="vertical"
+                          verticalAlign='middle'
+                          align='right'
+                          iconSize={6}
+                          formatter={renderColorfulLegendText}
+                        />
+                      </PieChart>
                     </ResponsiveContainer>
                   </div> : <div className='text-gray-900 text-md font-semibold h-full w-full flex flex-col justify-center items-center'>No Data to Viz.</div>}
                 </div>

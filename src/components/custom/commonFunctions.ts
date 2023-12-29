@@ -1,5 +1,5 @@
 import { REGION, TIME_ZONES, TYPE } from "@/app/constants/constants";
-import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ActivityPatchBody, AddressFields, ClientGetResponse, DashboardSidebarLead, DashboardSidebarProspect, IValueLabel, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
+import { ActivityAccToEntity, ActivityAccToEntityOrganisation, ActivityPatchBody, AddressFields, ClientGetResponse, DashboardSidebarLead, DashboardSidebarProspect, IValueLabel, InsightUserDropdown, NotificationGetResponse, Permission, PermissionResponse, ProfileGetResponse, TeamGetResponse, TimeRange, UserProfile, UsersDropdownGetResponse, UsersGetResponse } from "@/app/interfaces/interface";
 import { getCookie } from "cookies-next";
 import { toast } from "../ui/use-toast";
 import { ChangeEvent } from "react";
@@ -121,9 +121,12 @@ export async function fetchUserDataList(ownerList: boolean = false) {
     let activeUsers = data.filter((val) => val.is_active === true)
 
     let dataToReturn = activeUsers.map((val) => {
-      const final: IValueLabel = {
+      const final: InsightUserDropdown = {
         label: `${val.first_name} ${val.last_name}`,
-        value: val.id.toString()
+        value: val.id.toString(),
+        function: val.function,
+        profile: val.profile
+
       }
       return final
     })
@@ -888,4 +891,8 @@ export function calculatePercentageChange(values: number[]): string {
   const sign = percentageChange >= 0 ? "+" : "-";
 
   return `${sign}${Math.abs(percentageChange).toFixed(0)}% change`;
+}
+
+export function replaceHyphenWithEmDash(data:string|number|undefined):string|number|undefined {
+  return data === "-" ? "—" : data
 }

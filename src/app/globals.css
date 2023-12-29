@@ -310,3 +310,7 @@ body {
   border-top-left-radius: 0px;
   border-bottom-right-radius: 0px;
 }
+
+.bottom-insights-table-bg{
+  background: var(--Gradient-Linear-Gray-neutral-01, linear-gradient(180deg, #FFF 0%, #F3F5F7 100%));
+}

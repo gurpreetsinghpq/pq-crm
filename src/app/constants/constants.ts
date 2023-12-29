@@ -1,4 +1,4 @@
-import { Deferred, InProgress, InProgress2, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
+import { Deferred, IconCircle, InProgress, InProgress2, Junk, Lost, Unverified, Verified } from "../../components/icons/svgIcons"
 import { DropdownOption, FilterQuery, IValueLabel } from "../interfaces/interface"
 import { GODFATHER_CLASS, GodfatherIcon, HUSTLER_CLASS, HustlerIcon, ROCKSTAR_CLASS, RockstarIcon, SEGEMENT_COMMON_CLASS } from "../../components/icons/labels"
 import timezones from "./timezones.json"
