@@ -372,8 +372,9 @@ function page() {
   return (
     <>
       <div className='flex flex-row w-full flex-1 min-h-[100vh] '>
-        <div className='flex flex-col left flex-1 p-[24px] mb-[40px] overflow-auto '>
+        <div className='flex flex-col left flex-1 p-[24px] pt-[0px] mb-[40px] overflow-auto bg-white-900'>
           <Tabs onValueChange={(val) => setCurrentTab(val)} defaultValue={TABS.LEADS} className="flex flex-col w-fit  ">
+          <div className='bg-white-900 sticky top-[0px] z-[2] py-[24px] border-b-[1px] border-gray-300'>
             <TabsList className={`${commonTabListClasses} overflow-hidden w-fit`}>
               {tabs.map((tab) => {
                 return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
@@ -410,6 +411,7 @@ function page() {
                 </div>
               </form>
             </Form>
+          </div>
             <TabsContent value={TABS.LEADS} className="flex flex-col w-full py-[20px] gap-[20px]">
               <div className='flex flex-row flex-1 gap-[24px]'>
                 {dashboardLeads?.created && <ChartCard title='Leads Created' numberOfEntity={dashboardLeads?.created[0]} percentage={calculatePercentageChange(dashboardLeads?.created)} data={dashboardLeads.created} fromCompare={watch.dateRange} />}
