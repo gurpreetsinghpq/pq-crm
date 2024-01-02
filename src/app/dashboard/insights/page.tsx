@@ -318,7 +318,7 @@ function page() {
             } else {
                 const objDetails = MAP_KEY_WITH_NEW_NAME[key as keyof typeof MAP_KEY_WITH_NEW_NAME] || key
                 const newNameOfKey = objDetails?.newName
-                const value = objDetails?.formatValue ? `${replaceHyphenWithEmDash(obj[key])}%` : replaceHyphenWithEmDash(obj[key])
+                const value = objDetails?.formatValue ? `${replaceHyphenWithEmDash(obj[key],objDetails.formatValue)}` : replaceHyphenWithEmDash(obj[key])
                 console.log("newNameOfKey", newNameOfKey, value)
                 res[propName] = {
                     keyName: newNameOfKey || key,
