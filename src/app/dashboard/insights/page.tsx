@@ -291,12 +291,14 @@ function page() {
 
     const MAP_KEY_WITH_NEW_NAME: { [key: string]: { newName: string, formatValue: boolean, appendOnKey?:boolean } } = {
         avt: {
-            newName: "Avg. Lead Verification Time",
-            formatValue: false
+            newName: "Avg. Verification Time",
+            formatValue: false,
+            
         },
         act: {
-            newName: "Avg. Lead Closure Time",
-            formatValue: false
+            newName: "Avg. Closure Time",
+            formatValue: false,
+            
         },
         lpcr: { newName: "Prospect Conversion Rate", formatValue: true },
         Lost: { newName: "Lost", formatValue: true, appendOnKey:true },
@@ -349,8 +351,8 @@ function page() {
                     const statusPercentage = calculatePercentage(status)
                     table["status"] = statusPercentage
                 }
-                table["act"] = `${replaceHyphenWithEmDash(table.act,false,"Days/Lead")}`
-                table["avt"] = `${replaceHyphenWithEmDash(table.avt,false,"Days/Lead")}`
+                table["act"] = `${replaceHyphenWithEmDash(table.act,false)}`
+                table["avt"] = `${replaceHyphenWithEmDash(table.avt,false)}`
                 
                 return flattenObj(table,'',{},"Leads")
             })
@@ -397,10 +399,11 @@ function page() {
                     const statusPercentage = calculatePercentage(status)
                     table["status"] = statusPercentage
                 }
-                table["act"] = `${replaceHyphenWithEmDash(table.act,false,"Days/Prospect")}`
+                table["act"] = `${replaceHyphenWithEmDash(table.act,false)}`
                 
                 return flattenObj(table,'',{},"Prospects")
             })
+            console.log("pbprospect",pbProspect)
             setPbProspect(pbProspect)
             setPieChartProspect(pieChartData)
             console.log("pieChartData PROSPECTS", pieChartData)
@@ -905,9 +908,11 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbLead[0] && Object.keys(pbLead[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[0][heading]
+                                                const customMessage = (heading==="act" || heading==="avt" ) ? `Days/Lead` : ""
                                                 return <>
-                                                    <div className=' text-black-900 text-sm font-medium'>
+                                                    <div className='text-black-900 text-sm font-medium'>
                                                         {data.value}
+                                                        {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
                                                 </>
                                             }))}
@@ -917,9 +922,11 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbLead[1] && Object.keys(pbLead[1]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[1][heading]
+                                                const customMessage = (heading==="act" || heading==="avt") ? `Days/Lead` : ""
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.value}
+                                                        {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
                                                 </>
                                             }))}
@@ -976,7 +983,7 @@ function page() {
                                             <PieChart >
                                                 <Pie
                                                     dataKey="value"
-                                                    data={piechartLead}
+                                                    data={piechartProspect}
                                                     cx="50%"
                                                     cy="50%"
                                                     outerRadius={100}
@@ -1021,6 +1028,7 @@ function page() {
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.keyName}
+                                                        
                                                     </div>
                                                 </>
                                             }))}
@@ -1030,9 +1038,11 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbProspect[0] && Object.keys(pbProspect[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[0][heading]
+                                                const customMessage = (heading==="act" || heading==="avt" ) ? `Days/Prospect` : ""
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.value}
+                                                        {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
                                                 </>
                                             }))}
@@ -1042,9 +1052,11 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbProspect[1] && Object.keys(pbProspect[1]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[1][heading]
+                                                const customMessage = (heading==="act" || heading==="avt" ) ? `Days/Prospect` : ""
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.value}
+                                                        {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
                                                 </>
                                             }))}

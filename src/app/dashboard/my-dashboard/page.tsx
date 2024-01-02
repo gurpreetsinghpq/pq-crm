@@ -298,7 +298,8 @@ function page() {
       setProspectLoading(false)
       const pieChartData: PieChartCustom[] = Object.keys(data.status[0]).map((k) => {
         const d = data.status[0]
-        const fillColor = COLORS[k as keyof typeof COLORS]
+        // const fillColor = COLORS[k as keyof typeof COLORS]
+        const fillColor = getFillColor(k)
         const dx = {
           name: k,
           value: Number(d[k as keyof typeof data.status[0]]),
@@ -561,7 +562,7 @@ function page() {
                         {/* gradient color end */}
                         <Pie
                           dataKey="value"
-                          data={piechartLead}
+                          data={piechartProspect}
                           cx="50%"
                           cy="50%"
                           outerRadius={100}
