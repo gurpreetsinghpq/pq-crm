@@ -133,7 +133,7 @@ const renderColorfulLegendText = (value: string, entry: any) => {
         {value}
       </span>
       <span className='ml-auto'>
-        {`${parseInt(`${entry.payload.percent * 100}`)}%`}
+        {`${(parseFloat(`${entry.payload.percent * 100}`)).toFixed(1)}%`}
       </span>
     </span>
   );
@@ -560,13 +560,13 @@ function page() {
                         </Pie> */}
                         {/* gradient color end */}
                         <Pie
-                                dataKey="value"
-                                data={piechartLead}
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                fill="#8884d8"
-                              />
+                          dataKey="value"
+                          data={piechartLead}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          fill="#8884d8"
+                        />
                         <Legend
                           iconType="circle"
                           layout="vertical"
@@ -593,7 +593,7 @@ function page() {
                 <>
                   <SideBarCard icon={<IconStopWatch />} title='Avg. Lead Verification Time' value={sidebarLeads?.avt} subtitle='Days/Lead' />
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Lead Closure Time' value={sidebarLeads?.act} subtitle='Days/Lead' />
-                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr,true)}`} />
+                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr, true)}`} />
                 </>
               }
             </div>
@@ -641,7 +641,7 @@ function page() {
               {
                 <>
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Prospect' />
-                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr,true)}`} />
+                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr, true)}`} />
                 </>
               }
             </div>

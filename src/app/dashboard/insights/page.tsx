@@ -137,7 +137,7 @@ const renderColorfulLegendText = (value: string, entry: any) => {
                 {value}
             </span>
             <span className='ml-auto'>
-                {`${Math.round(parseFloat(`${entry.payload.percent * 100}`))}%`}
+                {`${(parseFloat(`${entry.payload.percent * 100}`)).toFixed(1)}%`}
             </span>
         </span>
     );
@@ -159,7 +159,7 @@ const renderLegend = (props: any) => {
                                     <div className='max-w-[100px] break-words'>
                                         {entry.value}
                                     </div>
-                                    <div>{`${parseInt(`${entry.payload.percent * 100}`)}%`}</div>
+                                    <div>{`${(parseFloat(`${entry.payload.percent * 100}`)).toFixed(1)}%`}</div>
                                 </div>
                             </li>
                         </>
@@ -289,7 +289,7 @@ function page() {
         [key: string]: any;
     }
 
-    const MAP_KEY_WITH_NEW_NAME: { [key: string]: { newName: string, formatValue: boolean } } = {
+    const MAP_KEY_WITH_NEW_NAME: { [key: string]: { newName: string, formatValue: boolean, appendOnKey?:boolean } } = {
         avt: {
             newName: "Avg. Lead Verification Time",
             formatValue: false
@@ -299,27 +299,28 @@ function page() {
             formatValue: false
         },
         lpcr: { newName: "Prospect Conversion Rate", formatValue: true },
-        Lost: { newName: "Lost (%)", formatValue: true },
-        Deferred: { newName: "Deferred (%)", formatValue: true },
-        Junk: { newName: "Junk (%)", formatValue: true },
-        Verified: { newName: "Verified (%)", formatValue: true },
-        Qualified: { newName: "Qualified (%)", formatValue: true },
-        Disqualified: { newName: "Disqualified (%)", formatValue: true },
+        Lost: { newName: "Lost", formatValue: true, appendOnKey:true },
+        Deferred: { newName: "Deferred", formatValue: true,appendOnKey:true },
+        Junk: { newName: "Junk", formatValue: true,appendOnKey:true },
+        Verified: { newName: "Verified", formatValue: true,appendOnKey:true },
+        Qualified: { newName: "Qualified", formatValue: true,appendOnKey:true },
+        Disqualified: { newName: "Disqualified", formatValue: true,appendOnKey:true },
         pdcr: { newName: "Deal Conversion Rate", formatValue: true },
-        Unverified: { newName: "Unverified (%)", formatValue: true },
+        Unverified: { newName: "Unverified", formatValue: true,appendOnKey:true },
 
     }
 
-    function flattenObj(obj: Record<string, any>, parent: string = '', res: FlattenedObject = {}): FlattenedObject {
+    function flattenObj(obj: Record<string, any>, parent: string = '', res: FlattenedObject = {}, append=''): FlattenedObject {
         for (let key in obj) {
             let propName = parent ? `${parent}_${key}` : key;
             if (typeof obj[key] === 'object') {
-                flattenObj(obj[key], propName, res);
+                flattenObj(obj[key], propName, res, append);
             } else {
                 const objDetails = MAP_KEY_WITH_NEW_NAME[key as keyof typeof MAP_KEY_WITH_NEW_NAME] || key
-                const newNameOfKey = objDetails?.newName
+                let newNameOfKey = objDetails?.newName 
+                newNameOfKey = objDetails.appendOnKey? `${newNameOfKey} ${append}` : newNameOfKey
                 const value = objDetails?.formatValue ? `${replaceHyphenWithEmDash(obj[key],objDetails.formatValue)}` : replaceHyphenWithEmDash(obj[key])
-                console.log("newNameOfKey", newNameOfKey, value)
+                console.log("newNameOfKey", newNameOfKey, value, append)
                 res[propName] = {
                     keyName: newNameOfKey || key,
                     value: value
@@ -328,6 +329,7 @@ function page() {
         }
         return res;
     }
+
 
     async function fetchDashboardLeads(dateRange: string) {
         const userQueryParam = watch.user != "-1" ? `&user=${encodeURIComponent(watch.user)}` : '';
@@ -347,7 +349,10 @@ function page() {
                     const statusPercentage = calculatePercentage(status)
                     table["status"] = statusPercentage
                 }
-                return flattenObj(table)
+                table["act"] = `${replaceHyphenWithEmDash(table.act,false,"Days/Lead")}`
+                table["avt"] = `${replaceHyphenWithEmDash(table.avt,false,"Days/Lead")}`
+                
+                return flattenObj(table,'',{},"Leads")
             })
             console.log("pblead",pbLead)
             setPbLead(pbLead)
@@ -387,7 +392,14 @@ function page() {
             setProspectLoading(false)
             const pieChartData: PieChartCustom[] = createPieChartData(data.status)
             const pbProspect = data.pb.map((table) => {
-                return flattenObj(table)
+                if(table.status){
+                    const status = table.status 
+                    const statusPercentage = calculatePercentage(status)
+                    table["status"] = statusPercentage
+                }
+                table["act"] = `${replaceHyphenWithEmDash(table.act,false,"Days/Prospect")}`
+                
+                return flattenObj(table,'',{},"Prospects")
             })
             setPbProspect(pbProspect)
             setPieChartProspect(pieChartData)
