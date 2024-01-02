@@ -581,8 +581,8 @@ function page() {
             setUserList([OrgProfile, ...userList]);
 
             const keyMappings: Record<string, string> = {
-                "Team Leader": "Team Lead",
-                "Team Member": "Member",
+                "Team Leader": "Team Leader",
+                "Team Member": "Team Member",
             };
 
             const keysToKeep = ["Organisation", "Team Leader", "Team Member"];
