@@ -2,7 +2,7 @@
 import { activeTabSideSheetClasses, commonFontClasses, commonTabListClasses, commonTabTriggerClasses } from '@/app/constants/classes';
 import { LEAD_PROSPECT_STATUS, SET_VALUE_CONFIG } from '@/app/constants/constants';
 import { DashboardLeads, DashboardProspect, IValueLabel, InsightLeads, InsightProspects, InsightSidebarLead, InsightSidebarProspect, InsightUserDropdown } from '@/app/interfaces/interface';
-import { calculatePercentageChange, fetchUserDataList, fetchUserDataListForDrodpdown, replaceHyphenWithEmDash, timeSince } from '@/components/custom/commonFunctions';
+import { calculatePercentage, calculatePercentageChange, fetchUserDataList, fetchUserDataListForDrodpdown, replaceHyphenWithEmDash, timeSince } from '@/components/custom/commonFunctions';
 import MainSidebar from '@/components/custom/main-sidebar'
 import { IconCalendar, IconCircle, IconHourGlass, IconLeads, IconPercent2, IconProspects, IconStopWatch } from '@/components/icons/svgIcons';
 import { Button } from '@/components/ui/button';
@@ -137,12 +137,38 @@ const renderColorfulLegendText = (value: string, entry: any) => {
                 {value}
             </span>
             <span className='ml-auto'>
-                {`${parseInt(`${entry.payload.percent * 100}`)}%`}
+                {`${Math.round(parseFloat(`${entry.payload.percent * 100}`))}%`}
             </span>
         </span>
     );
 };
 
+const renderLegend = (props: any) => {
+    const { payload } = props;
+
+    return (
+        <ul className='flex flex-col gap-[5px]'>
+            {
+                payload.map((entry:any, index:number) => {
+                    return (
+                        <>
+                            <li key={`item-${index} `} className='flex flex-row gap-[10px] items-baseline text-sm font-normal text-black-100'>
+                                <div style={{ background: entry.color, height: "6px", width: "6px", borderRadius: "50%" }}>
+                                </div>
+                                <div className='flex flex-row flex-1 justify-between gap-[10px]'>
+                                    <div className='max-w-[100px] break-words'>
+                                        {entry.value}
+                                    </div>
+                                    <div>{`${parseInt(`${entry.payload.percent * 100}`)}%`}</div>
+                                </div>
+                            </li>
+                        </>
+                    )
+                })
+            }
+        </ul>
+    );
+}
 
 
 
@@ -272,7 +298,7 @@ function page() {
             newName: "Avg. Lead Closure Time",
             formatValue: false
         },
-        lpcr: { newName: "Prospect Conversion Rate", formatValue: false },
+        lpcr: { newName: "Prospect Conversion Rate", formatValue: true },
         Lost: { newName: "Lost (%)", formatValue: true },
         Deferred: { newName: "Deferred (%)", formatValue: true },
         Junk: { newName: "Junk (%)", formatValue: true },
@@ -316,8 +342,14 @@ function page() {
             const pieChartInboundData: PieChartCustom[] = createPieChartData(data.inbound_source)
             const pieChartOutboundData: PieChartCustom[] = createPieChartData(data.outbound_source)
             const pbLead = data.pb.map((table) => {
+                if(table.status){
+                    const status = table.status 
+                    const statusPercentage = calculatePercentage(status)
+                    table["status"] = statusPercentage
+                }
                 return flattenObj(table)
             })
+            console.log("pblead",pbLead)
             setPbLead(pbLead)
             setPieChartLead(pieChartData)
             setPieChartInboundLead(pieChartInboundData)
@@ -496,20 +528,28 @@ function page() {
         console.log("currentTab", currentTab)
     }, [currentTab])
 
-    function sumValues(arr: any[]): number {
+    function sumValues(arr: any[], mode: "Single" | "All" = "All"): number {
         let totalSum = 0;
-
-        for (const obj of arr) {
-            if (typeof obj === 'object' && obj !== null) {
-                for (const value of Object.values(obj) as number[]) {
-                    totalSum += value;
+        if (mode === "All") {
+            for (const obj of arr) {
+                if (typeof obj === 'object' && obj !== null) {
+                    for (const value of Object.values(obj) as number[]) {
+                        totalSum += value;
+                    }
+                } else {
+                    console.warn('Skipping non-object value:', obj);
                 }
-            } else {
-                console.warn('Skipping non-object value:', obj);
             }
+            return totalSum;
+        } else if (mode === "Single") {
+            const obj = arr[0]
+            for (const value of Object.values(obj) as number[]) {
+                totalSum += value;
+            }
+            console.log("obj total", obj, totalSum)
+            return totalSum
         }
-
-        return totalSum;
+        return -1
     }
 
     return (
@@ -688,7 +728,7 @@ function page() {
                                     <div className='flex flex-row justify-between'>
                                         <div className='text-black-100 font-semibold'>Inbound Leads Source Breakdown</div>
                                         <div className='flex flex-row gap-[4px] items-center bg-purple-200 px-[14px] py-[5px] rounded-[10px]'>
-                                            <div className='text-sm font-medium w-fit shrink-0 text-gray-700'>Total </div><div className='text-black-900 text-[20px] font-semibold'>{insightLeads?.inbound_source && sumValues(insightLeads.inbound_source)}</div>
+                                            <div className='text-sm font-medium w-fit shrink-0 text-gray-700'>Total </div><div className='text-black-900 text-[20px] font-semibold'>{insightLeads?.inbound_source && sumValues(insightLeads.inbound_source, "Single")}</div>
                                         </div>
                                     </div>
                                     <div className='w-full h-[1px] bg-gray-400 my-[12px]'>
@@ -755,7 +795,7 @@ function page() {
                                     <div className='flex flex-row justify-between'>
                                         <div className='text-black-100 font-semibold'>Outbound Leads Source Breakdown</div>
                                         <div className='flex flex-row gap-[4px] items-center bg-purple-200 px-[14px] py-[5px] rounded-[10px]'>
-                                            <div className='text-sm font-medium w-fit shrink-0 text-gray-700'>Total </div><div className='text-black-900 text-[20px] font-semibold'>{insightLeads?.inbound_source && sumValues(insightLeads.inbound_source)}</div>
+                                            <div className='text-sm font-medium w-fit shrink-0 text-gray-700'>Total </div><div className='text-black-900 text-[20px] font-semibold'>{insightLeads?.outbound_source && sumValues(insightLeads.outbound_source, "Single")}</div>
                                         </div>
                                     </div>
                                     <div className='w-full h-[1px] bg-gray-400 my-[12px]'>
@@ -809,7 +849,8 @@ function page() {
                                                         verticalAlign='middle'
                                                         align='right'
                                                         iconSize={6}
-                                                        formatter={renderColorfulLegendText}
+                                                        content={renderLegend}
+                                                    // formatter={renderColorfulLegendText}
                                                     />
                                                 </PieChart>
                                             </ResponsiveContainer>
@@ -884,7 +925,7 @@ function page() {
                                 {insightProspects?.pptd && <ChartCard title='Prospect Promoted to Deal' numberOfEntity={insightProspects?.pptd[0]} percentage={calculatePercentageChange(insightProspects?.pptd)} data={insightProspects.pptd} fromCompare={watch.dateRange} />}
                             </div>
                             <div className='flex flex-row flex-1 gap-[24px]'>
-                                <div className='w-[330px] xl:w-[360px] px-[24px] py-[20px] shrink-0 flex flex-col gap-[8px] border-[1px] border-gray-300 rounded-[16px] '>
+                                <div className='w-[330px] xl:w-[360px]  px-[24px] py-[20px] shrink-0 flex flex-col gap-[8px] border-[1px] border-gray-300 rounded-[16px] '>
                                     <div className='text-black-100 font-semibold'>Prospects State Breakdown</div>
                                     <div className='flex flex-col gap-[24px] py-[10px]'>
                                         {
@@ -1015,7 +1056,7 @@ function page() {
                                 <>
                                     <SideBarCard icon={<IconStopWatch />} title='Avg. Lead Verification Time' value={sidebarLeads?.avt} subtitle='Days/Lead' />
                                     <SideBarCard icon={<IconHourGlass />} title='Avg. Lead Closure Time' value={sidebarLeads?.act} subtitle='Days/Lead' />
-                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr)}%`} />
+                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr,true)}`} />
                                 </>
                             }
                         </div>
@@ -1063,7 +1104,7 @@ function page() {
                             {
                                 <>
                                     <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Prospect' />
-                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr)}%`} />
+                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr,true)}`} />
                                 </>
                             }
                         </div>

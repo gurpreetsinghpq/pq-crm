@@ -893,6 +893,32 @@ export function calculatePercentageChange(values: number[]): string {
   return `${sign}${Math.abs(percentageChange).toFixed(0)}% change`;
 }
 
-export function replaceHyphenWithEmDash(data:string|number|undefined):string|number|undefined {
-  return data === "-" ? "—" : data
+export function replaceHyphenWithEmDash(data:string|number|undefined, isPercent?:boolean):string|number|undefined {
+  if(isPercent){
+    return data === "-" ? "—" : `${data}%`
+  }else{
+    return data === "-" ? "—" : data
+  }
+}
+
+
+
+export function calculatePercentage(inputObj:any) {
+  const totalSum = Object.values(inputObj).reduce((sum:number, value) => sum + Number(value), 0);
+
+  if (totalSum === 0) {
+      // Avoid division by zero
+      return inputObj ;
+  }
+
+  const resultObj:any= {}
+
+  for (const key in inputObj) {
+      if (inputObj.hasOwnProperty(key)) {
+          const percentage = Math.round((Number(inputObj[key]) / totalSum) * 100);
+          resultObj[key] = percentage;
+      }
+  }
+
+  return resultObj;
 }

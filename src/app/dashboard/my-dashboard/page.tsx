@@ -2,7 +2,7 @@
 import { activeTabSideSheetClasses, commonFontClasses, commonTabListClasses, commonTabTriggerClasses } from '@/app/constants/classes';
 import { LEAD_PROSPECT_STATUS } from '@/app/constants/constants';
 import { DashboardLeads, DashboardProspect, DashboardSidebarLead, DashboardSidebarProspect, IValueLabel } from '@/app/interfaces/interface';
-import { calculatePercentageChange, timeSince } from '@/components/custom/commonFunctions';
+import { calculatePercentageChange, replaceHyphenWithEmDash, timeSince } from '@/components/custom/commonFunctions';
 import MainSidebar from '@/components/custom/main-sidebar'
 import { IconCalendar, IconHourGlass, IconLeads, IconPercent2, IconProspects, IconStopWatch } from '@/components/icons/svgIcons';
 import { getDateDetails } from '@/components/ui/date-range-picker';
@@ -593,7 +593,7 @@ function page() {
                 <>
                   <SideBarCard icon={<IconStopWatch />} title='Avg. Lead Verification Time' value={sidebarLeads?.avt} subtitle='Days/Lead' />
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Lead Closure Time' value={sidebarLeads?.act} subtitle='Days/Lead' />
-                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${sidebarLeads?.lpcr === "-" ? "—" : sidebarLeads?.lpcr}%`} />
+                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr,true)}`} />
                 </>
               }
             </div>
@@ -641,7 +641,7 @@ function page() {
               {
                 <>
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Prospect' />
-                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${sidebarProspects?.pdcr === "-" ? "—" : sidebarProspects?.pdcr}%`} />
+                  <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr,true)}`} />
                 </>
               }
             </div>
