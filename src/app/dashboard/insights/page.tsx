@@ -149,7 +149,7 @@ const renderLegend = (props: any) => {
     return (
         <ul className='flex flex-col gap-[5px]'>
             {
-                payload.map((entry:any, index:number) => {
+                payload.map((entry: any, index: number) => {
                     return (
                         <>
                             <li key={`item-${index} `} className='flex flex-row gap-[10px] items-baseline text-sm font-normal text-black-100'>
@@ -289,31 +289,31 @@ function page() {
         [key: string]: any;
     }
 
-    const MAP_KEY_WITH_NEW_NAME: { [key: string]: { newName: string, formatValue: boolean, appendOnKey?:boolean } } = {
+    const MAP_KEY_WITH_NEW_NAME: { [key: string]: { newName: string, formatValue: boolean, appendOnKey?: boolean } } = {
         avt: {
             newName: "Avg. Verification Time",
             formatValue: false,
-            
+
         },
         act: {
             newName: "Avg. Closure Time",
             formatValue: false,
-            
+
         },
         lpcr: { newName: "Prospect Conversion Rate", formatValue: true },
-        Lost: { newName: "Lost", formatValue: true, appendOnKey:true },
-        Deferred: { newName: "Deferred", formatValue: true,appendOnKey:true },
-        Junk: { newName: "Junk", formatValue: true,appendOnKey:true },
-        Verified: { newName: "Verified", formatValue: true,appendOnKey:true },
-        Qualified: { newName: "Qualified", formatValue: true,appendOnKey:true },
-        Disqualified: { newName: "Disqualified", formatValue: true,appendOnKey:true },
+        Lost: { newName: "Lost", formatValue: true, appendOnKey: true },
+        Deferred: { newName: "Deferred", formatValue: true, appendOnKey: true },
+        Junk: { newName: "Junk", formatValue: true, appendOnKey: true },
+        Verified: { newName: "Verified", formatValue: true, appendOnKey: true },
+        Qualified: { newName: "Qualified", formatValue: true, appendOnKey: true },
+        Disqualified: { newName: "Disqualified", formatValue: true, appendOnKey: true },
         pdcr: { newName: "Deal Conversion Rate", formatValue: true },
-        Unverified: { newName: "Unverified", formatValue: true,appendOnKey:true },
+        Unverified: { newName: "Unverified", formatValue: true, appendOnKey: true },
 
     }
 
     function getObjKeyName(key: string, valueToAdd: string) {
-        const singular = valueToAdd === "Leads" ? "Lead" : valueToAdd === "Prospects" ? "Prospect": valueToAdd
+        const singular = valueToAdd === "Leads" ? "Lead" : valueToAdd === "Prospects" ? "Prospect" : valueToAdd
         switch (key) {
             case "avt":
                 return {
@@ -382,12 +382,12 @@ function page() {
                 console.error(`Key '${key}' not found in the switch statement.`);
                 return {
                     newName: key,
-                    formatValue:false
+                    formatValue: false
                 };
         }
-    }    
+    }
 
-    function flattenObj(obj: Record<string, any>, parent: string = '', res: FlattenedObject = {}, append=''): FlattenedObject {
+    function flattenObj(obj: Record<string, any>, parent: string = '', res: FlattenedObject = {}, append = ''): FlattenedObject {
         for (let key in obj) {
             let propName = parent ? `${parent}_${key}` : key;
             if (typeof obj[key] === 'object') {
@@ -395,8 +395,8 @@ function page() {
             } else {
                 // const objDetails = MAP_KEY_WITH_NEW_NAME[key as keyof typeof MAP_KEY_WITH_NEW_NAME] || key
                 const objDetails = getObjKeyName(key, append)
-                let newNameOfKey = objDetails?.newName 
-                const value = objDetails?.formatValue ? `${replaceHyphenWithEmDash(obj[key],objDetails.formatValue)}` : replaceHyphenWithEmDash(obj[key])
+                let newNameOfKey = objDetails?.newName
+                const value = objDetails?.formatValue ? `${replaceHyphenWithEmDash(obj[key], objDetails.formatValue)}` : replaceHyphenWithEmDash(obj[key])
                 console.log("newNameOfKey", newNameOfKey, value, append)
                 res[propName] = {
                     keyName: newNameOfKey || key,
@@ -421,17 +421,17 @@ function page() {
             const pieChartInboundData: PieChartCustom[] = createPieChartData(data.inbound_source)
             const pieChartOutboundData: PieChartCustom[] = createPieChartData(data.outbound_source)
             const pbLead = data.pb.map((table) => {
-                if(table.status){
-                    const status = table.status 
+                if (table.status) {
+                    const status = table.status
                     const statusPercentage = calculatePercentage(status)
                     table["status"] = statusPercentage
                 }
-                table["act"] = `${replaceHyphenWithEmDash(table.act,false)}`
-                table["avt"] = `${replaceHyphenWithEmDash(table.avt,false)}`
-                
-                return flattenObj(table,'',{},"Leads")
+                table["act"] = `${replaceHyphenWithEmDash(table.act, false)}`
+                table["avt"] = `${replaceHyphenWithEmDash(table.avt, false)}`
+
+                return flattenObj(table, '', {}, "Leads")
             })
-            console.log("pblead",pbLead)
+            console.log("pblead", pbLead)
             setPbLead(pbLead)
             setPieChartLead(pieChartData)
             setPieChartInboundLead(pieChartInboundData)
@@ -469,16 +469,16 @@ function page() {
             setProspectLoading(false)
             const pieChartData: PieChartCustom[] = createPieChartData(data.status)
             const pbProspect = data.pb.map((table) => {
-                if(table.status){
-                    const status = table.status 
+                if (table.status) {
+                    const status = table.status
                     const statusPercentage = calculatePercentage(status)
                     table["status"] = statusPercentage
                 }
-                table["act"] = `${replaceHyphenWithEmDash(table.act,false)}`
-                
-                return flattenObj(table,'',{},"Prospects")
+                table["act"] = `${replaceHyphenWithEmDash(table.act, false)}`
+
+                return flattenObj(table, '', {}, "Prospects")
             })
-            console.log("pbprospect",pbProspect)
+            console.log("pbprospect", pbProspect)
             setPbProspect(pbProspect)
             setPieChartProspect(pieChartData)
             console.log("pieChartData PROSPECTS", pieChartData)
@@ -645,109 +645,111 @@ function page() {
     return (
         <>
             <div className='flex flex-row w-full flex-1 min-h-[100vh] '>
-                <div className='flex flex-col left flex-1 p-[24px] mb-[40px] overflow-auto '>
+                <div className='flex flex-col left flex-1 p-[24px] pt-[0px] mb-[40px] overflow-auto bg-white-900 '>
                     <Tabs onValueChange={(val) => setCurrentTab(val)} defaultValue={TABS.LEADS} className="flex flex-col w-fit  ">
-                        <TabsList className={`${commonTabListClasses} overflow-hidden w-fit`}>
-                            {tabs.map((tab) => {
-                                return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
-                            })}
-                        </TabsList>
-                        <Form {...form}>
-                            <form className='flex flex-col gap-[16px] mt-[20px]'>
-                                <div className='px-[8px] text-black-100 font-semibold text-sm'>Overview</div>
-                                <div className='flex flex-row gap-[10px]'>
-                                    <div className='flex flex-col min-w-[200px] '>
-                                        <FormField
-                                            control={form.control}
-                                            name="user"
-                                            render={({ field }) => (
-                                                <FormItem className='w-full '>
-                                                    <Popover modal={true}>
-                                                        <PopoverTrigger asChild>
-                                                            <FormControl>
-                                                                <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
-                                                                    <div className='w-full flex-1 text-align-left text-md flex  '>
-                                                                        {userList.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>User List</span>}
-                                                                    </div>
-                                                                    <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
-                                                                </Button>
-                                                            </FormControl>
-                                                        </PopoverTrigger>
-                                                        <PopoverContent className=" p-0 ">
-                                                            <Command>
-                                                                <CommandInput className='w-full' placeholder="Search" />
-                                                                <CommandEmpty>User not found.</CommandEmpty>
-                                                                <div className='flex flex-col max-h-[200px] overflow-y-auto '>
-                                                                    {Object.keys(userListAggAccToProfile).map((profileOfUser) => {
-                                                                        const userDetails = userListAggAccToProfile[profileOfUser]
-                                                                        return <div className='flex flex-col gap-[5px] pb-[4px] border-b-[1px] border-gray-300'>
-                                                                            <CommandGroup key={profileOfUser} heading={profileOfUser}>
-                                                                                {userDetails.map((userInfo) => (
-                                                                                    <CommandItem
-                                                                                        key={userInfo.value}
-                                                                                        value={userInfo.label}
-                                                                                        onSelect={() => {
-                                                                                            form.setValue("user", userInfo.value, SET_VALUE_CONFIG)
-                                                                                        }}
-                                                                                        className="text-sm"
-                                                                                    >
-                                                                                        <div className={`flex flex-row items-center justify-between w-full`}>
-                                                                                            <span className={`${profileOfUser === "Organisation" ? "text-md font-medium" : ""} ${(field.value === userInfo.value && profileOfUser === "Organisation") ? "text-purple-800 " : ""}`}>
-                                                                                                {userInfo.label}
-                                                                                            </span>
-                                                                                            <Check
-                                                                                                className={cn(
-                                                                                                    "mr-2 h-4 w-4 text-purple-600",
-                                                                                                    field.value === userInfo.value
-                                                                                                        ? "opacity-100"
-                                                                                                        : "opacity-0"
-                                                                                                )}
-                                                                                            />
-                                                                                        </div>
-                                                                                    </CommandItem>
-                                                                                ))}
-                                                                            </CommandGroup>
+                        <div className='bg-white-900 sticky top-[0px] z-[2] py-[24px] border-b-[1px] border-gray-300'>
+                            <TabsList className={`${commonTabListClasses} overflow-hidden w-fit`}>
+                                {tabs.map((tab) => {
+                                    return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+                                })}
+                            </TabsList>
+                            <Form {...form}>
+                                <form className='flex flex-col gap-[16px] mt-[20px]'>
+                                    <div className='px-[8px] text-black-100 font-semibold text-sm'>Overview</div>
+                                    <div className='flex flex-row gap-[10px]'>
+                                        <div className='flex flex-col min-w-[200px] '>
+                                            <FormField
+                                                control={form.control}
+                                                name="user"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-full '>
+                                                        <Popover modal={true}>
+                                                            <PopoverTrigger asChild>
+                                                                <FormControl>
+                                                                    <Button variant={"google"} className="flex  flex-row gap-2 w-full px-[14px] ">
+                                                                        <div className='w-full flex-1 text-align-left text-md flex  '>
+                                                                            {userList.find((val) => val.value === field.value)?.label || <span className='text-muted-foreground '>User List</span>}
                                                                         </div>
-                                                                    })}
-                                                                </div>
+                                                                        <ChevronDown className="h-4 w-4 opacity-50" color="#344054" />
+                                                                    </Button>
+                                                                </FormControl>
+                                                            </PopoverTrigger>
+                                                            <PopoverContent className=" p-0 ">
+                                                                <Command>
+                                                                    <CommandInput className='w-full' placeholder="Search" />
+                                                                    <CommandEmpty>User not found.</CommandEmpty>
+                                                                    <div className='flex flex-col max-h-[200px] overflow-y-auto '>
+                                                                        {Object.keys(userListAggAccToProfile).map((profileOfUser) => {
+                                                                            const userDetails = userListAggAccToProfile[profileOfUser]
+                                                                            return <div className='flex flex-col gap-[5px] pb-[4px] border-b-[1px] border-gray-300'>
+                                                                                <CommandGroup key={profileOfUser} heading={profileOfUser}>
+                                                                                    {userDetails.map((userInfo) => (
+                                                                                        <CommandItem
+                                                                                            key={userInfo.value}
+                                                                                            value={userInfo.label}
+                                                                                            onSelect={() => {
+                                                                                                form.setValue("user", userInfo.value, SET_VALUE_CONFIG)
+                                                                                            }}
+                                                                                            className="text-sm"
+                                                                                        >
+                                                                                            <div className={`flex flex-row items-center justify-between w-full`}>
+                                                                                                <span className={`${profileOfUser === "Organisation" ? "text-md font-medium" : ""} ${(field.value === userInfo.value && profileOfUser === "Organisation") ? "text-purple-800 " : ""}`}>
+                                                                                                    {userInfo.label}
+                                                                                                </span>
+                                                                                                <Check
+                                                                                                    className={cn(
+                                                                                                        "mr-2 h-4 w-4 text-purple-600",
+                                                                                                        field.value === userInfo.value
+                                                                                                            ? "opacity-100"
+                                                                                                            : "opacity-0"
+                                                                                                    )}
+                                                                                                />
+                                                                                            </div>
+                                                                                        </CommandItem>
+                                                                                    ))}
+                                                                                </CommandGroup>
+                                                                            </div>
+                                                                        })}
+                                                                    </div>
 
-                                                            </Command>
-                                                        </PopoverContent>
-                                                    </Popover>
-                                                </FormItem>
-                                            )}
-                                        />
+                                                                </Command>
+                                                            </PopoverContent>
+                                                        </Popover>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+
+                                        <div className='flex flex-col'>
+                                            <FormField
+                                                control={form.control}
+                                                name="dateRange"
+                                                render={({ field }) => (
+                                                    <FormItem className='w-fit min-w-[200px]'>
+                                                        <Select onValueChange={field.onChange} defaultValue={field.value} >
+                                                            <FormControl>
+                                                                <SelectTrigger className={`${commonFontClasses} `}>
+                                                                    <SelectValue placeholder={"Date Range"} />
+
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {
+                                                                    DateRange?.map((dateRange, index) => {
+                                                                        return <SelectItem key={index} value={dateRange.value}>
+                                                                            {dateRange.label}
+                                                                        </SelectItem>
+                                                                    })
+                                                                }
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormItem>
+                                                )} />
+                                        </div>
                                     </div>
-
-                                    <div className='flex flex-col'>
-                                        <FormField
-                                            control={form.control}
-                                            name="dateRange"
-                                            render={({ field }) => (
-                                                <FormItem className='w-fit min-w-[200px]'>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value} >
-                                                        <FormControl>
-                                                            <SelectTrigger className={`${commonFontClasses} `}>
-                                                                <SelectValue placeholder={"Date Range"} />
-
-                                                            </SelectTrigger>
-                                                        </FormControl>
-                                                        <SelectContent>
-                                                            {
-                                                                DateRange?.map((dateRange, index) => {
-                                                                    return <SelectItem key={index} value={dateRange.value}>
-                                                                        {dateRange.label}
-                                                                    </SelectItem>
-                                                                })
-                                                            }
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormItem>
-                                            )} />
-                                    </div>
-                                </div>
-                            </form>
-                        </Form>
+                                </form>
+                            </Form>
+                        </div>
                         <TabsContent value={TABS.LEADS} className="flex flex-col w-full py-[20px] gap-[20px]">
                             <div className='flex flex-row flex-1 gap-[24px]'>
                                 {insightLeads?.total_leads && <ChartCard title='Leads Created or Owned' numberOfEntity={insightLeads?.total_leads[0]} percentage={calculatePercentageChange(insightLeads?.total_leads)} data={insightLeads.total_leads} fromCompare={watch.dateRange} />}
@@ -983,7 +985,7 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbLead[0] && Object.keys(pbLead[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[0][heading]
-                                                const customMessage = (heading==="act" || heading==="avt" ) ? `Days/Lead` : ""
+                                                const customMessage = (heading === "act" || heading === "avt") ? `Days/Lead` : ""
                                                 return <>
                                                     <div className='text-black-900 text-sm font-medium'>
                                                         {data.value}
@@ -997,7 +999,7 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbLead[1] && Object.keys(pbLead[1]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[1][heading]
-                                                const customMessage = (heading==="act" || heading==="avt") ? `Days/Lead` : ""
+                                                const customMessage = (heading === "act" || heading === "avt") ? `Days/Lead` : ""
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.value}
@@ -1103,7 +1105,7 @@ function page() {
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.keyName}
-                                                        
+
                                                     </div>
                                                 </>
                                             }))}
@@ -1113,7 +1115,7 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbProspect[0] && Object.keys(pbProspect[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[0][heading]
-                                                const customMessage = (heading==="act" || heading==="avt" ) ? `Days/Prospect` : ""
+                                                const customMessage = (heading === "act" || heading === "avt") ? `Days/Prospect` : ""
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.value}
@@ -1127,7 +1129,7 @@ function page() {
                                         <div className='flex flex-col flex-1 gap-[10px] text-center'>
                                             {pbProspect[1] && Object.keys(pbProspect[1]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[1][heading]
-                                                const customMessage = (heading==="act" || heading==="avt" ) ? `Days/Prospect` : ""
+                                                const customMessage = (heading === "act" || heading === "avt") ? `Days/Prospect` : ""
                                                 return <>
                                                     <div className=' text-black-900 text-sm font-medium'>
                                                         {data.value}
@@ -1155,7 +1157,7 @@ function page() {
                                 <>
                                     <SideBarCard icon={<IconStopWatch />} title='Avg. Lead Verification Time' value={sidebarLeads?.avt} subtitle='Days/Lead' />
                                     <SideBarCard icon={<IconHourGlass />} title='Avg. Lead Closure Time' value={sidebarLeads?.act} subtitle='Days/Lead' />
-                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr,true)}`} />
+                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr, true)}`} />
                                 </>
                             }
                         </div>
@@ -1203,7 +1205,7 @@ function page() {
                             {
                                 <>
                                     <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Prospect' />
-                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr,true)}`} />
+                                    <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr, true)}`} />
                                 </>
                             }
                         </div>
