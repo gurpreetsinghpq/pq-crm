@@ -312,15 +312,90 @@ function page() {
 
     }
 
+    function getObjKeyName(key: string, valueToAdd: string) {
+        const singular = valueToAdd === "Leads" ? "Lead" : valueToAdd === "Prospects" ? "Prospect": valueToAdd
+        switch (key) {
+            case "avt":
+                return {
+                    newName: `Avg. ${singular} Verification Time`,
+                    formatValue: false,
+                };
+            case "act":
+                return {
+                    newName: `Avg. ${singular} Closure Time`,
+                    formatValue: false,
+                };
+            case "lpcr":
+                return {
+                    newName: "Prospect Conversion Rate",
+                    formatValue: true,
+                };
+            case "Lost":
+                return {
+                    newName: `Lost ${valueToAdd}`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            case "Deferred":
+                return {
+                    newName: `Deferred ${valueToAdd}`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            case "Junk":
+                return {
+                    newName: `Junk ${valueToAdd}`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            case "Verified":
+                return {
+                    newName: `Verified ${valueToAdd}`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            case "Qualified":
+                return {
+                    newName: `Qualified ${valueToAdd}`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            case "Disqualified":
+                return {
+                    newName: `Disqualified ${valueToAdd}`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            case "pdcr":
+                return {
+                    newName: "Deal Conversion Rate",
+                    formatValue: true,
+                };
+            case "Unverified":
+                return {
+                    newName: `Unverified ${valueToAdd}`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            default:
+                // Handle the case when the key is not found
+                console.error(`Key '${key}' not found in the switch statement.`);
+                return {
+                    newName: key,
+                    formatValue:false
+                };
+        }
+    }    
+
     function flattenObj(obj: Record<string, any>, parent: string = '', res: FlattenedObject = {}, append=''): FlattenedObject {
         for (let key in obj) {
             let propName = parent ? `${parent}_${key}` : key;
             if (typeof obj[key] === 'object') {
                 flattenObj(obj[key], propName, res, append);
             } else {
-                const objDetails = MAP_KEY_WITH_NEW_NAME[key as keyof typeof MAP_KEY_WITH_NEW_NAME] || key
+                // const objDetails = MAP_KEY_WITH_NEW_NAME[key as keyof typeof MAP_KEY_WITH_NEW_NAME] || key
+                const objDetails = getObjKeyName(key, append)
                 let newNameOfKey = objDetails?.newName 
-                newNameOfKey = objDetails.appendOnKey? `${newNameOfKey} ${append}` : newNameOfKey
                 const value = objDetails?.formatValue ? `${replaceHyphenWithEmDash(obj[key],objDetails.formatValue)}` : replaceHyphenWithEmDash(obj[key])
                 console.log("newNameOfKey", newNameOfKey, value, append)
                 res[propName] = {

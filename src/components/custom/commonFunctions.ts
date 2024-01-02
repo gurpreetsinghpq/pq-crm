@@ -689,18 +689,39 @@ export function getCurrencyAccToRegion(region: string) {
 
 
 export function getCurrentFy(): TimeRange {
-  const currentYear = new Date().getFullYear();
-  const fyStart = new Date(currentYear, 3, 1); // April is month 3 (0-based index)
-  const fyEnd = new Date(currentYear + 1, 2, 31); // March is month 2 (0-based index)
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  
+  // Check if the current date is on or after April 1st to consider the new financial year
+  const isAfterApril = currentMonth >= 3; // April is month 3 (0-based index)
+  
+  // Adjust the start year based on whether the current date is after April
+  const fyStartYear = isAfterApril ? currentYear : currentYear - 1;
+  
+  const fyStart = new Date(fyStartYear, 3, 1); // April is month 3 (0-based index)
+  const fyEnd = new Date(fyStartYear + 1, 2, 31); // March is month 2 (0-based index)
+  
   return { from: fyStart.toISOString(), to: fyEnd.toISOString() };
-};
+}
+
 
 export function getLastFy(): TimeRange {
-  const currentYear = new Date().getFullYear();
-  const fyStart = new Date(currentYear - 1, 3, 1); // April is month 3 (0-based index)
-  const fyEnd = new Date(currentYear, 2, 31); // March is month 2 (0-based index)
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  
+  // Check if the current date is on or after April 1st to consider the new financial year
+  const isAfterApril = currentMonth >= 3; // April is month 3 (0-based index)
+  
+  // Adjust the start year based on whether the current date is after April
+  const fyStartYear = isAfterApril ? currentYear - 1 : currentYear - 2;
+  
+  const fyStart = new Date(fyStartYear, 3, 1); // April is month 3 (0-based index)
+  const fyEnd = new Date(fyStartYear + 1, 2, 31); // March is month 2 (0-based index)
+  
   return { from: fyStart.toISOString(), to: fyEnd.toISOString() };
-};
+}
 
 
 export function formatAddresses(data: AddressFields) {
