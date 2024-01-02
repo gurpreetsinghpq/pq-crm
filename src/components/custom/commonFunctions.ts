@@ -909,7 +909,7 @@ export function calculatePercentageChange(values: number[]): string {
   // const percentageChange = (currentValue - previousValue) / ((currentValue + previousValue) / 2) * 100
   const percentageChange = ((currentValue - previousValue) / (previousValue )) * 100
 
-  const sign = percentageChange >= 0 ? "+" : "-";
+  const sign = percentageChange >= 1  ? "+" : "-";
 
   return `${sign}${Math.abs(percentageChange).toFixed(0)}% change`;
 }
