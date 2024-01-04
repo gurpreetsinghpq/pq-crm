@@ -1109,7 +1109,7 @@ function page() {
                                                     {data.created_owned}
                                                 </div>
                                                 <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                    {data.converted}
+                                                    {data.promoted}
                                                 </div>
                                                 <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                     {data.rate}%
@@ -1278,7 +1278,7 @@ function page() {
                                                     {data.created_owned}
                                                 </div>
                                                 <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                    {data.converted}
+                                                    {data.promoted}
                                                 </div>
                                                 <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                     {data.rate}%

@@ -1461,7 +1461,7 @@ export interface InsightLeads {
 export type InsightLeadsLeaderBoard = {
     name:string
     created_owned:number
-    converted:number
+    promoted:number
     rate:string
 }
 
