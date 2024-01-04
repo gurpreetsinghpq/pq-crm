@@ -1408,8 +1408,12 @@ export interface DashboardSidebarProspect {
     "pdcr": string
 }
 
-export type InsightSidebarLead = DashboardSidebarLead
-export type InsightSidebarProspect = DashboardSidebarProspect
+export interface InsightSidebarLead extends DashboardSidebarLead {
+    "aat": string
+}
+export interface InsightSidebarProspect extends DashboardSidebarProspect{
+    "aat": string
+}
 
 export interface DashboardProspect {
     "status": DashboardProspectStatus[],
@@ -1446,12 +1450,22 @@ export interface InsightLeads {
         lpcr: string
         user_name: string
     }[],
+    lb:InsightLeadsLeaderBoard[]
     status: DashboardLeadsStatus[]
     inbound_source: InboundSource[]
     outbound_source: OutboundSource[]
     lptp: number[]
     total_leads: number[]
 }
+
+export type InsightLeadsLeaderBoard = {
+    name:string
+    created_owned:number
+    converted:number
+    rate:string
+}
+
+export type InsightProspectsLeaderBoard = InsightLeadsLeaderBoard
 
 export interface InsightProspects {
     pb: {
@@ -1461,6 +1475,7 @@ export interface InsightProspects {
         lpcr: string
         user_name: string
     }[],
+    lb: InsightProspectsLeaderBoard[]
     status: DashboardProspectStatus[]
     inbound_source: InboundSource[]
     outbound_source: OutboundSource[]

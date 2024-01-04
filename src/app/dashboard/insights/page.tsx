@@ -1,10 +1,10 @@
 "use client"
 import { activeTabSideSheetClasses, commonFontClasses, commonTabListClasses, commonTabTriggerClasses } from '@/app/constants/classes';
 import { LEAD_PROSPECT_STATUS, SET_VALUE_CONFIG } from '@/app/constants/constants';
-import { DashboardLeads, DashboardProspect, IValueLabel, InsightLeads, InsightProspects, InsightSidebarLead, InsightSidebarProspect, InsightUserDropdown } from '@/app/interfaces/interface';
+import { DashboardLeads, DashboardProspect, IValueLabel, InsightLeads, InsightLeadsLeaderBoard, InsightProspects, InsightSidebarLead, InsightSidebarProspect, InsightUserDropdown } from '@/app/interfaces/interface';
 import { calculatePercentage, calculatePercentageChange, fetchUserDataList, fetchUserDataListForDrodpdown, replaceHyphenWithEmDash, timeSince } from '@/components/custom/commonFunctions';
 import MainSidebar from '@/components/custom/main-sidebar'
-import { IconCalendar, IconCircle, IconHourGlass, IconLeads, IconPercent2, IconProspects, IconStopWatch } from '@/components/icons/svgIcons';
+import { IconAgeing, IconCalendar, IconCircle, IconHourGlass, IconLeads, IconPercent2, IconProspects, IconStopWatch } from '@/components/icons/svgIcons';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { getDateDetails } from '@/components/ui/date-range-picker';
@@ -202,7 +202,9 @@ function page() {
     const [pieChartInboundLead, setPieChartInboundLead] = useState<PieChartCustom[]>()
     const [pieChartOutboundLead, setPieChartOutboundLead] = useState<PieChartCustom[]>()
     const [pbLead, setPbLead] = useState<FlattenedObject[]>([])
+    const [lbLead, setLbLead] = useState<FlattenedObject[]>([])
     const [pbProspect, setPbProspect] = useState<FlattenedObject[]>([])
+    const [lbProspect, setLbProspect] = useState<FlattenedObject[]>([])
     const [piechartProspect, setPieChartProspect] = useState<PieChartCustom[]>()
     const [leadLoading, setLeadLoading] = useState<boolean>(false)
     const [prospectLoading, setProspectLoading] = useState<boolean>(false)
@@ -377,6 +379,39 @@ function page() {
                     formatValue: true,
                     appendOnKey: true,
                 };
+
+            case "converted":
+                {
+                    const name = valueToAdd === "Leads" ? "Promoted to Prospect" : valueToAdd === "Prospects" ? "Promoted to Deal" : valueToAdd
+                    return {
+                        newName: `${name}`,
+                        formatValue: true,
+                        appendOnKey: true,
+                    };
+                }
+            case "created_owned":
+                return {
+                    newName: `${singular} Created or Owned`,
+                    formatValue: true,
+                    appendOnKey: true,
+                };
+            case "rate":
+                {
+                    const name = valueToAdd === "Leads" ? "Prospect Conversion Rate" : valueToAdd === "Prospects" ? "Deal Conversion Rate" : valueToAdd
+                    return {
+                        newName: `${name}`,
+                        formatValue: true,
+                        appendOnKey: true,
+                    };
+                }
+            case "name":
+                {
+                    return {
+                        newName: `Name`,
+                        formatValue: true,
+                        appendOnKey: true,
+                    };
+                }
             default:
                 // Handle the case when the key is not found
                 console.error(`Key '${key}' not found in the switch statement.`);
@@ -431,8 +466,12 @@ function page() {
 
                 return flattenObj(table, '', {}, "Leads")
             })
-            console.log("pblead", pbLead)
+            const lbLead = data.lb.map((table) => {
+                return flattenObj(table, '', {}, 'Leads')
+            })
+            console.log("lblead data", lbLead, data.lb)
             setPbLead(pbLead)
+            setLbLead(data.lb)
             setPieChartLead(pieChartData)
             setPieChartInboundLead(pieChartInboundData)
             setPieChartOutboundLead(pieChartOutboundData)
@@ -640,6 +679,13 @@ function page() {
             return totalSum
         }
         return -1
+    }
+
+    const lbLeadKeys = {
+        name: "Name",
+        created_owned: "Lead Created or Owned",
+        converted: "Promoted to Prospect",
+        rate: "Prospect Conversion Rate"
     }
 
     return (
@@ -1013,6 +1059,67 @@ function page() {
                                 </div>
 
                             </div>
+                            <div className='flex flex-col rounded-[16px] overflow-hidden'>
+                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
+                                    <div className='text-white-900 font-semibold text-[17px]'>Leader Board</div>
+                                </div>
+                                {/* <div className='flex flex-row bottom rounded-bl-[16px] rounded-br-[16px] border-[1px] border-gray-200'>
+                                    {
+                                        insightLeads?.lb && Object.keys(lbLeadKeys).map((key) => {
+                                            const k = key as keyof typeof insightLeads.lb[0]
+                                            console.log("lblead key", k)
+                                            const isPercent = k === "rate"
+                                            return <div className='flex flex-col flex-1'>
+                                                <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                                    {lbLeadKeys[k]}
+                                                </div>
+                                                {insightLeads.lb.map((lb) => {
+                                                    return <>
+                                                        <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                            {lb[k]}{isPercent ? "%" : ""}
+                                                        </div>
+                                                    </>
+                                                })}
+                                            </div>
+
+                                        })
+                                    }
+                                </div> */}
+                                <div className='grid grid-cols-4 bottom rounded-bl-[16px] rounded-br-[16px] border-[1px] border-gray-200'>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Name
+                                    </div>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Lead Created or Owned
+                                    </div>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Promoted to Prospect
+                                    </div>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Prospect Conversion Rate
+                                    </div>
+                                    {
+                                        insightLeads?.lb && insightLeads.lb.map((data) => {
+                                            console.log("data lb lead", data)
+                                            return <>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.name}
+                                                </div>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.created_owned}
+                                                </div>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.converted}
+                                                </div>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.rate}%
+                                                </div>
+                                            </>
+                                        })
+                                    }
+                                </div>
+
+                            </div>
 
                         </TabsContent>
                         <TabsContent value={TABS.PROSPECTS} className="flex flex-col flex-1 py-[20px] gap-[20px]">
@@ -1143,6 +1250,45 @@ function page() {
                                 </div>
 
                             </div>
+                            <div className='flex flex-col rounded-[16px] overflow-hidden'>
+                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
+                                    <div className='text-white-900 font-semibold text-[17px]'>Leader Board</div>
+                                </div>
+                                <div className='grid grid-cols-4 bottom rounded-bl-[16px] rounded-br-[16px] border-[1px] border-gray-200'>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Name
+                                    </div>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Prospects Created or Owned
+                                    </div>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Promoted to Deal
+                                    </div>
+                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Deal Conversion Rate
+                                    </div>
+                                    {
+                                        insightProspects?.lb && insightProspects.lb.map((data) => {
+                                            console.log("data lb lead", data)
+                                            return <>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.name}
+                                                </div>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.created_owned}
+                                                </div>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.converted}
+                                                </div>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.rate}%
+                                                </div>
+                                            </>
+                                        })
+                                    }
+                                </div>
+
+                            </div>
 
                         </TabsContent>
                     </Tabs>
@@ -1155,6 +1301,7 @@ function page() {
                         <div className='flex flex-col gap-[16px]'>
                             {
                                 <>
+                                    <SideBarCard icon={<IconAgeing />} title='Avg. Lead Ageing Time' value={sidebarLeads?.aat} subtitle='Days/Lead' />
                                     <SideBarCard icon={<IconStopWatch />} title='Avg. Lead Verification Time' value={sidebarLeads?.avt} subtitle='Days/Lead' />
                                     <SideBarCard icon={<IconHourGlass />} title='Avg. Lead Closure Time' value={sidebarLeads?.act} subtitle='Days/Lead' />
                                     <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr, true)}`} />
@@ -1204,6 +1351,7 @@ function page() {
                         <div className='flex flex-col gap-[16px]'>
                             {
                                 <>
+                                    <SideBarCard icon={<IconAgeing />} title='Avg. Prospect Ageing Time' value={sidebarProspects?.aat} subtitle='Days/Prospect' />
                                     <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Prospect' />
                                     <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr, true)}`} />
                                 </>
