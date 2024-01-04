@@ -1090,7 +1090,7 @@ function page() {
                                         Name
                                     </div>
                                     <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
-                                        Lead Created or Owned
+                                        Leads Created or Owned
                                     </div>
                                     <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
                                         Promoted to Prospect
