@@ -89,9 +89,9 @@ const ChartCard = ({ title, numberOfEntity, percentage, data, fromCompare }: { t
     <div className='w-[300px] xl:w-[330px] px-[24px] py-[20px] flex flex-col  gap-[8px] border-[1px] border-gray-300 rounded-[16px] min-h-[214px]'>
       <div className='text-sm text-gray-600 font-medium'>{title}</div>
       <div className='text-2xl text-black-100'>{numberOfEntity}</div>
-      <div className='flex flex-row text-xs font-normal gap-[5px]'>
-        <div className='text-black-100'>{percentage}</div>
-        <div className='text-gray-500'>{compare}</div>
+      <div className=' text-xs font-normal '>
+        <span className='text-black-100'>{`${percentage} `}</span>
+        <span className='text-gray-500'>{compare}</span>
       </div>
       <ResponsiveContainer width="100%" height="100%" className={`py-[10px]`}>
         <LineChart width={300} height={100} data={dataForChart}>
@@ -374,44 +374,44 @@ function page() {
       <div className='flex flex-row w-full flex-1 min-h-[100vh] '>
         <div className='flex flex-col left flex-1 p-[24px] pt-[0px] mb-[40px] overflow-auto bg-white-900'>
           <Tabs onValueChange={(val) => setCurrentTab(val)} defaultValue={TABS.LEADS} className="flex flex-col w-fit  ">
-          <div className='bg-white-900 sticky top-[0px] z-[2] py-[24px] border-b-[1px] border-gray-300'>
-            <TabsList className={`${commonTabListClasses} overflow-hidden w-fit`}>
-              {tabs.map((tab) => {
-                return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
-              })}
-            </TabsList>
-            <Form {...form}>
-              <form className='flex flex-col gap-[16px] mt-[20px]'>
-                <div className='px-[8px] text-black-100 font-semibold text-sm'>Overview</div>
-                <div className='flex flex-col'>
-                  <FormField
-                    control={form.control}
-                    name="dateRange"
-                    render={({ field }) => (
-                      <FormItem className='w-fit min-w-[200px]'>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} >
-                          <FormControl>
-                            <SelectTrigger className={`${commonFontClasses} `}>
-                              <SelectValue placeholder={"Date Range"} />
+            <div className='bg-white-900 sticky top-[0px] z-[2] py-[24px] border-b-[1px] border-gray-300'>
+              <TabsList className={`${commonTabListClasses} overflow-hidden w-fit`}>
+                {tabs.map((tab) => {
+                  return <TabsTrigger className={commonTabTriggerClasses} key={tab.value} value={tab.value} ><div >{tab.label}</div></TabsTrigger>
+                })}
+              </TabsList>
+              <Form {...form}>
+                <form className='flex flex-col gap-[16px] mt-[20px]'>
+                  <div className='px-[8px] text-black-100 font-semibold text-sm'>Overview</div>
+                  <div className='flex flex-col'>
+                    <FormField
+                      control={form.control}
+                      name="dateRange"
+                      render={({ field }) => (
+                        <FormItem className='w-fit min-w-[200px]'>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} >
+                            <FormControl>
+                              <SelectTrigger className={`${commonFontClasses} `}>
+                                <SelectValue placeholder={"Date Range"} />
 
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {
-                              DateRange?.map((dateRange, index) => {
-                                return <SelectItem key={index} value={dateRange.value}>
-                                  {dateRange.label}
-                                </SelectItem>
-                              })
-                            }
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )} />
-                </div>
-              </form>
-            </Form>
-          </div>
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {
+                                DateRange?.map((dateRange, index) => {
+                                  return <SelectItem key={index} value={dateRange.value}>
+                                    {dateRange.label}
+                                  </SelectItem>
+                                })
+                              }
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )} />
+                  </div>
+                </form>
+              </Form>
+            </div>
             <TabsContent value={TABS.LEADS} className="flex flex-col w-full py-[20px] gap-[20px]">
               <div className='flex flex-row flex-1 gap-[24px]'>
                 {dashboardLeads?.created && <ChartCard title='Leads Created' numberOfEntity={dashboardLeads?.created[0]} percentage={calculatePercentageChange(dashboardLeads?.created)} data={dashboardLeads.created} fromCompare={watch.dateRange} />}

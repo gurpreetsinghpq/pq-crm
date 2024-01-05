@@ -1982,6 +1982,10 @@ const MODE: IValueLabel[] = [
         value: "inPerson",
         label: "In-Person"
     },
+    {
+        value: "instant-messaging",
+        label: "Instant Messaging"
+    },
 ];
 
 const ALL_MODE: IValueLabel[] = [

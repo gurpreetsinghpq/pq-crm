@@ -152,12 +152,12 @@ function Notes({ contactFromParents, entityId, isAccounts = false, activityDetai
     }, [])
 
     const isFirstForm = (form.getValues("activityType")?.toLowerCase() === "cold outreach") && (form.getValues("mode")?.toLowerCase() === "call" || form.getValues("mode")?.toLowerCase() === "video call" || form.getValues("mode")?.toLowerCase() === "in-person")
-    const isSecondForm = (form.getValues("activityType")?.toLowerCase() === "cold outreach") && (form.getValues("mode")?.toLowerCase() === "email" || form.getValues("mode")?.toLowerCase() === "linkedin")
+    const isSecondForm = (form.getValues("activityType")?.toLowerCase() === "cold outreach") && (form.getValues("mode")?.toLowerCase() === "email" || form.getValues("mode")?.toLowerCase() === "linkedin" || form.getValues("mode")?.toLowerCase() === "instant messaging")
     const isThirdForm = (form.getValues("activityType")?.toLowerCase() === "exploratory discussion")
 const isFourthForm = (form.getValues("activityType")?.toLowerCase() === "follow up")
     const isFifthForm = (form.getValues("activityType")?.toLowerCase() === "negotiation")
     const isSixthForm = (form.getValues("activityType")?.toLowerCase() === "inbound lead verification") && (form.getValues("mode")?.toLowerCase() === "call" || form.getValues("mode")?.toLowerCase() === "video call" || form.getValues("mode")?.toLowerCase() === "in-person")
-    const isSeventhForm = (form.getValues("activityType")?.toLowerCase() === "inbound lead verification") && (form.getValues("mode")?.toLowerCase() === "email" || form.getValues("mode")?.toLowerCase() === "linkedin")
+    const isSeventhForm = (form.getValues("activityType")?.toLowerCase() === "inbound lead verification") && (form.getValues("mode")?.toLowerCase() === "email" || form.getValues("mode")?.toLowerCase() === "linkedin" || form.getValues("mode")?.toLowerCase() === "instant messaging")
 
     const isAnyForm = [isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm].some((val) => val === true)
 

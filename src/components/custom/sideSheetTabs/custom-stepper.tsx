@@ -26,12 +26,12 @@ function CustomStepper({ details, markStatusOfActivity, rescheduleActivity, perm
 
 
     const isFirstForm = (details?.activity_type?.toLowerCase() === "cold outreach") && (details?.mode?.toLowerCase() === "call" || details?.mode?.toLowerCase() === "video call" || details?.mode?.toLowerCase() === "in-person")
-    const isSecondForm = (details?.activity_type?.toLowerCase() === "cold outreach") && (details?.mode?.toLowerCase() === "email" || details?.mode?.toLowerCase() === "linkedin")
+    const isSecondForm = (details?.activity_type?.toLowerCase() === "cold outreach") && (details?.mode?.toLowerCase() === "email" || details?.mode?.toLowerCase() === "linkedin" || details?.mode?.toLowerCase() === "instant messaging")
     const isThirdForm = (details?.activity_type?.toLowerCase() === "exploratory discussion")
     const isFourthForm = (details?.activity_type?.toLowerCase() === "follow up")
     const isFifthForm = (details?.activity_type?.toLowerCase() === "negotiation")
     const isSixthForm = (details?.activity_type?.toLowerCase() === "inbound lead verification") && (details?.mode?.toLowerCase() === "call" || details?.mode?.toLowerCase() === "video call" || details?.mode?.toLowerCase() === "in-person")
-    const isSeventhForm = (details?.activity_type?.toLowerCase() === "inbound lead verification") && (details?.mode?.toLowerCase() === "email" || details?.mode?.toLowerCase() === "linkedin")
+    const isSeventhForm = (details?.activity_type?.toLowerCase() === "inbound lead verification") && (details?.mode?.toLowerCase() === "email" || details?.mode?.toLowerCase() === "linkedin" || details?.mode?.toLowerCase() === "instant messaging")
     console.log("details", details.activity_type?.toLowerCase(), "mode", details?.mode?.toLowerCase(), "isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm", isFirstForm, isSecondForm, isThirdForm, isFourthForm, isFifthForm, isSixthForm, isSeventhForm)
 
     return (

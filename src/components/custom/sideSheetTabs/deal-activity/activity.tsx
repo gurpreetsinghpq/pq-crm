@@ -79,8 +79,8 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
 
     useEffect(() => {
         const subscription = form.watch(() => {
-             form.formState.errors
-             form.formState.isValid
+            form.formState.errors
+            form.formState.isValid
         })
         return () => subscription.unsubscribe()
     }, [form.watch])
@@ -194,7 +194,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
         });
         const currentTime = formatter.format(new Date())
         setCurrentTime(currentTime)
-        
+
 
     }
 
@@ -218,7 +218,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             form.setValue("mode", labelToValue(editMode?.data?.mode, MODE) || "")
             form.setValue("contact", editMode?.data?.contact)
             const reminderToSet = Number(editMode?.data?.reminder) == 0 ? -1 : editMode?.data?.reminder
-            
+
             form.setValue("reminder", reminderToSet?.toString())
             const dueDateFromEdit: string = editMode?.data?.due_date
             if (dueDateFromEdit) {
@@ -233,9 +233,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                 let dueTime = formatter.format(dateObject)
                 const dueDate = new Date(new Date(dueDateFromEdit).toLocaleString("en-us", { timeZone: TIMEZONE }))
                 // dueDate.setHours(0,0,0,0)
-                
+
                 dueTime = dueTime === "24:00" ? "00:00" : dueTime
-                
+
                 form.setValue("dueTime", dueTime)
                 form.setValue("dueDate", dueDate)
 
@@ -488,6 +488,7 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <Select disabled={editMode.isEditMode} onValueChange={(value) => {
+                                                            form.resetField("mode")
                                                             return field.onChange(value)
                                                         }} defaultValue={field.value} key={field.value}>
                                                             <FormControl>
@@ -622,7 +623,16 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                             </FormControl>
                                                             <SelectContent>
                                                                 {
-                                                                    MODE.map((mode, index) => {
+                                                                    MODE.filter((mode) =>{
+                                                                        const type = form.getValues("type")
+                                                                        const shouldInstantMessagingAdded =  type === "coldOutreach" ||  type === "inboundLeadVerification"
+                                                                        console.log("shouldInstantMessagingAdded",shouldInstantMessagingAdded,type)
+                                                                        if(!shouldInstantMessagingAdded){
+                                                                            return mode.value!=="instant-messaging"
+                                                                        }
+                                                                        return mode
+                                                                    }
+                                                                    ).map((mode, index) => {
                                                                         return <SelectItem key={index} value={mode.value}>
                                                                             {mode.label}
                                                                         </SelectItem>
