@@ -798,8 +798,9 @@ function page() {
                         </div>
                         <TabsContent value={TABS.LEADS} className="flex flex-col w-full py-[20px] gap-[20px]">
                             <div className='flex flex-row flex-1 gap-[24px]'>
-                                {insightLeads?.total_leads && <ChartCard title='Leads Created or Owned' numberOfEntity={insightLeads?.total_leads[0]} percentage={calculatePercentageChange(insightLeads?.total_leads)} data={insightLeads.total_leads} fromCompare={watch.dateRange} />}
-                                {insightLeads?.lptp && <ChartCard title='Leads Promoted to Prospect' numberOfEntity={insightLeads?.lptp[0]} percentage={calculatePercentageChange(insightLeads?.lptp)} data={insightLeads.lptp} fromCompare={watch.dateRange} />}
+                                {insightLeads?.created && <ChartCard title='Leads Created' numberOfEntity={insightLeads?.created[0]} percentage={calculatePercentageChange(insightLeads?.created)} data={insightLeads.created} fromCompare={watch.dateRange} />}
+                                {insightLeads?.owned && <ChartCard title='Leads Owned' numberOfEntity={insightLeads?.owned[0]} percentage={calculatePercentageChange(insightLeads?.owned)} data={insightLeads.owned} fromCompare={watch.dateRange} />}
+                                {/* {insightLeads?.lptp && <ChartCard title='Leads Promoted to Prospect' numberOfEntity={insightLeads?.lptp[0]} percentage={calculatePercentageChange(insightLeads?.lptp)} data={insightLeads.lptp} fromCompare={watch.dateRange} />} */}
                             </div>
                             <div className='flex flex-row flex-1 gap-[24px]'>
                                 <div className='w-[330px] xl:w-[360px] px-[24px] py-[20px] shrink-0 flex flex-col gap-[8px] border-[1px] border-gray-300 rounded-[16px] '>
@@ -999,28 +1000,32 @@ function page() {
                             <div className='flex flex-col rounded-[16px] overflow-hidden'>
                                 <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
                                     <div className='text-white-900 font-semibold text-[17px]'>Performance Benchmarking</div>
-                                    <div className='h-[1px] bg-white-900'>
-                                    </div>
+                                </div>
+                                <div>
                                     <div className='flex flex-row justify-between text-sm text-white-900'>
-                                        <div className='flex-1'></div>
+                                        <div className='flex-1 bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+
+                                        </div>
                                         {
                                             pbLead.map((table) => {
                                                 const tableHeading = table.user_name
                                                 return <>
-                                                    <div className='flex-1 text-center'>{tableHeading.value}</div>
+                                                    <div className='flex-1 text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                                        {tableHeading.value}
+                                                    </div>
                                                 </>
                                             })
                                         }
                                     </div>
                                 </div>
-                                <div className='flex flex-row bottom p-[24px] pt-[10px] bottom-insights-table-bg'>
+                                <div className='flex flex-row bottom rounded-bl-[16px] rounded-br-[16px] border-[1px] border-gray-200'>
 
                                     {
-                                        <div className='flex flex-col flex-1 gap-[10px]'>
+                                        <div className='flex flex-col flex-1'>
                                             {pbLead[0] && Object.keys(pbLead[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[0][heading]
                                                 return <>
-                                                    <div className=' text-black-900 text-sm font-medium'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                         {data.keyName}
                                                     </div>
                                                 </>
@@ -1028,12 +1033,12 @@ function page() {
                                         </div>
                                     }
                                     {
-                                        <div className='flex flex-col flex-1 gap-[10px] text-center'>
+                                        <div className='flex flex-col flex-1 text-center'>
                                             {pbLead[0] && Object.keys(pbLead[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[0][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Lead` : ""
                                                 return <>
-                                                    <div className='text-black-900 text-sm font-medium'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1042,12 +1047,12 @@ function page() {
                                         </div>
                                     }
                                     {
-                                        <div className='flex flex-col flex-1 gap-[10px] text-center'>
+                                        <div className='flex flex-col flex-1 text-center'>
                                             {pbLead[1] && Object.keys(pbLead[1]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[1][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Lead` : ""
                                                 return <>
-                                                    <div className=' text-black-900 text-sm font-medium'>
+                                                    <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1089,13 +1094,13 @@ function page() {
                                     <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
                                         Name
                                     </div>
-                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
-                                        Leads Created or Owned
+                                    <div className='text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Leads Created
                                     </div>
-                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
-                                        Promoted to Prospect
+                                    <div className='text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Leads Owned
                                     </div>
-                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                    <div className='text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
                                         Prospect Conversion Rate
                                     </div>
                                     {
@@ -1105,13 +1110,13 @@ function page() {
                                                 <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                     {data.name}
                                                 </div>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                    {data.created_owned}
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.created}
                                                 </div>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                    {data.promoted}
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.owned}
                                                 </div>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                     {data.rate}%
                                                 </div>
                                             </>
@@ -1124,8 +1129,9 @@ function page() {
                         </TabsContent>
                         <TabsContent value={TABS.PROSPECTS} className="flex flex-col flex-1 py-[20px] gap-[20px]">
                             <div className='flex flex-row flex-1 gap-[24px]'>
-                                {insightProspects?.total_prospects && <ChartCard title='Prospects Created or Owned' numberOfEntity={insightProspects?.total_prospects[0]} percentage={calculatePercentageChange(insightProspects?.total_prospects)} data={insightProspects.total_prospects} fromCompare={watch.dateRange} />}
-                                {insightProspects?.pptd && <ChartCard title='Prospect Promoted to Deal' numberOfEntity={insightProspects?.pptd[0]} percentage={calculatePercentageChange(insightProspects?.pptd)} data={insightProspects.pptd} fromCompare={watch.dateRange} />}
+                                {insightProspects?.created && <ChartCard title='Prospects Created' numberOfEntity={insightProspects?.created[0]} percentage={calculatePercentageChange(insightProspects?.created)} data={insightProspects.created} fromCompare={watch.dateRange} />}
+                                {insightProspects?.owned && <ChartCard title='Prospects Owned' numberOfEntity={insightProspects?.owned[0]} percentage={calculatePercentageChange(insightProspects?.owned)} data={insightProspects.owned} fromCompare={watch.dateRange} />}
+                                {/* {insightProspects?.pptd && <ChartCard title='Prospect Promoted to Deal' numberOfEntity={insightProspects?.pptd[0]} percentage={calculatePercentageChange(insightProspects?.pptd)} data={insightProspects.pptd} fromCompare={watch.dateRange} />} */}
                             </div>
                             <div className='flex flex-row flex-1 gap-[24px]'>
                                 <div className='w-[330px] xl:w-[360px]  px-[24px] py-[20px] shrink-0 flex flex-col gap-[8px] border-[1px] border-gray-300 rounded-[16px] '>
@@ -1189,28 +1195,32 @@ function page() {
                             <div className='flex flex-col rounded-[16px] overflow-hidden'>
                                 <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
                                     <div className='text-white-900 font-semibold text-[17px]'>Performance Benchmarking</div>
-                                    <div className='h-[1px] bg-white-900'>
-                                    </div>
+                                </div>
+                                <div>
                                     <div className='flex flex-row justify-between text-sm text-white-900'>
-                                        <div className='flex-1'></div>
+                                        <div className='flex-1 bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+
+                                        </div>
                                         {
                                             pbProspect.map((table) => {
                                                 const tableHeading = table.user_name
                                                 return <>
-                                                    <div className='flex-1 text-center'>{tableHeading.value}</div>
+                                                    <div className='flex-1 text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                                        {tableHeading.value}
+                                                    </div>
                                                 </>
                                             })
                                         }
                                     </div>
                                 </div>
-                                <div className='flex flex-row bottom p-[24px] pt-[10px] bottom-insights-table-bg'>
+                                <div className='flex flex-row bottom rounded-bl-[16px] rounded-br-[16px] border-[1px] border-gray-200'>
 
                                     {
-                                        <div className='flex flex-col flex-1 gap-[10px]'>
+                                        <div className='flex flex-col flex-1'>
                                             {pbProspect[0] && Object.keys(pbProspect[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[0][heading]
                                                 return <>
-                                                    <div className=' text-black-900 text-sm font-medium'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                         {data.keyName}
 
                                                     </div>
@@ -1219,12 +1229,12 @@ function page() {
                                         </div>
                                     }
                                     {
-                                        <div className='flex flex-col flex-1 gap-[10px] text-center'>
+                                        <div className='flex flex-col flex-1 text-center'>
                                             {pbProspect[0] && Object.keys(pbProspect[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[0][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Prospect` : ""
                                                 return <>
-                                                    <div className=' text-black-900 text-sm font-medium'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1233,12 +1243,12 @@ function page() {
                                         </div>
                                     }
                                     {
-                                        <div className='flex flex-col flex-1 gap-[10px] text-center'>
+                                        <div className='flex flex-col flex-1 text-center'>
                                             {pbProspect[1] && Object.keys(pbProspect[1]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[1][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Prospect` : ""
                                                 return <>
-                                                    <div className=' text-black-900 text-sm font-medium'>
+                                                    <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1258,29 +1268,29 @@ function page() {
                                     <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
                                         Name
                                     </div>
-                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
-                                        Prospects Created or Owned
+                                    <div className='text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Prospects Created
                                     </div>
-                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
-                                        Promoted to Deal
+                                    <div className='text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                        Prospects Owned
                                     </div>
-                                    <div className='bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                    <div className='text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
                                         Deal Conversion Rate
                                     </div>
                                     {
                                         insightProspects?.lb && insightProspects.lb.map((data) => {
                                             console.log("data lb lead", data)
                                             return <>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                     {data.name}
                                                 </div>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                    {data.created_owned}
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.created}
                                                 </div>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                    {data.promoted}
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    {data.owned}
                                                 </div>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
                                                     {data.rate}%
                                                 </div>
                                             </>
@@ -1399,10 +1409,11 @@ function page() {
                         </div>
                     </>}
                 </div>
-            </div>
+            </div >
             {(leadLoading || prospectLoading || sidebarLeadLoading || sidebarProspectLoading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
                 <Loader2 className="mr-2 h-20 w-20 animate-spin" color='#7F56D9' />
-            </div>}
+            </div>
+            }
         </>
     )
 }

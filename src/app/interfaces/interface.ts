@@ -1455,12 +1455,16 @@ export interface InsightLeads {
     inbound_source: InboundSource[]
     outbound_source: OutboundSource[]
     lptp: number[]
-    total_leads: number[]
+    // total_leads: number[]
+    created: number[]
+    owned: number[]
 }
 
 export type InsightLeadsLeaderBoard = {
     name:string
     created_owned:number
+    created:number
+    owned:number
     promoted:number
     rate:string
 }
@@ -1480,7 +1484,9 @@ export interface InsightProspects {
     inbound_source: InboundSource[]
     outbound_source: OutboundSource[]
     pptd: number[]
-    total_prospects: number[]
+    // total_prospects: number[]
+    created: number[]
+    owned: number[]
 }
 
 interface InboundSource {

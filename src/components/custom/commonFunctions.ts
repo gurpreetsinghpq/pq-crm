@@ -839,21 +839,33 @@ export const handleAlphaNumericKeyPress = (event: React.KeyboardEvent<HTMLInputE
   // Get the pressed key
   const pressedKey = event.key;
 
-  // Use a regular expression to allow only alphanumeric characters and spaces
-  const isAlphanumeric = /^[a-zA-Z0-9 ]$/.test(pressedKey);
+  // Check if any character has been pressed yet
+  const inputValue = event.currentTarget.value;
 
-  // If the pressed key is not alphanumeric or a space, prevent the input
-  if (!isAlphanumeric) {
+  // Use a regular expression to allow only alphanumeric characters and space
+  const isAlphanumericOrSpace = /^[a-zA-Z0-9 ]$/.test(pressedKey);
+
+  // If the pressed key is not alphanumeric or space, prevent the input
+  if (!isAlphanumericOrSpace) {
+    event.preventDefault();
+  } else if (pressedKey === ' ' && inputValue.trim() === '') {
+    // Prevent space at the beginning of the input
+    event.preventDefault();
+  } else if (pressedKey === ' ' && inputValue.slice(-1) === ' ') {
+    // Prevent consecutive spaces
     event.preventDefault();
   }
 };
+
+
+
 
 export const handleAlphaNumericPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
   // Get the pasted text
   const pastedText = event.clipboardData.getData('text');
 
-  // Use a regular expression to filter out disallowed characters
-  const sanitizedText = pastedText.replace(/[^a-zA-Z0-9@ ]/g, '');
+  // Use a regular expression to remove special characters and trim extra spaces
+  const sanitizedText = pastedText.replace(/[^\w\s]/gi, '').replace(/\s+/g, ' ').trim();
 
   // Update the input value with the sanitized text
   document.execCommand('insertText', false, sanitizedText);
@@ -861,6 +873,9 @@ export const handleAlphaNumericPaste = (event: React.ClipboardEvent<HTMLInputEle
   // Prevent the default paste behavior
   event.preventDefault();
 };
+
+
+
 
 export function daysAgo(isoDateString: string): string {
   const currentDate = new Date();

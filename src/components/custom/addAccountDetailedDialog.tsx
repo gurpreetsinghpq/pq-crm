@@ -323,13 +323,25 @@ function AddAcountDetailedDialog({ inputAccount, dataFromChild, details, filtere
         try {
             const dataResp = await fetch(`${baseUrl}/v1/api/client/`, { method: "POST", body: JSON.stringify(dataToSend), headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
-            dataFromChild()
-            form.reset()
-            resetForm2()
-            toast({
-                title: "Account Created Successfully!",
-                variant: "dark"
-            })
+            if(result.status=="1"){
+                dataFromChild()
+                form.reset()
+                resetForm2()
+                toast({
+                    title: "Account Created Successfully!",
+                    variant: "dark"
+                })
+            }else if(result.error.already_exists){
+                toast({
+                    title: result.error.already_exists,
+                    variant: "destructive"
+                })
+            }else{
+                toast({
+                    title: "Sorry some error have occured!",
+                    variant: "destructive"
+                })
+            }
 
         } catch (err) {
             console.log(err)

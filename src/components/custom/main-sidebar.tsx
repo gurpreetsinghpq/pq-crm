@@ -77,7 +77,7 @@ function MainSidebar() {
 
 
     return (
-        <div className="sticky top-0 left-0 left z-[1] h-full flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
+        <div className="sticky top-0 left-0 left z-[3] h-full flex flex-col px-1  xl:w-20 2xl:w-24  items-center py-6 border-r-2  border-gray-100 border-solid bg-purple-900">
             <div className="h-10 w-10  flex flex-row justify-center  xl:px-1 2xl:px-[0px]">
                 <IconPq size={32} />
             </div>

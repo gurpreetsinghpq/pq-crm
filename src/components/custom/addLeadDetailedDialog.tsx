@@ -277,9 +277,14 @@ function AddLeadDetailedDialog({ inputAccount, dataFromChild, details, filteredL
                 dataFromChild()
                 form.reset()
                 resetForm2()
+            } else if (result.error.already_exists) {
+                toast({
+                    title: result.error.already_exists,
+                    variant: "destructive"
+                })
             } else {
                 toast({
-                    title: `${result.error}`,
+                    title: "Sorry some error have occured!",
                     variant: "destructive"
                 })
             }
