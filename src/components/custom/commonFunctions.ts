@@ -938,7 +938,7 @@ export function calculatePercentageChange(values: number[]): string {
   if(percentageChange>1000){
     return 'Greater than 1000% increase'
   }
-  if(percentageChange<1000){
+  if(percentageChange<-1000){
     return 'Greater than 1000% decrease'
   }
 
