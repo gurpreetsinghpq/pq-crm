@@ -1064,7 +1064,7 @@ function page() {
                                 </div>
 
                             </div>
-                            <div className='flex flex-col rounded-[16px] overflow-hidden'>
+                            {form.getValues("user") === "-1" && <div className='flex flex-col rounded-[16px] overflow-hidden'>
                                 <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
                                     <div className='text-white-900 font-semibold text-[17px]'>Leader Board</div>
                                 </div>
@@ -1124,7 +1124,7 @@ function page() {
                                     }
                                 </div>
 
-                            </div>
+                            </div>}
 
                         </TabsContent>
                         <TabsContent value={TABS.PROSPECTS} className="flex flex-col flex-1 py-[20px] gap-[20px]">
@@ -1260,7 +1260,7 @@ function page() {
                                 </div>
 
                             </div>
-                            <div className='flex flex-col rounded-[16px] overflow-hidden'>
+                            {form.getValues("user") === "-1" && <div className='flex flex-col rounded-[16px] overflow-hidden'>
                                 <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
                                     <div className='text-white-900 font-semibold text-[17px]'>Leader Board</div>
                                 </div>
@@ -1298,7 +1298,7 @@ function page() {
                                     }
                                 </div>
 
-                            </div>
+                            </div>}
 
                         </TabsContent>
                     </Tabs>

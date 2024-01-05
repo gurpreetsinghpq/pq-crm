@@ -936,7 +936,10 @@ export function calculatePercentageChange(values: number[]): string {
   }
 
   if(percentageChange>1000){
-    return 'Greater than 1000% increase or decrease'
+    return 'Greater than 1000% increase'
+  }
+  if(percentageChange<1000){
+    return 'Greater than 1000% decrease'
   }
 
   return `${sign}${Math.abs(percentageChange).toFixed(0)}% change`;
