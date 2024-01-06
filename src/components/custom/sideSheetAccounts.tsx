@@ -29,7 +29,7 @@ import { activeTabSideSheetClasses, commonClasses, commonClasses2, commonFontCla
 import { PopoverClose } from '@radix-ui/react-popover'
 import { required_error } from './sideSheet'
 import { toast } from '../ui/use-toast'
-import { doesTypeIncludesMandatory, formatAddresses, getIsContactDuplicate, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
+import { doesTypeIncludesMandatory, formatAddresses, getIsContactDuplicate, handleAlphaNumericKeyPress, handleAlphaNumericPaste, handleKeyPress, handleOnChangeNumeric, handleOnChangeNumericReturnNull, toastContactAlreadyExists } from './commonFunctions'
 import { getCookie } from 'cookies-next'
 import SideSheetTabs from './sideSheetTabs/sideSheetTabs'
 import { Textarea } from '../ui/textarea'
@@ -631,7 +631,7 @@ function SideSheetAccounts({ parentData, permissions }: { parentData: { childDat
                                                         render={({ field }) => (
                                                             <FormItem className='px-[16px]'>
                                                                 <FormControl >
-                                                                    <Input type="text" className={`mt-3 ${commonClasses} ${commonFontClasses}`} placeholder="Organisation Name" {...field} />
+                                                                    <Input onKeyPress={handleAlphaNumericKeyPress} onPaste={handleAlphaNumericPaste} type="text" className={`mt-3 ${commonClasses} ${commonFontClasses}`} placeholder="Organisation Name" {...field} />
                                                                 </FormControl>
                                                             </FormItem>
                                                         )}
