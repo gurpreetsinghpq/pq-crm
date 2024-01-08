@@ -4,7 +4,7 @@ import { LEAD_PROSPECT_STATUS } from '@/app/constants/constants';
 import { DashboardLeads, DashboardProspect, DashboardSidebarLead, DashboardSidebarProspect, IValueLabel } from '@/app/interfaces/interface';
 import { calculatePercentageChange, replaceHyphenWithEmDash, timeSince } from '@/components/custom/commonFunctions';
 import MainSidebar from '@/components/custom/main-sidebar'
-import { IconCalendar, IconHourGlass, IconLeads, IconPercent2, IconProspects, IconStopWatch } from '@/components/icons/svgIcons';
+import { IconAgeing, IconCalendar, IconHourGlass, IconLeads, IconPercent2, IconProspects, IconStopWatch } from '@/components/icons/svgIcons';
 import { getDateDetails } from '@/components/ui/date-range-picker';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -594,6 +594,7 @@ function page() {
             <div className='flex flex-col gap-[16px]'>
               {
                 <>
+                  <SideBarCard icon={<IconAgeing />} title='Avg. Lead Ageing Time' value={sidebarLeads?.aat} subtitle='Days/Lead' />
                   <SideBarCard icon={<IconStopWatch />} title='Avg. Lead Verification Time' value={sidebarLeads?.avt} subtitle='Days/Lead' />
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Lead Closure Time' value={sidebarLeads?.act} subtitle='Days/Lead' />
                   <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Prospect Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarLeads?.lpcr, true)}`} />
@@ -643,6 +644,7 @@ function page() {
             <div className='flex flex-col gap-[16px]'>
               {
                 <>
+                  <SideBarCard icon={<IconAgeing />} title='Avg. Prospect Ageing Time' value={sidebarProspects?.aat} subtitle='Days/Prospect' />
                   <SideBarCard icon={<IconHourGlass />} title='Avg. Prospect Closure Time' value={sidebarProspects?.act} subtitle='Days/Prospect' />
                   <SideBarCard icon={<IconPercent2 size="16" color="#667085" />} title='Deal Conversion Rate' value={`${replaceHyphenWithEmDash(sidebarProspects?.pdcr, true)}`} />
                 </>

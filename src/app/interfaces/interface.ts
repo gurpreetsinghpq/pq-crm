@@ -1393,6 +1393,7 @@ export interface DashboardSidebarLead {
         "status": string,
         "created_at": string
     }[],
+    "aat":string
     "avt": string,
     "act": string,
     "lpcr": string
@@ -1404,6 +1405,7 @@ export interface DashboardSidebarProspect {
         "status": string,
         "created_at": string
     }[],
+    "aat":string
     "act": string,
     "pdcr": string
 }
