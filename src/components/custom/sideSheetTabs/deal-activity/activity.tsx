@@ -291,6 +291,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
             case "prospect":
                 keyToSearch = "lead__title"
                 break
+            case "deal":
+                keyToSearch = "lead__title"
+                break
         }
         const nameQueryParam = textToSearch ? `&${keyToSearch}=${encodeURIComponent(textToSearch)}` : '';
         try {
@@ -413,26 +416,35 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                                                                                             const entityType = form.getValues("entityType")
                                                                                             let entityName = ""
                                                                                             let contactData: any = []
+                                                                                            let entityId = "" 
                                                                                             switch (entityType) {
                                                                                                 case "client":
                                                                                                     entityName = entity?.name
                                                                                                     contactData = entity?.contacts
+                                                                                                    entityId = entity?.id
                                                                                                     break
                                                                                                 case "lead":
                                                                                                     entityName = entity?.title
                                                                                                     contactData = entity?.organisation?.contacts
+                                                                                                    entityId = entity?.id
                                                                                                     break
                                                                                                 case "prospect":
                                                                                                     entityName = entity?.lead?.title
                                                                                                     contactData = entity?.lead?.organisation?.contacts
+                                                                                                    entityId = entity?.lead?.id
+                                                                                                    break
+                                                                                                case "deal":
+                                                                                                    entityName = entity?.prospect?.lead?.title
+                                                                                                    contactData = entity?.prospect?.lead?.organisation?.contacts
+                                                                                                    entityId = entity?.prospect?.lead?.id
                                                                                                     break
                                                                                             }
 
 
                                                                                             return <div
-                                                                                                key={entity.id.toString()}
+                                                                                                key={`${entityType}_${entity.id.toString()}`}
                                                                                                 onClick={() => {
-                                                                                                    form.setValue("selectEntity", entity.id.toString(), SET_VALUE_CONFIG)
+                                                                                                    form.setValue("selectEntity", entityId.toString(), SET_VALUE_CONFIG)
                                                                                                     setCurrentEntityName(entityName)
                                                                                                     form.setValue("contact", [])
                                                                                                     setContacts(contactData)
@@ -1006,9 +1018,9 @@ function Activity({ contactFromParents, entityId, editMode = { isEditMode: false
                     </div>
                 </form>
             </Form>
-            {(loading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
+            {/* {(loading) && <div className='absolute top-0 left-0 w-full h-full flex flex-row justify-center items-center'>
                 <Loader2 className="mr-2 h-20 w-20 animate-spin" color='#7F56D9' />
-            </div>}
+            </div>} */}
         </>
     )
 

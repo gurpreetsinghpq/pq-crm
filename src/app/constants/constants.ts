@@ -2376,6 +2376,7 @@ const TIME_OPTIONS: IValueLabel[] = [
 const ENTITY_TYPE: IValueLabel[] = [
     { value: "lead", label: "Leads" },
     { value: "prospect", label: "Prospects" },
+    // { value: "deal", label: "Deals" },
     { value: "client", label: "Accounts" }
 ]
 

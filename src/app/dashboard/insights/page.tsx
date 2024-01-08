@@ -1124,7 +1124,7 @@ function page() {
                                             </>
                                         }) : <>
                                             <div className='col-span-4 text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                No records within the provided filter criteria.
+                                                No records found for selected filter
                                             </div>
                                         </>
                                     }
@@ -1302,7 +1302,7 @@ function page() {
                                             </>
                                         }) : <>
                                             <div className='col-span-4 text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
-                                                No records within the provided filter criteria.
+                                                No records found for selected filter
                                             </div>
                                         </>
                                     }
