@@ -1000,7 +1000,7 @@ function page() {
                                 </div>
                             </div>
                             <div className='flex flex-col rounded-[16px] overflow-hidden'>
-                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
+                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 px-[24px] py-[18px] '>
                                     <div className='text-white-900 font-semibold text-[17px]'>Performance Benchmarking</div>
                                 </div>
                                 <div>
@@ -1067,7 +1067,7 @@ function page() {
 
                             </div>
                             {form.getValues("user") === "-1" && <div className='flex flex-col rounded-[16px] overflow-hidden'>
-                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
+                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 px-[24px] py-[18px]'>
                                     <div className='text-white-900 font-semibold text-[17px]'>Leader Board</div>
                                 </div>
                                 {/* <div className='flex flex-row bottom rounded-bl-[16px] rounded-br-[16px] border-[1px] border-gray-200'>
@@ -1199,7 +1199,7 @@ function page() {
                                 </div>
                             </div>
                             <div className='flex flex-col rounded-[16px] overflow-hidden'>
-                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
+                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 px-[24px] py-[18px]'>
                                     <div className='text-white-900 font-semibold text-[17px]'>Performance Benchmarking</div>
                                 </div>
                                 <div>
@@ -1267,7 +1267,7 @@ function page() {
 
                             </div>
                             {form.getValues("user") === "-1" && <div className='flex flex-col rounded-[16px] overflow-hidden'>
-                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 p-[24px] pb-[8px]'>
+                                <div className='flex flex-col gap-[5px] top  bg-gradient-to-r from-purple-700 to-purple-600 px-[24px] py-[18px]'>
                                     <div className='text-white-900 font-semibold text-[17px]'>Leader Board</div>
                                 </div>
                                 <div className='grid grid-cols-4 bottom rounded-bl-[16px] rounded-br-[16px] border-[1px] border-gray-200'>
