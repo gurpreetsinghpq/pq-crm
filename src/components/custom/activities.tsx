@@ -589,7 +589,7 @@ const Activities = ({ form }: {
                                                         <Image width={20} height={20} alt="Refresh" src={"/images/chevron-down.svg"} />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent className="w-[160px]">
+                                                <DropdownMenuContent className="w-[180px]">
                                                     {
                                                         ALL_MODE.map((status) => {
                                                             return <DropdownMenuCheckboxItem

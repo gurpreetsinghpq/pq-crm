@@ -214,16 +214,32 @@ export const DateRangePicker: FC<DateRangePickerProps> & {
                     to.setHours(23, 59, 59, 999)
                     break
                 case 'thisWeek':
-                    from.setDate(first)
-                    from.setHours(0, 0, 0, 0)
-                    to.setHours(23, 59, 59, 999)
-                    break
+                    const currentDay = from.getDay();
+                    const daysUntilMonday = currentDay === 0 ? 6 : currentDay - 1; // Calculate the days until Monday
+                    const startOfWeek = new Date(from);
+                    startOfWeek.setDate(from.getDate() - daysUntilMonday);
+
+                    from.setTime(startOfWeek.getTime());
+                    from.setHours(0, 0, 0, 0);
+
+                    const daysUntilSunday = 7 - currentDay; // Calculate the remaining days until Sunday
+                    to.setDate(startOfWeek.getDate() + daysUntilSunday); // Adjust to Sunday
+                    to.setHours(23, 59, 59, 999);
+                    break;
+
                 case 'lastWeek':
-                    from.setDate(from.getDate() - 7 - from.getDay())
-                    to.setDate(to.getDate() - to.getDay() - 1)
-                    from.setHours(0, 0, 0, 0)
-                    to.setHours(23, 59, 59, 999)
-                    break
+                    const lastWeekStart = new Date(from);
+                    lastWeekStart.setDate(from.getDate() - from.getDay() - 6); // Adjust to Monday of last week
+
+                    from.setTime(lastWeekStart.getTime());
+                    from.setHours(0, 0, 0, 0);
+
+                    const lastWeekEnd = new Date(to);
+                    lastWeekEnd.setDate(to.getDate() - to.getDay()); // Adjust to Sunday of last week
+                    lastWeekEnd.setHours(23, 59, 59, 999);
+
+                    to.setTime(lastWeekEnd.getTime());
+                    break;
                 case 'thisMonth':
                     from.setDate(1)
                     from.setHours(0, 0, 0, 0)
@@ -662,10 +678,19 @@ export function getLast7Days(queryParamString: string | undefined = undefined) {
 export function getThisWeek() {
     const from = new Date()
     const to = new Date()
-    const first = from.getDate() - from.getDay()
-    from.setDate(first)
-    from.setHours(0, 0, 0, 0)
-    to.setHours(23, 59, 59, 999)
+
+    const currentDay = from.getDay();
+    const startOfWeek = new Date(from);
+    const diff = currentDay - 1; // Calculate the difference to adjust the start day to Monday
+    startOfWeek.setDate(from.getDate() - diff);
+
+    from.setTime(startOfWeek.getTime());
+    from.setHours(0, 0, 0, 0);
+
+    const daysUntilSunday = 6 - currentDay; // Calculate the remaining days until Sunday
+    to.setDate(startOfWeek.getDate() + daysUntilSunday);
+    to.setHours(23, 59, 59, 999);
+
     return { from, to }
 }
 export function getDateDetails(date: string) {
@@ -701,21 +726,31 @@ export function getDateDetails(date: string) {
             break
         case 'thisWeek':
             const currentDay = from.getDay();
+            const daysUntilMonday = currentDay === 0 ? 6 : currentDay - 1; // Calculate the days until Monday
             const startOfWeek = new Date(from);
-            startOfWeek.setDate(from.getDate() - currentDay + (currentDay === 0 ? -6 : 1)); // If it's Sunday, subtract 6 days, otherwise, subtract the current day number
+            startOfWeek.setDate(from.getDate() - daysUntilMonday);
 
             from.setTime(startOfWeek.getTime());
             from.setHours(0, 0, 0, 0);
 
-            to.setDate(startOfWeek.getDate() + 6);
+            const daysUntilSunday = 7 - currentDay; // Calculate the remaining days until Sunday
+            to.setDate(startOfWeek.getDate() + daysUntilSunday); // Adjust to Sunday
             to.setHours(23, 59, 59, 999);
             break;
+
         case 'lastWeek':
-            from.setDate(from.getDate() - 7 - from.getDay())
-            to.setDate(to.getDate() - to.getDay() - 1)
-            from.setHours(0, 0, 0, 0)
-            to.setHours(23, 59, 59, 999)
-            break
+            const lastWeekStart = new Date(from);
+            lastWeekStart.setDate(from.getDate() - from.getDay() - 6); // Adjust to Monday of last week
+
+            from.setTime(lastWeekStart.getTime());
+            from.setHours(0, 0, 0, 0);
+
+            const lastWeekEnd = new Date(to);
+            lastWeekEnd.setDate(to.getDate() - to.getDay()); // Adjust to Sunday of last week
+            lastWeekEnd.setHours(23, 59, 59, 999);
+
+            to.setTime(lastWeekEnd.getTime());
+            break;
         case 'thisMonth':
             from.setDate(1);
             from.setHours(0, 0, 0, 0);

@@ -450,6 +450,7 @@ function page() {
             const dataResp = await fetch(`${baseUrl}/v1/api/insight/lead/insight_lead/?date_filter=${dateRange}${userQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: InsightLeads = structuredClone(result.data)
+            data.lb = data.lb.sort((a, b) => Number(b.rate) - Number(a.rate)).slice(0, 10)
             setInsightLeads(data)
             setLeadLoading(false)
             const pieChartData: PieChartCustom[] = createPieChartData(data.status)
@@ -504,6 +505,7 @@ function page() {
             const dataResp = await fetch(`${baseUrl}/v1/api/insight/prospect/insight_prospect/?date_filter=${dateRange}${userQueryParam}`, { method: "GET", headers: { "Authorization": `Token ${token_superuser}`, "Accept": "application/json", "Content-Type": "application/json" } })
             const result = await dataResp.json()
             let data: InsightProspects = structuredClone(result.data)
+            data.lb = data.lb.sort((a, b) => Number(b.rate) - Number(a.rate)).slice(0, 10)
             setInsightProspects(data)
             setProspectLoading(false)
             const pieChartData: PieChartCustom[] = createPieChartData(data.status)
@@ -1010,7 +1012,7 @@ function page() {
                                             pbLead.map((table) => {
                                                 const tableHeading = table.user_name
                                                 return <>
-                                                    <div className='flex-1 text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                                    <div className='flex-1 text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[8px]'>
                                                         {tableHeading.value}
                                                     </div>
                                                 </>
@@ -1025,7 +1027,7 @@ function page() {
                                             {pbLead[0] && Object.keys(pbLead[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbLead[0][heading]
                                                 return <>
-                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                         {data.keyName}
                                                     </div>
                                                 </>
@@ -1038,7 +1040,7 @@ function page() {
                                                 const data = pbLead[0][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Lead` : ""
                                                 return <>
-                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1052,7 +1054,7 @@ function page() {
                                                 const data = pbLead[1][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Lead` : ""
                                                 return <>
-                                                    <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1104,23 +1106,27 @@ function page() {
                                         Prospect Conversion Rate
                                     </div>
                                     {
-                                        insightLeads?.lb && insightLeads.lb.map((data) => {
+                                        insightLeads?.lb && insightLeads.lb.length > 0 ? insightLeads.lb.map((data) => {
                                             console.log("data lb lead", data)
                                             return <>
-                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.name}
                                                 </div>
-                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.created}
                                                 </div>
-                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.owned}
                                                 </div>
-                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.rate}%
                                                 </div>
                                             </>
-                                        })
+                                        }) : <>
+                                            <div className='col-span-4 text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                No records within the provided filter criteria.
+                                            </div>
+                                        </>
                                     }
                                 </div>
 
@@ -1205,7 +1211,7 @@ function page() {
                                             pbProspect.map((table) => {
                                                 const tableHeading = table.user_name
                                                 return <>
-                                                    <div className='flex-1 text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[12px]'>
+                                                    <div className='flex-1 text-center bg-gray-50 text-gray-600 text-xs font-medium px-[24px] py-[8px]'>
                                                         {tableHeading.value}
                                                     </div>
                                                 </>
@@ -1220,7 +1226,7 @@ function page() {
                                             {pbProspect[0] && Object.keys(pbProspect[0]).filter((heading) => heading !== "user_name").map((heading => {
                                                 const data = pbProspect[0][heading]
                                                 return <>
-                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                         {data.keyName}
 
                                                     </div>
@@ -1234,7 +1240,7 @@ function page() {
                                                 const data = pbProspect[0][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Prospect` : ""
                                                 return <>
-                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1248,7 +1254,7 @@ function page() {
                                                 const data = pbProspect[1][heading]
                                                 const customMessage = (heading === "act" || heading === "avt") ? `Days/Prospect` : ""
                                                 return <>
-                                                    <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                    <div className=' border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                         {data.value}
                                                         {customMessage && <span className='text-gray-500 text-xs font-normal'>{customMessage}</span>}
                                                     </div>
@@ -1278,23 +1284,27 @@ function page() {
                                         Deal Conversion Rate
                                     </div>
                                     {
-                                        insightProspects?.lb && insightProspects.lb.map((data) => {
+                                        insightProspects?.lb && insightProspects.lb.length > 0 ? insightProspects.lb.map((data) => {
                                             console.log("data lb lead", data)
                                             return <>
-                                                <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.name}
                                                 </div>
-                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.created}
                                                 </div>
-                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.owned}
                                                 </div>
-                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                <div className='text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[8px]'>
                                                     {data.rate}%
                                                 </div>
                                             </>
-                                        })
+                                        }) : <>
+                                            <div className='col-span-4 text-center border-b-[1px] border-gray-200 text-black-900 text-md font-medium px-[24px] py-[12px]'>
+                                                No records within the provided filter criteria.
+                                            </div>
+                                        </>
                                     }
                                 </div>
 
